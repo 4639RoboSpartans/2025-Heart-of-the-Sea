@@ -9,11 +9,23 @@ public class ScoringPIDs {
     public static TunableNumber elevatorVelocity = new TunableNumber("Elevator Velocity");
     public static TunableNumber elevatorAcceleration = new TunableNumber("Elevator Acceleration");
 
+    public static TunableNumber wristKp = new TunableNumber("Wrist kP");
+    public static TunableNumber wristKi = new TunableNumber("Wrist kI");
+    public static TunableNumber wristKd = new TunableNumber("Wrist kD");
+    public static TunableNumber wristVelocity = new TunableNumber("Wrist Velocity");
+    public static TunableNumber wristAcceleration = new TunableNumber("Wrist Acceleration");
+
     static {
-        elevatorKp.setDefault(10);
+        elevatorKp.setDefault(1.0);
         elevatorKi.setDefault(0.0);
         elevatorKd.setDefault(0.0);
         elevatorVelocity.setDefault(30);
         elevatorAcceleration.setDefault(20);
+
+        wristKp.setDefault(1.0);
+        wristKi.setDefault(0.0);
+        wristKd.setDefault(0.0);
+        wristVelocity.setDefault(30);
+        wristAcceleration.setDefault(20);
     }
 }

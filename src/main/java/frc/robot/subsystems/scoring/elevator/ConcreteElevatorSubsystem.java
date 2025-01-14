@@ -7,10 +7,12 @@ import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.lib.Helpers;
+import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
 import frc.robot.subsystems.scoring.constants.ScoringPIDs;
 
@@ -18,7 +20,6 @@ import static edu.wpi.first.units.Units.*;
 
 public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
     private final TalonFX leftElevator, rightElevator;
-    private final TalonFX simMotor;
     private final MotionMagicVoltage controlRequest;
 
     private final SysIdRoutine elevatorRoutine;
@@ -28,7 +29,6 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
         rightElevator = new TalonFX(ScoringConstants.IDs.ElevatorRightID);
         leftElevator.setNeutralMode(NeutralModeValue.Brake);
         rightElevator.setNeutralMode(NeutralModeValue.Brake);
-        simMotor = new TalonFX(100);
         var leftConfigurator = leftElevator.getConfigurator();
         TalonFXConfiguration leftConfiguration = new TalonFXConfiguration()
                 .withMotionMagic(
@@ -42,8 +42,7 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
                                 .withKD(ScoringPIDs.elevatorKd.get())
                 );
         leftConfigurator.apply(leftConfiguration);
-        simMotor.getConfigurator().apply(leftConfiguration);
-        rightElevator.setControl(new Follower(ArmConstants.IDs.LEFT_ELEVATOR_ID, true));
+        rightElevator.setControl(new Follower(ScoringConstants.IDs.ElevatorLeftID, true));
         controlRequest = new MotionMagicVoltage(leftElevator.getPosition().getValueAsDouble());
 
         elevatorRoutine = new SysIdRoutine(
@@ -61,19 +60,18 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
         );
     }
 
-    public void setElevator(ArmSuperstructureState state, GamePiece gamePiece) {
-        controlRequest.Position = getElevatorPosition(state, gamePiece);
+    public void setElevator(ScoringSuperstructureState state) {
+        controlRequest.Position = state.getElevatorAbsolutePosition();
     }
 
     public void runElevator() {
 // //        only uncomment this when the upper and lower positions are initialized
-        leftElevator.setControl(controlRequest);
-        simMotor.setControl(controlRequest);
+//        leftElevator.setControl(controlRequest);
         SmartDashboard.putNumber("output", leftElevator.getMotorVoltage().getValueAsDouble());
     }
 
     protected boolean atState() {
-        return Helpers.withinTolerance(
+        return MathUtil.isNear(
                 controlRequest.Position,
                 leftElevator.getPosition().getValueAsDouble(),
                 ScoringConstants.ElevatorConstants.ELEVATOR_TOLERANCE
