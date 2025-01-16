@@ -59,6 +59,7 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
 
     private final SwerveRequest.ApplyFieldSpeeds fieldSpeedsRequest = new SwerveRequest.ApplyFieldSpeeds();
     private final SwerveRequest.ApplyRobotSpeeds robotSpeedsRequest = new SwerveRequest.ApplyRobotSpeeds();
+    private final SwerveRequest.FieldCentricFacingAngle fieldCentricFacingAngleRequest = new SwerveRequest.FieldCentricFacingAngle();
     private final PIDController pathXController = new PIDController(10, 0, 0);
     private final PIDController pathYController = new PIDController(10, 0, 0);
     private final PIDController pathThetaController = new PIDController(7, 0, 0);
@@ -120,7 +121,7 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
             )
     );
 
-    private final SysIdRoutine sysIdRoutineToApply = sysIdRoutineTranslation;
+    private final SysIdRoutine sysIdRoutineToApply = sysIdRoutineRotation;
 
     private final AutoFactory autoFactory;
     private final AutoRoutines autoRoutines;
@@ -150,6 +151,11 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
         autoFactory = createAutoFactory();
         autoRoutines = new AutoRoutines(autoFactory);
         configureAutoBuilder();
+        fieldCentricFacingAngleRequest.HeadingController.setPID(
+            28.48,
+            0,
+            1.1466
+        );
     }
 
     /**
