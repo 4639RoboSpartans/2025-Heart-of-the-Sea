@@ -1,6 +1,5 @@
 package frc.robot.subsystems.coralIntake;
 
-import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -9,11 +8,8 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.constants.Constants;
 import frc.robot.subsystems.coralIntake.constants.CoralIntakeConstants;
 import frc.robot.subsystems.coralIntake.constants.CoralIntakePIDs;
 
@@ -54,14 +50,15 @@ public class ConcreteCoralIntakeSubsystem extends CoralIntakeSubsystem implement
                 CoralIntakeConstants.IDs.intakeID,
                 SparkLowLevel.MotorType.kBrushless
         );
-        pivotControlRequest = new MotionMagicVoltage(intakeState.getAbsolutePosition());
+        pivotControlRequest = new MotionMagicVoltage(intakeState.getPivotAbsolutePosition());
     }
 
     protected void setIntakeState(CoralIntakeState intakeState) {
         this.intakeState = intakeState;
         intakeMotor.set(intakeState.intakeSpeed);
-        pivotControlRequest.Position = intakeState.getAbsolutePosition();
-        intakePivot.setControl(pivotControlRequest);
+        pivotControlRequest.Position = intakeState.getPivotAbsolutePosition();
+//        uncomment when down and up positions are set
+//        intakePivot.setControl(pivotControlRequest);
     }
 
     public Trigger atRequestedState() {

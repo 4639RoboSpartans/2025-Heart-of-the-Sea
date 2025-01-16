@@ -15,7 +15,7 @@ public enum CoralIntakeState {
         this.intakeSpeed = intakeSpeed;
     }
 
-    public double getAbsolutePosition() {
+    public double getPivotAbsolutePosition() {
         return PivotConstants.downPosition + positionPercentage * PivotConstants.positionDiff;
     }
 }
