@@ -60,12 +60,12 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
         );
     }
 
-    public void setElevator(ScoringSuperstructureState state) {
+    public void setElevatorState(ScoringSuperstructureState state) {
         controlRequest.Position = state.getElevatorAbsolutePosition();
     }
 
     public void runElevator() {
-// //        only uncomment this when the upper and lower positions are initialized
+//        uncomment when down and up positions are set
 //        leftElevator.setControl(controlRequest);
         SmartDashboard.putNumber("output", leftElevator.getMotorVoltage().getValueAsDouble());
     }

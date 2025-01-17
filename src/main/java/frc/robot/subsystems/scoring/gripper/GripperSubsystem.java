@@ -31,8 +31,4 @@ public abstract class GripperSubsystem extends SubsystemBase {
     }
 
     public abstract double getTargetPosition();
-
-    public abstract Command quasistatic(SysIdRoutine.Direction direction);
-
-    public abstract Command dynamic(SysIdRoutine.Direction direction);
 }
