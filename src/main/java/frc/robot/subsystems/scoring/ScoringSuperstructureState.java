@@ -59,6 +59,27 @@ public enum ScoringSuperstructureState {
             L4,
             -0.1,
             0
+    ),
+    L2_ALGAE(
+            0.65,
+            0.75,
+            -0.5,
+            false,
+            true
+    ),
+    L3_ALGAE(
+            0.8,
+            0.75,
+            -0.5,
+            false,
+            true
+    ),
+    BARGE_SCORING(
+            1,
+            0.5,
+            1,
+            false,
+            false
     );
 
     private final double elevatorPosition;
@@ -104,7 +125,7 @@ public enum ScoringSuperstructureState {
 
     public ScoringSuperstructureState getStateAfter() {
         return switch (this) {
-            case HP_LOADING, L1 -> IDLE;
+            case HP_LOADING, L1, DUNK_L2, DUNK_L3, DUNK_L4, L2_ALGAE, L3_ALGAE, BARGE_SCORING -> IDLE;
             case L2 -> DUNK_L2;
             case L3 -> DUNK_L3;
             case L4 -> DUNK_L4;
