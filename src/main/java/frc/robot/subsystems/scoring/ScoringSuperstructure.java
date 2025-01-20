@@ -3,7 +3,7 @@ package frc.robot.subsystems.scoring;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.scoring.elevator.ElevatorSubsystem;
-import frc.robot.subsystems.scoring.gripper.GripperSubsystem;
+import frc.robot.subsystems.scoring.gripper.HopperSubsystem;
 
 import java.util.Objects;
 
@@ -14,43 +14,36 @@ public class ScoringSuperstructure extends SubsystemBase {
         return instance = Objects.requireNonNullElseGet(instance,
                 () -> new ScoringSuperstructure(
                         ElevatorSubsystem.getInstance(),
-                        GripperSubsystem.getInstance()
+                        HopperSubsystem.getInstance()
                 )
         );
     }
 
     private final ElevatorSubsystem elevator;
-    private final GripperSubsystem gripper;
+    private final HopperSubsystem hopper;
 
     private ScoringSuperstructureState state = ScoringSuperstructureState.IDLE;
 
-    public ScoringSuperstructure(ElevatorSubsystem elevator, GripperSubsystem gripper) {
+    public ScoringSuperstructure(ElevatorSubsystem elevator, HopperSubsystem hopper) {
         this.elevator = elevator;
-        this.gripper = gripper;
+        this.hopper = hopper;
     }
 
     public void setState(ScoringSuperstructureState state) {
         this.state = state;
         elevator.setElevatorState(state);
-        gripper.setGripperState(state);
+        hopper.setHopper(state);
     }
 
     public Trigger atStateTrigger() {
         return elevator.atRequestedStateTrigger()
-                .and(gripper.atRequestedStateTrigger());
+                .and(hopper.atRequestedStateTrigger());
     }
 
     @Override
     public void periodic() {
-        if (state.isStateFinished()){
-            switch (state){
-                case L1, L2, L3, L4:
-                    setState(ScoringSuperstructureState.HP_LOADING);
-                    break;
-                case HANDOFF:
-                    setState(ScoringSuperstructureState.IDLE);
-                    break;
-            }
+        if (hopper.isStateFinished() && elevator.isStateFinished()){
+            setState(state.getStateAfter());
         }
     }
 }

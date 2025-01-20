@@ -30,6 +30,8 @@ public abstract class ElevatorSubsystem extends SubsystemBase {
 
     public abstract double getTargetPosition();
 
+    public abstract boolean isStateFinished();
+
     public abstract Command quasistatic(SysIdRoutine.Direction direction);
 
     public abstract Command dynamic(SysIdRoutine.Direction direction);

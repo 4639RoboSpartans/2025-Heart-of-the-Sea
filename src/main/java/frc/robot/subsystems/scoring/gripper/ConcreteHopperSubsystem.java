@@ -16,7 +16,7 @@ import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
 import frc.robot.subsystems.scoring.constants.ScoringPIDs;
 
-public class ConcreteGripperSubsystem extends GripperSubsystem {
+public class ConcreteHopperSubsystem extends HopperSubsystem {
     private final SparkFlex intakeMotor, wristMotor;
     private final DutyCycleEncoder wristEncoder;
 
@@ -27,7 +27,9 @@ public class ConcreteGripperSubsystem extends GripperSubsystem {
     private ScoringSuperstructureState scoringState = ScoringSuperstructureState.IDLE;
     private final Trigger hasCoral;
 
-    public ConcreteGripperSubsystem() {
+    private boolean isStateFinished = false;
+
+    public ConcreteHopperSubsystem() {
         intakeMotor = new SparkFlex(
                 ScoringConstants.IDs.IntakeMotorID,
                 SparkLowLevel.MotorType.kBrushless
@@ -91,8 +93,9 @@ public class ConcreteGripperSubsystem extends GripperSubsystem {
     }
 
     @Override
-    public void setGripperState(ScoringSuperstructureState state) {
+    public void setHopper(ScoringSuperstructureState state) {
         this.scoringState = state;
+        isStateFinished = false;
         intakeMotor.set(state.intakeSpeed);
         wristPID.setGoal(state.getWristAbsolutePosition());
     }
@@ -100,29 +103,32 @@ public class ConcreteGripperSubsystem extends GripperSubsystem {
     @Override
     public void periodic() {
         updateConstants();
-        runGripper();
+        runHopper();
     }
 
     @Override
-    public void runGripper() {
+    public void runHopper() {
         double wristPIDOutput = wristPID.calculate(
                 wristEncoder.get(),
                 wristPID.getGoal().position
         );
 //        uncomment when down and up positions are set
 //        wristMotor.set(wristPIDOutput);
-        LaserCan.Measurement measurement = laserCAN.getMeasurement();
-        if (measurement != null && measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
-            if (scoringState.intakeUntilSeen) {
-                if (hasCoral.getAsBoolean()) {
-                    intakeMotor.set(0);
-                    scoringState.setStateFinished(true);
-                }
-            }
-            if (scoringState.outtakeUntilSeen) {
-                if (hasCoral.getAsBoolean()) {
-                    intakeMotor.set(0);
-                    scoringState.setStateFinished(true);
+        if (atState()) {
+            LaserCan.Measurement measurement = laserCAN.getMeasurement();
+            if (measurement != null && measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
+                if (scoringState.intakeUntilSeen) {
+                    if (hasCoral.getAsBoolean()) {
+                        intakeMotor.set(0);
+                        isStateFinished = true;
+                    }
+                } else if (scoringState.outtakeUntilSeen) {
+                    if (hasCoral.getAsBoolean()) {
+                        intakeMotor.set(0);
+                        isStateFinished = true;
+                    }
+                } else {
+                    isStateFinished = true;
                 }
             }
         }
@@ -169,5 +175,9 @@ public class ConcreteGripperSubsystem extends GripperSubsystem {
             }
         }
         return false;
+    }
+
+    public boolean isStateFinished() {
+        return isStateFinished;
     }
 }

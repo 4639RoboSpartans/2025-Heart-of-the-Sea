@@ -24,6 +24,8 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
 
     private final SysIdRoutine elevatorRoutine;
 
+    private boolean isStateFinished = false;
+
     public ConcreteElevatorSubsystem() {
         leftElevator = new TalonFX(ScoringConstants.IDs.ElevatorLeftID);
         rightElevator = new TalonFX(ScoringConstants.IDs.ElevatorRightID);
@@ -61,6 +63,7 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
     }
 
     public void setElevatorState(ScoringSuperstructureState state) {
+        isStateFinished = false;
         controlRequest.Position = state.getElevatorAbsolutePosition();
     }
 
@@ -78,6 +81,10 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
         );
     }
 
+    public boolean isStateFinished() {
+        return isStateFinished;
+    }
+
     public double getCurrentPosition() {
         return leftElevator.getPosition().getValueAsDouble();
     }
@@ -90,6 +97,9 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
     @Override
     public void periodic() {
         runElevator();
+        if (atState()) {
+            isStateFinished = true;
+        }
         SmartDashboard.putBoolean("At State", atState());
     }
 

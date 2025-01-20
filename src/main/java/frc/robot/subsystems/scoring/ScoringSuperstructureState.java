@@ -10,13 +10,6 @@ public enum ScoringSuperstructureState {
             true,
             false
     ),
-    HANDOFF(
-            0,
-            0.5,
-            0.5,
-            true,
-            false
-    ),
     L1(
             0.5,
             0.5,
@@ -51,6 +44,21 @@ public enum ScoringSuperstructureState {
             0,
             false,
             true
+    ),
+    DUNK_L2(
+            L2,
+            -0.05,
+            0
+    ),
+    DUNK_L3(
+            L3,
+            -0.05,
+            0
+    ),
+    DUNK_L4(
+            L4,
+            -0.1,
+            0
     );
 
     private final double elevatorPosition;
@@ -58,7 +66,6 @@ public enum ScoringSuperstructureState {
     public final double intakeSpeed;
     public final boolean intakeUntilSeen;
     public final boolean outtakeUntilSeen;
-    public boolean stateFinished;
 
     ScoringSuperstructureState(
             double elevatorPosition,
@@ -71,7 +78,18 @@ public enum ScoringSuperstructureState {
         this.intakeSpeed = intakeSpeed;
         this.intakeUntilSeen = intakeUntilSeen;
         this.outtakeUntilSeen = outtakeUntilSeen;
-        stateFinished = false;
+    }
+
+    ScoringSuperstructureState(
+            ScoringSuperstructureState prevState,
+            double elevatorPositionDelta,
+            double wristPositionDelta
+    ) {
+        elevatorPosition = prevState.elevatorPosition + elevatorPositionDelta;
+        wristPosition = prevState.wristPosition + wristPositionDelta;
+        intakeSpeed = prevState.intakeSpeed;
+        intakeUntilSeen = prevState.intakeUntilSeen;
+        outtakeUntilSeen = prevState.outtakeUntilSeen;
     }
 
     public double getElevatorAbsolutePosition() {
@@ -84,11 +102,13 @@ public enum ScoringSuperstructureState {
                 + ScoringConstants.WristConstants.POSITION_DIFF * wristPosition;
     }
 
-    public void setStateFinished(boolean stateFinished) {
-        this.stateFinished = stateFinished;
-    }
-
-    public boolean isStateFinished() {
-        return stateFinished;
+    public ScoringSuperstructureState getStateAfter() {
+        return switch (this) {
+            case HP_LOADING, L1 -> IDLE;
+            case L2 -> DUNK_L2;
+            case L3 -> DUNK_L3;
+            case L4 -> DUNK_L4;
+            default -> this;
+        };
     }
 }
