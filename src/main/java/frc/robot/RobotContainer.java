@@ -5,9 +5,16 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+
+import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.lib.oi.OI;
+import frc.robot.constants.Controls;
 import frc.robot.subsystems.climber.ClimberSubsystem;
 import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
 
@@ -15,20 +22,34 @@ import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
 public class RobotContainer {
     private final OI oi = OI.getInstance();
     private final CommandSwerveDrivetrain swerve = CommandSwerveDrivetrain.getInstance();
+    private final SendableChooser<Command> autoChooser;
 
     public RobotContainer() {
         configureBindings();
+        autoChooser = AutoBuilder.buildAutoChooser();
+        SmartDashboard.putData(autoChooser);
     }
 
     private void configureBindings() {
-        swerve.setDefaultCommand(
-                swerve.applyRequest(
-                        swerve::fieldCentricRequestSupplier
-                )
+        /*OI.getInstance().driverController().A_BUTTON.whileTrue(
+            swerve.sysIdQuasistatic(Direction.kForward)
+        );
+        OI.getInstance().driverController().B_BUTTON.whileTrue(
+            swerve.sysIdQuasistatic(Direction.kReverse)
+        );
+        OI.getInstance().driverController().X_BUTTON.whileTrue(
+            swerve.sysIdDynamic(Direction.kForward)
+        );
+        OI.getInstance().driverController().Y_BUTTON.whileTrue(
+            swerve.sysIdDynamic(Direction.kReverse)
+        );*/
+        swerve.setDefaultCommand(swerve.applyRequest(swerve::fieldCentricRequestSupplier));
+        Controls.Driver.rotationResetTrigger.onTrue(
+            swerve.resetPigeonCommand()
         );
     }
 
     public Command getAutonomousCommand() {
-        return Commands.print("No autonomous command configured");
+        return autoChooser.getSelected();
     }
 }

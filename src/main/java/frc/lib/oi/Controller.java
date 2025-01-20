@@ -99,7 +99,7 @@ public class Controller {
      * Gets the right joystick's x axis, a number from -1 (left) to 1 (right)
      */
     public double rightStickX() {
-        return applyDeadzone(controller.getRightX());
+        return applyDeadzone(-controller.getRightX());
     }
 
     /**

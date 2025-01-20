@@ -22,24 +22,31 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Notifier;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.lib.network.LimelightHelpers;
 import frc.robot.commands.AutoRoutines;
 import frc.robot.constants.Controls;
+import frc.robot.constants.IDs;
 import frc.robot.subsystems.drive.constants.DriveConstants;
 import frc.robot.subsystems.drive.constants.TunerConstants;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.Supplier;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 
@@ -59,6 +66,7 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
 
     private final SwerveRequest.ApplyFieldSpeeds fieldSpeedsRequest = new SwerveRequest.ApplyFieldSpeeds();
     private final SwerveRequest.ApplyRobotSpeeds robotSpeedsRequest = new SwerveRequest.ApplyRobotSpeeds();
+    private final SwerveRequest.FieldCentricFacingAngle fieldCentricFacingAngleRequest = new SwerveRequest.FieldCentricFacingAngle();
     private final PIDController pathXController = new PIDController(10, 0, 0);
     private final PIDController pathYController = new PIDController(10, 0, 0);
     private final PIDController pathThetaController = new PIDController(7, 0, 0);
@@ -120,7 +128,7 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
             )
     );
 
-    private final SysIdRoutine sysIdRoutineToApply = sysIdRoutineTranslation;
+    private final SysIdRoutine sysIdRoutineToApply = sysIdRoutineRotation;
 
     private final AutoFactory autoFactory;
     private final AutoRoutines autoRoutines;
@@ -150,6 +158,11 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
         autoFactory = createAutoFactory();
         autoRoutines = new AutoRoutines(autoFactory);
         configureAutoBuilder();
+        fieldCentricFacingAngleRequest.HeadingController.setPID(
+            28.48,
+            0,
+            1.1466
+        );
     }
 
     /**
@@ -243,8 +256,13 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
 
     public SwerveRequest fieldCentricRequestSupplier() {
         double forwards = Controls.Driver.SwerveForwardAxis.getAsDouble() * DriveConstants.CURRENT_MAX_ROBOT_MPS;
-        double strafe = Controls.Driver.SwerveStrafeAxis.getAsDouble() * DriveConstants.CURRENT_MAX_ROBOT_MPS;
+        double strafe = -Controls.Driver.SwerveStrafeAxis.getAsDouble() * DriveConstants.CURRENT_MAX_ROBOT_MPS;
         double rotation = Controls.Driver.SwerveRotationAxis.getAsDouble() * DriveConstants.CURRENT_MAX_ROBOT_MPS;
+        if (Controls.Driver.precisionTrigger.getAsBoolean()) {
+            forwards /= 4;
+            strafe /= 4;
+            rotation /= 4;
+        }
         return fieldSpeedsRequest.withDesaturateWheelSpeeds(true)
                 .withSpeeds(
                         new ChassisSpeeds(
@@ -329,6 +347,15 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
         }
         field.setRobotPose(getState().Pose);
         SmartDashboard.putData("Field2D", field);
+
+        if (RobotBase.isReal()) Arrays.stream(IDs.Limelights.values())
+                .forEach(
+                        limelight -> addVisionMeasurement(
+                                DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red
+                                        ? LimelightHelpers.getBotPose2d_wpiRed(limelight.getName())
+                                        : LimelightHelpers.getBotPose2d_wpiBlue(limelight.getName())
+                                , Utils.getCurrentTimeSeconds())
+                );
     }
 
     private void startSimThread() {
@@ -367,7 +394,7 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
                     ),
                     config,
                     // Assume the path needs to be flipped for Red vs Blue, this is normally the case
-                    () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
+                    () -> false,
                     this // Subsystem for requirements
             );
             PathPlannerLogging.setLogActivePathCallback((poses) -> {
@@ -402,5 +429,18 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
 
     public AutoRoutines getAutoRoutines() {
         return autoRoutines;
+    }
+
+    public Command resetPigeonCommand() {
+        return Commands.runOnce(
+            () -> {
+                getPigeon2().setYaw(
+                    Angle.ofBaseUnits(
+                        0, 
+                        Degrees
+                    )
+                );
+            }
+        );
     }
 }

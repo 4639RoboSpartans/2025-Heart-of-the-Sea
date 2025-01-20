@@ -7,7 +7,7 @@ import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.PackagePrivate;
-import frc.robot.commands.IDs;
+import frc.robot.constants.IDs;
 
 import java.util.function.DoubleSupplier;
 
