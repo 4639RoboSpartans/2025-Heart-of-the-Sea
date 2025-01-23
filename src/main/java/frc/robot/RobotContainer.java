@@ -17,8 +17,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.lib.oi.OI;
 import frc.robot.constants.Controls;
-import frc.robot.subsystems.algaeIntake.AlgaeIntakeSubsystem;
-import frc.robot.subsystems.algaeIntake.ConcreteAlgaeIntakeSubsystem;
 import frc.robot.subsystems.climber.ClimberSubsystem;
 import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
 
@@ -51,7 +49,7 @@ public class RobotContainer {
         Controls.Driver.rotationResetTrigger.onTrue(
             swerve.resetPigeonCommand()
         );
-        OI.getInstance().driverController().B_BUTTON.whileTrue(
+        /*OI.getInstance().driverController().B_BUTTON.whileTrue(
             AlgaeIntakeSubsystem.getInstance().intake(() -> 0.7)
         );
         OI.getInstance().driverController().X_BUTTON.whileTrue(
@@ -63,7 +61,7 @@ public class RobotContainer {
         );
         OI.getInstance().driverController().A_BUTTON.whileTrue(
             AlgaeIntakeSubsystem.getInstance().pivot(() -> 1.0)
-        );
+        );*/
 
         /** Resets Pose to desired pose set by dashboard */
         OI.getInstance().driverController().RIGHT_STICK.whileTrue(
