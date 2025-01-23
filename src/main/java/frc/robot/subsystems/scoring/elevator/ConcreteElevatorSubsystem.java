@@ -11,7 +11,6 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.lib.Helpers;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
 import frc.robot.subsystems.scoring.constants.ScoringPIDs;
@@ -73,7 +72,7 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
         SmartDashboard.putNumber("output", leftElevator.getMotorVoltage().getValueAsDouble());
     }
 
-    protected boolean atState() {
+    protected boolean atPositionState() {
         return MathUtil.isNear(
                 controlRequest.Position,
                 leftElevator.getPosition().getValueAsDouble(),
@@ -97,10 +96,10 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
     @Override
     public void periodic() {
         runElevator();
-        if (atState()) {
+        if (atPositionState()) {
             isStateFinished = true;
         }
-        SmartDashboard.putBoolean("At State", atState());
+        SmartDashboard.putBoolean("At State", atPositionState());
     }
 
     public Command quasistatic(SysIdRoutine.Direction direction) {

@@ -3,7 +3,7 @@ package frc.robot.subsystems.scoring;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.scoring.elevator.ElevatorSubsystem;
-import frc.robot.subsystems.scoring.gripper.HopperSubsystem;
+import frc.robot.subsystems.scoring.hopper.HopperSubsystem;
 
 import java.util.Objects;
 
@@ -35,9 +35,14 @@ public class ScoringSuperstructure extends SubsystemBase {
         hopper.setHopper(state);
     }
 
-    public Trigger atStateTrigger() {
-        return elevator.atRequestedStateTrigger()
-                .and(hopper.atRequestedStateTrigger());
+    public Trigger atPositionStateTrigger() {
+        return elevator.atPositionStateTrigger()
+                .and(hopper.atPositionStateTrigger());
+    }
+
+    public Trigger stateFinishedTrigger() {
+        return elevator.stateFinishedTrigger()
+                .and(hopper.stateFinishedTrigger());
     }
 
     @Override

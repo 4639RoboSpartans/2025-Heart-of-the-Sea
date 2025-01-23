@@ -1,4 +1,4 @@
-package frc.robot.subsystems.scoring.gripper;
+package frc.robot.subsystems.scoring.hopper;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -18,15 +18,19 @@ public abstract class HopperSubsystem extends SubsystemBase {
 
     public abstract void runHopper();
 
-    protected abstract boolean atState();
+    protected abstract boolean atPositionState();
 
     public abstract double getCurrentPosition();
 
-    public Trigger atRequestedStateTrigger() {
-        return new Trigger(this::atState);
+    public Trigger atPositionStateTrigger() {
+        return new Trigger(this::atPositionState);
     }
 
     public abstract double getTargetPosition();
 
     public abstract boolean isStateFinished();
+
+    public Trigger stateFinishedTrigger() {
+        return new Trigger(this::isStateFinished);
+    }
 }

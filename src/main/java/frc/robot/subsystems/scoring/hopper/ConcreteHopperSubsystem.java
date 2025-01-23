@@ -1,4 +1,4 @@
-package frc.robot.subsystems.scoring.gripper;
+package frc.robot.subsystems.scoring.hopper;
 
 import au.grapplerobotics.ConfigurationFailedException;
 import au.grapplerobotics.LaserCan;
@@ -114,7 +114,7 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
         );
 //        uncomment when down and up positions are set
 //        wristMotor.set(wristPIDOutput);
-        if (atState()) {
+        if (atPositionState()) {
             LaserCan.Measurement measurement = laserCAN.getMeasurement();
             if (measurement != null && measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
                 if (scoringState.intakeUntilSeen) {
@@ -149,7 +149,7 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
     }
 
     @Override
-    protected boolean atState() {
+    protected boolean atPositionState() {
         return MathUtil.isNear(
                 getTargetPosition(),
                 getCurrentPosition(),
