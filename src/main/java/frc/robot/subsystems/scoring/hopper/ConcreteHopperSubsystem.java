@@ -24,7 +24,7 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
 
     private final ProfiledPIDController wristPID;
 
-    private ScoringSuperstructureState scoringState = ScoringSuperstructureState.IDLE;
+    private ScoringSuperstructureState state = ScoringSuperstructureState.IDLE;
     private final Trigger hasCoral;
 
     private boolean isStateFinished = false;
@@ -94,7 +94,7 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
 
     @Override
     public void setHopper(ScoringSuperstructureState state) {
-        this.scoringState = state;
+        this.state = state;
         isStateFinished = false;
         intakeMotor.set(state.intakeSpeed);
         wristPID.setGoal(state.getWristAbsolutePosition());
@@ -103,31 +103,35 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
     @Override
     public void periodic() {
         updateConstants();
-        runHopper();
+        runHopperPosition();
+        if (atPositionState()) {
+            runHopper();
+        }
     }
 
     @Override
-    public void runHopper() {
+    public void runHopperPosition() {
         double wristPIDOutput = wristPID.calculate(
                 wristEncoder.get(),
                 wristPID.getGoal().position
         );
 //        uncomment when down and up positions are set
 //        wristMotor.set(wristPIDOutput);
-        if (atPositionState()) {
-            LaserCan.Measurement measurement = laserCAN.getMeasurement();
-            if (measurement != null && measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
-                if (scoringState.intakeUntilSeen) {
-                    if (hasCoral.getAsBoolean()) {
-                        intakeMotor.set(0);
-                        isStateFinished = true;
-                    }
-                } else if (scoringState.outtakeUntilSeen) {
-                    if (hasCoral.getAsBoolean()) {
-                        intakeMotor.set(0);
-                        isStateFinished = true;
-                    }
-                } else {
+    }
+
+    @Override
+    public void runHopper() {
+        intakeMotor.set(state.intakeSpeed);
+        LaserCan.Measurement measurement = laserCAN.getMeasurement();
+        if (measurement != null && measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
+            if (state.intakeUntilSeen) {
+                if (hasCoral.getAsBoolean()) {
+                    intakeMotor.set(0);
+                    isStateFinished = true;
+                }
+            } else if (state.outtakeUntilSeen) {
+                if (hasCoral.getAsBoolean()) {
+                    intakeMotor.set(0);
                     isStateFinished = true;
                 }
             }
@@ -164,13 +168,13 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
 
     @Override
     public double getTargetPosition() {
-        return scoringState.getWristAbsolutePosition();
+        return state.getWristAbsolutePosition();
     }
 
     public boolean hasCoral() {
         LaserCan.Measurement measurement = laserCAN.getMeasurement();
         if (measurement != null && measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
-            if (scoringState.intakeUntilSeen) {
+            if (state.intakeUntilSeen) {
                 return measurement.distance_mm <= 20;
             }
         }

@@ -16,6 +16,8 @@ public abstract class HopperSubsystem extends SubsystemBase {
 
     public abstract void setHopper(ScoringSuperstructureState state);
 
+    public abstract void runHopperPosition();
+
     public abstract void runHopper();
 
     protected abstract boolean atPositionState();
