@@ -29,6 +29,9 @@ public class AutoRoutines {
                 )
         );
 
+        // TODO: This giant block of commented-out-code is messy. Fix it. Either justify commenting out or remove it.
+        //  -- Jonathan
+
 //        // Pick up and shoot the gamepiece at the "C2" location, then go to the "M1" location
 //        startToC2.active().whileTrue(intakeSubsystem.intake());
 //        startToC2.done().onTrue(shooterSubsystem.shoot().andThen(C2toM1.cmd()));
