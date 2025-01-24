@@ -366,9 +366,9 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
                 );
                 measurement = measurement.isPresent()
                                 ? (measurement.get().getX() == 0 || measurement.get().getY() == 0
-                                    ? null 
+                                    ? Optional.empty()
                                     : measurement)
-                                : null;
+                                : Optional.empty();
                 measurement.ifPresent(pose -> addVisionMeasurement(pose, Utils.getCurrentTimeSeconds()));
             }
         );
