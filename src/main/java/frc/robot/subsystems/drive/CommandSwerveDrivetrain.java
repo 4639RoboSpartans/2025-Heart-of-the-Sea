@@ -57,16 +57,7 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
     private Notifier simNotifier = null;
     private double lastSimTime;
 
-    // TODO: Shouldn't these Rotation2ds go in some sort of constants?
-    //  -- Jonathan
-    private static final Rotation2d BlueAlliancePerspectiveRotation = Rotation2d.kZero;
-    private static final Rotation2d RedAlliancePerspectiveRotation = Rotation2d.k180deg;
-
     private boolean hasAppliedOperatorPerspective = false;
-
-    // TODO: Can the SendableChooser be elsewhere? Extract this to a class probably
-    //  -- Jonathan
-    private SendableChooser<Pose2d> m_startPositionChooser = new SendableChooser<>();
 
     // TODO: Can the construction of these (the SwerveRequests) be inlined? Does the identity of the request object
     //  matter or not? As far as I can tell, the request object very cheap to construct and performance is not an issue.
@@ -80,63 +71,6 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
     private final PIDController pathThetaController = new PIDController(7, 0, 0);
 
     private final Field2d field = new Field2d();
-
-    // TODO: Can we move sysid stuff to its own class? This class is already very cluttered.
-    //  -- Jonathan
-    private final SwerveRequest.SysIdSwerveTranslation m_translationCharacterization = new SwerveRequest.SysIdSwerveTranslation();
-    private final SwerveRequest.SysIdSwerveSteerGains m_steerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
-    private final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
-
-
-    private final SysIdRoutine sysIdRoutineTranslation = new SysIdRoutine(
-        new SysIdRoutine.Config(
-            null,
-            Volts.of(4),
-            null,
-            state -> SignalLogger.writeString("SysIdTranslation_State", state.toString())
-        ),
-        new SysIdRoutine.Mechanism(
-            output -> setControl(m_translationCharacterization.withVolts(output)),
-            null,
-            this
-        )
-    );
-
-
-    private final SysIdRoutine sysIdRoutineSteer = new SysIdRoutine(
-        new SysIdRoutine.Config(
-            null,        // Use default ramp rate (1 V/s)
-            Volts.of(7), // Use dynamic voltage of 7 V
-            null,        // Use default timeout (10 s)
-            // Log state with SignalLogger class
-            state -> SignalLogger.writeString("SysIdSteer_State", state.toString())
-        ),
-        new SysIdRoutine.Mechanism(
-            volts -> setControl(m_steerCharacterization.withVolts(volts)),
-            null,
-            this
-        )
-    );
-
-
-    private final SysIdRoutine sysIdRoutineRotation = new SysIdRoutine(
-        new SysIdRoutine.Config(
-            Volts.of(Math.PI / 6).per(Second),
-            Volts.of(Math.PI),
-            null,
-            state -> SignalLogger.writeString("SysIdRotation_State", state.toString())
-        ),
-        new SysIdRoutine.Mechanism(
-            output -> {
-                setControl(m_rotationCharacterization.withRotationalRate(output.in(Volts)));
-                SignalLogger.writeDouble("Rotational_Rate", output.in(Volts));
-            },
-            null,
-            this
-        )
-    );
-
-    private final SysIdRoutine sysIdRoutineToApply = sysIdRoutineRotation;
 
     private final AutoFactory autoFactory;
     private final AutoRoutines autoRoutines;
@@ -171,11 +105,6 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
             0,
             1.1466
         );
-        m_startPositionChooser.setDefaultOption("DEFAULT", new Pose2d());
-        Arrays.stream(FieldConstants.AutonStartingPositions.values()).forEach(
-            position -> m_startPositionChooser.addOption(position.name(), position.Pose)
-        );
-        SmartDashboard.putData("Selected Reset Position", m_startPositionChooser);
     }
 
     /**
@@ -324,36 +253,14 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
         );
     }
 
-    /**
-     * Runs the SysId Quasistatic test in the given direction for the routine
-     * specified by {@link #sysIdRoutineToApply}.
-     *
-     * @param direction Direction of the SysId Quasistatic test
-     * @return Command to run
-     */
-    public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-        return sysIdRoutineToApply.quasistatic(direction);
-    }
-
-    /**
-     * Runs the SysId Dynamic test in the given direction for the routine
-     * specified by {@link #sysIdRoutineToApply}.
-     *
-     * @param direction Direction of the SysId Dynamic test
-     * @return Command to run
-     */
-    public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-        return sysIdRoutineToApply.dynamic(direction);
-    }
-
     @Override
     public void periodic() {
         if (!hasAppliedOperatorPerspective || DriverStation.isDisabled()) {
             DriverStation.getAlliance().ifPresent(allianceColor -> {
                 setOperatorPerspectiveForward(
                     allianceColor == Alliance.Red
-                        ? RedAlliancePerspectiveRotation
-                        : BlueAlliancePerspectiveRotation
+                        ? DriveConstants.RedAlliancePerspectiveRotation
+                        : DriveConstants.BlueAlliancePerspectiveRotation
                 );
                 hasAppliedOperatorPerspective = true;
             });
@@ -462,9 +369,5 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
                 );
             }
         );
-    }
-
-    public Pose2d getDashboardSelectedResetPose() {
-        return m_startPositionChooser.getSelected();
     }
 }

@@ -17,57 +17,54 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.lib.oi.OI;
 import frc.robot.constants.Controls;
+import frc.robot.constants.FieldConstants;
 import frc.robot.subsystems.climber.ClimberSubsystem;
 import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
+import frc.robot.subsystems.drive.DriveSysID;
+
+import java.util.Arrays;
 
 
 public class RobotContainer {
     private final OI oi = OI.getInstance();
     private final CommandSwerveDrivetrain swerve = CommandSwerveDrivetrain.getInstance();
     private final SendableChooser<Command> autoChooser;
+    private final SendableChooser<Pose2d> m_startPositionChooser = new SendableChooser<>();
 
     public RobotContainer() {
         configureBindings();
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData(autoChooser);
+        m_startPositionChooser.setDefaultOption("DEFAULT", new Pose2d());
+        Arrays.stream(FieldConstants.AutonStartingPositions.values()).forEach(
+                position -> m_startPositionChooser.addOption(position.name(), position.Pose)
+        );
+        SmartDashboard.putData("Selected Reset Position", m_startPositionChooser);
     }
 
     private void configureBindings() {
         /*OI.getInstance().driverController().A_BUTTON.whileTrue(
-            swerve.sysIdQuasistatic(Direction.kForward)
+            DriveSysID.sysIdQuasistatic(Direction.kForward)
         );
         OI.getInstance().driverController().B_BUTTON.whileTrue(
-            swerve.sysIdQuasistatic(Direction.kReverse)
+                DriveSysID.sysIdQuasistatic(Direction.kReverse)
         );
         OI.getInstance().driverController().X_BUTTON.whileTrue(
-            swerve.sysIdDynamic(Direction.kForward)
+                DriveSysID.sysIdDynamic(Direction.kForward)
         );
         OI.getInstance().driverController().Y_BUTTON.whileTrue(
-            swerve.sysIdDynamic(Direction.kReverse)
+                DriveSysID.sysIdDynamic(Direction.kReverse)
         );*/
         swerve.setDefaultCommand(swerve.applyRequest(swerve::fieldCentricRequestSupplier));
         Controls.Driver.rotationResetTrigger.onTrue(
             swerve.resetPigeonCommand()
         );
-        /*OI.getInstance().driverController().B_BUTTON.whileTrue(
-            AlgaeIntakeSubsystem.getInstance().intake(() -> 0.7)
-        );
-        OI.getInstance().driverController().X_BUTTON.whileTrue(
-            AlgaeIntakeSubsystem.getInstance().intake(() -> -0.7)
-        );
-
-        OI.getInstance().driverController().Y_BUTTON.whileTrue(
-            AlgaeIntakeSubsystem.getInstance().pivot(() -> -1.0)
-        );
-        OI.getInstance().driverController().A_BUTTON.whileTrue(
-            AlgaeIntakeSubsystem.getInstance().pivot(() -> 1.0)
-        );*/
 
         /** Resets Pose to desired pose set by dashboard */
         OI.getInstance().driverController().RIGHT_STICK.whileTrue(
             swerve.run(() -> 
                 swerve.resetPose(
-                    swerve.getDashboardSelectedResetPose()
+                    m_startPositionChooser.getSelected()
                 )
             )
         );
