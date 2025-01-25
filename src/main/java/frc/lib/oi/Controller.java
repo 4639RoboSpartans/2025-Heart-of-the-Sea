@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public class Controller {
-    private static final double DEADZONE_VALUE = 0.08;
+    private static final double DEADZONE_VALUE = 0.1;
 
     private final XboxController controller;
 

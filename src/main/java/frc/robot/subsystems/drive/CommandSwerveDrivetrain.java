@@ -12,12 +12,18 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.PathPlannerLogging;
+import com.pathplanner.lib.util.swerve.SwerveSetpoint;
+import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
+
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.Trajectory;
@@ -48,6 +54,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+import javax.management.RuntimeErrorException;
+
 import static edu.wpi.first.units.Units.*;
 
 public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrain implements Subsystem {
@@ -66,14 +74,21 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
     private final SwerveRequest.ApplyRobotSpeeds robotSpeedsRequest = new SwerveRequest.ApplyRobotSpeeds();
     private final SwerveRequest.FieldCentricFacingAngle fieldCentricFacingAngleRequest = new SwerveRequest.FieldCentricFacingAngle();
 
-    private final PIDController pathXController = new PIDController(10, 0, 0);
-    private final PIDController pathYController = new PIDController(10, 0, 0);
+    private final PIDController pathXController = new PIDController(12, 0, 0);
+    private final PIDController pathYController = new PIDController(12, 0, 0);
     private final PIDController pathThetaController = new PIDController(7, 0, 0);
 
     private final Field2d field = new Field2d();
 
     private final AutoFactory autoFactory;
     private final AutoRoutines autoRoutines;
+
+    private final SlewRateLimiter forwardsLimiter, strafeLimiter;
+
+    private final SwerveSetpointGenerator swerveSetpointGenerator;
+    private final RobotConfig config;
+
+    private SwerveSetpoint prevSetpoint;
 
     public static CommandSwerveDrivetrain getInstance() {
         return instance = Objects.requireNonNullElseGet(instance, TunerConstants::createDrivetrain);
@@ -97,6 +112,18 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
         if (Utils.isSimulation()) {
             startSimThread();
         }
+        forwardsLimiter = new SlewRateLimiter(10);
+        strafeLimiter = new SlewRateLimiter(10);
+        try {
+            config = RobotConfig.fromGUISettings();
+        } catch (Exception e) {
+            throw new RuntimeException("Swerve Config Failed");
+        }
+        ChassisSpeeds currentSpeeds = getState().Speeds; // Method to get current robot-relative chassis speeds
+        SwerveModuleState[] currentStates = getState().ModuleStates; // Method to get the current swerve module states
+        swerveSetpointGenerator = new SwerveSetpointGenerator(config, 12.49);
+        prevSetpoint = new SwerveSetpoint(currentSpeeds, currentStates, DriveFeedforwards.zeros(config.numModules));
+        prevSetpoint = new SwerveSetpoint(new ChassisSpeeds(), getState().ModuleStates, DriveFeedforwards.zeros(config.numModules));
         autoFactory = createAutoFactory();
         autoRoutines = new AutoRoutines(autoFactory);
         configureAutoBuilder();
@@ -129,6 +156,17 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
         if (Utils.isSimulation()) {
             startSimThread();
         }
+        forwardsLimiter = new SlewRateLimiter(0.5);
+        strafeLimiter = new SlewRateLimiter(0.5);
+        try {
+            config = RobotConfig.fromGUISettings();
+        } catch (Exception e) {
+            throw new RuntimeException("Swerve Config Failed");
+        }
+        ChassisSpeeds currentSpeeds = getState().Speeds; // Method to get current robot-relative chassis speeds
+        SwerveModuleState[] currentStates = getState().ModuleStates; // Method to get the current swerve module states
+        swerveSetpointGenerator = new SwerveSetpointGenerator(config, 12.49);
+        prevSetpoint = new SwerveSetpoint(currentSpeeds, currentStates, DriveFeedforwards.zeros(config.numModules));
         autoFactory = createAutoFactory();
         autoRoutines = new AutoRoutines(autoFactory);
         configureAutoBuilder();
@@ -164,6 +202,17 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
         if (Utils.isSimulation()) {
             startSimThread();
         }
+        forwardsLimiter = new SlewRateLimiter(0.5);
+        strafeLimiter = new SlewRateLimiter(0.5);
+        try {
+            config = RobotConfig.fromGUISettings();
+        } catch (Exception e) {
+            throw new RuntimeException("Swerve Config Failed");
+        }
+        ChassisSpeeds currentSpeeds = getState().Speeds; // Method to get current robot-relative chassis speeds
+        SwerveModuleState[] currentStates = getState().ModuleStates; // Method to get the current swerve module states
+        swerveSetpointGenerator = new SwerveSetpointGenerator(config, 12.49);
+        prevSetpoint = new SwerveSetpoint(currentSpeeds, currentStates, DriveFeedforwards.zeros(config.numModules));
         autoFactory = createAutoFactory();
         autoRoutines = new AutoRoutines(autoFactory);
         configureAutoBuilder();
@@ -205,14 +254,42 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
             strafe /= 4;
             rotation /= 4;
         }
-        return fieldSpeedsRequest.withDesaturateWheelSpeeds(true)
-            .withSpeeds(
+        double newForwards = forwardsLimiter.calculate(forwards);
+        double newStrafe = strafeLimiter.calculate(strafe);
+        SwerveSetpoint newSetpoint = swerveSetpointGenerator.generateSetpoint(
+            prevSetpoint,
+            ChassisSpeeds.fromFieldRelativeSpeeds(
                 new ChassisSpeeds(
                     forwards,
                     strafe,
                     rotation
+                ),
+                Rotation2d.fromRadians(getPigeon2().getYaw().getValue().in(Radians))
+            ),
+            0.02
+        );
+        prevSetpoint = newSetpoint;
+        return fieldSpeedsRequest.withDesaturateWheelSpeeds(true)
+            .withSpeeds(
+                ChassisSpeeds.fromRobotRelativeSpeeds(
+                    newSetpoint.robotRelativeSpeeds(),
+                    Rotation2d.fromRadians(getPigeon2().getYaw().getValue().in(Radians))
                 )
+            )
+            .withWheelForceFeedforwardsX(
+                newSetpoint.feedforwards().robotRelativeForcesX()
+            )
+            .withWheelForceFeedforwardsY(
+                newSetpoint.feedforwards().robotRelativeForcesY()
             );
+        // return fieldSpeedsRequest.withDesaturateWheelSpeeds(true)
+        //     .withSpeeds(
+        //         new ChassisSpeeds(
+        //             newForwards,
+        //             newStrafe,
+        //             rotation
+        //         )
+        //     );
     }
 
     /**
