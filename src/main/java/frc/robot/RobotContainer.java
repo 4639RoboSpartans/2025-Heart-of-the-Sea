@@ -9,6 +9,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.lib.oi.OI;
 import frc.robot.constants.Controls;
 import frc.robot.constants.FieldConstants;
@@ -25,9 +26,9 @@ public class RobotContainer {
         configureBindings();
         autoChooser = new SendableChooser<>();
         autoChooser.addOption("Test Path 1", swerve.getAutoRoutines().testPath1().cmd());
-        autoChooser.addOption("Test Path 2", swerve.getAutoRoutines().testPath2().cmd());
         SmartDashboard.putData("Auto Chooser", autoChooser);
         m_startPositionChooser.setDefaultOption("DEFAULT", new Pose2d());
+        SmartDashboard.putBoolean("pigeon reset", false);
         Arrays.stream(FieldConstants.AutonStartingPositions.values()).forEach(
                 position -> m_startPositionChooser.addOption(position.name(), position.Pose)
         );
@@ -50,6 +51,16 @@ public class RobotContainer {
         swerve.setDefaultCommand(swerve.applyRequest(swerve::fieldCentricRequestSupplier));
         Controls.Driver.rotationResetTrigger.onTrue(
             swerve.resetPigeonCommand()
+        )
+        .onTrue(
+            new RunCommand(
+                () -> SmartDashboard.putBoolean("pigeon reset", true)
+            )
+        )
+        .onFalse(
+            new RunCommand(
+                () -> SmartDashboard.putBoolean("pigeon reset", false)        
+            )
         );
 
         /** Resets Pose to desired pose set by dashboard */

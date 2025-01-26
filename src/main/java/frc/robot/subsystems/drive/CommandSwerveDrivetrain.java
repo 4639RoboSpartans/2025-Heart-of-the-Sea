@@ -3,7 +3,6 @@ package frc.robot.subsystems.drive;
 import choreo.Choreo.TrajectoryLogger;
 import choreo.auto.AutoFactory;
 import choreo.trajectory.SwerveSample;
-import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
@@ -19,7 +18,6 @@ import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -34,16 +32,13 @@ import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.lib.network.LimelightHelpers;
 import frc.robot.commands.AutoRoutines;
 import frc.robot.constants.Controls;
-import frc.robot.constants.FieldConstants;
 import frc.robot.constants.IDs;
 import frc.robot.subsystems.drive.constants.DriveConstants;
 import frc.robot.subsystems.drive.constants.TunerConstants;
@@ -53,8 +48,6 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
-
-import javax.management.RuntimeErrorException;
 
 import static edu.wpi.first.units.Units.*;
 
@@ -73,6 +66,7 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
     private final SwerveRequest.ApplyFieldSpeeds fieldSpeedsRequest = new SwerveRequest.ApplyFieldSpeeds();
     private final SwerveRequest.ApplyRobotSpeeds robotSpeedsRequest = new SwerveRequest.ApplyRobotSpeeds();
     private final SwerveRequest.FieldCentricFacingAngle fieldCentricFacingAngleRequest = new SwerveRequest.FieldCentricFacingAngle();
+    private final SwerveRequest.Idle stopRequest = new SwerveRequest.Idle();
 
     private final PIDController pathXController = new PIDController(12, 0, 0);
     private final PIDController pathYController = new PIDController(12, 0, 0);
@@ -82,8 +76,6 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
 
     private final AutoFactory autoFactory;
     private final AutoRoutines autoRoutines;
-
-    private final SlewRateLimiter forwardsLimiter, strafeLimiter;
 
     private final SwerveSetpointGenerator swerveSetpointGenerator;
     private final RobotConfig config;
@@ -112,8 +104,6 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
         if (Utils.isSimulation()) {
             startSimThread();
         }
-        forwardsLimiter = new SlewRateLimiter(10);
-        strafeLimiter = new SlewRateLimiter(10);
         try {
             config = RobotConfig.fromGUISettings();
         } catch (Exception e) {
@@ -156,8 +146,6 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
         if (Utils.isSimulation()) {
             startSimThread();
         }
-        forwardsLimiter = new SlewRateLimiter(0.5);
-        strafeLimiter = new SlewRateLimiter(0.5);
         try {
             config = RobotConfig.fromGUISettings();
         } catch (Exception e) {
@@ -202,8 +190,6 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
         if (Utils.isSimulation()) {
             startSimThread();
         }
-        forwardsLimiter = new SlewRateLimiter(0.5);
-        strafeLimiter = new SlewRateLimiter(0.5);
         try {
             config = RobotConfig.fromGUISettings();
         } catch (Exception e) {
@@ -244,6 +230,11 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
             trajLogger
         );
     }
+    
+
+    public Command stopCommand() {
+        return applyRequest(() -> stopRequest);
+    }
 
     public SwerveRequest fieldCentricRequestSupplier() {
         double forwards = Controls.Driver.SwerveForwardAxis.getAsDouble() * DriveConstants.CURRENT_MAX_ROBOT_MPS;
@@ -254,8 +245,6 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
             strafe /= 4;
             rotation /= 4;
         }
-        double newForwards = forwardsLimiter.calculate(forwards);
-        double newStrafe = strafeLimiter.calculate(strafe);
         SwerveSetpoint newSetpoint = swerveSetpointGenerator.generateSetpoint(
             prevSetpoint,
             ChassisSpeeds.fromFieldRelativeSpeeds(
@@ -355,7 +344,10 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
                 measurement = measurement.isPresent()
                                 ? (measurement.get().getX() == 0 || measurement.get().getY() == 0
                                     ? Optional.empty()
-                                    : measurement)
+                                    : (measurement.get().getTranslation().getDistance(getState().Pose.getTranslation()) <= 1.0
+                                        ? measurement
+                                        : Optional.empty())
+                                    )
                                 : Optional.empty();
                 measurement.ifPresent(pose -> addVisionMeasurement(pose, Utils.getCurrentTimeSeconds()));
             }
