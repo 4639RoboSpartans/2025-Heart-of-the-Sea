@@ -43,10 +43,10 @@ public class SimElevatorSubsystem extends ElevatorSubsystem {
                         10
                 ),
                 DCMotor.getKrakenX60(2),
-                ScoringSuperstructureState.IDLE.getElevatorSimLength().in(Meters),
-                ScoringSuperstructureState.L4.getElevatorSimLength().in(Meters),
+                ScoringSuperstructureState.IDLE.getElevatorLength().in(Meters),
+                ScoringSuperstructureState.L4.getElevatorLength().in(Meters),
                 true,
-                ScoringSuperstructureState.IDLE.getElevatorSimLength().in(Meters)
+                ScoringSuperstructureState.IDLE.getElevatorLength().in(Meters)
         );
     }
 
@@ -55,16 +55,18 @@ public class SimElevatorSubsystem extends ElevatorSubsystem {
         return elevatorSim.getPositionMeters();
     }
 
-    private Distance getCurrentSimDistance() {
+    @Override
+    public Distance getCurrentLength() {
         return Meters.of(getCurrentPosition());
     }
 
     @Override
     public double getTargetPosition() {
-        return state.getElevatorSimLength().in(Meters);
+        return state.getElevatorLength().in(Meters);
     }
 
-    private Distance getTargetSimDistance() {
+    @Override
+    public Distance getTargetLength() {
         return Meters.of(getTargetPosition());
     }
 
@@ -75,8 +77,8 @@ public class SimElevatorSubsystem extends ElevatorSubsystem {
     @Override
     public boolean isElevatorAtPositionState() {
         return MathUtil.isNear(
-                ScoringSuperstructureState.getElevatorSimPosition(getTargetSimDistance()),
-                ScoringSuperstructureState.getElevatorSimPosition(getCurrentSimDistance()),
+                ScoringSuperstructureState.getElevatorSimPosition(getTargetLength()),
+                ScoringSuperstructureState.getElevatorSimPosition(getCurrentLength()),
                 ScoringConstants.ElevatorConstants.ELEVATOR_TOLERANCE
         );
     }
@@ -99,10 +101,10 @@ public class SimElevatorSubsystem extends ElevatorSubsystem {
 
     @Override
     public void runElevator() {
-        elevatorPID.setGoal(ScoringSuperstructureState.getElevatorSimPosition(state.getElevatorSimLength()));
+        elevatorPID.setGoal(ScoringSuperstructureState.getElevatorSimPosition(state.getElevatorLength()));
         double output = elevatorPID.calculate(
                 ScoringSuperstructureState.getElevatorSimPosition(
-                        getCurrentSimDistance()
+                        getCurrentLength()
                 )
         );
         elevatorSim.setInput(output);

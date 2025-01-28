@@ -8,6 +8,7 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -21,9 +22,11 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
     private final TalonFX leftElevator, rightElevator;
     private final MotionMagicVoltage controlRequest;
 
-    private final SysIdRoutine elevatorRoutine;
+    private ScoringSuperstructureState state = ScoringSuperstructureState.IDLE;
 
     private boolean isStateFinished = false;
+
+    private final SysIdRoutine elevatorRoutine;
 
     public ConcreteElevatorSubsystem() {
         leftElevator = new TalonFX(ScoringConstants.IDs.ElevatorLeftID);
@@ -31,7 +34,8 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
         leftElevator.setNeutralMode(NeutralModeValue.Brake);
         rightElevator.setNeutralMode(NeutralModeValue.Brake);
         var leftConfigurator = leftElevator.getConfigurator();
-        TalonFXConfiguration leftConfiguration = new TalonFXConfiguration()
+        var rightConfigurator = rightElevator.getConfigurator();
+        TalonFXConfiguration configuration = new TalonFXConfiguration()
                 .withMotionMagic(
                         new MotionMagicConfigs()
                                 .withMotionMagicAcceleration(ScoringPIDs.elevatorAcceleration.get())
@@ -42,7 +46,8 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
                                 .withKI(ScoringPIDs.elevatorKi.get())
                                 .withKD(ScoringPIDs.elevatorKd.get())
                 );
-        leftConfigurator.apply(leftConfiguration);
+        leftConfigurator.apply(configuration);
+        rightConfigurator.apply(configuration);
         rightElevator.setControl(new Follower(ScoringConstants.IDs.ElevatorLeftID, true));
         controlRequest = new MotionMagicVoltage(leftElevator.getPosition().getValueAsDouble());
 
@@ -61,6 +66,7 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
         );
     }
 
+    @Override
     public double getCurrentPosition() {
         return leftElevator.getPosition().getValueAsDouble();
     }
@@ -70,13 +76,13 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
         return controlRequest.Position;
     }
 
-    public boolean isElevatorStateFinished() {
-        return isStateFinished;
+    @Override
+    public Distance getTargetLength() {
+        return state.getElevatorLength();
     }
 
-    public void setElevatorState(ScoringSuperstructureState state) {
-        isStateFinished = false;
-        controlRequest.Position = state.getElevatorAbsolutePosition();
+    public boolean isElevatorStateFinished() {
+        return isStateFinished;
     }
 
     public boolean isElevatorAtPositionState() {
@@ -85,6 +91,12 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
                 leftElevator.getPosition().getValueAsDouble(),
                 ScoringConstants.ElevatorConstants.ELEVATOR_TOLERANCE
         );
+    }
+
+    public void setElevatorState(ScoringSuperstructureState state) {
+        this.state = state;
+        isStateFinished = false;
+        controlRequest.Position = state.getElevatorAbsolutePosition();
     }
 
     public void runElevator() {

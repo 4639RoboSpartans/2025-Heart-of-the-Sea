@@ -127,7 +127,7 @@ public enum ScoringSuperstructureState {
                 + ScoringConstants.HopperConstants.POSITION_DIFF * wristPosition;
     }
 
-    public Distance getElevatorSimLength() {
+    public Distance getElevatorLength() {
         return Inches.of(elevatorPosition
                 * ScoringConstants.ElevatorConstants.MAX_EXTENSION.in(Inches)
                 + ScoringConstants.ElevatorConstants.STARTING_HEIGHT.in(Inches)
