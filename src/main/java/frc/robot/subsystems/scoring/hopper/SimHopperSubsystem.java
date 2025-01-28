@@ -50,7 +50,8 @@ public class SimHopperSubsystem extends HopperSubsystem {
         return pivotSim.getAngleRads();
     }
 
-    private Rotation2d getCurrentSimRotation() {
+    @Override
+    public Rotation2d getCurrentRotation() {
         return Rotation2d.fromRadians(getCurrentPosition());
     }
 
@@ -59,15 +60,16 @@ public class SimHopperSubsystem extends HopperSubsystem {
         return state.getWristSimRotation().getRadians();
     }
 
-    private Rotation2d getTargetSimRotation() {
+    @Override
+    public Rotation2d getTargetRotation() {
         return state.getWristSimRotation();
     }
 
     @Override
     protected boolean isHopperAtPositionState() {
         return MathUtil.isNear(
-                ScoringSuperstructureState.getWristSimPosition(getTargetSimRotation()),
-                ScoringSuperstructureState.getWristSimPosition(getCurrentSimRotation()),
+                ScoringSuperstructureState.getWristSimPosition(getTargetRotation()),
+                ScoringSuperstructureState.getWristSimPosition(getCurrentRotation()),
                 ScoringConstants.HopperConstants.WRIST_TOLERANCE
         );
     }

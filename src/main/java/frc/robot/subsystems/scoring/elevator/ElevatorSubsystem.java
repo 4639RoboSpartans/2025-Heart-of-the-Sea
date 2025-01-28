@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.Robot;
+import frc.robot.robot.Robot;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 
 import java.util.Objects;
@@ -23,9 +23,9 @@ public abstract class ElevatorSubsystem extends SubsystemBase {
 
     public abstract double getCurrentPosition();
 
-    public abstract double getTargetPosition();
-
     public abstract Distance getCurrentLength();
+
+    public abstract double getTargetPosition();
 
     public abstract Distance getTargetLength();
 

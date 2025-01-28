@@ -141,6 +141,13 @@ public enum ScoringSuperstructureState {
                 + ScoringConstants.ElevatorConstants.POSITION_DIFF * position;
     }
 
+    public static Distance getElevatorSimDistance(double position) {
+        double rawDist = (position - ScoringConstants.ElevatorConstants.DOWN_POSITION)
+                / ScoringConstants.ElevatorConstants.POSITION_DIFF;
+        return Inches.of(rawDist * ScoringConstants.ElevatorConstants.MAX_EXTENSION.in(Inches)
+                + ScoringConstants.ElevatorConstants.STARTING_HEIGHT.in(Inches));
+    }
+
     public Rotation2d getWristSimRotation() {
         return ScoringConstants.HopperConstants.MAX_ROTATION
                 .times(wristPosition)
@@ -152,6 +159,13 @@ public enum ScoringSuperstructureState {
                 / ScoringConstants.HopperConstants.MAX_ROTATION.getDegrees();
         return ScoringConstants.HopperConstants.DOWN_POSITION
                 + ScoringConstants.HopperConstants.POSITION_DIFF * position;
+    }
+
+    public static Rotation2d getWristSimRotation(double position) {
+        double rawRotation = (position - ScoringConstants.HopperConstants.DOWN_POSITION)
+                / ScoringConstants.HopperConstants.POSITION_DIFF;
+        return Rotation2d.fromDegrees(rawRotation * ScoringConstants.HopperConstants.MAX_ROTATION.getDegrees())
+                .plus(ScoringConstants.HopperConstants.EXTENDED_ROTATION);
     }
 
     public ScoringSuperstructureState getStateAfter() {

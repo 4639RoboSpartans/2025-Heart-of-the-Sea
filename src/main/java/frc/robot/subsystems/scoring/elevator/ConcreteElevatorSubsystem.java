@@ -72,13 +72,18 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
     }
 
     @Override
+    public Distance getCurrentLength() {
+        return ScoringSuperstructureState.getElevatorSimDistance(getCurrentPosition());
+    }
+
+    @Override
     public double getTargetPosition() {
         return controlRequest.Position;
     }
 
     @Override
     public Distance getTargetLength() {
-        return state.getElevatorLength();
+        return ScoringSuperstructureState.getElevatorSimDistance(getTargetPosition());
     }
 
     public boolean isElevatorStateFinished() {

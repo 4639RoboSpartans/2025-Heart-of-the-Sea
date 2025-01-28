@@ -9,6 +9,7 @@ import com.revrobotics.spark.config.SoftLimitConfig;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -97,6 +98,49 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
     }
 
     @Override
+    public double getCurrentPosition() {
+        return wristEncoder.get();
+    }
+
+    @Override
+    public Rotation2d getCurrentRotation() {
+        return ScoringSuperstructureState.getWristSimRotation(getCurrentPosition());
+    }
+
+    @Override
+    public double getTargetPosition() {
+        return state.getWristAbsolutePosition();
+    }
+
+    @Override
+    public Rotation2d getTargetRotation() {
+        return ScoringSuperstructureState.getWristSimRotation(getTargetPosition());
+    }
+
+    @Override
+    protected boolean isHopperAtPositionState() {
+        return MathUtil.isNear(
+                getTargetPosition(),
+                getCurrentPosition(),
+                ScoringConstants.HopperConstants.WRIST_TOLERANCE
+        );
+    }
+
+    public boolean hasCoral() {
+        LaserCan.Measurement measurement = laserCAN.getMeasurement();
+        if (measurement != null && measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
+            if (state.intakeUntilSeen) {
+                return measurement.distance_mm <= 20;
+            }
+        }
+        return false;
+    }
+
+    public boolean isHopperStateFinished() {
+        return isStateFinished;
+    }
+
+    @Override
     public void setHopper(ScoringSuperstructureState state) {
         this.state = state;
         isStateFinished = false;
@@ -157,38 +201,5 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
                         ScoringPIDs.wristAcceleration.get()
                 )
         );
-    }
-
-    @Override
-    protected boolean isHopperAtPositionState() {
-        return MathUtil.isNear(
-                getTargetPosition(),
-                getCurrentPosition(),
-                ScoringConstants.HopperConstants.WRIST_TOLERANCE
-        );
-    }
-
-    @Override
-    public double getCurrentPosition() {
-        return wristEncoder.get();
-    }
-
-    @Override
-    public double getTargetPosition() {
-        return state.getWristAbsolutePosition();
-    }
-
-    public boolean hasCoral() {
-        LaserCan.Measurement measurement = laserCAN.getMeasurement();
-        if (measurement != null && measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
-            if (state.intakeUntilSeen) {
-                return measurement.distance_mm <= 20;
-            }
-        }
-        return false;
-    }
-
-    public boolean isHopperStateFinished() {
-        return isStateFinished;
     }
 }

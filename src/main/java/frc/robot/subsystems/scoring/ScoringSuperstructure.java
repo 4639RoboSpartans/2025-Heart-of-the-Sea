@@ -1,5 +1,6 @@
 package frc.robot.subsystems.scoring;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -91,7 +92,19 @@ public class ScoringSuperstructure extends SubsystemBase {
         }
     }
 
-    public Distance getElevatorDistance() {
-        return elevator.get
+    public Distance getCurrentElevatorLength() {
+        return elevator.getCurrentLength();
+    }
+
+    public Distance getTargetElevatorLength() {
+        return elevator.getTargetLength();
+    }
+
+    public Rotation2d getCurrentWristRotation() {
+        return hopper.getCurrentRotation();
+    }
+
+    public Rotation2d getTargetWristRotation() {
+        return hopper.getTargetRotation();
     }
 }

@@ -1,5 +1,6 @@
 package frc.robot.subsystems.scoring.hopper;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.scoring.ScoringSuperstructure;
@@ -15,25 +16,29 @@ public abstract class HopperSubsystem extends SubsystemBase {
         return instance;
     }
 
-    public abstract void setHopper(ScoringSuperstructureState state);
+    public abstract double getCurrentPosition();
 
-    protected abstract void runHopperPosition();
+    public abstract Rotation2d getCurrentRotation();
 
-    public abstract void runHopper();
+    public abstract double getTargetPosition();
+
+    public abstract Rotation2d getTargetRotation();
 
     protected abstract boolean isHopperAtPositionState();
-
-    public abstract double getCurrentPosition();
 
     public Trigger atPositionStateTrigger() {
         return new Trigger(this::isHopperAtPositionState);
     }
-
-    public abstract double getTargetPosition();
 
     public abstract boolean isHopperStateFinished();
 
     public Trigger stateFinishedTrigger() {
         return new Trigger(this::isHopperStateFinished);
     }
+
+    public abstract void setHopper(ScoringSuperstructureState state);
+
+    protected abstract void runHopperPosition();
+
+    public abstract void runHopper();
 }
