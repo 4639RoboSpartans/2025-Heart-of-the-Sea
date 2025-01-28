@@ -3,17 +3,27 @@ package frc.robot.subsystems.scoring.hopper;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.robot.Robot;
 import frc.robot.subsystems.scoring.ScoringSuperstructure;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
+
+import java.util.Objects;
 
 public abstract class HopperSubsystem extends SubsystemBase {
     private static HopperSubsystem instance;
 
     public static HopperSubsystem getInstance(ScoringSuperstructure scoringSuperstructure) {
-        if (instance == null) {
-            instance = new ConcreteHopperSubsystem(scoringSuperstructure);
+        if (Robot.isReal()) {
+            return instance = Objects.requireNonNullElseGet(
+                    instance,
+                    () -> new ConcreteHopperSubsystem(scoringSuperstructure)
+            );
+        } else {
+            return instance = Objects.requireNonNullElseGet(
+                    instance,
+                    () -> new SimHopperSubsystem(scoringSuperstructure)
+            );
         }
-        return instance;
     }
 
     public abstract double getCurrentPosition();
@@ -34,6 +44,12 @@ public abstract class HopperSubsystem extends SubsystemBase {
 
     public Trigger stateFinishedTrigger() {
         return new Trigger(this::isHopperStateFinished);
+    }
+
+    public abstract boolean hasCoral();
+
+    public Trigger hasCoralTrigger() {
+        return new Trigger(this::hasCoral);
     }
 
     public abstract void setHopper(ScoringSuperstructureState state);

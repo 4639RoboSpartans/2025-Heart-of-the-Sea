@@ -126,6 +126,7 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
         );
     }
 
+    @Override
     public boolean hasCoral() {
         LaserCan.Measurement measurement = laserCAN.getMeasurement();
         if (measurement != null && measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
@@ -144,7 +145,7 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
     public void setHopper(ScoringSuperstructureState state) {
         this.state = state;
         isStateFinished = false;
-        intakeMotor.set(state.intakeSpeed);
+        intakeMotor.set(0);
         wristPID.setGoal(state.getWristAbsolutePosition());
     }
 

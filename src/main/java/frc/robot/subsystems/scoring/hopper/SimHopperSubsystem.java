@@ -7,6 +7,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
+import frc.robot.subsystems.scoring.ScoringSuperstructure;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
 import frc.robot.subsystems.scoring.constants.ScoringPIDs;
@@ -18,8 +19,11 @@ public class SimHopperSubsystem extends HopperSubsystem {
     private ScoringSuperstructureState state = ScoringSuperstructureState.IDLE;
     private double intakeSpeed;
 
-    public SimHopperSubsystem() {
-        intakeSpeed = state.intakeSpeed;
+    private final ScoringSuperstructure scoringSuperstructure;
+
+    public SimHopperSubsystem(ScoringSuperstructure scoringSuperstructure) {
+        this.scoringSuperstructure = scoringSuperstructure;
+        intakeSpeed = 0;
         pivotPID = new ProfiledPIDController(
                 ScoringPIDs.wristKp.get(),
                 ScoringPIDs.wristKi.get(),
@@ -80,9 +84,14 @@ public class SimHopperSubsystem extends HopperSubsystem {
     }
 
     @Override
+    public boolean hasCoral() {
+        return true;
+    }
+
+    @Override
     public void setHopper(ScoringSuperstructureState state) {
         this.state = state;
-        intakeSpeed = state.intakeSpeed;
+        intakeSpeed = 0;
         pivotPID.setGoal(ScoringSuperstructureState.getWristSimPosition(state.getWristSimRotation()));
     }
 
@@ -102,6 +111,9 @@ public class SimHopperSubsystem extends HopperSubsystem {
     @Override
     public void runHopper() {
         runHopperPosition();
+        if (scoringSuperstructure.atPositionStateTrigger().getAsBoolean()) {
+            intakeSpeed = state.intakeSpeed;
+        }
     }
 
     private void updatePIDs() {
