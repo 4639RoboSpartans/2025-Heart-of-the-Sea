@@ -15,9 +15,9 @@ import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
 
 public class VisionIO {
     /** Checks every Limelight Camera for pose estimates and adds them to the Kalman filter. 
-     * <p><b>drivetrain</b>: the drivetrain to add pose estimates to.</p>
+     * @param drivetrain the drivetrain to add pose estimates to.</p>
      * 
-     * <p><b>distanceThreshold</b>: the maximum distance in meters away from the extant Robot pose for a vision measurement to be considered.</p>
+     * @param distanceThreshold the maximum distance in meters away from the extant Robot pose for a vision measurement to be considered.</p>
     */
     public static void addGlobalVisionMeasurementsToDriveTrain(CommandSwerveDrivetrain drivetrain, double distanceThreshold){
         if (RobotBase.isReal()) Arrays.stream(IDs.Limelights.values()).forEach(
