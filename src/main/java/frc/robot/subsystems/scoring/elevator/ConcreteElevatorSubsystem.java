@@ -61,29 +61,6 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
         );
     }
 
-    public void setElevatorState(ScoringSuperstructureState state) {
-        isStateFinished = false;
-        controlRequest.Position = state.getElevatorAbsolutePosition();
-    }
-
-    public void runElevator() {
-//        uncomment when down and up positions are set
-//        leftElevator.setControl(controlRequest);
-        SmartDashboard.putNumber("output", leftElevator.getMotorVoltage().getValueAsDouble());
-    }
-
-    protected boolean isElevatorAtPositionState() {
-        return MathUtil.isNear(
-                controlRequest.Position,
-                leftElevator.getPosition().getValueAsDouble(),
-                ScoringConstants.ElevatorConstants.ELEVATOR_TOLERANCE
-        );
-    }
-
-    public boolean isElevatorStateFinished() {
-        return isStateFinished;
-    }
-
     public double getCurrentPosition() {
         return leftElevator.getPosition().getValueAsDouble();
     }
@@ -93,9 +70,31 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
         return controlRequest.Position;
     }
 
+    public boolean isElevatorStateFinished() {
+        return isStateFinished;
+    }
+
+    public void setElevatorState(ScoringSuperstructureState state) {
+        isStateFinished = false;
+        controlRequest.Position = state.getElevatorAbsolutePosition();
+    }
+
+    public boolean isElevatorAtPositionState() {
+        return MathUtil.isNear(
+                controlRequest.Position,
+                leftElevator.getPosition().getValueAsDouble(),
+                ScoringConstants.ElevatorConstants.ELEVATOR_TOLERANCE
+        );
+    }
+
+    public void runElevator() {
+//        uncomment when down and up positions are set
+//        leftElevator.setControl(controlRequest);
+        SmartDashboard.putNumber("output", leftElevator.getMotorVoltage().getValueAsDouble());
+    }
+
     @Override
     public void periodic() {
-        runElevator();
         if (isElevatorAtPositionState()) {
             isStateFinished = true;
         }

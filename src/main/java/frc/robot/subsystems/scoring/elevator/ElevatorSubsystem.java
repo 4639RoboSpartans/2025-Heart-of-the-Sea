@@ -24,7 +24,7 @@ public abstract class ElevatorSubsystem extends SubsystemBase {
 
     public abstract void runElevator();
 
-    protected abstract boolean isElevatorAtPositionState();
+    public abstract boolean isElevatorAtPositionState();
 
     public abstract double getCurrentPosition();
 

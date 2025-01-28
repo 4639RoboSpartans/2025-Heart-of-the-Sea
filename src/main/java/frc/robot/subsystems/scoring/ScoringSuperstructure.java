@@ -1,5 +1,7 @@
 package frc.robot.subsystems.scoring;
 
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.scoring.elevator.ElevatorSubsystem;
@@ -12,10 +14,7 @@ public class ScoringSuperstructure extends SubsystemBase {
 
     public static ScoringSuperstructure getInstance() {
         return instance = Objects.requireNonNullElseGet(instance,
-                () -> new ScoringSuperstructure(
-                        ElevatorSubsystem.getInstance(),
-                        HopperSubsystem.getInstance()
-                )
+                ScoringSuperstructure::new
         );
     }
 
@@ -24,15 +23,52 @@ public class ScoringSuperstructure extends SubsystemBase {
 
     private ScoringSuperstructureState state = ScoringSuperstructureState.IDLE;
 
-    public ScoringSuperstructure(ElevatorSubsystem elevator, HopperSubsystem hopper) {
-        this.elevator = elevator;
-        this.hopper = hopper;
+    public ScoringSuperstructure() {
+        this.elevator = ElevatorSubsystem.getInstance();
+        this.hopper = HopperSubsystem.getInstance(this);
     }
 
-    public void setState(ScoringSuperstructureState state) {
+    private void setState(ScoringSuperstructureState state) {
         this.state = state;
         elevator.setElevatorState(state);
         hopper.setHopper(state);
+    }
+
+    public Command setScoringStateCommand(ScoringSuperstructureState state) {
+        return Commands.runOnce(
+                () -> setState(state),
+                this
+        );
+    }
+
+    public Command runScoringStateCommand() {
+        return switch (state.firstToMove) {
+            case BOTH -> Commands.run(
+                    () -> {
+                        elevator.runElevator();
+                        hopper.runHopper();
+                    },
+                    this
+            );
+            case HOPPER -> Commands.run(
+                    () -> {
+                        hopper.runHopper();
+                        if (hopper.atPositionStateTrigger().getAsBoolean()) {
+                            elevator.runElevator();
+                        }
+                    },
+                    this
+            );
+            case ELEVATOR -> Commands.run(
+                    () -> {
+                        elevator.runElevator();
+                        if (elevator.atPositionStateTrigger().getAsBoolean()) {
+                            hopper.runHopper();
+                        }
+                    },
+                    this
+            );
+        };
     }
 
     public Trigger atPositionStateTrigger() {
@@ -47,8 +83,10 @@ public class ScoringSuperstructure extends SubsystemBase {
 
     @Override
     public void periodic() {
-        if (hopper.isHopperStateFinished() && elevator.isElevatorStateFinished()){
+        if (stateFinishedTrigger().getAsBoolean()) {
             setState(state.getStateAfter());
+        } else if (!(state == ScoringSuperstructureState.IDLE) && !state.control.getAsBoolean()) {
+            setState(ScoringSuperstructureState.IDLE);
         }
     }
 }

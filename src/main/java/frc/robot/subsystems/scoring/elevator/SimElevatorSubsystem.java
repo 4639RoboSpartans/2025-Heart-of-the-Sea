@@ -90,7 +90,6 @@ public class SimElevatorSubsystem extends ElevatorSubsystem {
     @Override
     public void periodic() {
         updatePIDs();
-        runElevator();
         elevatorSim.update(0.020);
         elevatorSim.setState(elevatorSim.getPositionMeters(), elevatorSim.getVelocityMetersPerSecond());
 

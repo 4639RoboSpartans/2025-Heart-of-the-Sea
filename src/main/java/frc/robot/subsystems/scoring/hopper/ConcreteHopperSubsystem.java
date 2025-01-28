@@ -12,6 +12,7 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.subsystems.scoring.ScoringSuperstructure;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
 import frc.robot.subsystems.scoring.constants.ScoringPIDs;
@@ -29,7 +30,10 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
 
     private boolean isStateFinished = false;
 
-    public ConcreteHopperSubsystem() {
+    private final ScoringSuperstructure scoringSuperstructure;
+
+    public ConcreteHopperSubsystem(ScoringSuperstructure scoringSuperstructure) {
+        this.scoringSuperstructure = scoringSuperstructure;
         intakeMotor = new SparkFlex(
                 ScoringConstants.IDs.IntakeMotorID,
                 SparkLowLevel.MotorType.kBrushless
@@ -110,7 +114,7 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
     }
 
     @Override
-    public void runHopperPosition() {
+    protected void runHopperPosition() {
         double wristPIDOutput = wristPID.calculate(
                 wristEncoder.get(),
                 wristPID.getGoal().position
@@ -121,7 +125,10 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
 
     @Override
     public void runHopper() {
-        intakeMotor.set(state.intakeSpeed);
+        runHopperPosition();
+        if (scoringSuperstructure.atPositionStateTrigger().getAsBoolean()) {
+            intakeMotor.set(state.intakeSpeed);
+        }
         LaserCan.Measurement measurement = laserCAN.getMeasurement();
         if (measurement != null && measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
             if (state.intakeUntilSeen) {
