@@ -72,7 +72,7 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
         SmartDashboard.putNumber("output", leftElevator.getMotorVoltage().getValueAsDouble());
     }
 
-    protected boolean atPositionState() {
+    protected boolean isElevatorAtPositionState() {
         return MathUtil.isNear(
                 controlRequest.Position,
                 leftElevator.getPosition().getValueAsDouble(),
@@ -80,7 +80,7 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
         );
     }
 
-    public boolean isStateFinished() {
+    public boolean isElevatorStateFinished() {
         return isStateFinished;
     }
 
@@ -96,10 +96,10 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
     @Override
     public void periodic() {
         runElevator();
-        if (atPositionState()) {
+        if (isElevatorAtPositionState()) {
             isStateFinished = true;
         }
-        SmartDashboard.putBoolean("At State", atPositionState());
+        SmartDashboard.putBoolean("At State", isElevatorAtPositionState());
     }
 
     public Command quasistatic(SysIdRoutine.Direction direction) {

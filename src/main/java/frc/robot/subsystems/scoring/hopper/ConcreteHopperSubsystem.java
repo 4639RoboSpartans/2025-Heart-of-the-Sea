@@ -104,7 +104,7 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
     public void periodic() {
         updateConstants();
         runHopperPosition();
-        if (atPositionState()) {
+        if (isHopperAtPositionState()) {
             runHopper();
         }
     }
@@ -153,7 +153,7 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
     }
 
     @Override
-    protected boolean atPositionState() {
+    protected boolean isHopperAtPositionState() {
         return MathUtil.isNear(
                 getTargetPosition(),
                 getCurrentPosition(),
@@ -181,7 +181,7 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
         return false;
     }
 
-    public boolean isStateFinished() {
+    public boolean isHopperStateFinished() {
         return isStateFinished;
     }
 }

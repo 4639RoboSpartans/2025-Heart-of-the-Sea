@@ -20,19 +20,19 @@ public abstract class HopperSubsystem extends SubsystemBase {
 
     public abstract void runHopper();
 
-    protected abstract boolean atPositionState();
+    protected abstract boolean isHopperAtPositionState();
 
     public abstract double getCurrentPosition();
 
     public Trigger atPositionStateTrigger() {
-        return new Trigger(this::atPositionState);
+        return new Trigger(this::isHopperAtPositionState);
     }
 
     public abstract double getTargetPosition();
 
-    public abstract boolean isStateFinished();
+    public abstract boolean isHopperStateFinished();
 
     public Trigger stateFinishedTrigger() {
-        return new Trigger(this::isStateFinished);
+        return new Trigger(this::isHopperStateFinished);
     }
 }

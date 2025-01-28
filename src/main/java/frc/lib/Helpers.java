@@ -19,11 +19,11 @@ public class Helpers {
      * @param maxErrorMeters The maximum error in meters.
      * @return If the translation is within the specified tolerance.
      */
-    public static boolean withinTolerance(Translation2d translation, double maxErrorMeters) {
+    private static boolean withinTolerance(Translation2d translation, double maxErrorMeters) {
         return Math.abs(translation.getX()) <= maxErrorMeters && Math.abs(translation.getY()) <= maxErrorMeters;
     }
 
-    public static boolean withinTolerance(double measurement, double expected, double maxError) {
+    private static boolean withinTolerance(double measurement, double expected, double maxError) {
         return Math.abs(measurement - expected) <= maxError;
     }
 

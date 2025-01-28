@@ -1,6 +1,10 @@
 package frc.robot.subsystems.scoring;
 
+import edu.wpi.first.units.measure.Distance;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
+
+import static edu.wpi.first.units.Units.Inches;
+
 
 public enum ScoringSuperstructureState {
     HP_LOADING(
@@ -121,6 +125,16 @@ public enum ScoringSuperstructureState {
     public double getWristAbsolutePosition() {
         return ScoringConstants.WristConstants.DOWN_POSITION
                 + ScoringConstants.WristConstants.POSITION_DIFF * wristPosition;
+    }
+
+    public Distance getElevatorSimPosition() {
+        return Inches.of(elevatorPosition * 84 + 36);
+    }
+
+    public static double getElevatorSimPosition(Distance distance) {
+        double position = (distance.in(Inches) - 36.0) / 84;
+        return ScoringConstants.ElevatorConstants.DOWN_POSITION
+                + ScoringConstants.ElevatorConstants.POSITION_DIFF * position;
     }
 
     public ScoringSuperstructureState getStateAfter() {

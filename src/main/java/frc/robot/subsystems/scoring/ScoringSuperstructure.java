@@ -47,7 +47,7 @@ public class ScoringSuperstructure extends SubsystemBase {
 
     @Override
     public void periodic() {
-        if (hopper.isStateFinished() && elevator.isStateFinished()){
+        if (hopper.isHopperStateFinished() && elevator.isElevatorStateFinished()){
             setState(state.getStateAfter());
         }
     }
