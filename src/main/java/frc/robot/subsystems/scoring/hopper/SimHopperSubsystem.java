@@ -7,84 +7,111 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.subsystems.algaeIntake.constants.AlgaeIntakeConstants;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
+import frc.robot.subsystems.scoring.constants.ScoringConstants;
+import frc.robot.subsystems.scoring.constants.ScoringPIDs;
 
 public class SimHopperSubsystem extends HopperSubsystem {
     private final ProfiledPIDController pivotPID;
     private final SingleJointedArmSim pivotSim;
 
     private ScoringSuperstructureState state = ScoringSuperstructureState.IDLE;
-    private Rotation2d simAngle;
     private double intakeSpeed;
 
     public SimHopperSubsystem() {
-        simAngle = state.getSimAngle();
         intakeSpeed = state.intakeSpeed;
         pivotPID = new ProfiledPIDController(
-                AlgaeIntakePIDs.pivotKp.get(),
-                AlgaeIntakePIDs.pivotKi.get(),
-                AlgaeIntakePIDs.pivotKd.get(),
+                ScoringPIDs.wristKp.get(),
+                ScoringPIDs.wristKi.get(),
+                ScoringPIDs.wristKd.get(),
                 new TrapezoidProfile.Constraints(
-                        AlgaeIntakePIDs.pivotVelocity.get(),
-                        AlgaeIntakePIDs.pivotAcceleration.get()
+                        ScoringPIDs.wristVelocity.get(),
+                        ScoringPIDs.wristAcceleration.get()
                 )
         );
         pivotSim = new SingleJointedArmSim(
                 LinearSystemId.createSingleJointedArmSystem(
-                        DCMotor.getNEO(2),
-                        SingleJointedArmSim.estimateMOI(0.6, 30),
-                        200
+                        DCMotor.getNEO(1),
+                        SingleJointedArmSim.estimateMOI(0.419, 2.22),
+                        25.6
                 ),
-                DCMotor.getNEO(2),
-                200.0,
-                0.6,
-                AlgaeIntakeState.EXTENDED.getSimAngle().getRadians(),
-                AlgaeIntakeState.IDLE.getSimAngle().getRadians(),
+                DCMotor.getNEO(1),
+                25.6,
+                0.419,
+                ScoringSuperstructureState.L2_ALGAE.getWristSimRotation().getRadians(),
+                ScoringSuperstructureState.IDLE.getWristSimRotation().getRadians(),
                 true,
-                AlgaeIntakeState.IDLE.getSimAngle().getRadians()
+                ScoringSuperstructureState.IDLE.getWristSimRotation().getRadians()
         );
     }
 
-    protected void setState(AlgaeIntakeState state) {
+    @Override
+    public double getCurrentPosition() {
+        return pivotSim.getAngleRads();
+    }
+
+    private Rotation2d getCurrentSimRotation() {
+        return Rotation2d.fromRadians(getCurrentPosition());
+    }
+
+    @Override
+    public double getTargetPosition() {
+        return state.getWristSimRotation().getRadians();
+    }
+
+    private Rotation2d getTargetSimRotation() {
+        return state.getWristSimRotation();
+    }
+
+    @Override
+    protected boolean isHopperAtPositionState() {
+        return MathUtil.isNear(
+                ScoringSuperstructureState.getWristSimPosition(getTargetSimRotation()),
+                ScoringSuperstructureState.getWristSimPosition(getCurrentSimRotation()),
+                ScoringConstants.HopperConstants.WRIST_TOLERANCE
+        );
+    }
+
+    @Override
+    public boolean isHopperStateFinished() {
+        return isHopperAtPositionState();
+    }
+
+    @Override
+    public void setHopper(ScoringSuperstructureState state) {
         this.state = state;
         intakeSpeed = state.intakeSpeed;
-        pivotPID.setGoal(state.getSimAngle().getRotations());
-    }
-
-    public Trigger atRequestedState() {
-        return new Trigger(
-                () -> MathUtil.isNear(
-                        pivotPID.getGoal().position,
-                        Rotation2d.fromRadians(pivotSim.getAngleRads()).getRotations(),
-                        AlgaeIntakeConstants.PivotConstants.positionTolerance
-                )
-        );
+        pivotPID.setGoal(ScoringSuperstructureState.getWristSimPosition(state.getWristSimRotation()));
     }
 
     @Override
     public void periodic() {
         updatePIDs();
-        runPivot();
     }
 
-    private void runPivot() {
+    @Override
+    protected void runHopperPosition() {
+        pivotSim.update(0.020);
         pivotSim.setInputVoltage(
                 pivotPID.calculate(Rotation2d.fromRadians(pivotSim.getAngleRads()).getRotations())
         );
     }
 
+    @Override
+    public void runHopper() {
+        runHopperPosition();
+    }
+
     private void updatePIDs() {
         pivotPID.setPID(
-                AlgaeIntakePIDs.pivotKp.get(),
-                AlgaeIntakePIDs.pivotKi.get(),
-                AlgaeIntakePIDs.pivotKd.get()
+                ScoringPIDs.wristKp.get(),
+                ScoringPIDs.wristKi.get(),
+                ScoringPIDs.wristKd.get()
         );
         pivotPID.setConstraints(
                 new TrapezoidProfile.Constraints(
-                        AlgaeIntakePIDs.pivotVelocity.get(),
-                        AlgaeIntakePIDs.pivotAcceleration.get()
+                        ScoringPIDs.wristVelocity.get(),
+                        ScoringPIDs.wristAcceleration.get()
                 )
         );
     }

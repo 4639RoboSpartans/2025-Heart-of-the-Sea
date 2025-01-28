@@ -22,7 +22,6 @@ public class SimElevatorSubsystem extends ElevatorSubsystem {
     private final ElevatorSim elevatorSim;
     
     private ScoringSuperstructureState state = ScoringSuperstructureState.IDLE;
-    private Distance position;
 
     private boolean isStateFinished = false;
 
