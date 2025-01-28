@@ -1,7 +1,15 @@
 package frc.robot.subsystems.scoring.constants;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.measure.Distance;
+
+import static edu.wpi.first.units.Units.Inches;
+
 public class ScoringConstants {
     public static class ElevatorConstants {
+        public static final Distance MAX_EXTENSION = Inches.of(72);
+        public static final Distance STARTING_HEIGHT = Inches.of(30);
+
         public static final double UP_POSITION = 0;
         public static final double DOWN_POSITION = 1;
         public static final double POSITION_DIFF = UP_POSITION - DOWN_POSITION;
@@ -9,7 +17,10 @@ public class ScoringConstants {
         public static final double ELEVATOR_TOLERANCE = 0.1;
     }
 
-    public static class WristConstants {
+    public static class HopperConstants {
+        public static final Rotation2d MAX_ROTATION = Rotation2d.fromDegrees(-155);
+        public static final Rotation2d EXTENDED_ROTATION = Rotation2d.fromDegrees(205);
+
         public static final double UP_POSITION = 0;
         public static final double DOWN_POSITION = 1;
         public static final double POSITION_DIFF = UP_POSITION - DOWN_POSITION;

@@ -1,5 +1,6 @@
 package frc.robot.subsystems.scoring;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.Controls;
@@ -122,18 +123,35 @@ public enum ScoringSuperstructureState {
     }
 
     public double getWristAbsolutePosition() {
-        return ScoringConstants.WristConstants.DOWN_POSITION
-                + ScoringConstants.WristConstants.POSITION_DIFF * wristPosition;
+        return ScoringConstants.HopperConstants.DOWN_POSITION
+                + ScoringConstants.HopperConstants.POSITION_DIFF * wristPosition;
     }
 
-    public Distance getElevatorSimPosition() {
-        return Inches.of(elevatorPosition * 84 + 36);
+    public Distance getElevatorSimLength() {
+        return Inches.of(elevatorPosition
+                * ScoringConstants.ElevatorConstants.MAX_EXTENSION.in(Inches)
+                + ScoringConstants.ElevatorConstants.STARTING_HEIGHT.in(Inches)
+        );
     }
 
     public static double getElevatorSimPosition(Distance distance) {
-        double position = (distance.in(Inches) - 36.0) / 84;
+        double position = (distance.in(Inches) - ScoringConstants.ElevatorConstants.STARTING_HEIGHT.in(Inches))
+                / ScoringConstants.ElevatorConstants.MAX_EXTENSION.in(Inches);
         return ScoringConstants.ElevatorConstants.DOWN_POSITION
                 + ScoringConstants.ElevatorConstants.POSITION_DIFF * position;
+    }
+
+    public Rotation2d getWristSimRotation() {
+        return ScoringConstants.HopperConstants.MAX_ROTATION
+                .times(wristPosition)
+                .plus(ScoringConstants.HopperConstants.EXTENDED_ROTATION);
+    }
+
+    public static double getWristSimPosition(Rotation2d rotation) {
+        double position = (rotation.getDegrees() - ScoringConstants.HopperConstants.EXTENDED_ROTATION.getDegrees())
+                / ScoringConstants.HopperConstants.MAX_ROTATION.getDegrees();
+        return ScoringConstants.HopperConstants.DOWN_POSITION
+                + ScoringConstants.HopperConstants.POSITION_DIFF * position;
     }
 
     public ScoringSuperstructureState getStateAfter() {

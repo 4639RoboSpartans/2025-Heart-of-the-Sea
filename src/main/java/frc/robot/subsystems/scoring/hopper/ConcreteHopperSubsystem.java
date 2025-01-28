@@ -73,7 +73,7 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
         wristEncoder = new DutyCycleEncoder(
                 ScoringConstants.IDs.WristEncoderID,
                 1,
-                ScoringConstants.WristConstants.WRIST_ABSOLUTE_DOWN_POSITION
+                ScoringConstants.HopperConstants.WRIST_ABSOLUTE_DOWN_POSITION
         );
         wristPID = new ProfiledPIDController(
                 ScoringPIDs.wristKp.get(),
@@ -164,7 +164,7 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
         return MathUtil.isNear(
                 getTargetPosition(),
                 getCurrentPosition(),
-                ScoringConstants.WristConstants.WRIST_TOLERANCE
+                ScoringConstants.HopperConstants.WRIST_TOLERANCE
         );
     }
 
