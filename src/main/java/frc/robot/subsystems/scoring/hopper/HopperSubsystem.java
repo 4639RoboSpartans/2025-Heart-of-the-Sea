@@ -12,6 +12,9 @@ import java.util.Objects;
 public abstract class HopperSubsystem extends SubsystemBase {
     private static HopperSubsystem instance;
 
+    // TODO: Don't do this! Singleton getInstance() should never take parameters.
+    //  Side note: if you really do need different instances for different parameters, use some sort of map from
+    //  parameter to instance, and name it getInstanceFor(param1, param2, ...)
     public static HopperSubsystem getInstance(ScoringSuperstructure scoringSuperstructure) {
         if (Robot.isReal()) {
             return instance = Objects.requireNonNullElseGet(

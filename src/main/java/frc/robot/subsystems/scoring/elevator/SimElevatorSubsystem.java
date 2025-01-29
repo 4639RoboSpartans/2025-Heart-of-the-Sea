@@ -75,7 +75,7 @@ public class SimElevatorSubsystem extends ElevatorSubsystem {
     }
 
     @Override
-    public boolean isElevatorAtPositionState() {
+    public boolean isElevatorAtPosition() {
         return MathUtil.isNear(
                 ScoringSuperstructureState.getElevatorSimPosition(getTargetLength()),
                 ScoringSuperstructureState.getElevatorSimPosition(getCurrentLength()),
@@ -94,7 +94,7 @@ public class SimElevatorSubsystem extends ElevatorSubsystem {
         elevatorSim.update(0.020);
         elevatorSim.setState(elevatorSim.getPositionMeters(), elevatorSim.getVelocityMetersPerSecond());
 
-        if (isElevatorAtPositionState()) {
+        if (isElevatorAtPosition()) {
             isStateFinished = true;
         }
     }

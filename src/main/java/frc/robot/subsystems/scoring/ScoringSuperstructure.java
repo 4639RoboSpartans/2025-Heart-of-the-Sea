@@ -36,6 +36,7 @@ public class ScoringSuperstructure extends SubsystemBase {
         hopper.setHopper(state);
     }
 
+    // TODO: Don't append "Command" to command factory methods.
     public Command setScoringStateCommand(ScoringSuperstructureState state) {
         return Commands.runOnce(
                 () -> setState(state),
@@ -64,7 +65,7 @@ public class ScoringSuperstructure extends SubsystemBase {
             case ELEVATOR -> Commands.run(
                     () -> {
                         elevator.runElevator();
-                        if (elevator.atPositionStateTrigger().getAsBoolean()) {
+                        if (elevator.isElevatorAtPosition()) {
                             hopper.runHopper();
                         }
                     },
@@ -73,8 +74,9 @@ public class ScoringSuperstructure extends SubsystemBase {
         };
     }
 
+    // TODO: Remember, the trigger stuff here. Make basic getter methods
     public Trigger atPositionStateTrigger() {
-        return elevator.atPositionStateTrigger()
+        return elevator.isElevatorAtPosition
                 .and(hopper.atPositionStateTrigger());
     }
 

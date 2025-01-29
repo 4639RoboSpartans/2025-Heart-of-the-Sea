@@ -90,7 +90,7 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
         return isStateFinished;
     }
 
-    public boolean isElevatorAtPositionState() {
+    public boolean isElevatorAtPosition() {
         return MathUtil.isNear(
                 controlRequest.Position,
                 leftElevator.getPosition().getValueAsDouble(),
@@ -112,10 +112,10 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
 
     @Override
     public void periodic() {
-        if (isElevatorAtPositionState()) {
+        if (isElevatorAtPosition()) {
             isStateFinished = true;
         }
-        SmartDashboard.putBoolean("At State", isElevatorAtPositionState());
+        SmartDashboard.putBoolean("At State", isElevatorAtPosition());
     }
 
     public Command quasistatic(SysIdRoutine.Direction direction) {

@@ -21,6 +21,7 @@ public abstract class ElevatorSubsystem extends SubsystemBase {
         }
     }
 
+    // TODO: unify "position" and "length" if possible. Why does "position" mean different things in two classes?
     public abstract double getCurrentPosition();
 
     public abstract Distance getCurrentLength();
@@ -29,11 +30,9 @@ public abstract class ElevatorSubsystem extends SubsystemBase {
 
     public abstract Distance getTargetLength();
 
-    public abstract boolean isElevatorAtPositionState();
-
-    public Trigger atPositionStateTrigger() {
-        return new Trigger(this::isElevatorAtPositionState);
-    }
+    // TODO: implement this pattern everywhere else there is a trigger
+    public abstract boolean isElevatorAtPosition();
+    public final Trigger isElevatorAtPosition = new Trigger(this::isElevatorAtPosition);
 
     public abstract boolean isElevatorStateFinished();
 
@@ -44,6 +43,8 @@ public abstract class ElevatorSubsystem extends SubsystemBase {
     public abstract void setElevatorState(ScoringSuperstructureState state);
 
     public abstract void runElevator();
+
+    // Todo: PLEASE MOVE SYS ID TO SEPARATE CLASSES EVERYWHERE!
 
     public abstract Command quasistatic(SysIdRoutine.Direction direction);
 

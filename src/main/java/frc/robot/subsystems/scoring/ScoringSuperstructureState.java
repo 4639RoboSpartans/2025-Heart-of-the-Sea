@@ -9,6 +9,8 @@ import frc.robot.subsystems.scoring.constants.ScoringConstants;
 import static edu.wpi.first.units.Units.Inches;
 
 
+// TODO: Change to a class; each state should be a static final constant.
+//  In the class, use method chaining to set stuff: new State().withNextState(state).intakeUntilSeen()...
 public enum ScoringSuperstructureState {
     IDLE(
             0,
@@ -175,6 +177,7 @@ public enum ScoringSuperstructureState {
         };
     }
 
+    // TODO: this code is suspicious. Figure out a better way.
     public enum ScoringSubsystem {
         HOPPER,
         ELEVATOR,
