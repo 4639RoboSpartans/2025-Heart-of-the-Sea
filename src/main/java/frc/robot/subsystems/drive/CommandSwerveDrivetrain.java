@@ -36,6 +36,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import frc.lib.DriverStationHelpers;
 import frc.lib.network.LimelightHelpers;
 import frc.robot.commands.AutoRoutines;
 import frc.robot.constants.Controls;
@@ -226,7 +227,7 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
             () -> getState().Pose,
             this::resetPose,
             this::followPath,
-            false,
+            true,
             this,
             trajLogger
         );
@@ -238,8 +239,8 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
     }
 
     public SwerveRequest fieldCentricRequestSupplier() {
-        double forwards = Controls.Driver.SwerveForwardAxis.getAsDouble() * DriveConstants.CURRENT_MAX_ROBOT_MPS;
-        double strafe = -Controls.Driver.SwerveStrafeAxis.getAsDouble() * DriveConstants.CURRENT_MAX_ROBOT_MPS;
+        double forwards = (DriverStationHelpers.getAlliance() == Alliance.Blue ? 1 : -1) *  Controls.Driver.SwerveForwardAxis.getAsDouble() * DriveConstants.CURRENT_MAX_ROBOT_MPS;
+        double strafe = (DriverStationHelpers.getAlliance() == Alliance.Blue ? 1 : -1) * -Controls.Driver.SwerveStrafeAxis.getAsDouble() * DriveConstants.CURRENT_MAX_ROBOT_MPS;
         double rotation = Controls.Driver.SwerveRotationAxis.getAsDouble() * DriveConstants.CURRENT_MAX_ROBOT_MPS;
         if (Controls.Driver.precisionTrigger.getAsBoolean()) {
             forwards /= 4;
@@ -333,8 +334,8 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
             });
         }
         field.setRobotPose(getState().Pose);
+        VisionIO.getVisionFunction().run();
         SmartDashboard.putData("Field2D", field);
-        VisionIO.addGlobalVisionMeasurementsToDriveTrain(this, 1.0);
     }
 
     private void startSimThread() {
