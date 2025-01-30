@@ -1,10 +1,9 @@
 package frc.robot.subsystems.scoring.elevator;
 
 import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.robot.Robot;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 
@@ -39,9 +38,5 @@ public abstract class ElevatorSubsystem extends SubsystemBase {
 
     public abstract void runElevator();
 
-    // Todo: PLEASE MOVE SYS ID TO SEPARATE CLASSES EVERYWHERE!
-
-    public abstract Command quasistatic(SysIdRoutine.Direction direction);
-
-    public abstract Command dynamic(SysIdRoutine.Direction direction);
+    public abstract void setElevatorMotorVoltsSysID(Voltage voltage);
 }

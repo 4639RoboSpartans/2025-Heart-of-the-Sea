@@ -1,7 +1,9 @@
 package frc.robot.subsystems.scoring.elevator;
 
 import com.ctre.phoenix6.SignalLogger;
-import com.ctre.phoenix6.configs.*;
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
+import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
@@ -9,6 +11,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -25,8 +28,6 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
     private ScoringSuperstructureState state = ScoringSuperstructureState.IDLE;
 
     private boolean isStateFinished = false;
-
-    private final SysIdRoutine elevatorRoutine;
 
     public ConcreteElevatorSubsystem() {
         leftElevator = new TalonFX(ScoringConstants.IDs.ElevatorLeftID);
@@ -50,20 +51,6 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
         rightConfigurator.apply(configuration);
         rightElevator.setControl(new Follower(ScoringConstants.IDs.ElevatorLeftID, true));
         controlRequest = new MotionMagicVoltage(leftElevator.getPosition().getValueAsDouble());
-
-        elevatorRoutine = new SysIdRoutine(
-                new SysIdRoutine.Config(
-                        Volts.of(4).per(Second),
-                        Volts.of(3),
-                        Seconds.of(1.75),
-                        (state) -> SignalLogger.writeString("state", state.toString())
-                ),
-                new SysIdRoutine.Mechanism(
-                        output -> leftElevator.setControl(new VoltageOut(output.in(Volts))),
-                        null,
-                        this
-                )
-        );
     }
 
     @Override
@@ -118,11 +105,8 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
         SmartDashboard.putBoolean("At State", isElevatorAtPosition());
     }
 
-    public Command quasistatic(SysIdRoutine.Direction direction) {
-        return elevatorRoutine.quasistatic(direction);
-    }
-
-    public Command dynamic(SysIdRoutine.Direction direction) {
-        return elevatorRoutine.dynamic(direction);
+    @Override
+    public void setElevatorMotorVoltsSysID(Voltage voltage) {
+        leftElevator.setControl(new VoltageOut(voltage));
     }
 }

@@ -6,16 +6,15 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
 import frc.robot.subsystems.scoring.constants.ScoringPIDs;
 
 import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Volts;
 
 public class SimElevatorSubsystem extends ElevatorSubsystem {
     private final ProfiledPIDController elevatorPID;
@@ -107,7 +106,7 @@ public class SimElevatorSubsystem extends ElevatorSubsystem {
                         getCurrentLength()
                 )
         );
-        elevatorSim.setInput(output);
+        elevatorSim.setInputVoltage(output);
         SmartDashboard.putNumber("Elevator PID output", output);
     }
 
@@ -125,11 +124,8 @@ public class SimElevatorSubsystem extends ElevatorSubsystem {
         );
     }
 
-    public Command quasistatic(SysIdRoutine.Direction direction) {
-        return new WaitCommand(0.5);
-    }
-
-    public Command dynamic(SysIdRoutine.Direction direction) {
-        return quasistatic(direction);
+    @Override
+    public void setElevatorMotorVoltsSysID(Voltage voltage) {
+        elevatorSim.setInputVoltage(voltage.in(Volts));
     }
 }
