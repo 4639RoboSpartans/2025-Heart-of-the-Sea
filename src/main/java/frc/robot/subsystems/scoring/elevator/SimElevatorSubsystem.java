@@ -1,6 +1,7 @@
 package frc.robot.subsystems.scoring.elevator;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
@@ -18,8 +19,9 @@ import static edu.wpi.first.units.Units.Volts;
 
 public class SimElevatorSubsystem extends ElevatorSubsystem {
     private final ProfiledPIDController elevatorPID;
+    private final ElevatorFeedforward elevatorFeedforward;
     private final ElevatorSim elevatorSim;
-    
+
     private ScoringSuperstructureState state = ScoringSuperstructureState.IDLE;
 
     private boolean isStateFinished = false;
@@ -33,6 +35,12 @@ public class SimElevatorSubsystem extends ElevatorSubsystem {
                         ScoringPIDs.elevatorVelocity.get(),
                         ScoringPIDs.elevatorAcceleration.get()
                 )
+        );
+        elevatorFeedforward = new ElevatorFeedforward(
+                0,
+                1.6,
+                0.1,
+                0.01
         );
         elevatorSim = new ElevatorSim(
                 LinearSystemId.createElevatorSystem(
@@ -79,12 +87,13 @@ public class SimElevatorSubsystem extends ElevatorSubsystem {
                 ScoringSuperstructureState.getElevatorSimPosition(getTargetLength()),
                 ScoringSuperstructureState.getElevatorSimPosition(getCurrentLength()),
                 ScoringConstants.ElevatorConstants.ELEVATOR_TOLERANCE
-        );
+        ) && elevatorPID.getVelocityError() <= 0.01;
     }
 
     @Override
     public void setElevatorState(ScoringSuperstructureState state) {
         this.state = state;
+        elevatorPID.setGoal(state.getElevatorAbsolutePosition());
     }
 
     @Override
@@ -101,11 +110,11 @@ public class SimElevatorSubsystem extends ElevatorSubsystem {
     @Override
     public void runElevator() {
         elevatorPID.setGoal(ScoringSuperstructureState.getElevatorSimPosition(state.getElevatorLength()));
-        double output = elevatorPID.calculate(
+        double output = -elevatorPID.calculate(
                 ScoringSuperstructureState.getElevatorSimPosition(
                         getCurrentLength()
                 )
-        );
+        ) + elevatorFeedforward.calculate(getCurrentPosition());
         elevatorSim.setInputVoltage(output);
         SmartDashboard.putNumber("Elevator PID output", output);
     }

@@ -48,26 +48,26 @@ public class SimHopperSubsystem extends HopperSubsystem {
                 DCMotor.getNEO(1),
                 25.6,
                 0.419,
-                ScoringSuperstructureState.L2_ALGAE.getWristSimRotation().getRadians(),
-                ScoringSuperstructureState.IDLE.getWristSimRotation().getRadians(),
+                ScoringConstants.HopperConstants.EXTENDED_ROTATION.plus(ScoringConstants.HopperConstants.MAX_ROTATION).getRadians(),
+                ScoringConstants.HopperConstants.EXTENDED_ROTATION.getRadians(),
                 true,
-                ScoringSuperstructureState.IDLE.getWristSimRotation().getRadians()
+                ScoringConstants.HopperConstants.EXTENDED_ROTATION.getRadians()
         );
     }
 
     @Override
     public double getCurrentPosition() {
-        return pivotSim.getAngleRads();
+        return ScoringSuperstructureState.getWristSimPosition(getCurrentRotation());
     }
 
     @Override
     public Rotation2d getCurrentRotation() {
-        return Rotation2d.fromRadians(getCurrentPosition());
+        return Rotation2d.fromRadians(pivotSim.getAngleRads());
     }
 
     @Override
     public double getTargetPosition() {
-        return state.getWristSimRotation().getRadians();
+        return ScoringSuperstructureState.getWristSimPosition(getTargetRotation());
     }
 
     @Override
@@ -104,7 +104,7 @@ public class SimHopperSubsystem extends HopperSubsystem {
         this.state = state;
         intakeSpeed = 0;
         isStateFinished = false;
-        pivotPID.setGoal(ScoringSuperstructureState.getWristSimPosition(state.getWristSimRotation()));
+        pivotPID.setGoal(state.getWristAbsolutePosition());
     }
 
     @Override
@@ -116,7 +116,7 @@ public class SimHopperSubsystem extends HopperSubsystem {
     protected void runHopperPosition() {
         pivotSim.update(0.020);
         pivotSim.setInputVoltage(
-                pivotPID.calculate(Rotation2d.fromRadians(pivotSim.getAngleRads()).getRotations())
+                pivotPID.calculate(getCurrentPosition())
         );
     }
 

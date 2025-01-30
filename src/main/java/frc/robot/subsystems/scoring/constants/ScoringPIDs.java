@@ -16,13 +16,13 @@ public class ScoringPIDs {
     public static TunableNumber wristAcceleration = new TunableNumber("Wrist Acceleration");
 
     static {
-        elevatorKp.setDefault(1.0);
+        elevatorKp.setDefault(150.0);
         elevatorKi.setDefault(0.0);
-        elevatorKd.setDefault(0.0);
-        elevatorVelocity.setDefault(30);
-        elevatorAcceleration.setDefault(20);
+        elevatorKd.setDefault(7.0);
+        elevatorVelocity.setDefault(25);
+        elevatorAcceleration.setDefault(10);
 
-        wristKp.setDefault(1.0);
+        wristKp.setDefault(10.0);
         wristKi.setDefault(0.0);
         wristKd.setDefault(0.0);
         wristVelocity.setDefault(30);
