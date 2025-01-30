@@ -227,7 +227,7 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
             () -> getState().Pose,
             this::resetPose,
             this::followPath,
-            true,
+            false,
             this,
             trajLogger
         );
@@ -239,8 +239,8 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
     }
 
     public SwerveRequest fieldCentricRequestSupplier() {
-        double forwards = (DriverStationHelpers.getAlliance() == Alliance.Blue ? 1 : -1) *  Controls.Driver.SwerveForwardAxis.getAsDouble() * DriveConstants.CURRENT_MAX_ROBOT_MPS;
-        double strafe = (DriverStationHelpers.getAlliance() == Alliance.Blue ? 1 : -1) * -Controls.Driver.SwerveStrafeAxis.getAsDouble() * DriveConstants.CURRENT_MAX_ROBOT_MPS;
+        double forwards = Controls.Driver.SwerveForwardAxis.getAsDouble() * DriveConstants.CURRENT_MAX_ROBOT_MPS;
+        double strafe = -Controls.Driver.SwerveStrafeAxis.getAsDouble() * DriveConstants.CURRENT_MAX_ROBOT_MPS;
         double rotation = Controls.Driver.SwerveRotationAxis.getAsDouble() * DriveConstants.CURRENT_MAX_ROBOT_MPS;
         if (Controls.Driver.precisionTrigger.getAsBoolean()) {
             forwards /= 4;
@@ -374,7 +374,7 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
                 ),
                 config,
                 // Assume the path needs to be flipped for Red vs Blue, this is normally the case
-                () -> false,
+                () -> true,
                 this // Subsystem for requirements
             );
             PathPlannerLogging.setLogActivePathCallback((poses) -> {

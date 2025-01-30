@@ -9,6 +9,8 @@ package frc.robot.constants;
 
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -191,5 +193,30 @@ public class FieldConstants {
         this.Pose = pose;
     }
     public final Pose2d Pose;
+  }
+
+  public enum LimelightIDHolder{
+        LeftCoralStation(13, 1),
+        RightCoralStation(12, 2),
+        Processor(16, 3),
+        AllianceBarge(14, 5),
+        OpponentBarge(15, 4),
+        Reef0(18, 7),
+        Reef1(19, 6),
+        Reef2(20, 11),
+        Reef3(21, 10),
+        Reef4(22, 9),
+        Reef5(17, 8);
+
+        private int blueAllianceID, redAllianceID;
+
+        LimelightIDHolder(int blueAllianceID, int redAllianceID){
+                this.blueAllianceID = blueAllianceID;
+                this.redAllianceID = redAllianceID;
+        }
+
+        int getAllianceRespectiveID(){
+                return DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue ? blueAllianceID : redAllianceID;
+        }
   }
 }

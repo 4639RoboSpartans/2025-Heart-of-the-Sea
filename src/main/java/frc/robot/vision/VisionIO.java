@@ -1,22 +1,16 @@
 package frc.robot.vision;
 
 import java.util.Arrays;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Function;
-
 import com.ctre.phoenix6.Utils;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj.RobotBase;
 import frc.lib.network.LimelightHelpers;
 import frc.robot.constants.IDs;
@@ -29,6 +23,7 @@ public class VisionIO extends SubsystemBase{
     private static int defaultTargetID = -1;
 
     private static Runnable visionFunction = VisionIO::addGlobalVisionMeasurementsToDriveTrain;
+                                                //VisionIO::target;
 
     static {
         SmartDashboard.putBoolean("Trust Faraway Data", trustFaraways);
@@ -76,7 +71,7 @@ public class VisionIO extends SubsystemBase{
                     measurement = measurement.isPresent()
                                 ? (measurement.get().getX() == 0 || measurement.get().getY() == 0
                                     ? Optional.empty()
-                                    : (measurement.get().getTranslation().getDistance(drivetrain.getState().Pose.getTranslation()) <= 1
+                                    : (measurement.get().getTranslation().getDistance(drivetrain.getState().Pose.getTranslation()) <= 1000
                                         ? measurement
                                         : Optional.empty())
                                     )
