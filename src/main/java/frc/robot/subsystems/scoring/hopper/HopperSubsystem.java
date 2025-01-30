@@ -37,23 +37,14 @@ public abstract class HopperSubsystem extends SubsystemBase {
 
     public abstract Rotation2d getTargetRotation();
 
-    protected abstract boolean isHopperAtPositionState();
-
-    public Trigger atPositionStateTrigger() {
-        return new Trigger(this::isHopperAtPositionState);
-    }
+    public abstract boolean isHopperAtPosition();
+    public Trigger isHopperAtPosition = new Trigger(this::isHopperAtPosition);
 
     public abstract boolean isHopperStateFinished();
-
-    public Trigger stateFinishedTrigger() {
-        return new Trigger(this::isHopperStateFinished);
-    }
+    public Trigger isHopperStateFinished = new Trigger(this::isHopperStateFinished);
 
     public abstract boolean hasCoral();
-
-    public Trigger hasCoralTrigger() {
-        return new Trigger(this::hasCoral);
-    }
+    public Trigger hasCoral = new Trigger(this::hasCoral);
 
     public abstract void setHopper(ScoringSuperstructureState state);
 

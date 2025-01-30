@@ -36,33 +36,34 @@ public class ScoringSuperstructure extends SubsystemBase {
         hopper.setHopper(state);
     }
 
-    // TODO: Don't append "Command" to command factory methods.
-    public Command setScoringStateCommand(ScoringSuperstructureState state) {
+    public Command setScoringState(ScoringSuperstructureState state) {
         return Commands.runOnce(
                 () -> setState(state),
                 this
         );
     }
 
-    public Command runScoringStateCommand() {
-        return switch (state.firstToMove) {
-            case BOTH -> Commands.run(
+    public Command runScoringState() {
+        if (state.lastToMove == null) {
+            return Commands.run(
                     () -> {
-                        elevator.runElevator();
                         hopper.runHopper();
+                        elevator.runElevator();
                     },
                     this
             );
-            case HOPPER -> Commands.run(
+        } else if (state.lastToMove == ElevatorSubsystem.class) {
+            return Commands.run(
                     () -> {
                         hopper.runHopper();
-                        if (hopper.atPositionStateTrigger().getAsBoolean()) {
+                        if (hopper.isHopperAtPosition()) {
                             elevator.runElevator();
                         }
                     },
                     this
             );
-            case ELEVATOR -> Commands.run(
+        } else if (state.lastToMove == HopperSubsystem.class) {
+            return Commands.run(
                     () -> {
                         elevator.runElevator();
                         if (elevator.isElevatorAtPosition()) {
@@ -71,23 +72,23 @@ public class ScoringSuperstructure extends SubsystemBase {
                     },
                     this
             );
-        };
+        }
+        return null;
     }
 
-    // TODO: Remember, the trigger stuff here. Make basic getter methods
-    public Trigger atPositionStateTrigger() {
-        return elevator.isElevatorAtPosition
-                .and(hopper.atPositionStateTrigger());
+    public boolean isAtPositionState() {
+        return elevator.isElevatorAtPosition() && hopper.isHopperAtPosition();
     }
+    public Trigger isAtPositionState = new Trigger(this::isAtPositionState);
 
-    public Trigger stateFinishedTrigger() {
-        return elevator.stateFinishedTrigger()
-                .and(hopper.stateFinishedTrigger());
+    public boolean isStateFinished() {
+        return elevator.isElevatorStateFinished() && hopper.isHopperStateFinished();
     }
+    public Trigger isStateFinished = new Trigger(this::isStateFinished);
 
     @Override
     public void periodic() {
-        if (stateFinishedTrigger().getAsBoolean()) {
+        if (isStateFinished()) {
             setState(state.getStateAfter());
         } else if (!(state == ScoringSuperstructureState.IDLE) && !state.control.getAsBoolean()) {
             setState(ScoringSuperstructureState.IDLE);

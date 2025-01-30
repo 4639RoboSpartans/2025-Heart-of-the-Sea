@@ -13,6 +13,8 @@ import frc.robot.subsystems.scoring.constants.ScoringConstants;
 import frc.robot.subsystems.scoring.constants.ScoringPIDs;
 
 public class SimHopperSubsystem extends HopperSubsystem {
+    private static final double secondsUntilIntakeOuttake = 1;
+
     private final ProfiledPIDController pivotPID;
     private final SingleJointedArmSim pivotSim;
 
@@ -20,6 +22,10 @@ public class SimHopperSubsystem extends HopperSubsystem {
     private double intakeSpeed;
 
     private final ScoringSuperstructure scoringSuperstructure;
+
+    private double secondsFromIntakeOuttakeStart = 0;
+
+    private boolean isStateFinished = false;
 
     public SimHopperSubsystem(ScoringSuperstructure scoringSuperstructure) {
         this.scoringSuperstructure = scoringSuperstructure;
@@ -70,7 +76,7 @@ public class SimHopperSubsystem extends HopperSubsystem {
     }
 
     @Override
-    protected boolean isHopperAtPositionState() {
+    public boolean isHopperAtPosition() {
         return MathUtil.isNear(
                 ScoringSuperstructureState.getWristSimPosition(getTargetRotation()),
                 ScoringSuperstructureState.getWristSimPosition(getCurrentRotation()),
@@ -80,7 +86,7 @@ public class SimHopperSubsystem extends HopperSubsystem {
 
     @Override
     public boolean isHopperStateFinished() {
-        return isHopperAtPositionState();
+        return isStateFinished;
     }
 
     @Override
@@ -92,6 +98,7 @@ public class SimHopperSubsystem extends HopperSubsystem {
     public void setHopper(ScoringSuperstructureState state) {
         this.state = state;
         intakeSpeed = 0;
+        isStateFinished = false;
         pivotPID.setGoal(ScoringSuperstructureState.getWristSimPosition(state.getWristSimRotation()));
     }
 
@@ -111,8 +118,19 @@ public class SimHopperSubsystem extends HopperSubsystem {
     @Override
     public void runHopper() {
         runHopperPosition();
-        if (scoringSuperstructure.atPositionStateTrigger().getAsBoolean()) {
+        if (scoringSuperstructure.isAtPositionState().getAsBoolean() && !isStateFinished) {
             intakeSpeed = state.intakeSpeed;
+        }
+        if (state.intakeUntilSeen) {
+            if (hasCoral()) {
+                intakeSpeed = 0;
+                isStateFinished = true;
+            }
+        } else if (state.outtakeUntilSeen) {
+            if (hasCoral()) {
+                intakeSpeed = 0;
+                isStateFinished = true;
+            }
         }
     }
 

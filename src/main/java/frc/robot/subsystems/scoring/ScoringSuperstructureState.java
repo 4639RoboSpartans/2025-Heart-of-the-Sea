@@ -5,132 +5,158 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.Controls;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
+import frc.robot.subsystems.scoring.elevator.ElevatorSubsystem;
+import frc.robot.subsystems.scoring.hopper.HopperSubsystem;
 
 import static edu.wpi.first.units.Units.Inches;
 
+public class ScoringSuperstructureState {
+    private double elevatorPercent;
+    private double wristPercent;
+    public double intakeSpeed;
+    public boolean intakeUntilSeen;
+    public boolean outtakeUntilSeen;
+    public Class lastToMove;
+    public Trigger control;
+    public ScoringSuperstructureState stateAfter;
 
-// TODO: Change to a class; each state should be a static final constant.
-//  In the class, use method chaining to set stuff: new State().withNextState(state).intakeUntilSeen()...
-public enum ScoringSuperstructureState {
-    IDLE(
-            0,
-            1,
-            0,
-            false,
-            true,
-            ScoringSubsystem.ELEVATOR,
-            null
-    ),
-    HP_LOADING(
-            0.5,
-            0.75,
-            0.5,
-            true,
-            false,
-            ScoringSubsystem.BOTH,
-            Controls.Operator.HPLoadingTrigger
-    ),
-    L1(
-            0.5,
-            0.5,
-            -0.5,
-            false,
-            true,
-            ScoringSubsystem.HOPPER,
-            Controls.Operator.L1Trigger
-    ),
-    L2(
-            0.65,
-            0.25,
-            -0.5,
-            false,
-            true,
-            ScoringSubsystem.HOPPER,
-            Controls.Operator.L2Trigger
-    ),
-    L3(
-            0.8,
-            0.25,
-            -0.5,
-            false,
-            true,
-            ScoringSubsystem.HOPPER,
-            Controls.Operator.L3Trigger
-    ),
-    L4(
-            1,
-            0,
-            -0.5,
-            false,
-            true,
-            ScoringSubsystem.HOPPER,
-            Controls.Operator.L4Trigger
-    ),
-    L2_ALGAE(
-            0.65,
-            0.75,
-            -0.5,
-            false,
-            true,
-            ScoringSubsystem.HOPPER,
-            Controls.Operator.L2AlgaeTrigger
-    ),
-    L3_ALGAE(
-            0.8,
-            0.75,
-            -0.5,
-            false,
-            true,
-            ScoringSubsystem.HOPPER,
-            Controls.Operator.L3AlgaeTrigger
-    ),
-    BARGE_SCORING(
-            1,
-            0.5,
-            1,
-            false,
-            false,
-            ScoringSubsystem.HOPPER,
-            Controls.Operator.BargeScoringTrigger
-    );
-
-    private final double elevatorPosition;
-    private final double wristPosition;
-    public final double intakeSpeed;
-    public final boolean intakeUntilSeen;
-    public final boolean outtakeUntilSeen;
-    public final ScoringSubsystem firstToMove;
-    public final Trigger control;
-
-    ScoringSuperstructureState(
-            double elevatorPosition,
-            double wristPosition,
-            double intakeSpeed,
-            boolean intakeUntilSeen,
-            boolean outtakeUntilSeen,
-            ScoringSubsystem firstToMove,
-            Trigger control) {
-        this.elevatorPosition = elevatorPosition;
-        this.wristPosition = wristPosition;
-        this.intakeSpeed = intakeSpeed;
-        this.intakeUntilSeen = intakeUntilSeen;
-        this.outtakeUntilSeen = outtakeUntilSeen;
-        this.firstToMove = firstToMove;
-        this.control = control;
+    private ScoringSuperstructureState() {
+        this.elevatorPercent = 0;
+        this.wristPercent = 0;
+        this.intakeSpeed = 0;
+        this.intakeUntilSeen = false;
+        this.outtakeUntilSeen = false;
+        this.lastToMove = null;
+        this.control = null;
+        this.stateAfter = this;
     }
+
+    private ScoringSuperstructureState withElevatorPercent(double percent) {
+        this.elevatorPercent = percent;
+        return this;
+    }
+
+    private ScoringSuperstructureState withWristPercent(double percent) {
+        this.wristPercent = percent;
+        return this;
+    }
+
+    private ScoringSuperstructureState withIntakeSpeed(double speed) {
+        this.intakeSpeed = speed;
+        return this;
+    }
+
+    private ScoringSuperstructureState withIntakeUntilSeen(boolean untilSeen) {
+        this.intakeUntilSeen = untilSeen;
+        return this;
+    }
+
+    private ScoringSuperstructureState withOuttakeUntilSeen(boolean untilSeen) {
+        this.outtakeUntilSeen = untilSeen;
+        return this;
+    }
+
+    private ScoringSuperstructureState withControl(Trigger control) {
+        this.control = control;
+        return this;
+    }
+
+    private ScoringSuperstructureState withLastToMove(Class lastToMove) {
+        this.lastToMove = lastToMove;
+        return this;
+    }
+
+    private ScoringSuperstructureState withStateAfter(ScoringSuperstructureState stateAfter) {
+        this.stateAfter = stateAfter;
+        return this;
+    }
+
+    public static final ScoringSuperstructureState
+            IDLE =
+                new ScoringSuperstructureState()
+                        .withElevatorPercent(0.0)
+                        .withWristPercent(1.0)
+                        .withIntakeSpeed(0.0)
+                        .withIntakeUntilSeen(false)
+                        .withOuttakeUntilSeen(true)
+                        .withLastToMove(HopperSubsystem.class),
+            HP_LOADING =
+                    new ScoringSuperstructureState()
+                            .withElevatorPercent(0.5)
+                            .withWristPercent(0.75)
+                            .withIntakeSpeed(0.5)
+                            .withIntakeUntilSeen(true)
+                            .withOuttakeUntilSeen(false)
+                            .withControl(Controls.Operator.HPLoadingTrigger),
+            L1 = new ScoringSuperstructureState()
+                    .withElevatorPercent(0.5)
+                    .withWristPercent(0.5)
+                    .withIntakeSpeed(0.5)
+                    .withIntakeUntilSeen(false)
+                    .withOuttakeUntilSeen(true)
+                    .withLastToMove(ElevatorSubsystem.class)
+                    .withControl(Controls.Operator.L1Trigger),
+            L2 = new ScoringSuperstructureState()
+                    .withElevatorPercent(0.65)
+                    .withWristPercent(0.25)
+                    .withIntakeSpeed(0.5)
+                    .withIntakeUntilSeen(false)
+                    .withOuttakeUntilSeen(true)
+                    .withLastToMove(ElevatorSubsystem.class)
+                    .withControl(Controls.Operator.L2Trigger),
+            L3 = new ScoringSuperstructureState()
+                    .withElevatorPercent(0.8)
+                    .withWristPercent(0.25)
+                    .withIntakeSpeed(0.5)
+                    .withIntakeUntilSeen(false)
+                    .withOuttakeUntilSeen(true)
+                    .withLastToMove(ElevatorSubsystem.class)
+                    .withControl(Controls.Operator.L3Trigger),
+            L4 = new ScoringSuperstructureState()
+                    .withElevatorPercent(1)
+                    .withWristPercent(0)
+                    .withIntakeSpeed(0.5)
+                    .withIntakeUntilSeen(false)
+                    .withOuttakeUntilSeen(true)
+                    .withLastToMove(ElevatorSubsystem.class)
+                    .withControl(Controls.Operator.L4Trigger),
+            L2_ALGAE = new ScoringSuperstructureState()
+                    .withElevatorPercent(0.65)
+                    .withWristPercent(0.75)
+                    .withIntakeSpeed(-0.5)
+                    .withIntakeUntilSeen(false)
+                    .withOuttakeUntilSeen(false)
+                    .withLastToMove(ElevatorSubsystem.class)
+                    .withControl(Controls.Operator.L2AlgaeTrigger),
+            L3_ALGAE = new ScoringSuperstructureState()
+                    .withElevatorPercent(0.8)
+                    .withWristPercent(0.75)
+                    .withIntakeSpeed(-0.5)
+                    .withIntakeUntilSeen(false)
+                    .withOuttakeUntilSeen(false)
+                    .withLastToMove(ElevatorSubsystem.class)
+                    .withControl(Controls.Operator.L3AlgaeTrigger),
+            BARGE_SCORING = new ScoringSuperstructureState()
+                    .withElevatorPercent(1)
+                    .withWristPercent(0.5)
+                    .withIntakeSpeed(1)
+                    .withIntakeUntilSeen(false)
+                    .withOuttakeUntilSeen(false)
+                    .withLastToMove(ElevatorSubsystem.class)
+                    .withControl(Controls.Operator.BargeScoringTrigger);
 
     public double getElevatorAbsolutePosition() {
         return ScoringConstants.ElevatorConstants.DOWN_POSITION
-                + ScoringConstants.ElevatorConstants.POSITION_DIFF * elevatorPosition;
+                + ScoringConstants.ElevatorConstants.POSITION_DIFF * elevatorPercent;
     }
 
     public double getWristAbsolutePosition() {
         return ScoringConstants.HopperConstants.DOWN_POSITION
-                + ScoringConstants.HopperConstants.POSITION_DIFF * wristPosition;
+                + ScoringConstants.HopperConstants.POSITION_DIFF * wristPercent;
     }
 
     public Distance getElevatorLength() {
-        return Inches.of(elevatorPosition
+        return Inches.of(elevatorPercent
                 * ScoringConstants.ElevatorConstants.MAX_EXTENSION.in(Inches)
                 + ScoringConstants.ElevatorConstants.STARTING_HEIGHT.in(Inches)
         );
@@ -152,7 +178,7 @@ public enum ScoringSuperstructureState {
 
     public Rotation2d getWristSimRotation() {
         return ScoringConstants.HopperConstants.MAX_ROTATION
-                .times(wristPosition)
+                .times(wristPercent)
                 .plus(ScoringConstants.HopperConstants.EXTENDED_ROTATION);
     }
 
@@ -171,16 +197,6 @@ public enum ScoringSuperstructureState {
     }
 
     public ScoringSuperstructureState getStateAfter() {
-        return switch (this) {
-            case HP_LOADING, BARGE_SCORING -> IDLE;
-            default -> this;
-        };
-    }
-
-    // TODO: this code is suspicious. Figure out a better way.
-    public enum ScoringSubsystem {
-        HOPPER,
-        ELEVATOR,
-        BOTH
+        return stateAfter;
     }
 }

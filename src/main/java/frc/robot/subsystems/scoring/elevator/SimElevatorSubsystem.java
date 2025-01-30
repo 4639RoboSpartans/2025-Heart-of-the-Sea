@@ -52,22 +52,22 @@ public class SimElevatorSubsystem extends ElevatorSubsystem {
 
     @Override
     public double getCurrentPosition() {
-        return elevatorSim.getPositionMeters();
+        return ScoringSuperstructureState.getElevatorSimPosition(getCurrentLength());
     }
 
     @Override
     public Distance getCurrentLength() {
-        return Meters.of(getCurrentPosition());
+        return Meters.of(elevatorSim.getPositionMeters());
     }
 
     @Override
     public double getTargetPosition() {
-        return state.getElevatorLength().in(Meters);
+        return ScoringSuperstructureState.getElevatorSimPosition(getTargetLength());
     }
 
     @Override
     public Distance getTargetLength() {
-        return Meters.of(getTargetPosition());
+        return state.getElevatorLength();
     }
 
     public boolean isElevatorStateFinished() {
