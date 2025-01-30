@@ -13,7 +13,7 @@ import frc.robot.subsystems.scoring.constants.ScoringConstants;
 import frc.robot.subsystems.scoring.constants.ScoringPIDs;
 
 public class SimHopperSubsystem extends HopperSubsystem {
-    private static final double secondsUntilIntakeOuttake = 1;
+    private static final double secondsUntilIntakeOuttakeEnd = 1;
 
     private final ProfiledPIDController pivotPID;
     private final SingleJointedArmSim pivotSim;
@@ -76,6 +76,11 @@ public class SimHopperSubsystem extends HopperSubsystem {
     }
 
     @Override
+    public double getIntakeSpeed() {
+        return intakeSpeed;
+    }
+
+    @Override
     public boolean isHopperAtPosition() {
         return MathUtil.isNear(
                 ScoringSuperstructureState.getWristSimPosition(getTargetRotation()),
@@ -91,7 +96,7 @@ public class SimHopperSubsystem extends HopperSubsystem {
 
     @Override
     public boolean hasCoral() {
-        return true;
+        return secondsFromIntakeOuttakeStart >= secondsUntilIntakeOuttakeEnd;
     }
 
     @Override
@@ -118,8 +123,9 @@ public class SimHopperSubsystem extends HopperSubsystem {
     @Override
     public void runHopper() {
         runHopperPosition();
-        if (scoringSuperstructure.isAtPositionState().getAsBoolean() && !isStateFinished) {
+        if (scoringSuperstructure.isAtPositionState() && !isStateFinished) {
             intakeSpeed = state.intakeSpeed;
+            secondsFromIntakeOuttakeStart += 0.020;
         }
         if (state.intakeUntilSeen) {
             if (hasCoral()) {

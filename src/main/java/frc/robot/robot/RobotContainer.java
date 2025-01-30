@@ -6,23 +6,18 @@
 package frc.robot.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.RunCommand;
-import frc.lib.oi.OI;
-import frc.robot.commands.AutoRoutines;
 import frc.robot.constants.Controls;
 import frc.robot.constants.FieldConstants;
 import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
 import java.util.Arrays;
 
-import choreo.auto.AutoRoutine;
-
 
 public class RobotContainer {
     private final CommandSwerveDrivetrain swerve = CommandSwerveDrivetrain.getInstance();
+    @SuppressWarnings("unused")
     private final RobotSim robotSim = new RobotSim();
     private final SendableChooser<Command> autoChooser;
     private final SendableChooser<Pose2d> m_startPositionChooser = new SendableChooser<>();

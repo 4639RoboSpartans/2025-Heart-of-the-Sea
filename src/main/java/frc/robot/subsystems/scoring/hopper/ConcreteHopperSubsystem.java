@@ -117,12 +117,8 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
     }
 
     @Override
-    public boolean isHopperAtPosition() {
-        return MathUtil.isNear(
-                getTargetPosition(),
-                getCurrentPosition(),
-                ScoringConstants.HopperConstants.WRIST_TOLERANCE
-        );
+    public double getIntakeSpeed() {
+        return intakeMotor.get();
     }
 
     @Override
@@ -134,6 +130,15 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
             }
         }
         return false;
+    }
+
+    @Override
+    public boolean isHopperAtPosition() {
+        return MathUtil.isNear(
+                getTargetPosition(),
+                getCurrentPosition(),
+                ScoringConstants.HopperConstants.WRIST_TOLERANCE
+        );
     }
 
     public boolean isHopperStateFinished() {
@@ -159,6 +164,7 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
 
     @Override
     protected void runHopperPosition() {
+        @SuppressWarnings("unused")
         double wristPIDOutput = wristPID.calculate(
                 wristEncoder.get(),
                 wristPID.getGoal().position
@@ -170,7 +176,7 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
     @Override
     public void runHopper() {
         runHopperPosition();
-        if (scoringSuperstructure.isAtPositionState().getAsBoolean() && !isStateFinished) {
+        if (scoringSuperstructure.isAtPositionState() && !isStateFinished) {
             intakeMotor.set(state.intakeSpeed);
         }
         LaserCan.Measurement measurement = laserCAN.getMeasurement();

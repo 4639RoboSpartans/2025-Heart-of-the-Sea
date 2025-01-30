@@ -10,13 +10,14 @@ import frc.robot.subsystems.scoring.hopper.HopperSubsystem;
 
 import static edu.wpi.first.units.Units.Inches;
 
+@SuppressWarnings("rawtypes")
 public class ScoringSuperstructureState {
     private double elevatorPercent;
     private double wristPercent;
     public double intakeSpeed;
     public boolean intakeUntilSeen;
     public boolean outtakeUntilSeen;
-    public Class lastToMove;
+        public Class lastToMove;
     public Trigger control;
     public ScoringSuperstructureState stateAfter;
 
@@ -87,7 +88,8 @@ public class ScoringSuperstructureState {
                             .withIntakeSpeed(0.5)
                             .withIntakeUntilSeen(true)
                             .withOuttakeUntilSeen(false)
-                            .withControl(Controls.Operator.HPLoadingTrigger),
+                            .withControl(Controls.Operator.HPLoadingTrigger)
+                            .withStateAfter(IDLE),
             L1 = new ScoringSuperstructureState()
                     .withElevatorPercent(0.5)
                     .withWristPercent(0.5)
@@ -127,7 +129,8 @@ public class ScoringSuperstructureState {
                     .withIntakeUntilSeen(false)
                     .withOuttakeUntilSeen(false)
                     .withLastToMove(ElevatorSubsystem.class)
-                    .withControl(Controls.Operator.L2AlgaeTrigger),
+                    .withControl(Controls.Operator.L2AlgaeTrigger)
+                    .withStateAfter(IDLE),
             L3_ALGAE = new ScoringSuperstructureState()
                     .withElevatorPercent(0.8)
                     .withWristPercent(0.75)
@@ -135,7 +138,8 @@ public class ScoringSuperstructureState {
                     .withIntakeUntilSeen(false)
                     .withOuttakeUntilSeen(false)
                     .withLastToMove(ElevatorSubsystem.class)
-                    .withControl(Controls.Operator.L3AlgaeTrigger),
+                    .withControl(Controls.Operator.L3AlgaeTrigger)
+                    .withStateAfter(IDLE),
             BARGE_SCORING = new ScoringSuperstructureState()
                     .withElevatorPercent(1)
                     .withWristPercent(0.5)
@@ -143,7 +147,8 @@ public class ScoringSuperstructureState {
                     .withIntakeUntilSeen(false)
                     .withOuttakeUntilSeen(false)
                     .withLastToMove(ElevatorSubsystem.class)
-                    .withControl(Controls.Operator.BargeScoringTrigger);
+                    .withControl(Controls.Operator.BargeScoringTrigger)
+                    .withStateAfter(IDLE);
 
     public double getElevatorAbsolutePosition() {
         return ScoringConstants.ElevatorConstants.DOWN_POSITION

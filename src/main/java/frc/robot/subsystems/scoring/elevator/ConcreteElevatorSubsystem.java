@@ -1,6 +1,5 @@
 package frc.robot.subsystems.scoring.elevator;
 
-import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -13,13 +12,9 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
 import frc.robot.subsystems.scoring.constants.ScoringPIDs;
-
-import static edu.wpi.first.units.Units.*;
 
 public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
     private final TalonFX leftElevator, rightElevator;
@@ -65,7 +60,7 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
 
     @Override
     public double getTargetPosition() {
-        return controlRequest.Position;
+        return state.getElevatorAbsolutePosition();
     }
 
     @Override

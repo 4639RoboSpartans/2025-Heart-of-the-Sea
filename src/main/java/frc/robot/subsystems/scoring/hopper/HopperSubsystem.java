@@ -51,4 +51,6 @@ public abstract class HopperSubsystem extends SubsystemBase {
     protected abstract void runHopperPosition();
 
     public abstract void runHopper();
+
+    public abstract double getIntakeSpeed();
 }

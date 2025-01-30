@@ -1,9 +1,7 @@
-package frc.robot.vision;
+package frc.robot.subsystems.vision;
 
 import java.util.Arrays;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Function;
 
 import com.ctre.phoenix6.Utils;
 
@@ -11,15 +9,12 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj.RobotBase;
 import frc.lib.network.LimelightHelpers;
-import frc.robot.constants.IDs;
+import frc.robot.constants.Limelights;
 import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
 
 public class VisionIO extends SubsystemBase{
@@ -41,7 +36,7 @@ public class VisionIO extends SubsystemBase{
     */
     public static void addGlobalVisionMeasurementsToDriveTrain(CommandSwerveDrivetrain drivetrain, double distanceThreshold){
         trustFaraways = SmartDashboard.getBoolean("Trust Faraway Data", trustFaraways);
-        if ((useVision || trustFaraways) && RobotBase.isReal()) Arrays.stream(IDs.Limelights.values()).parallel().forEach(
+        if ((useVision || trustFaraways) && RobotBase.isReal()) Arrays.stream(Limelights.values()).parallel().forEach(
             limelight -> {
                 Optional<Pose2d> measurement = Optional.of(
                     DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
@@ -62,7 +57,7 @@ public class VisionIO extends SubsystemBase{
     }
 
     public static void target(CommandSwerveDrivetrain drivetrain, int ID){
-        if(useVision && RobotBase.isReal()) Arrays.stream(IDs.Limelights.values()).parallel().forEach(
+        if(useVision && RobotBase.isReal()) Arrays.stream(Limelights.values()).parallel().forEach(
             limelight -> {
                 if(LimelightHelpers.getRawDetections(limelight.getName()).length == 1
                     && 
