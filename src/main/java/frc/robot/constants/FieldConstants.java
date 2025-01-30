@@ -9,6 +9,8 @@ package frc.robot.constants;
 
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.util.Units;
+
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -60,50 +62,24 @@ public class FieldConstants {
 
   public static class Reef {
     public static final Translation2d center =
-        new Translation2d(Units.inchesToMeters(176.746), Units.inchesToMeters(158.501));
+            new Translation2d(Units.inchesToMeters(176.746), Units.inchesToMeters(158.501));
     /** Side of the reef to the inside of the reef zone line */
     public static final double faceToZoneLine =
-        Units.inchesToMeters(12); 
+            Units.inchesToMeters(12);
     /** Starting facing the driver station in clockwise order */
-    public static final Pose2d[] centerFaces =
-        new Pose2d[6]; 
+    public static final Pose2d[] centerFaces = {
+            new Pose2d(Units.inchesToMeters(144.003), Units.inchesToMeters(158.500), Rotation2d.fromDegrees(180)),
+            new Pose2d(Units.inchesToMeters(160.373), Units.inchesToMeters(186.857), Rotation2d.fromDegrees(120)),
+            new Pose2d(Units.inchesToMeters(193.116), Units.inchesToMeters(186.858), Rotation2d.fromDegrees(60)),
+            new Pose2d(Units.inchesToMeters(209.489), Units.inchesToMeters(158.502), Rotation2d.fromDegrees(0)),
+            new Pose2d(Units.inchesToMeters(193.118), Units.inchesToMeters(130.145), Rotation2d.fromDegrees(-60)),
+            new Pose2d(Units.inchesToMeters(160.375), Units.inchesToMeters(130.144), Rotation2d.fromDegrees(-120))
+    };
     /** Starting at the right branch facing the driver station going clockwise */
-    public static final List<Map<ReefHeight, Pose3d>> branchPositions =
-        new ArrayList<>(); 
+    public static final List<Map<ReefHeight, Pose3d>> branchPositions = new ArrayList<>();
 
-    static {
-      // Initialize faces
-      centerFaces[0] =
-          new Pose2d(
-              Units.inchesToMeters(144.003),
-              Units.inchesToMeters(158.500),
-              Rotation2d.fromDegrees(180));
-      centerFaces[1] =
-          new Pose2d(
-              Units.inchesToMeters(160.373),
-              Units.inchesToMeters(186.857),
-              Rotation2d.fromDegrees(120));
-      centerFaces[2] =
-          new Pose2d(
-              Units.inchesToMeters(193.116),
-              Units.inchesToMeters(186.858),
-              Rotation2d.fromDegrees(60));
-      centerFaces[3] =
-          new Pose2d(
-              Units.inchesToMeters(209.489),
-              Units.inchesToMeters(158.502),
-              Rotation2d.fromDegrees(0));
-      centerFaces[4] =
-          new Pose2d(
-              Units.inchesToMeters(193.118),
-              Units.inchesToMeters(130.145),
-              Rotation2d.fromDegrees(-60));
-      centerFaces[5] =
-          new Pose2d(
-              Units.inchesToMeters(160.375),
-              Units.inchesToMeters(130.144),
-              Rotation2d.fromDegrees(-120));
-
+    private static List<Map<ReefHeight, Pose3d>> initBranchPositions() {
+      List<Map<ReefHeight, Pose3d>> branchPositions = new ArrayList<>();
       // Initialize branch positions
       for (int face = 0; face < 6; face++) {
         Map<ReefHeight, Pose3d> fillRight = new HashMap<>();
@@ -114,41 +90,43 @@ public class FieldConstants {
           double adjustY = Units.inchesToMeters(6.469);
 
           fillRight.put(
-              level,
-              new Pose3d(
-                  new Translation3d(
-                      poseDirection
-                          .transformBy(new Transform2d(adjustX, adjustY, new Rotation2d()))
-                          .getX(),
-                      poseDirection
-                          .transformBy(new Transform2d(adjustX, adjustY, new Rotation2d()))
-                          .getY(),
-                      level.height),
-                  new Rotation3d(
-                      0,
-                      Units.degreesToRadians(level.pitch),
-                      poseDirection.getRotation().getRadians())));
+                  level,
+                  new Pose3d(
+                          new Translation3d(
+                                  poseDirection
+                                          .transformBy(new Transform2d(adjustX, adjustY, new Rotation2d()))
+                                          .getX(),
+                                  poseDirection
+                                          .transformBy(new Transform2d(adjustX, adjustY, new Rotation2d()))
+                                          .getY(),
+                                  level.height),
+                          new Rotation3d(
+                                  0,
+                                  Units.degreesToRadians(level.pitch),
+                                  poseDirection.getRotation().getRadians())));
           fillLeft.put(
-              level,
-              new Pose3d(
-                  new Translation3d(
-                      poseDirection
-                          .transformBy(new Transform2d(adjustX, -adjustY, new Rotation2d()))
-                          .getX(),
-                      poseDirection
-                          .transformBy(new Transform2d(adjustX, -adjustY, new Rotation2d()))
-                          .getY(),
-                      level.height),
-                  new Rotation3d(
-                      0,
-                      Units.degreesToRadians(level.pitch),
-                      poseDirection.getRotation().getRadians())));
+                  level,
+                  new Pose3d(
+                          new Translation3d(
+                                  poseDirection
+                                          .transformBy(new Transform2d(adjustX, -adjustY, new Rotation2d()))
+                                          .getX(),
+                                  poseDirection
+                                          .transformBy(new Transform2d(adjustX, -adjustY, new Rotation2d()))
+                                          .getY(),
+                                  level.height),
+                          new Rotation3d(
+                                  0,
+                                  Units.degreesToRadians(level.pitch),
+                                  poseDirection.getRotation().getRadians())));
         }
         branchPositions.add((face * 2) + 1, fillRight);
         branchPositions.add((face * 2) + 2, fillLeft);
       }
+      return branchPositions;
     }
   }
+
 
   /** The three coral + algae spots on each side near the driver stations */
   public static class StagingPositions {
@@ -175,5 +153,43 @@ public class FieldConstants {
     /** <b>Units:</b> degrees
      */
     public final double pitch;
+  }
+
+  public enum AutonStartingPositions{
+    RIGHT_EDGE(new Pose2d(0 + Units.inchesToMeters(RobotConstants.ROBOT_LENGTH/2), Units.inchesToMeters(49.875 + RobotConstants.ROBOT_WIDTH/2), Rotation2d.kZero)),
+    LEFT_EDGE(new Pose2d(0 + Units.inchesToMeters(RobotConstants.ROBOT_LENGTH/2), Units.inchesToMeters(Units.metersToInches(fieldWidth) - (49.875 + RobotConstants.ROBOT_WIDTH/2)), Rotation2d.kZero));
+
+    AutonStartingPositions(Pose2d pose){
+        this.Pose = pose;
+    }
+    public final Pose2d Pose;
+  }
+
+  static Transform2d fromReef = new Transform2d(Units.inchesToMeters(25), 0, Rotation2d.k180deg);
+  static Transform2d fromProcessor = new Transform2d(Units.inchesToMeters(25), 0, Rotation2d.k180deg);
+  static Transform2d fromCoralStation = new Transform2d(Units.inchesToMeters(25), 0, Rotation2d.k180deg);
+  static Transform2d fromBarge = new Transform2d(Units.inchesToMeters(-15), 0, Rotation2d.kZero);
+
+  public enum TargetPositions{
+    REEF_0(FieldConstants.Reef.centerFaces[0].transformBy((FieldConstants.fromReef))),
+    REEF_1(FieldConstants.Reef.centerFaces[1].transformBy((FieldConstants.fromReef))),
+    REEF_2(FieldConstants.Reef.centerFaces[2].transformBy((FieldConstants.fromReef))),
+    REEF_3(FieldConstants.Reef.centerFaces[3].transformBy((FieldConstants.fromReef))),
+    REEF_4(FieldConstants.Reef.centerFaces[4].transformBy((FieldConstants.fromReef))),
+    REEF_5(FieldConstants.Reef.centerFaces[5].transformBy((FieldConstants.fromReef))),
+
+    PROCESSOR(FieldConstants.Processor.centerFace.transformBy(FieldConstants.fromProcessor)),
+
+    CORALSTATION_LEFT(FieldConstants.CoralStation.leftCenterFace.transformBy(FieldConstants.fromCoralStation)),
+    CORALSTATION_RIGHT(FieldConstants.CoralStation.rightCenterFace.transformBy(FieldConstants.fromCoralStation)),
+
+    BARGE_FARCAGE(new Pose2d(FieldConstants.Barge.farCage, Rotation2d.kZero).transformBy(fromBarge)),
+    BARGE_MIDDLECAGE(new Pose2d(FieldConstants.Barge.middleCage, Rotation2d.kZero).transformBy(fromBarge)),
+    BARGE_CLOSECAGE(new Pose2d(FieldConstants.Barge.closeCage, Rotation2d.kZero).transformBy(fromBarge));
+    
+    TargetPositions(Pose2d pose){
+        this.Pose = pose;
+    }
+    public final Pose2d Pose;
   }
 }
