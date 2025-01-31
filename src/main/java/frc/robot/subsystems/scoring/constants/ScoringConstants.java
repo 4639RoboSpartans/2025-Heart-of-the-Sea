@@ -7,8 +7,8 @@ import static edu.wpi.first.units.Units.Inches;
 
 public class ScoringConstants {
     public static class ElevatorConstants {
-        public static final Distance MAX_EXTENSION = Inches.of(72);
-        public static final Distance STARTING_HEIGHT = Inches.of(30);
+        public static final Distance MAX_EXTENSION = Inches.of(84);
+        public static final Distance STARTING_HEIGHT = Inches.of(12);
 
         public static final double UP_POSITION = 0;
         public static final double DOWN_POSITION = 1;
@@ -18,12 +18,12 @@ public class ScoringConstants {
     }
 
     public static class HopperConstants {
-        public static final Rotation2d MAX_ROTATION = Rotation2d.fromDegrees(-155);
-        public static final Rotation2d EXTENDED_ROTATION = Rotation2d.fromDegrees(205);
+        public static final Rotation2d MAX_ROTATION = Rotation2d.fromDegrees(155);
+        public static final Rotation2d IDLE_ROTATION = Rotation2d.fromDegrees(-30);
 
-        public static final double UP_POSITION = 0;
-        public static final double DOWN_POSITION = 1;
-        public static final double POSITION_DIFF = UP_POSITION - DOWN_POSITION;
+        public static final double IDLE_POSITION = 0;
+        public static final double EXTENDED_POSITION = 1;
+        public static final double POSITION_DIFF = IDLE_POSITION - EXTENDED_POSITION;
 
         public static final double WRIST_ABSOLUTE_DOWN_POSITION = 0;
 

@@ -37,21 +37,21 @@ public class SimElevatorSubsystem extends ElevatorSubsystem {
                 )
         );
         elevatorFeedforward = new ElevatorFeedforward(
-                0,
-                1.6,
-                0.1,
-                0.01
+                ScoringPIDs.elevatorKs.get(),
+                ScoringPIDs.elevatorKg.get(),
+                ScoringPIDs.elevatorKv.get(),
+                ScoringPIDs.elevatorKa.get()
         );
         elevatorSim = new ElevatorSim(
                 LinearSystemId.createElevatorSystem(
                         DCMotor.getKrakenX60(2),
-                        2,
-                        1,
+                        10,
+                        0.0762,
                         10
                 ),
                 DCMotor.getKrakenX60(2),
                 ScoringSuperstructureState.IDLE.getElevatorLength().in(Meters),
-                ScoringSuperstructureState.L4.getElevatorLength().in(Meters),
+                ScoringSuperstructureState.BARGE_SCORING.getElevatorLength().in(Meters),
                 true,
                 ScoringSuperstructureState.IDLE.getElevatorLength().in(Meters)
         );
@@ -110,11 +110,8 @@ public class SimElevatorSubsystem extends ElevatorSubsystem {
     @Override
     public void runElevator() {
         elevatorPID.setGoal(ScoringSuperstructureState.getElevatorSimPosition(state.getElevatorLength()));
-        double output = -elevatorPID.calculate(
-                ScoringSuperstructureState.getElevatorSimPosition(
-                        getCurrentLength()
-                )
-        ) + elevatorFeedforward.calculate(getCurrentPosition());
+        double output = -elevatorPID.calculate(getCurrentPosition())
+                + elevatorFeedforward.calculate(getCurrentPosition());
         elevatorSim.setInputVoltage(output);
         SmartDashboard.putNumber("Elevator PID output", output);
     }

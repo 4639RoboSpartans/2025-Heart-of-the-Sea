@@ -1,12 +1,14 @@
 package frc.robot.subsystems.scoring.hopper;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.scoring.ScoringSuperstructure;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
@@ -16,6 +18,7 @@ public class SimHopperSubsystem extends HopperSubsystem {
     private static final double secondsUntilIntakeOuttakeEnd = 1;
 
     private final ProfiledPIDController pivotPID;
+    private final ArmFeedforward pivotFeedforward;
     private final SingleJointedArmSim pivotSim;
 
     private ScoringSuperstructureState state = ScoringSuperstructureState.IDLE;
@@ -39,6 +42,12 @@ public class SimHopperSubsystem extends HopperSubsystem {
                         ScoringPIDs.wristAcceleration.get()
                 )
         );
+        pivotFeedforward = new ArmFeedforward(
+                ScoringPIDs.elevatorKs.get(),
+                ScoringPIDs.elevatorKg.get(),
+                ScoringPIDs.elevatorKv.get(),
+                ScoringPIDs.elevatorKa.get()
+        );
         pivotSim = new SingleJointedArmSim(
                 LinearSystemId.createSingleJointedArmSystem(
                         DCMotor.getNEO(1),
@@ -48,10 +57,10 @@ public class SimHopperSubsystem extends HopperSubsystem {
                 DCMotor.getNEO(1),
                 25.6,
                 0.419,
-                ScoringConstants.HopperConstants.EXTENDED_ROTATION.plus(ScoringConstants.HopperConstants.MAX_ROTATION).getRadians(),
-                ScoringConstants.HopperConstants.EXTENDED_ROTATION.getRadians(),
+                ScoringConstants.HopperConstants.IDLE_ROTATION.getRadians(),
+                ScoringConstants.HopperConstants.IDLE_ROTATION.plus(ScoringConstants.HopperConstants.MAX_ROTATION).getRadians(),
                 true,
-                ScoringConstants.HopperConstants.EXTENDED_ROTATION.getRadians()
+                ScoringConstants.HopperConstants.IDLE_ROTATION.getRadians()
         );
     }
 
@@ -86,7 +95,7 @@ public class SimHopperSubsystem extends HopperSubsystem {
                 ScoringSuperstructureState.getWristSimPosition(getTargetRotation()),
                 ScoringSuperstructureState.getWristSimPosition(getCurrentRotation()),
                 ScoringConstants.HopperConstants.WRIST_TOLERANCE
-        );
+        ) && pivotPID.getVelocityError() < 0.01;
     }
 
     @Override
@@ -104,6 +113,7 @@ public class SimHopperSubsystem extends HopperSubsystem {
         this.state = state;
         intakeSpeed = 0;
         isStateFinished = false;
+        secondsFromIntakeOuttakeStart = 0;
         pivotPID.setGoal(state.getWristAbsolutePosition());
     }
 
@@ -115,15 +125,16 @@ public class SimHopperSubsystem extends HopperSubsystem {
     @Override
     protected void runHopperPosition() {
         pivotSim.update(0.020);
-        pivotSim.setInputVoltage(
-                pivotPID.calculate(getCurrentPosition())
-        );
+        double output = -pivotPID.calculate(getCurrentPosition())
+                + pivotFeedforward.calculate(getCurrentRotation().getRadians(), pivotPID.getVelocityError());
+        pivotSim.setInputVoltage(output);
+        SmartDashboard.putNumber("Wrist Output", output);
     }
 
     @Override
     public void runHopper() {
         runHopperPosition();
-        if (scoringSuperstructure.isAtPositionState() && !isStateFinished) {
+        if (scoringSuperstructure.isAtPosition() && !isStateFinished) {
             intakeSpeed = state.intakeSpeed;
             secondsFromIntakeOuttakeStart += 0.020;
         }

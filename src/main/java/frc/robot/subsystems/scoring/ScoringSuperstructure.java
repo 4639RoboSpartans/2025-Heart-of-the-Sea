@@ -44,42 +44,31 @@ public class ScoringSuperstructure extends SubsystemBase {
     }
 
     public Command runScoringState() {
-        if (state.lastToMove == null) {
-            return Commands.run(
-                    () -> {
+        return Commands.run(
+                () -> {
+                    if (state.lastToMove == null) {
                         hopper.runHopper();
                         elevator.runElevator();
-                    },
-                    this
-            );
-        } else if (state.lastToMove == ElevatorSubsystem.class) {
-            return Commands.run(
-                    () -> {
+                    } else if (state.lastToMove == ElevatorSubsystem.class) {
                         hopper.runHopper();
                         if (hopper.isHopperAtPosition()) {
                             elevator.runElevator();
                         }
-                    },
-                    this
-            );
-        } else if (state.lastToMove == HopperSubsystem.class) {
-            return Commands.run(
-                    () -> {
+                    } else if (state.lastToMove == HopperSubsystem.class) {
                         elevator.runElevator();
                         if (elevator.isElevatorAtPosition()) {
                             hopper.runHopper();
                         }
-                    },
-                    this
-            );
-        }
-        return null;
+                    }
+                },
+                this
+        );
     }
 
-    public boolean isAtPositionState() {
+    public boolean isAtPosition() {
         return elevator.isElevatorAtPosition() && hopper.isHopperAtPosition();
     }
-    public Trigger isAtPositionState = new Trigger(this::isAtPositionState);
+    public Trigger isAtPositionState = new Trigger(this::isAtPosition);
 
     public boolean isStateFinished() {
         return elevator.isElevatorStateFinished() && hopper.isHopperStateFinished();

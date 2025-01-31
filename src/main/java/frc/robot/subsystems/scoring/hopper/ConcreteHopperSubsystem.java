@@ -176,7 +176,7 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
     @Override
     public void runHopper() {
         runHopperPosition();
-        if (scoringSuperstructure.isAtPositionState() && !isStateFinished) {
+        if (scoringSuperstructure.isAtPosition() && !isStateFinished) {
             intakeMotor.set(state.intakeSpeed);
         }
         LaserCan.Measurement measurement = laserCAN.getMeasurement();

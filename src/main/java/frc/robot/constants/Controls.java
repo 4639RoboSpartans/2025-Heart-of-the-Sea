@@ -21,14 +21,14 @@ public class Controls {
     public static class Operator {
         public static final Trigger L1Trigger = OI.getInstance().operatorController().LEFT_TRIGGER;
         public static final Trigger L2Trigger = OI.getInstance().operatorController().RIGHT_TRIGGER;
-        public static final Trigger L3Trigger = OI.getInstance().operatorController().A_BUTTON;
-        public static final Trigger L4Trigger = OI.getInstance().operatorController().B_BUTTON;
+        public static final Trigger L3Trigger = OI.getInstance().operatorController().LEFT_BUMPER;
+        public static final Trigger L4Trigger = OI.getInstance().operatorController().RIGHT_BUMPER;
 
         public static final Trigger L2AlgaeTrigger = OI.getInstance().operatorController().X_BUTTON;
         public static final Trigger L3AlgaeTrigger = OI.getInstance().operatorController().Y_BUTTON;
 
-        public static final Trigger BargeScoringTrigger = OI.getInstance().operatorController().RIGHT_BUMPER;
+        public static final Trigger BargeScoringTrigger = OI.getInstance().operatorController().A_BUTTON;
 
-        public static final Trigger HPLoadingTrigger = OI.getInstance().operatorController().LEFT_BUMPER;
+        public static final Trigger HPLoadingTrigger = OI.getInstance().operatorController().B_BUTTON;
     }
 }
