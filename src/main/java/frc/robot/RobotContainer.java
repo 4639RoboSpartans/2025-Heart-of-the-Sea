@@ -15,6 +15,8 @@ import frc.robot.commands.AutoRoutines;
 import frc.robot.constants.Controls;
 import frc.robot.constants.FieldConstants;
 import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
+import frc.robot.subsystems.vision.VisionSubsystem;
+
 import java.util.Arrays;
 
 import choreo.auto.AutoRoutine;
@@ -79,6 +81,8 @@ public class RobotContainer {
                 )
             )
         );
+
+        VisionSubsystem.getInstance().setDefaultCommand(VisionSubsystem.getInstance().globalVision());
     }
 
     public Command getAutonomousCommand() {

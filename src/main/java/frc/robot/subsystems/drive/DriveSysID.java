@@ -14,7 +14,7 @@ public class DriveSysID {
     private static final SwerveRequest.SysIdSwerveSteerGains m_steerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
     private static final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
 
-
+    @SuppressWarnings("unused")
     private static final SysIdRoutine sysIdRoutineTranslation = new SysIdRoutine(
             new SysIdRoutine.Config(
                     null,
@@ -29,7 +29,7 @@ public class DriveSysID {
             )
     );
 
-
+    @SuppressWarnings("unused")
     private static final SysIdRoutine sysIdRoutineSteer = new SysIdRoutine(
             new SysIdRoutine.Config(
                     null,        // Use default ramp rate (1 V/s)
@@ -45,7 +45,7 @@ public class DriveSysID {
             )
     );
 
-
+    @SuppressWarnings("unused")
     private static final SysIdRoutine sysIdRoutineRotation = new SysIdRoutine(
             new SysIdRoutine.Config(
                     Volts.of(Math.PI / 6).per(Second),
@@ -62,7 +62,8 @@ public class DriveSysID {
                     drivetrain
             )
     );
-
+     
+    @SuppressWarnings("unused")
     private static final SysIdRoutine sysIdRoutineToApply = sysIdRoutineRotation;
 
     /**
@@ -72,6 +73,7 @@ public class DriveSysID {
      * @param direction Direction of the SysId Quasistatic test
      * @return Command to run
      */
+    @SuppressWarnings("unused")
     public static Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
         return sysIdRoutineToApply.quasistatic(direction);
     }
@@ -83,6 +85,7 @@ public class DriveSysID {
      * @param direction Direction of the SysId Dynamic test
      * @return Command to run
      */
+    @SuppressWarnings("unused")
     public static Command sysIdDynamic(SysIdRoutine.Direction direction) {
         return sysIdRoutineToApply.dynamic(direction);
     }
