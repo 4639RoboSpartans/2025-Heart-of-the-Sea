@@ -333,8 +333,8 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
             .parallelStream()
             .forEach(
                 visionResult -> addVisionMeasurement(
-                    visionResult.getVisionPose(),
-                    visionResult.getTimestamp())
+                    visionResult.estimatedRobotPose(),
+                    visionResult.timestamp())
             );
         field.setRobotPose(getState().Pose);
         SmartDashboard.putData("Field2D", field);
