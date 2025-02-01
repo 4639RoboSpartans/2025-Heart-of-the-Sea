@@ -10,6 +10,7 @@ public final class IDs {
 
     public enum Limelights {
         LIMELIGHT_1("limelight");
+        //TODO: add the second limelight
 
         private final String name;
         Limelights(String name) {
@@ -21,8 +22,8 @@ public final class IDs {
     }
 
     public enum PhotonCameras {
-        PLACEHOLDER("", new Transform3d());
-
+        //TODO: make an instance here once the PV cam is wired on
+        ;
         private final String name;
         private final Transform3d transformFromRobotCenter;
 
@@ -35,7 +36,7 @@ public final class IDs {
             return name;
         }
 
-        public Transform3d getTranformFromRobotCenter(){
+        public Transform3d getTransformFromRobotCenter(){
             return transformFromRobotCenter;
         }
     }

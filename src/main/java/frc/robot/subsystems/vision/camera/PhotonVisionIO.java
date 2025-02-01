@@ -1,5 +1,6 @@
 package frc.robot.subsystems.vision.camera;
 
+import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -21,8 +22,8 @@ import frc.robot.subsystems.vision.VisionResult;
  * Wraps a PhotonCamera in the shape of a CameraIO interface, to be used in the Vision subsystem.
  */
 public class PhotonVisionIO implements CameraIO{
-    private PhotonCamera camera;
-    private PhotonPoseEstimator poseEstimator;
+    private final PhotonCamera camera;
+    private final PhotonPoseEstimator poseEstimator;
     EstimatedRobotPose lastPoseEstimate;
 
     /**
@@ -42,7 +43,7 @@ public class PhotonVisionIO implements CameraIO{
 
     @Override
     public Optional<VisionResult> getBotPoseAsVisionResult(boolean allianceFlipped) {
-        Optional<EstimatedRobotPose> poseEstimate = poseEstimator.update(camera.getLatestResult());
+        Optional<EstimatedRobotPose> poseEstimate = poseEstimator.update(camera.getAllUnreadResults().getLast());
         Optional<Pose2d> finalPose = poseEstimate.isPresent() 
                                         ? verifyPose(poseEstimate.get().estimatedPose.toPose2d(), allianceFlipped)
                                         : Optional.empty();
@@ -74,7 +75,7 @@ public class PhotonVisionIO implements CameraIO{
     }
 
     @Override
-    public Set<Integer> targets() {
+    public Collection<Integer> targets() {
         return lastPoseEstimate.targetsUsed.stream().parallel().map(target -> target.fiducialId).collect(Collectors.toSet());
     }
 }
