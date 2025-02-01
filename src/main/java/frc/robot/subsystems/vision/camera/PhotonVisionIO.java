@@ -43,9 +43,7 @@ public class PhotonVisionIO implements CameraIO{
 
     @Override
     public Optional<VisionResult> getBotPoseAsVisionResult(boolean allianceFlipped) {
-        // TODO: This is not great. You should handle the case where getAllUnreadResults() is empty (in which case
-        //  getLast() throws an error)
-        Optional<EstimatedRobotPose> poseEstimate = poseEstimator.update(camera.getAllUnreadResults().getLast());
+        Optional<EstimatedRobotPose> poseEstimate = getLastPoseEstimate();
         Optional<Pose2d> finalPose = poseEstimate.isPresent() 
                                         ? verifyPose(poseEstimate.get().estimatedPose.toPose2d(), allianceFlipped)
                                         : Optional.empty();
@@ -55,6 +53,14 @@ public class PhotonVisionIO implements CameraIO{
         }
             
         return Optional.empty();
+    }
+
+    /**
+     * @return the last pose estimate from the camera <br> or Optional.empty() if the above would return an error
+     */
+    private Optional<EstimatedRobotPose> getLastPoseEstimate() {
+        var unreadResults = camera.getAllUnreadResults();
+        return !unreadResults.isEmpty() ? poseEstimator.update(unreadResults.getLast()) : Optional.empty();
     }
 
     private Optional<Pose2d> verifyPose(Pose2d pose, boolean allianceFlipped){
