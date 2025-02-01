@@ -2,6 +2,12 @@ package frc.robot.subsystems.vision;
 
 import edu.wpi.first.math.geometry.Pose2d;
 
+// TODO: Look into Java record classes. Would
+//  :
+//  public record VisionResult(Pose2d visionPose, double timestamp) {}
+//  :
+//  be sufficient? Also, you can still add methods in record classes, in case that is needed later.
+
 /**
  * Wraps a Pose2d estimate and a timestamp in an object.
  * <p>
