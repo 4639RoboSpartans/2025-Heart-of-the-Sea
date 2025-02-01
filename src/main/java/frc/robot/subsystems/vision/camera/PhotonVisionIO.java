@@ -2,7 +2,6 @@ package frc.robot.subsystems.vision.camera;
 
 import java.util.Collection;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.photonvision.EstimatedRobotPose;
