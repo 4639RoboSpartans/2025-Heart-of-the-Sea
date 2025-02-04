@@ -57,8 +57,8 @@ public class SimHopperSubsystem extends HopperSubsystem {
                 DCMotor.getNEO(1),
                 25.6,
                 0.419,
-                ScoringConstants.HopperConstants.IDLE_ROTATION.getRadians(),
                 ScoringConstants.HopperConstants.IDLE_ROTATION.plus(ScoringConstants.HopperConstants.MAX_ROTATION).getRadians(),
+                ScoringConstants.HopperConstants.IDLE_ROTATION.getRadians(),
                 true,
                 ScoringConstants.HopperConstants.IDLE_ROTATION.getRadians()
         );
@@ -125,7 +125,7 @@ public class SimHopperSubsystem extends HopperSubsystem {
     @Override
     protected void runHopperPosition() {
         pivotSim.update(0.020);
-        double output = -pivotPID.calculate(getCurrentPosition())
+        double output = pivotPID.calculate(getCurrentPosition())
                 + pivotFeedforward.calculate(getCurrentRotation().getRadians(), pivotPID.getVelocityError());
         pivotSim.setInputVoltage(output);
         SmartDashboard.putNumber("Wrist Output", output);

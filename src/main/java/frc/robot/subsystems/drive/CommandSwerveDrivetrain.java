@@ -11,6 +11,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.PathPlannerLogging;
 import com.pathplanner.lib.util.swerve.SwerveSetpoint;
@@ -18,6 +19,7 @@ import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -25,6 +27,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -68,6 +71,9 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
     private final PIDController pathXController = new PIDController(12, 0, 0);
     private final PIDController pathYController = new PIDController(12, 0, 0);
     private final PIDController pathThetaController = new PIDController(7, 0, 0);
+
+    private final ProfiledPIDController pidXController = new ProfiledPIDController(1, 0, 0, new TrapezoidProfile.Constraints(0.5, 0.5));
+    private final ProfiledPIDController pidYController = new ProfiledPIDController(1, 0, 0, new TrapezoidProfile.Constraints(0.5, 0.5));
 
     private final Field2d field = new Field2d();
 
@@ -268,14 +274,36 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
             .withWheelForceFeedforwardsY(
                 newSetpoint.feedforwards().robotRelativeForcesY()
             );
-        // return fieldSpeedsRequest.withDesaturateWheelSpeeds(true)
-        //     .withSpeeds(
-        //         new ChassisSpeeds(
-        //             newForwards,
-        //             newStrafe,
-        //             rotation
-        //         )
-        //     );
+    }
+
+    public Command pathfindCommand(Pose2d targetPose) {
+        double driveBaseRadius = 0;
+        for (var moduleLocation : getModuleLocations()) {
+            driveBaseRadius = Math.max(driveBaseRadius, moduleLocation.getNorm());
+        }
+        PathConstraints constraints = new PathConstraints(
+                10, 5,
+                2 * Math.PI, 2 * Math.PI
+        );
+        return AutoBuilder.pathfindToPoseFlipped(
+                targetPose,
+                constraints
+        );
+    }
+
+    public Command pidToPoseCommand(Pose2d targetPose) {
+        return applyRequest(
+                () -> fieldCentricFacingAngleRequest
+                        .withVelocityX(
+                                -pidXController.calculate(getState().Pose.getX(), targetPose.getX())
+                        )
+                        .withVelocityY(
+                                -pidYController.calculate(getState().Pose.getY(), targetPose.getY())
+                        )
+                        .withTargetDirection(
+                                targetPose.getRotation().plus(Rotation2d.fromDegrees(180))
+                        )
+        );
     }
 
     /**

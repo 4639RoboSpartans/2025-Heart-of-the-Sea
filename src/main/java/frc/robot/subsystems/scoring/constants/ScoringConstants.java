@@ -18,8 +18,8 @@ public class ScoringConstants {
     }
 
     public static class HopperConstants {
-        public static final Rotation2d MAX_ROTATION = Rotation2d.fromDegrees(155);
-        public static final Rotation2d IDLE_ROTATION = Rotation2d.fromDegrees(-30);
+        public static final Rotation2d MAX_ROTATION = Rotation2d.fromDegrees(-155);
+        public static final Rotation2d IDLE_ROTATION = Rotation2d.fromDegrees(30);
 
         public static final double IDLE_POSITION = 0;
         public static final double EXTENDED_POSITION = 1;

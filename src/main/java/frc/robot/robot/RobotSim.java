@@ -26,7 +26,7 @@ public class RobotSim extends SubsystemBase {
     public static final Distance hopperLength = Inches.of(14);
 
     public static final Translation2d origin =
-            new Translation2d(Units.inchesToMeters(width / 2 - 6.25), 0.0);
+            new Translation2d(Units.inchesToMeters(width / 2 + 6.25), 0.0);
 
     public static final Mechanism2d mechanismView =
             new Mechanism2d(Units.inchesToMeters(width), Units.inchesToMeters(height));

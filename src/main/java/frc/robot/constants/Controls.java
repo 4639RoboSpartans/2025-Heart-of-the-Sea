@@ -15,7 +15,30 @@ public class Controls {
         public static final Trigger precisionTrigger = OI.getInstance().driverController().LEFT_TRIGGER;
 
         public static final Trigger rotationResetTrigger = OI.getInstance().driverController().A_BUTTON
-                                                            .and(OI.getInstance().driverController().B_BUTTON);
+                .and(OI.getInstance().driverController().B_BUTTON);
+
+        public static final Trigger reefLeftPoses = OI.getInstance().driverController().RIGHT_BUMPER;
+        public static final Trigger reefRightPoses = OI.getInstance().driverController().LEFT_BUMPER;
+
+        public static final Trigger reefRight = new Trigger(
+                () -> OI.getInstance().driverController().LEFT_TRIGGER.getAsBoolean()
+        );
+        public static final Trigger reefLeft = new Trigger(
+                () -> OI.getInstance().driverController().RIGHT_TRIGGER.getAsBoolean()
+        );
+
+        public static final Trigger PathfindReef_0 = reefLeftPoses.and(reefLeft.or(reefRight))
+                .and(OI.getInstance().driverController().Y_BUTTON);
+        public static final Trigger PathfindReef_1 = reefLeftPoses.and(reefLeft.or(reefRight))
+                .and(OI.getInstance().driverController().B_BUTTON);
+        public static final Trigger PathfindReef_2 = reefLeftPoses.and(reefLeft.or(reefRight))
+                .and(OI.getInstance().driverController().A_BUTTON);
+        public static final Trigger PathfindReef_3 = reefRightPoses.and(reefLeft.or(reefRight))
+                .and(OI.getInstance().driverController().Y_BUTTON);
+        public static final Trigger PathfindReef_4 = reefRightPoses.and(reefLeft.or(reefRight))
+                .and(OI.getInstance().driverController().X_BUTTON);
+        public static final Trigger PathfindReef_5 = reefRightPoses.and(reefLeft.or(reefRight))
+                .and(OI.getInstance().driverController().A_BUTTON);
     }
 
     public static class Operator {
