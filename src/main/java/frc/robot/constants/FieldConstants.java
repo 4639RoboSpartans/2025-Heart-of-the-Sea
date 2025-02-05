@@ -210,6 +210,6 @@ public class FieldConstants {
         public final Pose2d Pose;
     }
 
-    public static double reefForwardsDistance = 0.25;
-    public static double reefSidewaysDistance = 0.25;
+    public static double reefForwardsDistance = 0.175;
+    public static double reefSidewaysDistance = 0.125;
 }
