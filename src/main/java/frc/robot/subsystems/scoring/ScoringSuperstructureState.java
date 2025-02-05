@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.Controls;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
 import frc.robot.subsystems.scoring.constants.ScoringConstants.ElevatorConstants;
+import frc.robot.subsystems.scoring.constants.ScoringConstants.HopperConstants;
 import frc.robot.subsystems.scoring.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.scoring.hopper.HopperSubsystem;
 
@@ -75,8 +76,8 @@ public class ScoringSuperstructureState {
 
     public static final ScoringSuperstructureState
             IDLE = new ScoringSuperstructureState()
-            .withElevatorProportion(0.0)
-            .withWristProportion(0)
+            .withElevatorProportion(ElevatorConstants.IDLE_Proportion)
+            .withWristProportion(HopperConstants.Wrist_IDLE_Proportion)
             .withIntakeSpeed(0.0)
             .withIntakeUntilSeen(false)
             .withOuttakeUntilSeen(true)
@@ -84,7 +85,7 @@ public class ScoringSuperstructureState {
 
             HP_LOADING = new ScoringSuperstructureState()
                     .withElevatorProportion(ElevatorConstants.HP_Proportion)
-                    .withWristProportion(0)
+                    .withWristProportion(HopperConstants.Wrist_HP_Proportion)
                     .withIntakeSpeed(0.5)
                     .withIntakeUntilSeen(true)
                     .withOuttakeUntilSeen(false)
@@ -93,7 +94,7 @@ public class ScoringSuperstructureState {
 
             L1 = new ScoringSuperstructureState()
                     .withElevatorProportion(ElevatorConstants.L1_Proportion)
-                    .withWristProportion(1)
+                    .withWristProportion(HopperConstants.Wrist_L1_Proportion)
                     .withIntakeSpeed(0.5)
                     .withIntakeUntilSeen(false)
                     .withOuttakeUntilSeen(true)
@@ -103,7 +104,7 @@ public class ScoringSuperstructureState {
 
             L2 = new ScoringSuperstructureState()
                     .withElevatorProportion(ElevatorConstants.L2_Proportion)
-                    .withWristProportion(0.25)
+                    .withWristProportion(HopperConstants.Wrist_L2_Proportion)
                     .withIntakeSpeed(0.5)
                     .withIntakeUntilSeen(false)
                     .withOuttakeUntilSeen(true)
@@ -113,7 +114,7 @@ public class ScoringSuperstructureState {
 
             L3 = new ScoringSuperstructureState()
                     .withElevatorProportion(ElevatorConstants.L3_Proportion)
-                    .withWristProportion(0.25)
+                    .withWristProportion(HopperConstants.Wrist_L3_Proportion)
                     .withIntakeSpeed(0.5)
                     .withIntakeUntilSeen(false)
                     .withOuttakeUntilSeen(true)
@@ -123,7 +124,7 @@ public class ScoringSuperstructureState {
 
             L4 = new ScoringSuperstructureState()
                     .withElevatorProportion(ElevatorConstants.L4_Proportion)
-                    .withWristProportion(0.5)
+                    .withWristProportion(HopperConstants.Wrist_L4_Proportion)
                     .withIntakeSpeed(0.5)
                     .withIntakeUntilSeen(false)
                     .withOuttakeUntilSeen(true)
@@ -133,7 +134,7 @@ public class ScoringSuperstructureState {
 
             L2_ALGAE = new ScoringSuperstructureState()
                     .withElevatorProportion(ElevatorConstants.L2_ALGAE_Proportion)
-                    .withWristProportion(1)
+                    .withWristProportion(HopperConstants.Wrist_L2_ALGAE_Proportion)
                     .withIntakeSpeed(-0.5)
                     .withIntakeUntilSeen(false)
                     .withOuttakeUntilSeen(false)
@@ -143,7 +144,7 @@ public class ScoringSuperstructureState {
 
             L3_ALGAE = new ScoringSuperstructureState()
                     .withElevatorProportion(ElevatorConstants.L3_ALGAE_Proportion)
-                    .withWristProportion(1)
+                    .withWristProportion(HopperConstants.Wrist_L3_ALGAE_Proportion)
                     .withIntakeSpeed(-0.5)
                     .withIntakeUntilSeen(false)
                     .withOuttakeUntilSeen(false)
@@ -153,7 +154,7 @@ public class ScoringSuperstructureState {
 
             BARGE_SCORING = new ScoringSuperstructureState()
                     .withElevatorProportion(ElevatorConstants.Barge_Proportion)
-                    .withWristProportion(0.5)
+                    .withWristProportion(HopperConstants.Wrist_Barge_Proportion)
                     .withIntakeSpeed(1)
                     .withIntakeUntilSeen(false)
                     .withOuttakeUntilSeen(false)

@@ -23,8 +23,8 @@ public class ScoringConstants {
         public static final double L2_Proportion = 0.25;
         public static final double L3_Proportion = 0.35;
         public static final double L4_Proportion = 0.8;
-        public static final double L2_ALGAE_Proportion = .55;
-        public static final double L3_ALGAE_Proportion = .65;
+        public static final double L2_ALGAE_Proportion = -0.55;
+        public static final double L3_ALGAE_Proportion = 0.65;
         public static final double Barge_Proportion = 1;
     }
 
@@ -40,7 +40,16 @@ public class ScoringConstants {
 
         public static final double WRIST_TOLERANCE = 0.1;
 
-        //
+        //Wrist Proportions
+        public static final double Wrist_IDLE_Proportion = 0.0;
+        public static final double Wrist_HP_Proportion = 0.0;
+        public static final double Wrist_L1_Proportion = 1.0;
+        public static final double Wrist_L2_Proportion = 0.25;
+        public static final double Wrist_L3_Proportion = 0.25;
+        public static final double Wrist_L4_Proportion = 0.5;
+        public static final double Wrist_L2_ALGAE_Proportion = 1.0;
+        public static final double Wrist_L3_ALGAE_Proportion = 1.0;
+        public static final double Wrist_Barge_Proportion = 0.5;
     }
 
     public static class IDs {
