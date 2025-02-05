@@ -1,6 +1,8 @@
 package frc.robot.subsystems.vision;
 
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.IDs;
 import frc.robot.subsystems.vision.camera.CameraIO;
@@ -39,6 +41,7 @@ public class VisionSubsystem extends SubsystemBase {
      * Pushes valid vision measurements from all cameras and all april tags.
      */
     public Command globalVision() {
+        if(!RobotBase.isReal()) return Commands.none();
         return run(() -> {
             visionResults = cameras.parallelStream()
                                 .map(camera -> camera.getBotPoseAsVisionResult(true))
@@ -55,6 +58,7 @@ public class VisionSubsystem extends SubsystemBase {
      * @param idToTarget april tag ID to target
      */
     public Command targetedVision(int idToTarget) {
+        if(!RobotBase.isReal()) return Commands.none();
         return run(() -> {
             visionResults = cameras.parallelStream()
                                 .filter(camera -> camera.targets().contains(idToTarget))
