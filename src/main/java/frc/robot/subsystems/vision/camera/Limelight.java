@@ -16,15 +16,15 @@ import frc.robot.subsystems.vision.VisionResult;
 /**
  * Wraps a Limelight in the shape of a CameraIO interface, to be used in the Vision subsystem.
  */
-public class LimelightIO implements CameraIO{
-    private String name;
+public class Limelight implements Camera {
+    private final String name;
     PoseEstimate lastPoseEstimate;
 
     /**
      * Constructs a new LimelightIO object.
      * @param name the nickname of the camera. This will be the same as the NetworkTable the camera broadcasts to.
      */
-    public LimelightIO(String name){
+    public Limelight(String name){
         this.name = name;
     }
 

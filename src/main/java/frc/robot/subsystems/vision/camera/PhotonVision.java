@@ -4,6 +4,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
@@ -20,9 +22,9 @@ import frc.robot.subsystems.vision.VisionResult;
 /**
  * Wraps a PhotonCamera in the shape of a CameraIO interface, to be used in the Vision subsystem.
  */
-public class PhotonVisionIO implements CameraIO{
-    private PhotonCamera camera;
-    private PhotonPoseEstimator poseEstimator;
+public class PhotonVision implements Camera {
+    private final PhotonCamera camera;
+    private final PhotonPoseEstimator poseEstimator;
     EstimatedRobotPose lastPoseEstimate;
 
     /**
@@ -30,9 +32,9 @@ public class PhotonVisionIO implements CameraIO{
      * @param name the nickname of the camera. This will be the same as the NetworkTable the camera broadcasts to.
      * @param transformFromRobotOrigin the offsets from the camera's position to the robot's position.
      */
-    public PhotonVisionIO(String name, Transform3d transformFromRobotOrigin){
+    public PhotonVision(String name, Transform3d transformFromRobotOrigin){
         camera = new PhotonCamera(name);
-        poseEstimator = new PhotonPoseEstimator(FieldConstants.aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, transformFromRobotOrigin);
+        poseEstimator = new PhotonPoseEstimator(AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape), PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, transformFromRobotOrigin);
     }
 
     @Override
@@ -42,15 +44,15 @@ public class PhotonVisionIO implements CameraIO{
 
     @Override
     public Optional<VisionResult> getBotPoseAsVisionResult(boolean allianceFlipped) {
-        Optional<EstimatedRobotPose> poseEstimate = poseEstimator.update(camera.getLatestResult());
-        Optional<Pose2d> finalPose = poseEstimate.isPresent() 
+        Optional<EstimatedRobotPose> poseEstimate = poseEstimator.update(camera.getAllUnreadResults().get(0));
+        Optional<Pose2d> finalPose = poseEstimate.isPresent()
                                         ? verifyPose(poseEstimate.get().estimatedPose.toPose2d(), allianceFlipped)
                                         : Optional.empty();
         if (finalPose.isPresent()) {
             lastPoseEstimate = poseEstimate.get();
             return Optional.of(new VisionResult(finalPose.get(), poseEstimate.get().timestampSeconds));
         }
-            
+
         return Optional.empty();
     }
 
