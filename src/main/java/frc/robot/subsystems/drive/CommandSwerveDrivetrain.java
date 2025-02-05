@@ -215,8 +215,7 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
      * @return AutoFactory for this drivetrain
      */
     public AutoFactory createAutoFactory() {
-        return createAutoFactory((sample, isStart) -> {
-        });
+        return createAutoFactory((sample, isStart) -> {});
     }
 
     /**
@@ -236,7 +235,7 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
                 trajLogger
         );
     }
-
+    
 
     public Command stopCommand() {
         return applyRequest(() -> stopRequest);
@@ -369,8 +368,16 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
                 hasAppliedOperatorPerspective = true;
             });
         }
+        VisionSubsystem
+            .getInstance()
+            .getVisionResults()
+            .parallelStream()
+            .forEach(
+                visionResult -> addVisionMeasurement(
+                    visionResult.getVisionPose(),
+                    visionResult.getTimestamp())
+            );
         field.setRobotPose(getState().Pose);
-        VisionIO.getVisionFunction().run();
         SmartDashboard.putData("Field2D", field);
     }
 

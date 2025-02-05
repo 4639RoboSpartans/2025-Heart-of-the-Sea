@@ -5,6 +5,43 @@ import frc.lib.oi.OI;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+/*
+ * Driver Controls:
+ * - Left Stick Y->
+ * - Left Stick X->
+ * - Right Stick Y->
+ * - Right Stick X->
+ * - D Pad Left ->
+ * - D Pad Right ->
+ * - D Pad Up
+ * - D Pad Down
+ * - X Button
+ * - Y Button
+ * - A Button
+ * - B Button
+ * - RB Button
+ * - LB Button
+ * - R Trigger
+ * - L Trigger
+ *
+ * Operator Controls:
+ * - Left Stick Y->
+ * - Left Stick X->
+ * - Right Stick Y->
+ * - Right Stick X->
+ * - D Pad Left ->
+ * - D Pad Right ->
+ * - D Pad Up
+ * - D Pad Down
+ * - X Button
+ * - Y Button
+ * - A Button
+ * - B Button
+ * - RB Button
+ * - LB Button
+ * - R Trigger
+ * - L Trigger
+ */
 
 public class Controls {
     public static class Driver {
