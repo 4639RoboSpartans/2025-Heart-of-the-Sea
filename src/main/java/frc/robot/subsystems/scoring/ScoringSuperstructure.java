@@ -36,6 +36,11 @@ public class ScoringSuperstructure extends SubsystemBase {
         hopper.setHopper(state);
     }
 
+    /**
+     * @param state the new state to set the scoring superstructure to.
+     * @return an instantaneous command that sets the state to {@param state}. It does not run the scoring
+     * superstructure, only sets the state.
+     */
     public Command setScoringState(ScoringSuperstructureState state) {
         return Commands.runOnce(
                 () -> setState(state),
@@ -43,6 +48,9 @@ public class ScoringSuperstructure extends SubsystemBase {
         );
     }
 
+    /**
+     * @return command to run the scoring subsystem. It takes into account which "sub-subsystem" is the last to move.
+     */
     public Command runScoringState() {
         return Commands.run(
                 () -> {
@@ -65,16 +73,28 @@ public class ScoringSuperstructure extends SubsystemBase {
         );
     }
 
+    /**
+     * @return whether both "sub-subsystems" at the specified position
+     */
     public boolean isAtPosition() {
         return elevator.isElevatorAtPosition() && hopper.isHopperAtPosition();
     }
-    public Trigger isAtPositionState = new Trigger(this::isAtPosition);
+    public Trigger isAtPosition = new Trigger(this::isAtPosition);
 
+    /**
+     * @return whether the state is finished. Note this is different from {@link ScoringSuperstructure#isAtPosition()},
+     * since the state could only be finished when a game piece is detected, but we might only start the intake wheels when
+     * {@link ScoringSuperstructure#isAtPosition()} returns true.
+     */
     public boolean isStateFinished() {
         return elevator.isElevatorStateFinished() && hopper.isHopperStateFinished();
     }
     public Trigger isStateFinished = new Trigger(this::isStateFinished);
 
+    /**
+     * automatically detects whether current state was "aborted" or is finished, then sets the current state to the next
+     * state if so.
+     */
     @Override
     public void periodic() {
         if (isStateFinished()) {
@@ -84,18 +104,30 @@ public class ScoringSuperstructure extends SubsystemBase {
         }
     }
 
+    /**
+     * @return the real life length of the elevator, for use in simulation only.
+     */
     public Distance getCurrentElevatorLength() {
         return elevator.getCurrentLength();
     }
 
+    /**
+     * @return the real life target length of the elevator, for use in simulation only.
+     */
     public Distance getTargetElevatorLength() {
         return elevator.getTargetLength();
     }
 
+    /**
+     * @return the real life rotation of the wrist, for use in simulation only.
+     */
     public Rotation2d getCurrentWristRotation() {
         return hopper.getCurrentRotation();
     }
 
+    /**
+     * @return the real life target rotation of the wrist, for use in simulation only.
+     */
     public Rotation2d getTargetWristRotation() {
         return hopper.getTargetRotation();
     }

@@ -14,18 +14,18 @@ import static edu.wpi.first.units.Units.Inches;
 
 @SuppressWarnings("rawtypes")
 public class ScoringSuperstructureState {
-    private double elevatorPercent;
-    private double wristPercent;
-    public double intakeSpeed;
-    public boolean intakeUntilSeen;
-    public boolean outtakeUntilSeen;
-    public Class lastToMove;
-    public Trigger control;
-    public ScoringSuperstructureState stateAfter;
+    private double elevatorProportion; //proportion of the distance between lower and upper limit
+    private double wristProportion; // proportion of the distance between lower and upper limit
+    public double intakeSpeed; // speed of intake wheels
+    public boolean intakeUntilSeen; // whether to stop spinning intake wheels when game piece is seen
+    public boolean outtakeUntilSeen; // whether to stop spinning intake wheels after game piece isn't detected
+    public Class lastToMove; // the last "sub-subsystem" to move when moving to any other state
+    public Trigger control; // the trigger used to set this state
+    public ScoringSuperstructureState stateAfter; // the state to set after this state finishes
 
     private ScoringSuperstructureState() {
-        this.elevatorPercent = 0;
-        this.wristPercent = 0;
+        this.elevatorProportion = 0;
+        this.wristProportion = 0;
         this.intakeSpeed = 0;
         this.intakeUntilSeen = false;
         this.outtakeUntilSeen = false;
@@ -35,12 +35,12 @@ public class ScoringSuperstructureState {
     }
 
     private ScoringSuperstructureState withElevatorProportion(double percent) {
-        this.elevatorPercent = percent;
+        this.elevatorProportion = percent;
         return this;
     }
 
     private ScoringSuperstructureState withWristProportion(double percent) {
-        this.wristPercent = percent;
+        this.wristProportion = percent;
         return this;
     }
 
@@ -164,16 +164,16 @@ public class ScoringSuperstructureState {
 
     public double getElevatorAbsolutePosition() {
         return ScoringConstants.ElevatorConstants.DOWN_POSITION
-                + ScoringConstants.ElevatorConstants.POSITION_DIFF * elevatorPercent;
+                + ScoringConstants.ElevatorConstants.POSITION_DIFF * elevatorProportion;
     }
 
     public double getWristAbsolutePosition() {
         return ScoringConstants.HopperConstants.EXTENDED_POSITION
-                + ScoringConstants.HopperConstants.POSITION_DIFF * wristPercent;
+                + ScoringConstants.HopperConstants.POSITION_DIFF * wristProportion;
     }
 
     public Distance getElevatorLength() {
-        return Inches.of(elevatorPercent
+        return Inches.of(elevatorProportion
                 * ScoringConstants.ElevatorConstants.MAX_EXTENSION.in(Inches)
                 + ScoringConstants.ElevatorConstants.STARTING_HEIGHT.in(Inches)
         );
@@ -195,7 +195,7 @@ public class ScoringSuperstructureState {
 
     public Rotation2d getWristSimRotation() {
         return ScoringConstants.HopperConstants.MAX_ROTATION
-                .times(wristPercent)
+                .times(wristProportion)
                 .plus(ScoringConstants.HopperConstants.IDLE_ROTATION);
     }
 
