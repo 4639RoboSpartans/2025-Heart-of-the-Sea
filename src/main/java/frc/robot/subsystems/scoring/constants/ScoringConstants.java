@@ -15,6 +15,17 @@ public class ScoringConstants {
         public static final double POSITION_DIFF = UP_POSITION - DOWN_POSITION;
 
         public static final double ELEVATOR_TOLERANCE = 0.1;
+
+        //Elevator proportions
+        public static final double IDLE_Proportion = 0.0;
+        public static final double HP_Proportion = 0.5;
+        public static final double L1_Proportion = 0.3;
+        public static final double L2_Proportion = 0.25;
+        public static final double L3_Proportion = 0.35;
+        public static final double L4_Proportion = 0.8;
+        public static final double L2_ALGAE_Proportion = .55;
+        public static final double L3_ALGAE_Proportion = .65;
+        public static final double Barge_Proportion = 1;
     }
 
     public static class HopperConstants {
@@ -28,6 +39,8 @@ public class ScoringConstants {
         public static final double WRIST_ABSOLUTE_DOWN_POSITION = 0;
 
         public static final double WRIST_TOLERANCE = 0.1;
+
+        //
     }
 
     public static class IDs {
