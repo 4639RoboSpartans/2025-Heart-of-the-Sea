@@ -25,26 +25,27 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  * - L Trigger
  * 
  * Operator Controls:
- * - Left Stick Y-> 
+ * - Left Stick Y-> Manual Elevator Up/Down
  * - Left Stick X-> 
- * - Right Stick Y-> 
- * - Right Stick X->
+ * - Right Stick Y-> Manual Wrist
+ * - Right Stick X-> Intake/Outtake Scoring
  * - D Pad Left ->
  * - D Pad Right ->
- * - D Pad Up 
- * - D Pad Down
- * - X Button
- * - Y Button
- * - A Button
- * - B Button
- * - RB Button
+ * - D Pad Up ->
+ * - D Pad Down -> Stow Elevator
+ * - X Button -> L2 Scoring
+ * - Y Button -> L1 Scoring
+ * - A Button -> Processor Score
+ * - B Button -> Barge Score
+ * - RB Button -> L3 Scoring
  * - LB Button
- * - R Trigger
+ * - R Trigger -> L4 Scoring
  * - L Trigger
  */
 
 public class Controls {
     public static class Driver {
+        //swerve drive
         public static final DoubleSupplier SwerveForwardAxis = OI.getInstance().driverController()::leftStickY;
         public static final DoubleSupplier SwerveStrafeAxis = OI.getInstance().driverController()::leftStickX;
         public static final DoubleSupplier SwerveRotationAxis = OI.getInstance().driverController()::rightStickX;

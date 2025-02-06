@@ -26,6 +26,7 @@ class ConcreteClimberSubsystem extends ClimberSubsystem {
         SparkBaseConfig cfg = new SparkFlexConfig()
             .idleMode(SparkBaseConfig.IdleMode.kBrake)
             .smartCurrentLimit(30); // TODO: use a better value
+            //On a full size neo 40-60 should be fine -- Jasper
 
         leftPivot.configure(cfg, SparkBase.ResetMode.kNoResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
         rightPivot = new SparkFlex(IDs.RIGHT_CLIMBER_MOTOR, SparkLowLevel.MotorType.kBrushless);
