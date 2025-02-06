@@ -10,8 +10,8 @@ public class ScoringConstants {
         public static final Distance MAX_EXTENSION = Inches.of(84);
         public static final Distance STARTING_HEIGHT = Inches.of(12);
 
-        public static final double UP_POSITION = 0;
-        public static final double DOWN_POSITION = 1;
+        public static double UP_POSITION = -213.558;
+        public static double DOWN_POSITION = -65.425;
         public static final double POSITION_DIFF = UP_POSITION - DOWN_POSITION;
 
         public static final double ELEVATOR_TOLERANCE = 0.1;
@@ -23,7 +23,7 @@ public class ScoringConstants {
         public static final double L2_Proportion = 0.25;
         public static final double L3_Proportion = 0.35;
         public static final double L4_Proportion = 0.8;
-        public static final double L2_ALGAE_Proportion = -0.55;
+        public static final double L2_ALGAE_Proportion = 0.55;
         public static final double L3_ALGAE_Proportion = 0.65;
         public static final double Barge_Proportion = 1;
     }
@@ -55,6 +55,8 @@ public class ScoringConstants {
     public static class IDs {
         public static final int ElevatorLeftID = 21;
         public static final int ElevatorRightID = 22;
+
+        public static final String ElevatorCANBusName = "MainCANivore";
 
         public static final int IntakeMotorID = 10;
         public static final int WristMotorID = 11;

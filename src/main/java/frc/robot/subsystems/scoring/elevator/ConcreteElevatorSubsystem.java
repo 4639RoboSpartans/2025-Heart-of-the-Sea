@@ -25,8 +25,8 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
     private boolean isStateFinished = false;
 
     public ConcreteElevatorSubsystem() {
-        leftElevator = new TalonFX(ScoringConstants.IDs.ElevatorLeftID);
-        rightElevator = new TalonFX(ScoringConstants.IDs.ElevatorRightID);
+        leftElevator = new TalonFX(ScoringConstants.IDs.ElevatorLeftID, ScoringConstants.IDs.ElevatorCANBusName);
+        rightElevator = new TalonFX(ScoringConstants.IDs.ElevatorRightID, ScoringConstants.IDs.ElevatorCANBusName);
         leftElevator.setNeutralMode(NeutralModeValue.Brake);
         rightElevator.setNeutralMode(NeutralModeValue.Brake);
         var leftConfigurator = leftElevator.getConfigurator();
@@ -44,13 +44,15 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
                 );
         leftConfigurator.apply(configuration);
         rightConfigurator.apply(configuration);
+        leftElevator.setNeutralMode(NeutralModeValue.Brake);
+        rightElevator.setNeutralMode(NeutralModeValue.Brake);
         rightElevator.setControl(new Follower(ScoringConstants.IDs.ElevatorLeftID, true));
         controlRequest = new MotionMagicVoltage(leftElevator.getPosition().getValueAsDouble());
     }
 
     @Override
     public double getCurrentPosition() {
-        return leftElevator.getPosition().getValueAsDouble();
+        return leftElevator.getPosition(true).getValueAsDouble();
     }
 
     @Override
@@ -88,7 +90,7 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
 
     public void runElevator() {
 //        uncomment when down and up positions are set
-//        leftElevator.setControl(controlRequest);
+        // leftElevator.setControl(controlRequest);
         SmartDashboard.putNumber("output", leftElevator.getMotorVoltage().getValueAsDouble());
     }
 
@@ -97,6 +99,7 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
         if (isElevatorAtPosition()) {
             isStateFinished = true;
         }
+        SmartDashboard.putNumber("ELevator Position", getCurrentPosition());
         SmartDashboard.putBoolean("At State", isElevatorAtPosition());
     }
 

@@ -16,17 +16,17 @@ public abstract class HopperSubsystem extends SubsystemBase {
     //  Side note: if you really do need different instances for different parameters, use some sort of map from
     //  parameter to instance, and name it getInstanceFor(param1, param2, ...)
     public static HopperSubsystem getInstance(ScoringSuperstructure scoringSuperstructure) {
-        if (Robot.isReal()) {
-            return instance = Objects.requireNonNullElseGet(
-                    instance,
-                    () -> new ConcreteHopperSubsystem(scoringSuperstructure)
-            );
-        } else {
+        // if (Robot.isReal()) {
+        //     return instance = Objects.requireNonNullElseGet(
+        //             instance,
+        //             () -> new ConcreteHopperSubsystem(scoringSuperstructure)
+        //     );
+        // } else {
             return instance = Objects.requireNonNullElseGet(
                     instance,
                     () -> new SimHopperSubsystem(scoringSuperstructure)
             );
-        }
+        // }
     }
 
     public abstract double getCurrentPosition();
