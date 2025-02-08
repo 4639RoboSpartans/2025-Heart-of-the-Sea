@@ -1,4 +1,4 @@
-package frc.robot.constants;
+package frc.robot.subsystems.vision.constants;
 
 public enum Limelights {
     LIMELIGHT_1("limelight");

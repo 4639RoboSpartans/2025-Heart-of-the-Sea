@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
+import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.path.PathPlannerPath;
+
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;

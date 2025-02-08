@@ -17,6 +17,7 @@ import com.pathplanner.lib.util.PathPlannerLogging;
 import com.pathplanner.lib.util.swerve.SwerveSetpoint;
 import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -42,8 +43,9 @@ import frc.lib.DriverStationHelpers;
 import frc.robot.commands.AutoRoutines;
 import frc.robot.constants.Controls;
 import frc.robot.subsystems.drive.constants.DriveConstants;
+import frc.robot.subsystems.drive.constants.DrivePIDs;
 import frc.robot.subsystems.drive.constants.TunerConstants;
-import frc.robot.subsystems.vision.VisionIO;
+import frc.robot.subsystems.vision.VisionSubsystem;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -66,14 +68,14 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
     private final SwerveRequest.ApplyFieldSpeeds fieldSpeedsRequest = new SwerveRequest.ApplyFieldSpeeds();
     private final SwerveRequest.ApplyRobotSpeeds robotSpeedsRequest = new SwerveRequest.ApplyRobotSpeeds();
     private final SwerveRequest.FieldCentricFacingAngle fieldCentricFacingAngleRequest = new SwerveRequest.FieldCentricFacingAngle();
-    private final SwerveRequest.Idle stopRequest = new SwerveRequest.Idle();
+    private final SwerveRequest.SwerveDriveBrake stopRequest = new SwerveRequest.SwerveDriveBrake();
 
     private final PIDController pathXController = new PIDController(12, 0, 0);
     private final PIDController pathYController = new PIDController(12, 0, 0);
     private final PIDController pathThetaController = new PIDController(7, 0, 0);
 
-    private final ProfiledPIDController pidXController = new ProfiledPIDController(1, 0, 0, new TrapezoidProfile.Constraints(0.5, 0.5));
-    private final ProfiledPIDController pidYController = new ProfiledPIDController(1, 0, 0, new TrapezoidProfile.Constraints(0.5, 0.5));
+    private final PIDController pidXController = new PIDController(1, 0, 0);
+    private final PIDController pidYController = new PIDController(1, 0, 0);
 
     private final Field2d field = new Field2d();
 
@@ -100,8 +102,8 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
      * @param modules             Constants for each specific module
      */
     public CommandSwerveDrivetrain(
-        SwerveDrivetrainConstants drivetrainConstants,
-        SwerveModuleConstants<?, ?, ?>... modules
+            SwerveDrivetrainConstants drivetrainConstants,
+            SwerveModuleConstants<?, ?, ?>... modules
     ) {
         super(drivetrainConstants, modules);
         if (Utils.isSimulation()) {
@@ -121,9 +123,9 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
         autoRoutines = new AutoRoutines(autoFactory);
         configureAutoBuilder();
         fieldCentricFacingAngleRequest.HeadingController.setPID(
-            28.48,
-            0,
-            1.1466
+                28.48,
+                0,
+                1.1466
         );
     }
 
@@ -141,9 +143,9 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
      * @param modules                 Constants for each specific module
      */
     public CommandSwerveDrivetrain(
-        SwerveDrivetrainConstants drivetrainConstants,
-        double odometryUpdateFrequency,
-        SwerveModuleConstants<?, ?, ?>... modules
+            SwerveDrivetrainConstants drivetrainConstants,
+            double odometryUpdateFrequency,
+            SwerveModuleConstants<?, ?, ?>... modules
     ) {
         super(drivetrainConstants, odometryUpdateFrequency, modules);
         if (Utils.isSimulation()) {
@@ -183,11 +185,11 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
      * @param modules                   Constants for each specific module
      */
     public CommandSwerveDrivetrain(
-        SwerveDrivetrainConstants drivetrainConstants,
-        double odometryUpdateFrequency,
-        Matrix<N3, N1> odometryStandardDeviation,
-        Matrix<N3, N1> visionStandardDeviation,
-        SwerveModuleConstants<?, ?, ?>... modules
+            SwerveDrivetrainConstants drivetrainConstants,
+            double odometryUpdateFrequency,
+            Matrix<N3, N1> odometryStandardDeviation,
+            Matrix<N3, N1> visionStandardDeviation,
+            SwerveModuleConstants<?, ?, ?>... modules
     ) {
         super(drivetrainConstants, odometryUpdateFrequency, odometryStandardDeviation, visionStandardDeviation, modules);
         if (Utils.isSimulation()) {
@@ -225,12 +227,12 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
      */
     public AutoFactory createAutoFactory(TrajectoryLogger<SwerveSample> trajLogger) {
         return new AutoFactory(
-            () -> getState().Pose,
-            this::resetPose,
-            this::followPath,
-            true,
-            this,
-            trajLogger
+                () -> getState().Pose,
+                this::resetPose,
+                this::followPath,
+                true,
+                this,
+                trajLogger
         );
     }
     
@@ -240,7 +242,7 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
     }
 
     public SwerveRequest fieldCentricRequestSupplier() {
-        double forwards = (DriverStationHelpers.getAlliance() == Alliance.Blue ? 1 : -1) *  Controls.Driver.SwerveForwardAxis.getAsDouble() * DriveConstants.CURRENT_MAX_ROBOT_MPS;
+        double forwards = (DriverStationHelpers.getAlliance() == Alliance.Blue ? 1 : -1) * Controls.Driver.SwerveForwardAxis.getAsDouble() * DriveConstants.CURRENT_MAX_ROBOT_MPS;
         double strafe = (DriverStationHelpers.getAlliance() == Alliance.Blue ? 1 : -1) * -Controls.Driver.SwerveStrafeAxis.getAsDouble() * DriveConstants.CURRENT_MAX_ROBOT_MPS;
         double rotation = Controls.Driver.SwerveRotationAxis.getAsDouble() * DriveConstants.TELOP_ROTATION_SPEED;
         if (Controls.Driver.precisionTrigger.getAsBoolean()) {
@@ -249,31 +251,31 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
             rotation /= 4;
         }
         SwerveSetpoint newSetpoint = swerveSetpointGenerator.generateSetpoint(
-            prevSetpoint,
-            ChassisSpeeds.fromFieldRelativeSpeeds(
-                new ChassisSpeeds(
-                    forwards,
-                    strafe,
-                    rotation
+                prevSetpoint,
+                ChassisSpeeds.fromFieldRelativeSpeeds(
+                        new ChassisSpeeds(
+                                forwards,
+                                strafe,
+                                rotation
+                        ),
+                        Rotation2d.fromRadians(getPigeon2().getYaw().getValue().in(Radians))
                 ),
-                Rotation2d.fromRadians(getPigeon2().getYaw().getValue().in(Radians))
-            ),
-            0.02
+                0.02
         );
         prevSetpoint = newSetpoint;
         return fieldSpeedsRequest.withDesaturateWheelSpeeds(true)
-            .withSpeeds(
-                ChassisSpeeds.fromRobotRelativeSpeeds(
-                    newSetpoint.robotRelativeSpeeds(),
-                    Rotation2d.fromRadians(getPigeon2().getYaw().getValue().in(Radians))
+                .withSpeeds(
+                        ChassisSpeeds.fromRobotRelativeSpeeds(
+                                newSetpoint.robotRelativeSpeeds(),
+                                Rotation2d.fromRadians(getPigeon2().getYaw().getValue().in(Radians))
+                        )
                 )
-            )
-            .withWheelForceFeedforwardsX(
-                newSetpoint.feedforwards().robotRelativeForcesX()
-            )
-            .withWheelForceFeedforwardsY(
-                newSetpoint.feedforwards().robotRelativeForcesY()
-            );
+                .withWheelForceFeedforwardsX(
+                        newSetpoint.feedforwards().robotRelativeForcesX()
+                )
+                .withWheelForceFeedforwardsY(
+                        newSetpoint.feedforwards().robotRelativeForcesY()
+                );
     }
 
     public Command pathfindCommand(Pose2d targetPose) {
@@ -293,16 +295,25 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
 
     public Command pidToPoseCommand(Pose2d targetPose) {
         return applyRequest(
-                () -> fieldCentricFacingAngleRequest
-                        .withVelocityX(
-                                -pidXController.calculate(getState().Pose.getX(), targetPose.getX())
-                        )
-                        .withVelocityY(
-                                -pidYController.calculate(getState().Pose.getY(), targetPose.getY())
-                        )
-                        .withTargetDirection(
-                                targetPose.getRotation().plus(Rotation2d.fromDegrees(180))
-                        )
+                () -> {
+                    pidXController.setSetpoint(targetPose.getX());
+                    pidYController.setSetpoint(targetPose.getY());
+                    double pidXOutput = -pidXController.calculate(getState().Pose.getX());
+                    double pidYOutput = -pidYController.calculate(getState().Pose.getY());
+                    return fieldCentricFacingAngleRequest
+                            .withTargetDirection(
+                                    targetPose.getRotation().plus(Rotation2d.fromDegrees(180))
+                            )
+                            .withVelocityX(
+                                    pidXOutput
+                            )
+                            .withVelocityY(
+                                    pidYOutput
+                            );
+                }
+        ).until(
+                () -> MathUtil.isNear(targetPose.getX(), getState().Pose.getX(), 0.025)
+                        && MathUtil.isNear(targetPose.getY(), getState().Pose.getY(), 0.025)
         );
     }
 
@@ -328,37 +339,53 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
 
         var targetSpeeds = sample.getChassisSpeeds();
         targetSpeeds.vxMetersPerSecond += pathXController.calculate(
-            pose.getX(), sample.x
+                pose.getX(), sample.x
         );
         targetSpeeds.vyMetersPerSecond += pathYController.calculate(
-            pose.getY(), sample.y
+                pose.getY(), sample.y
         );
         targetSpeeds.omegaRadiansPerSecond += pathThetaController.calculate(
-            pose.getRotation().getRadians(), sample.heading
+                pose.getRotation().getRadians(), sample.heading
         );
 
         setControl(
-            fieldSpeedsRequest.withSpeeds(targetSpeeds)
-                .withWheelForceFeedforwardsX(sample.moduleForcesX())
-                .withWheelForceFeedforwardsY(sample.moduleForcesY())
+                fieldSpeedsRequest.withSpeeds(targetSpeeds)
+                        .withWheelForceFeedforwardsX(sample.moduleForcesX())
+                        .withWheelForceFeedforwardsY(sample.moduleForcesY())
         );
     }
 
     @Override
     public void periodic() {
+        updatePIDs();
         if (!hasAppliedOperatorPerspective || DriverStation.isDisabled()) {
             DriverStation.getAlliance().ifPresent(allianceColor -> {
                 setOperatorPerspectiveForward(
-                    allianceColor == Alliance.Red
-                        ? DriveConstants.RedAlliancePerspectiveRotation
-                        : DriveConstants.BlueAlliancePerspectiveRotation
+                        allianceColor == Alliance.Red
+                                ? DriveConstants.RedAlliancePerspectiveRotation
+                                : DriveConstants.BlueAlliancePerspectiveRotation
                 );
                 hasAppliedOperatorPerspective = true;
             });
         }
+        VisionSubsystem
+            .getInstance()
+            .getVisionResults()
+            .stream()
+            .forEach(
+                visionResult -> addVisionMeasurement(
+                    visionResult.getVisionPose(),
+                    visionResult.getTimestamp())
+            );
         field.setRobotPose(getState().Pose);
-        VisionIO.getVisionFunction().run();
         SmartDashboard.putData("Field2D", field);
+    }
+
+    private void updatePIDs() {
+        pidXController.setP(DrivePIDs.pidToPoseXkP.get());
+        pidYController.setP(DrivePIDs.pidToPoseYkP.get());
+        pidXController.calculate(getState().Pose.getX());
+        pidYController.calculate(getState().Pose.getY());
     }
 
     private void startSimThread() {
@@ -380,25 +407,25 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
         try {
             var config = RobotConfig.fromGUISettings();
             AutoBuilder.configure(
-                () -> getState().Pose,   // Supplier of current robot pose
-                this::resetPose,         // Consumer for seeding pose against auto
-                () -> getState().Speeds, // Supplier of current robot speeds
-                // Consumer of ChassisSpeeds and feedforwards to drive the robot
-                (speeds, feedforwards) -> setControl(
-                    robotSpeedsRequest.withSpeeds(speeds)
-                        .withWheelForceFeedforwardsX(feedforwards.robotRelativeForcesXNewtons())
-                        .withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesYNewtons())
-                ),
-                new PPHolonomicDriveController(
-                    // PID constants for translation
-                    new PIDConstants(10, 0, 0),
-                    // PID constants for rotation
-                    new PIDConstants(7, 0, 0)
-                ),
-                config,
-                // Assume the path needs to be flipped for Red vs Blue, this is normally the case
-                () -> false,
-                this // Subsystem for requirements
+                    () -> getState().Pose,   // Supplier of current robot pose
+                    this::resetPose,         // Consumer for seeding pose against auto
+                    () -> getState().Speeds, // Supplier of current robot speeds
+                    // Consumer of ChassisSpeeds and feedforwards to drive the robot
+                    (speeds, feedforwards) -> setControl(
+                            robotSpeedsRequest.withSpeeds(speeds)
+                                    .withWheelForceFeedforwardsX(feedforwards.robotRelativeForcesXNewtons())
+                                    .withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesYNewtons())
+                    ),
+                    new PPHolonomicDriveController(
+                            // PID constants for translation
+                            new PIDConstants(10, 0, 0),
+                            // PID constants for rotation
+                            new PIDConstants(7, 0, 0)
+                    ),
+                    config,
+                    // Assume the path needs to be flipped for Red vs Blue, this is normally the case
+                    () -> false,
+                    this // Subsystem for requirements
             );
             PathPlannerLogging.setLogActivePathCallback((poses) -> {
                 ArrayList<Trajectory.State> states = new ArrayList<>();
@@ -413,11 +440,11 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
                     }
                 } else {
                     states.add(new Trajectory.State(
-                        0,
-                        0,
-                        0,
-                        new Pose2d(-100, -100, new Rotation2d()),
-                        0));
+                            0,
+                            0,
+                            0,
+                            new Pose2d(-100, -100, new Rotation2d()),
+                            0));
                 }
                 field.getObject("Pathplanner Path").setPoses(poses);
             });
@@ -436,14 +463,14 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
 
     public Command resetPigeonCommand() {
         return Commands.runOnce(
-            () -> {
-                getPigeon2().setYaw(
-                    Angle.ofBaseUnits(
-                        0,
-                        Degrees
-                    )
-                );
-            }
+                () -> {
+                    getPigeon2().setYaw(
+                            Angle.ofBaseUnits(
+                                    0,
+                                    Degrees
+                            )
+                    );
+                }
         );
     }
 }

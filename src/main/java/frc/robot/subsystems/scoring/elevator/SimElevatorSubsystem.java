@@ -87,7 +87,7 @@ public class SimElevatorSubsystem extends ElevatorSubsystem {
                 ScoringSuperstructureState.getElevatorSimPosition(getTargetLength()),
                 ScoringSuperstructureState.getElevatorSimPosition(getCurrentLength()),
                 ScoringConstants.ElevatorConstants.ELEVATOR_TOLERANCE
-        ) && elevatorPID.getVelocityError() <= 0.01;
+        ) && elevatorSim.getVelocityMetersPerSecond() < 0.1;
     }
 
     @Override
