@@ -30,7 +30,7 @@ public class ScoringSuperstructureState {
         this.intakeUntilSeen = false;
         this.outtakeUntilSeen = false;
         this.lastToMove = null;
-        this.control = null;
+        this.control = new Trigger(() -> true);
         this.stateAfter = this;
     }
 
@@ -74,150 +74,160 @@ public class ScoringSuperstructureState {
         return this;
     }
 
-    public static final ScoringSuperstructureState
-            IDLE = new ScoringSuperstructureState()
-            .withElevatorProportion(ElevatorConstants.IDLE_Proportion)
-            .withWristProportion(HopperConstants.Wrist_IDLE_Proportion)
-            .withIntakeSpeed(0.0)
-            .withIntakeUntilSeen(false)
-            .withOuttakeUntilSeen(true)
-            .withLastToMove(HopperSubsystem.class),
-
-    HP_LOADING = new ScoringSuperstructureState()
-            .withElevatorProportion(ElevatorConstants.HP_Proportion)
-            .withWristProportion(HopperConstants.Wrist_HP_Proportion)
-            .withIntakeSpeed(0.5)
-            .withIntakeUntilSeen(true)
-            .withOuttakeUntilSeen(false)
-            .withControl(Controls.Operator.HPLoadingTrigger)
-            .withStateAfter(IDLE),
-
-    L1 = new ScoringSuperstructureState()
-            .withElevatorProportion(ElevatorConstants.L1_Proportion)
-            .withWristProportion(HopperConstants.Wrist_L1_Proportion)
-            .withIntakeSpeed(0.5)
-            .withIntakeUntilSeen(false)
-            .withOuttakeUntilSeen(true)
-            .withLastToMove(ElevatorSubsystem.class)
-            .withControl(Controls.Operator.L1Trigger)
-            .withStateAfter(IDLE),
-
-    L2 = new ScoringSuperstructureState()
-            .withElevatorProportion(ElevatorConstants.L2_Proportion)
-            .withWristProportion(HopperConstants.Wrist_L2_Proportion)
-            .withIntakeSpeed(0.5)
-            .withIntakeUntilSeen(false)
-            .withOuttakeUntilSeen(true)
-            .withLastToMove(ElevatorSubsystem.class)
-            .withControl(Controls.Operator.L2Trigger)
-            .withStateAfter(IDLE),
-
-    L3 = new ScoringSuperstructureState()
-            .withElevatorProportion(ElevatorConstants.L3_Proportion)
-            .withWristProportion(HopperConstants.Wrist_L3_Proportion)
-            .withIntakeSpeed(0.5)
-            .withIntakeUntilSeen(false)
-            .withOuttakeUntilSeen(true)
-            .withLastToMove(ElevatorSubsystem.class)
-            .withControl(Controls.Operator.L3Trigger)
-            .withStateAfter(IDLE),
-
-    L4 = new ScoringSuperstructureState()
-            .withElevatorProportion(ElevatorConstants.L4_Proportion)
-            .withWristProportion(HopperConstants.Wrist_L4_Proportion)
-            .withIntakeSpeed(0.5)
-            .withIntakeUntilSeen(false)
-            .withOuttakeUntilSeen(true)
-            .withLastToMove(ElevatorSubsystem.class)
-            .withControl(Controls.Operator.L4Trigger)
-            .withStateAfter(IDLE),
-
-    L2_ALGAE = new ScoringSuperstructureState()
-            .withElevatorProportion(ElevatorConstants.L2_ALGAE_Proportion)
-            .withWristProportion(HopperConstants.Wrist_L2_ALGAE_Proportion)
-            .withIntakeSpeed(-0.5)
-            .withIntakeUntilSeen(false)
-            .withOuttakeUntilSeen(false)
-            .withLastToMove(ElevatorSubsystem.class)
-            .withControl(Controls.Operator.L2AlgaeTrigger)
-            .withStateAfter(IDLE),
-
-    L3_ALGAE = new ScoringSuperstructureState()
-            .withElevatorProportion(ElevatorConstants.L3_ALGAE_Proportion)
-            .withWristProportion(HopperConstants.Wrist_L3_ALGAE_Proportion)
-            .withIntakeSpeed(-0.5)
-            .withIntakeUntilSeen(false)
-            .withOuttakeUntilSeen(false)
-            .withLastToMove(ElevatorSubsystem.class)
-            .withControl(Controls.Operator.L3AlgaeTrigger)
-            .withStateAfter(IDLE),
-
-    BARGE_SCORING = new ScoringSuperstructureState()
-            .withElevatorProportion(ElevatorConstants.Barge_Proportion)
-            .withWristProportion(HopperConstants.Wrist_Barge_Proportion)
-            .withIntakeSpeed(1)
-            .withIntakeUntilSeen(false)
-            .withOuttakeUntilSeen(false)
-            .withLastToMove(ElevatorSubsystem.class)
-            .withControl(Controls.Operator.BargeScoringTrigger)
-            .withStateAfter(IDLE),
-
-    TRANSITION_STATE = new ScoringSuperstructureState()
-            .withElevatorProportion(0)
-            .withWristProportion(0.5)
+    public static ScoringSuperstructureState HOLD(double elevatorProportion, double wristProportion) {
+        return new ScoringSuperstructureState()
+            .withElevatorProportion(elevatorProportion)
+            .withWristProportion(wristProportion)
             .withIntakeSpeed(0)
             .withIntakeUntilSeen(false)
-            .withOuttakeUntilSeen(false);
+            .withOuttakeUntilSeen(false)
+            .withLastToMove(null);
+    }
+
+    public static final ScoringSuperstructureState
+        IDLE = new ScoringSuperstructureState()
+        .withElevatorProportion(ElevatorConstants.IDLE_Proportion)
+        .withWristProportion(HopperConstants.Wrist_IDLE_Proportion)
+        .withIntakeSpeed(0.0)
+        .withIntakeUntilSeen(false)
+        .withOuttakeUntilSeen(true)
+        .withLastToMove(HopperSubsystem.class),
+
+    HP_LOADING = new ScoringSuperstructureState()
+        .withElevatorProportion(ElevatorConstants.HP_Proportion)
+        .withWristProportion(HopperConstants.Wrist_HP_Proportion)
+        .withIntakeSpeed(0.5)
+        .withIntakeUntilSeen(true)
+        .withOuttakeUntilSeen(false)
+        .withControl(Controls.Operator.HPLoadingTrigger)
+        .withStateAfter(IDLE),
+
+    L1 = new ScoringSuperstructureState()
+        .withElevatorProportion(ElevatorConstants.L1_Proportion)
+        .withWristProportion(HopperConstants.Wrist_L1_Proportion)
+        .withIntakeSpeed(0.5)
+        .withIntakeUntilSeen(false)
+        .withOuttakeUntilSeen(true)
+        .withLastToMove(ElevatorSubsystem.class)
+        .withControl(Controls.Operator.L1Trigger)
+        .withStateAfter(IDLE),
+
+    L2 = new ScoringSuperstructureState()
+        .withElevatorProportion(ElevatorConstants.L2_Proportion)
+        .withWristProportion(HopperConstants.Wrist_L2_Proportion)
+        .withIntakeSpeed(0.5)
+        .withIntakeUntilSeen(false)
+        .withOuttakeUntilSeen(true)
+        .withLastToMove(ElevatorSubsystem.class)
+        .withControl(Controls.Operator.L2Trigger)
+        .withStateAfter(IDLE),
+
+    L3 = new ScoringSuperstructureState()
+        .withElevatorProportion(ElevatorConstants.L3_Proportion)
+        .withWristProportion(HopperConstants.Wrist_L3_Proportion)
+        .withIntakeSpeed(0.5)
+        .withIntakeUntilSeen(false)
+        .withOuttakeUntilSeen(true)
+        .withLastToMove(ElevatorSubsystem.class)
+        .withControl(Controls.Operator.L3Trigger)
+        .withStateAfter(IDLE),
+
+    L4 = new ScoringSuperstructureState()
+        .withElevatorProportion(ElevatorConstants.L4_Proportion)
+        .withWristProportion(HopperConstants.Wrist_L4_Proportion)
+        .withIntakeSpeed(0.5)
+        .withIntakeUntilSeen(false)
+        .withOuttakeUntilSeen(true)
+        .withLastToMove(ElevatorSubsystem.class)
+        .withControl(Controls.Operator.L4Trigger)
+        .withStateAfter(IDLE),
+
+    L2_ALGAE = new ScoringSuperstructureState()
+        .withElevatorProportion(ElevatorConstants.L2_ALGAE_Proportion)
+        .withWristProportion(HopperConstants.Wrist_L2_ALGAE_Proportion)
+        .withIntakeSpeed(-0.5)
+        .withIntakeUntilSeen(false)
+        .withOuttakeUntilSeen(false)
+        .withLastToMove(ElevatorSubsystem.class)
+        .withControl(Controls.Operator.L2AlgaeTrigger)
+        .withStateAfter(IDLE),
+
+    L3_ALGAE = new ScoringSuperstructureState()
+        .withElevatorProportion(ElevatorConstants.L3_ALGAE_Proportion)
+        .withWristProportion(HopperConstants.Wrist_L3_ALGAE_Proportion)
+        .withIntakeSpeed(-0.5)
+        .withIntakeUntilSeen(false)
+        .withOuttakeUntilSeen(false)
+        .withLastToMove(ElevatorSubsystem.class)
+        .withControl(Controls.Operator.L3AlgaeTrigger)
+        .withStateAfter(IDLE),
+
+    BARGE_SCORING = new ScoringSuperstructureState()
+        .withElevatorProportion(ElevatorConstants.Barge_Proportion)
+        .withWristProportion(HopperConstants.Wrist_Barge_Proportion)
+        .withIntakeSpeed(1)
+        .withIntakeUntilSeen(false)
+        .withOuttakeUntilSeen(false)
+        .withLastToMove(ElevatorSubsystem.class)
+        .withControl(Controls.Operator.BargeScoringTrigger)
+        .withStateAfter(IDLE),
+
+    TRANSITION_STATE = new ScoringSuperstructureState()
+        .withElevatorProportion(0)
+        .withWristProportion(0.5)
+        .withIntakeSpeed(0)
+        .withIntakeUntilSeen(false)
+        .withOuttakeUntilSeen(false);
 
     public double getElevatorAbsolutePosition() {
         return ScoringConstants.ElevatorConstants.DOWN_POSITION
-                + ScoringConstants.ElevatorConstants.POSITION_DIFF * elevatorProportion;
+            + ScoringConstants.ElevatorConstants.POSITION_DIFF * elevatorProportion;
     }
 
     public double getWristAbsolutePosition() {
         return ScoringConstants.HopperConstants.EXTENDED_POSITION
-                + ScoringConstants.HopperConstants.POSITION_DIFF * wristProportion;
+            + ScoringConstants.HopperConstants.POSITION_DIFF * wristProportion;
     }
 
     public Distance getElevatorLength() {
         return Inches.of(elevatorProportion
-                * ScoringConstants.ElevatorConstants.MAX_EXTENSION.in(Inches)
-                + ScoringConstants.ElevatorConstants.STARTING_HEIGHT.in(Inches)
+            * ScoringConstants.ElevatorConstants.MAX_EXTENSION.in(Inches)
+            + ScoringConstants.ElevatorConstants.STARTING_HEIGHT.in(Inches)
         );
     }
 
     public static double getElevatorSimPosition(Distance distance) {
         double position = (distance.in(Inches) - ScoringConstants.ElevatorConstants.STARTING_HEIGHT.in(Inches))
-                / ScoringConstants.ElevatorConstants.MAX_EXTENSION.in(Inches);
+            / ScoringConstants.ElevatorConstants.MAX_EXTENSION.in(Inches);
         return ScoringConstants.ElevatorConstants.DOWN_POSITION
-                + ScoringConstants.ElevatorConstants.POSITION_DIFF * position;
+            + ScoringConstants.ElevatorConstants.POSITION_DIFF * position;
     }
 
     public static Distance getElevatorSimDistance(double position) {
         double rawDist = (position - ScoringConstants.ElevatorConstants.DOWN_POSITION)
-                / ScoringConstants.ElevatorConstants.POSITION_DIFF;
+            / ScoringConstants.ElevatorConstants.POSITION_DIFF;
         return Inches.of(rawDist * ScoringConstants.ElevatorConstants.MAX_EXTENSION.in(Inches)
-                + ScoringConstants.ElevatorConstants.STARTING_HEIGHT.in(Inches));
+            + ScoringConstants.ElevatorConstants.STARTING_HEIGHT.in(Inches));
     }
 
     public Rotation2d getWristSimRotation() {
         return ScoringConstants.HopperConstants.MAX_ROTATION
-                .times(wristProportion)
-                .plus(ScoringConstants.HopperConstants.IDLE_ROTATION);
+            .times(wristProportion)
+            .plus(ScoringConstants.HopperConstants.IDLE_ROTATION);
     }
 
     public static double getWristSimPosition(Rotation2d rotation) {
         double position = (rotation.getDegrees() - ScoringConstants.HopperConstants.IDLE_ROTATION.getDegrees())
-                / ScoringConstants.HopperConstants.MAX_ROTATION.getDegrees();
+            / ScoringConstants.HopperConstants.MAX_ROTATION.getDegrees();
         return ScoringConstants.HopperConstants.EXTENDED_POSITION
-                + ScoringConstants.HopperConstants.POSITION_DIFF * position;
+            + ScoringConstants.HopperConstants.POSITION_DIFF * position;
     }
 
     public static Rotation2d getWristSimRotation(double position) {
         double rawRotation = (position - ScoringConstants.HopperConstants.EXTENDED_POSITION)
-                / ScoringConstants.HopperConstants.POSITION_DIFF;
+            / ScoringConstants.HopperConstants.POSITION_DIFF;
         return Rotation2d.fromDegrees(rawRotation * ScoringConstants.HopperConstants.MAX_ROTATION.getDegrees())
-                .plus(ScoringConstants.HopperConstants.IDLE_ROTATION);
+            .plus(ScoringConstants.HopperConstants.IDLE_ROTATION);
     }
 
     public ScoringSuperstructureState getStateAfter() {

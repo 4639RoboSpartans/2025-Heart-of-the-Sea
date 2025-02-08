@@ -5,14 +5,18 @@ import edu.wpi.first.units.measure.Distance;
 
 import static edu.wpi.first.units.Units.Inches;
 
-public class ScoringConstants {
-    public static class ElevatorConstants {
+public final class ScoringConstants {
+    public static final class ElevatorConstants {
         public static final Distance MAX_EXTENSION = Inches.of(84);
         public static final Distance STARTING_HEIGHT = Inches.of(12);
 
-        public static double UP_POSITION = -213.558;
-        public static double DOWN_POSITION = -65.425;
+        public static double UP_POSITION = 63;
+        public static double DOWN_POSITION = 0;
         public static final double POSITION_DIFF = UP_POSITION - DOWN_POSITION;
+
+        public static double positionToProportion(double position) {
+            return (position - DOWN_POSITION) / POSITION_DIFF;
+        }
 
         public static final double ELEVATOR_TOLERANCE = 0.1;
 
@@ -39,6 +43,10 @@ public class ScoringConstants {
         public static final double WRIST_ABSOLUTE_DOWN_POSITION = 0;
 
         public static final double WRIST_TOLERANCE = 0.1;
+
+        public static double positionToProportion(double position) {
+            return (position - IDLE_POSITION) / POSITION_DIFF;
+        }
 
         //Wrist Proportions
         public static final double Wrist_IDLE_Proportion = 0.0;

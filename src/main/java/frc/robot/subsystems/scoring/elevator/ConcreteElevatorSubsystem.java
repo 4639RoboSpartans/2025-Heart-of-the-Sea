@@ -32,16 +32,16 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
         var leftConfigurator = leftElevator.getConfigurator();
         var rightConfigurator = rightElevator.getConfigurator();
         TalonFXConfiguration configuration = new TalonFXConfiguration()
-                .withMotionMagic(
-                        new MotionMagicConfigs()
-                                .withMotionMagicAcceleration(ScoringPIDs.elevatorAcceleration.get())
-                                .withMotionMagicCruiseVelocity(ScoringPIDs.elevatorVelocity.get()))
-                .withSlot0(
-                        new Slot0Configs()
-                                .withKP(ScoringPIDs.elevatorKp.get())
-                                .withKI(ScoringPIDs.elevatorKi.get())
-                                .withKD(ScoringPIDs.elevatorKd.get())
-                );
+            .withMotionMagic(
+                new MotionMagicConfigs()
+                    .withMotionMagicAcceleration(ScoringPIDs.elevatorAcceleration.get())
+                    .withMotionMagicCruiseVelocity(ScoringPIDs.elevatorVelocity.get()))
+            .withSlot0(
+                new Slot0Configs()
+                    .withKP(ScoringPIDs.elevatorKp.get())
+                    .withKI(ScoringPIDs.elevatorKi.get())
+                    .withKD(ScoringPIDs.elevatorKd.get())
+            );
         leftConfigurator.apply(configuration);
         rightConfigurator.apply(configuration);
         leftElevator.setNeutralMode(NeutralModeValue.Brake);
@@ -76,9 +76,9 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
 
     public boolean isElevatorAtPosition() {
         return MathUtil.isNear(
-                controlRequest.Position,
-                leftElevator.getPosition().getValueAsDouble(),
-                ScoringConstants.ElevatorConstants.ELEVATOR_TOLERANCE
+            controlRequest.Position,
+            leftElevator.getPosition().getValueAsDouble(),
+            ScoringConstants.ElevatorConstants.ELEVATOR_TOLERANCE
         );
     }
 
@@ -89,8 +89,7 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
     }
 
     public void runElevator() {
-//        uncomment when down and up positions are set
-        // leftElevator.setControl(controlRequest);
+        leftElevator.setControl(controlRequest);
         SmartDashboard.putNumber("output", leftElevator.getMotorVoltage().getValueAsDouble());
     }
 

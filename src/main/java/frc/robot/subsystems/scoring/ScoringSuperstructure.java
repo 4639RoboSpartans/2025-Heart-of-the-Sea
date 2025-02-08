@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.subsystems.scoring.constants.ScoringConstants;
 import frc.robot.subsystems.scoring.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.scoring.hopper.HopperSubsystem;
 
@@ -16,7 +17,7 @@ public class ScoringSuperstructure extends SubsystemBase {
 
     public static ScoringSuperstructure getInstance() {
         return instance = Objects.requireNonNullElseGet(instance,
-                ScoringSuperstructure::new
+            ScoringSuperstructure::new
         );
     }
 
@@ -43,9 +44,16 @@ public class ScoringSuperstructure extends SubsystemBase {
      */
     public Command setScoringState(ScoringSuperstructureState state) {
         return Commands.runOnce(
-                () -> setState(state),
-                this
+            () -> setState(state),
+            this
         );
+    }
+
+    public Command hold() {
+        return setScoringState(ScoringSuperstructureState.HOLD(
+            ScoringConstants.ElevatorConstants.positionToProportion(elevator.getCurrentPosition()),
+            ScoringConstants.HopperConstants.positionToProportion(hopper.getCurrentPosition())
+        ));
     }
 
     /**
@@ -53,36 +61,36 @@ public class ScoringSuperstructure extends SubsystemBase {
      */
     public Command runScoringState() {
         return Commands.run(
-                () -> {
-                    if (state.lastToMove == null) {
-                        hopper.runHopper();
+            () -> {
+                if (state.lastToMove == null) {
+                    hopper.runHopper();
+                    elevator.runElevator();
+                } else if (state.lastToMove == ElevatorSubsystem.class) {
+                    if (hopper.isHopperAtPosition()) {
                         elevator.runElevator();
-                    } else if (state.lastToMove == ElevatorSubsystem.class) {
-                        if (hopper.isHopperAtPosition()) {
-                            elevator.runElevator();
-                            if (elevator.isElevatorAtPosition()) {
-                                hopper.setHopper(state);
-                            }
-                            hopper.runHopper();
-                        } else {
-                            if (!elevator.isElevatorAtPosition()) {
-                                hopper.setHopper(ScoringSuperstructureState.TRANSITION_STATE);
-                            }
-                            hopper.runHopper();
-                        }
-                    } else if (state.lastToMove == HopperSubsystem.class) {
                         if (elevator.isElevatorAtPosition()) {
                             hopper.setHopper(state);
-                            hopper.runHopper();
-                            elevator.runElevator();
-                        } else {
-                            elevator.runElevator();
-                            hopper.setHopper(ScoringSuperstructureState.TRANSITION_STATE);
-                            hopper.runHopper();
                         }
+                        hopper.runHopper();
+                    } else {
+                        if (!elevator.isElevatorAtPosition()) {
+                            hopper.setHopper(ScoringSuperstructureState.TRANSITION_STATE);
+                        }
+                        hopper.runHopper();
                     }
-                },
-                this
+                } else if (state.lastToMove == HopperSubsystem.class) {
+                    if (elevator.isElevatorAtPosition()) {
+                        hopper.setHopper(state);
+                        hopper.runHopper();
+                        elevator.runElevator();
+                    } else {
+                        elevator.runElevator();
+                        hopper.setHopper(ScoringSuperstructureState.TRANSITION_STATE);
+                        hopper.runHopper();
+                    }
+                }
+            },
+            this
         );
     }
 
@@ -92,6 +100,7 @@ public class ScoringSuperstructure extends SubsystemBase {
     public boolean isAtPosition() {
         return elevator.isElevatorAtPosition() && hopper.isHopperAtPosition();
     }
+
     public Trigger isAtPosition = new Trigger(this::isAtPosition);
 
     /**
@@ -102,6 +111,7 @@ public class ScoringSuperstructure extends SubsystemBase {
     public boolean isStateFinished() {
         return elevator.isElevatorStateFinished() && hopper.isHopperStateFinished();
     }
+
     public Trigger isStateFinished = new Trigger(this::isStateFinished);
 
     /**
@@ -112,7 +122,7 @@ public class ScoringSuperstructure extends SubsystemBase {
     public void periodic() {
         if (isStateFinished()) {
             setState(state.getStateAfter());
-        } else if (!(state == ScoringSuperstructureState.IDLE) && !state.control.getAsBoolean()) {
+        } else if (!state.control.getAsBoolean()) {
             setState(ScoringSuperstructureState.IDLE);
         }
     }

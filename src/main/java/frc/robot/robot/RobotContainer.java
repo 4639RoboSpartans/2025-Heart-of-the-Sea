@@ -98,6 +98,9 @@ public class RobotContainer {
                             ScoringSuperstructureState.L3_ALGAE
                     )
             );
+            Controls.Operator.HoldTrigger.onTrue(
+                scoringSuperstructure.hold()
+            );
         }
 
         //Driving Controls
