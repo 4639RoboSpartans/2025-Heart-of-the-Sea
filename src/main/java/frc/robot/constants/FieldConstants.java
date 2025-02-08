@@ -29,11 +29,11 @@ public class FieldConstants {
     public static final double fieldLength = Units.inchesToMeters(690.876);
     public static final double fieldWidth = Units.inchesToMeters(317);
 
-  /**
-   * Measured from the inside of the starting line.
-   */
-  public static final double startingLineX =
-      Units.inchesToMeters(299.438);
+    /**
+     * Measured from the inside of the starting line.
+     */
+    public static final double startingLineX =
+            Units.inchesToMeters(299.438);
 
     public static class Processor {
         public static final Pose2d centerFace =
@@ -71,194 +71,139 @@ public class FieldConstants {
                         Rotation2d.fromDegrees(144.011 - 90));
     }
 
-  public static class Reef {
-    public static final Translation2d center =
-        new Translation2d(Units.inchesToMeters(176.746), Units.inchesToMeters(158.501));
-    /**
-     * Side of the reef to the inside of the reef zone line
-     */
-    public static final double faceToZoneLine =
-        Units.inchesToMeters(12);
+    public static class Reef {
+        public static final Translation2d center =
+                new Translation2d(Units.inchesToMeters(176.746), Units.inchesToMeters(158.501));
+        /**
+         * Side of the reef to the inside of the reef zone line
+         */
+        public static final double faceToZoneLine =
+                Units.inchesToMeters(12);
 
-    public enum ReefSextant {
-      NEAR_CENTER_OF_DRIVER(
-          new Pose2d(Units.inchesToMeters(144.003), Units.inchesToMeters(158.500), Rotation2d.fromDegrees(180))
-      ),
-      NEAR_LEFT_OF_DRIVER(
-          new Pose2d(Units.inchesToMeters(160.373), Units.inchesToMeters(186.857), Rotation2d.fromDegrees(120))
-      ),
-      FAR_LEFT_OF_DRIVER(
-          new Pose2d(Units.inchesToMeters(193.116), Units.inchesToMeters(186.858), Rotation2d.fromDegrees(60))
-      ),
-      FAR_CENTER_OF_DRIVER(
-          new Pose2d(Units.inchesToMeters(209.489), Units.inchesToMeters(158.502), Rotation2d.fromDegrees(0))
-      ),
-      FAR_RIGHT_OF_DRIVER(
-          new Pose2d(Units.inchesToMeters(193.118), Units.inchesToMeters(130.145), Rotation2d.fromDegrees(-60))
-      ),
-      NEAR_RIGHT_OF_DRIVER(
-          new Pose2d(Units.inchesToMeters(160.375), Units.inchesToMeters(130.144), Rotation2d.fromDegrees(-120))
-      );
+        public enum ReefSextant {
+            NEAR_CENTER_OF_DRIVER(
+                    new Pose2d(Units.inchesToMeters(144.003), Units.inchesToMeters(158.500), Rotation2d.fromDegrees(180))
+            ),
+            NEAR_LEFT_OF_DRIVER(
+                    new Pose2d(Units.inchesToMeters(160.373), Units.inchesToMeters(186.857), Rotation2d.fromDegrees(120))
+            ),
+            FAR_LEFT_OF_DRIVER(
+                    new Pose2d(Units.inchesToMeters(193.116), Units.inchesToMeters(186.858), Rotation2d.fromDegrees(60))
+            ),
+            FAR_CENTER_OF_DRIVER(
+                    new Pose2d(Units.inchesToMeters(209.489), Units.inchesToMeters(158.502), Rotation2d.fromDegrees(0))
+            ),
+            FAR_RIGHT_OF_DRIVER(
+                    new Pose2d(Units.inchesToMeters(193.118), Units.inchesToMeters(130.145), Rotation2d.fromDegrees(-60))
+            ),
+            NEAR_RIGHT_OF_DRIVER(
+                    new Pose2d(Units.inchesToMeters(160.375), Units.inchesToMeters(130.144), Rotation2d.fromDegrees(-120))
+            );
 
-      private final Pose2d centerFacePose;
-      private final Map<ReefHeight, Pose3d> branchPositionsLeft;
-      private final Map<ReefHeight, Pose3d> branchPositionsRight;
+            private final Pose2d centerFacePose;
+            private final Map<ReefHeight, Pose3d> branchPositionsLeft;
+            private final Map<ReefHeight, Pose3d> branchPositionsRight;
 
-      ReefSextant(Pose2d centerFacePose) {
-        this.centerFacePose = centerFacePose;
+            ReefSextant(Pose2d centerFacePose) {
+                this.centerFacePose = centerFacePose;
 
-        branchPositionsLeft = new HashMap<>();
-        branchPositionsRight = new HashMap<>();
-        initBranchPositions();
-      }
+                branchPositionsLeft = new HashMap<>();
+                branchPositionsRight = new HashMap<>();
+                initBranchPositions();
+            }
 
-      public Pose2d centerFacePose() {
-        return centerFacePose;
-      }
+            public Pose2d centerFacePose() {
+                return centerFacePose;
+            }
 
-      public Pose3d getBranchPoseLeft(ReefHeight height) {
-        return branchPositionsLeft.get(height);
-      }
+            public Pose3d getBranchPoseLeft(ReefHeight height) {
+                return branchPositionsLeft.get(height);
+            }
 
-      public Pose3d getBranchPoseRight(ReefHeight height) {
-        return branchPositionsRight.get(height);
-      }
+            public Pose3d getBranchPoseRight(ReefHeight height) {
+                return branchPositionsRight.get(height);
+            }
 
-      private void initBranchPositions() {
-        for (ReefHeight level : ReefHeight.values()) {
-          Rotation2d faceRotation = centerFacePose.getRotation();
-          Pose2d poseDirection = new Pose2d(center, faceRotation);
-          double adjustX = Units.inchesToMeters(30.738);
-          double adjustY = Units.inchesToMeters(6.469);
+            private void initBranchPositions() {
+                for (ReefHeight level : ReefHeight.values()) {
+                    Rotation2d faceRotation = centerFacePose.getRotation();
+                    Pose2d poseDirection = new Pose2d(center, faceRotation);
+                    double adjustX = Units.inchesToMeters(30.738);
+                    double adjustY = Units.inchesToMeters(6.469);
 
-          Rotation3d rotation = new Rotation3d(
-              0,
-              Units.degreesToRadians(level.pitch),
-              faceRotation.getRadians()
-          );
+                    Rotation3d rotation = new Rotation3d(
+                            0,
+                            Units.degreesToRadians(level.pitch),
+                            faceRotation.getRadians()
+                    );
 
-          Pose2d poseLeft2D = poseDirection.transformBy(new Transform2d(-adjustX, adjustY, new Rotation2d()));
-          Pose2d poseRight2D = poseDirection.transformBy(new Transform2d(adjustX, adjustY, new Rotation2d()));
-          branchPositionsLeft.put(
-              level,
-              new Pose3d(new Translation3d(poseLeft2D.getX(), poseLeft2D.getY(), level.height), rotation)
-          );
-          branchPositionsRight.put(
-              level,
-              new Pose3d(new Translation3d(poseRight2D.getX(), poseRight2D.getY(), level.height), rotation)
-          );
+                    Pose2d poseLeft2D = poseDirection.transformBy(new Transform2d(-adjustX, adjustY, new Rotation2d()));
+                    Pose2d poseRight2D = poseDirection.transformBy(new Transform2d(adjustX, adjustY, new Rotation2d()));
+                    branchPositionsLeft.put(
+                            level,
+                            new Pose3d(new Translation3d(poseLeft2D.getX(), poseLeft2D.getY(), level.height), rotation)
+                    );
+                    branchPositionsRight.put(
+                            level,
+                            new Pose3d(new Translation3d(poseRight2D.getX(), poseRight2D.getY(), level.height), rotation)
+                    );
+                }
+            }
+
+            public Stream<Pose3d> allBranchPoses() {
+                return Stream.concat(
+                        branchPositionsLeft.values().stream(),
+                        branchPositionsRight.values().stream()
+                );
+            }
+
+            public static Stream<ReefSextant> all() {
+                return Stream.of(values());
+            }
+
+            public static Stream<Pose2d> allCenterFacePoses() {
+                return all().map(ReefSextant::centerFacePose);
+            }
+
+            public static Stream<Pose3d> allBranchPosesAtHeight(ReefHeight height) {
+                return all().flatMap(
+                        reefSextant -> Stream.of(
+                                reefSextant.branchPositionsLeft,
+                                reefSextant.branchPositionsRight
+                        ).map(j -> j.get(height))
+                );
+            }
+
+            public static Stream<Pose3d> allBranchPoses(ReefHeight height) {
+                return all().flatMap(ReefSextant::allBranchPoses);
+            }
+
+            public static ReefSextant closestSextantTo(Pose2d pose) {
+                return all().min(
+                        Comparator.comparingDouble(
+                                a -> a.centerFacePose().getTranslation().getDistance(pose.getTranslation())
+                        )
+                ).get();
+            }
+
+            public static Pose2d closestBranchPoseTo(Pose2d pose) {
+                return pose.nearest(allBranchPoses(ReefHeight.Level1).map(Pose3d::toPose2d).toList());
+            }
         }
-      }
 
-      public Stream<Pose3d> allBranchPoses() {
-        return Stream.concat(
-            branchPositionsLeft.values().stream(),
-            branchPositionsRight.values().stream()
-        );
-      }
-
-      public static Stream<ReefSextant> all() {
-        return Stream.of(values());
-      }
-
-      public static Stream<Pose2d> allCenterFacePoses() {
-        return all().map(ReefSextant::centerFacePose);
-      }
-
-      public static Stream<Pose3d> allBranchPosesAtHeight(ReefHeight height) {
-        return all().flatMap(
-            reefSextant -> Stream.of(
-                reefSextant.branchPositionsLeft,
-                reefSextant.branchPositionsRight
-            ).map(j -> j.get(height))
-        );
-      }
-
-      public static Stream<Pose3d> allBranchPoses(ReefHeight height) {
-        return all().flatMap(ReefSextant::allBranchPoses);
-      }
-
-      public static ReefSextant closestSextantTo(Pose2d pose) {
-        return all().min(
-            Comparator.comparingDouble(
-                a -> a.centerFacePose().getTranslation().getDistance(pose.getTranslation())
-            )
-        ).get();
-      }
-
-      public static Pose2d closestBranchPoseTo(Pose2d pose) {
-        return pose.nearest(allBranchPoses(ReefHeight.Level1).map(Pose3d::toPose2d).toList());
-      }
+        /**
+         * Starting facing the driver station in clockwise order
+         */
+        @Deprecated
+        public static final Pose2d[] centerFaces = {
+                new Pose2d(Units.inchesToMeters(144.003), Units.inchesToMeters(158.500), Rotation2d.fromDegrees(180)),
+                new Pose2d(Units.inchesToMeters(160.373), Units.inchesToMeters(186.857), Rotation2d.fromDegrees(120)),
+                new Pose2d(Units.inchesToMeters(193.116), Units.inchesToMeters(186.858), Rotation2d.fromDegrees(60)),
+                new Pose2d(Units.inchesToMeters(209.489), Units.inchesToMeters(158.502), Rotation2d.fromDegrees(0)),
+                new Pose2d(Units.inchesToMeters(193.118), Units.inchesToMeters(130.145), Rotation2d.fromDegrees(-60)),
+                new Pose2d(Units.inchesToMeters(160.375), Units.inchesToMeters(130.144), Rotation2d.fromDegrees(-120))
+        };
     }
-
-    /**
-     * Starting facing the driver station in clockwise order
-     */
-    @Deprecated
-    public static final Pose2d[] centerFaces = {
-        new Pose2d(Units.inchesToMeters(144.003), Units.inchesToMeters(158.500), Rotation2d.fromDegrees(180)),
-        new Pose2d(Units.inchesToMeters(160.373), Units.inchesToMeters(186.857), Rotation2d.fromDegrees(120)),
-        new Pose2d(Units.inchesToMeters(193.116), Units.inchesToMeters(186.858), Rotation2d.fromDegrees(60)),
-        new Pose2d(Units.inchesToMeters(209.489), Units.inchesToMeters(158.502), Rotation2d.fromDegrees(0)),
-        new Pose2d(Units.inchesToMeters(193.118), Units.inchesToMeters(130.145), Rotation2d.fromDegrees(-60)),
-        new Pose2d(Units.inchesToMeters(160.375), Units.inchesToMeters(130.144), Rotation2d.fromDegrees(-120))
-    };
-
-    /**
-     * Starting at the right branch facing the driver station going clockwise
-     */
-    @Deprecated
-    public static final List<Map<ReefHeight, Pose3d>> branchPositions = initBranchPositions();
-
-    @Deprecated
-    private static List<Map<ReefHeight, Pose3d>> initBranchPositions() {
-      List<Map<ReefHeight, Pose3d>> branchPositions = new ArrayList<>();
-      // Initialize branch positions
-      for (int face = 0; face < 6; face++) {
-        Map<ReefHeight, Pose3d> fillRight = new HashMap<>();
-        Map<ReefHeight, Pose3d> fillLeft = new HashMap<>();
-        for (var level : ReefHeight.values()) {
-          Pose2d poseDirection = new Pose2d(center, Rotation2d.fromDegrees(180 - (60 * face)));
-          double adjustX = Units.inchesToMeters(30.738);
-          double adjustY = Units.inchesToMeters(6.469);
-
-          fillRight.put(
-              level,
-              new Pose3d(
-                  new Translation3d(
-                      poseDirection
-                          .transformBy(new Transform2d(adjustX, adjustY, new Rotation2d()))
-                          .getX(),
-                      poseDirection
-                          .transformBy(new Transform2d(adjustX, adjustY, new Rotation2d()))
-                          .getY(),
-                      level.height),
-                  new Rotation3d(
-                      0,
-                      Units.degreesToRadians(level.pitch),
-                      poseDirection.getRotation().getRadians())));
-          fillLeft.put(
-              level,
-              new Pose3d(
-                  new Translation3d(
-                      poseDirection
-                          .transformBy(new Transform2d(adjustX, -adjustY, new Rotation2d()))
-                          .getX(),
-                      poseDirection
-                          .transformBy(new Transform2d(adjustX, -adjustY, new Rotation2d()))
-                          .getY(),
-                      level.height),
-                  new Rotation3d(
-                      0,
-                      Units.degreesToRadians(level.pitch),
-                      poseDirection.getRotation().getRadians())));
-        }
-        branchPositions.add((face * 2) + 1, fillRight);
-        branchPositions.add((face * 2) + 2, fillLeft);
-      }
-      return branchPositions;
-    }
-  }
 
 
     /**

@@ -45,7 +45,7 @@ import frc.robot.constants.Controls;
 import frc.robot.subsystems.drive.constants.DriveConstants;
 import frc.robot.subsystems.drive.constants.DrivePIDs;
 import frc.robot.subsystems.drive.constants.TunerConstants;
-import frc.robot.subsystems.vision.VisionIO;
+import frc.robot.subsystems.vision.VisionSubsystem;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -371,7 +371,7 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
         VisionSubsystem
             .getInstance()
             .getVisionResults()
-            .parallelStream()
+            .stream()
             .forEach(
                 visionResult -> addVisionMeasurement(
                     visionResult.getVisionPose(),

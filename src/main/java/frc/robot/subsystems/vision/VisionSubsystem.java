@@ -17,11 +17,12 @@ public class VisionSubsystem extends SubsystemBase {
     private HashSet<VisionResult> visionResults;
 
     public static synchronized VisionSubsystem getInstance() {
-        return Objects.requireNonNullElseGet(instance, () -> instance = new VisionSubsystem());
+        return instance = Objects.requireNonNullElseGet(instance, VisionSubsystem::new);
     }
 
     public VisionSubsystem() {
         cameras = new HashSet<>();
+        visionResults = new HashSet<>();
         cameras.addAll(Arrays.stream(Limelights.values()).map(limelightID -> new Limelight(limelightID.getName())).toList());
         cameras.addAll(Arrays.stream(PhotonCameras.values()).map(photonCameraID -> new PhotonVision(photonCameraID.getName(), photonCameraID.getTranformFromRobotCenter())).toList());
     }

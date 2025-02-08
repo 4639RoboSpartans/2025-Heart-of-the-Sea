@@ -2,7 +2,6 @@ package frc.robot.subsystems.drive;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.AllianceFlipUtil;
 import frc.lib.PoseUtil;
 import frc.robot.constants.Controls;
