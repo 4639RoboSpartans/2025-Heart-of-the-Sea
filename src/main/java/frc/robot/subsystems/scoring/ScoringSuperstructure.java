@@ -58,13 +58,26 @@ public class ScoringSuperstructure extends SubsystemBase {
                         hopper.runHopper();
                         elevator.runElevator();
                     } else if (state.lastToMove == ElevatorSubsystem.class) {
-                        hopper.runHopper();
                         if (hopper.isHopperAtPosition()) {
                             elevator.runElevator();
+                            if (elevator.isElevatorAtPosition()) {
+                                hopper.setHopper(state);
+                            }
+                            hopper.runHopper();
+                        } else {
+                            if (!elevator.isElevatorAtPosition()) {
+                                hopper.setHopper(ScoringSuperstructureState.TRANSITION_STATE);
+                            }
+                            hopper.runHopper();
                         }
                     } else if (state.lastToMove == HopperSubsystem.class) {
-                        elevator.runElevator();
                         if (elevator.isElevatorAtPosition()) {
+                            hopper.setHopper(state);
+                            hopper.runHopper();
+                            elevator.runElevator();
+                        } else {
+                            elevator.runElevator();
+                            hopper.setHopper(ScoringSuperstructureState.TRANSITION_STATE);
                             hopper.runHopper();
                         }
                     }
