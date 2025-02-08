@@ -72,7 +72,7 @@ public class TunableNumber {
         return Constants.tuningMode ? SmartDashboard.getNumber(key, defaultValue) : defaultValue;
     }
 
-    private static final Collection<Runnable> tunableNumberListeners = new ArrayList<>();
+    private static final Collection<Runnable> listeners = new ArrayList<>();
 
     /**
      * Adds a listener to be run whenever the TunableNumber's value changes. The listener will also be called a single
@@ -97,7 +97,7 @@ public class TunableNumber {
         }
         // Periodically check if the value of the tunableNumber has changed
         // and if so, call the listener.
-        tunableNumberListeners.add(new Runnable() {
+        listeners.add(new Runnable() {
             private double oldValue = get();
 
             @Override
@@ -149,7 +149,7 @@ public class TunableNumber {
     static {
         //noinspection resource
         new Notifier(
-            () -> tunableNumberListeners.forEach(Runnable::run)
+            () -> listeners.forEach(Runnable::run)
         ).startPeriodic(0.02);
     }
 }

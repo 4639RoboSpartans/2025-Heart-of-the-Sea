@@ -24,14 +24,11 @@ public class SimHopperSubsystem extends HopperSubsystem {
     private ScoringSuperstructureState state = ScoringSuperstructureState.IDLE;
     private double intakeSpeed;
 
-    private final ScoringSuperstructure scoringSuperstructure;
-
     private double secondsFromIntakeOuttakeStart = 0;
 
     private boolean isStateFinished = false;
 
     public SimHopperSubsystem() {
-        this.scoringSuperstructure = ScoringSuperstructure.getInstance();
         intakeSpeed = 0;
         pivotPID = new ProfiledPIDController(
                 ScoringPIDs.wristKp.get(),
@@ -134,7 +131,7 @@ public class SimHopperSubsystem extends HopperSubsystem {
     @Override
     public void runHopper() {
         runHopperPosition();
-        if (scoringSuperstructure.isAtPosition() && !isStateFinished) {
+        if (ScoringSuperstructure.getInstance().isAtPosition() && !isStateFinished) {
             intakeSpeed = state.intakeSpeed;
             secondsFromIntakeOuttakeStart += 0.020;
         }
