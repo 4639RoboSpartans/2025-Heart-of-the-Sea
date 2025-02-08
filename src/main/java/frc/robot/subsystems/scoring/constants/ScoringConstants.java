@@ -14,7 +14,7 @@ public final class ScoringConstants {
         public static double DOWN_POSITION = 0;
         public static final double POSITION_DIFF = UP_POSITION - DOWN_POSITION;
 
-        public static final double ELEVATOR_TOLERANCE = 0.1;
+        public static final double ELEVATOR_TOLERANCE = 0.01;
 
         public static final class Proportions{
 
@@ -45,7 +45,7 @@ public final class ScoringConstants {
 
         public static final double WRIST_ABSOLUTE_DOWN_POSITION = 0;
 
-        public static final double WRIST_TOLERANCE = 0.1;
+        public static final double WRIST_TOLERANCE = 0.01;
 
         public static final class Proportions{
 
