@@ -138,12 +138,12 @@ public class SimHopperSubsystem extends HopperSubsystem {
             intakeSpeed = state.intakeSpeed;
             secondsFromIntakeOuttakeStart += 0.020;
         }
-        if (state.intakeUntilSeen) {
+        if (state.intakeUntilGamePieceSeen) {
             if (hasCoral()) {
                 intakeSpeed = 0;
                 isStateFinished = true;
             }
-        } else if (state.outtakeUntilSeen) {
+        } else if (state.outtakeUntilGamePieceNotSeen) {
             if (hasCoral()) {
                 intakeSpeed = 0;
                 isStateFinished = true;

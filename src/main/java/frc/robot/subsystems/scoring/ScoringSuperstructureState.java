@@ -17,8 +17,8 @@ public class ScoringSuperstructureState {
     private double elevatorProportion; //proportion of the distance between lower and upper limit
     private double wristProportion; // proportion of the distance between lower and upper limit
     public double intakeSpeed; // speed of intake wheels
-    public boolean intakeUntilSeen; // whether to stop spinning intake wheels when game piece is seen
-    public boolean outtakeUntilSeen; // whether to stop spinning intake wheels after game piece isn't detected
+    public boolean intakeUntilGamePieceSeen; // whether to stop spinning intake wheels when game piece is seen
+    public boolean outtakeUntilGamePieceNotSeen; // whether to stop spinning intake wheels after game piece isn't detected
     public Class lastToMove; // the last "sub-subsystem" to move when moving to any other state
     public Trigger control; // the trigger used to set this state
     public ScoringSuperstructureState stateAfter; // the state to set after this state finishes
@@ -27,8 +27,8 @@ public class ScoringSuperstructureState {
         this.elevatorProportion = 0;
         this.wristProportion = 0;
         this.intakeSpeed = 0;
-        this.intakeUntilSeen = false;
-        this.outtakeUntilSeen = false;
+        this.intakeUntilGamePieceSeen = false;
+        this.outtakeUntilGamePieceNotSeen = false;
         this.lastToMove = null;
         this.control = new Trigger(() -> true);
         this.stateAfter = this;
@@ -50,12 +50,12 @@ public class ScoringSuperstructureState {
     }
 
     private ScoringSuperstructureState withIntakeUntilSeen(boolean untilSeen) {
-        this.intakeUntilSeen = untilSeen;
+        this.intakeUntilGamePieceSeen = untilSeen;
         return this;
     }
 
-    private ScoringSuperstructureState withOuttakeUntilSeen(boolean untilSeen) {
-        this.outtakeUntilSeen = untilSeen;
+    private ScoringSuperstructureState withOuttakeUntilNotSeen(boolean untilSeen) {
+        this.outtakeUntilGamePieceNotSeen = untilSeen;
         return this;
     }
 
@@ -80,7 +80,7 @@ public class ScoringSuperstructureState {
             .withWristProportion(wristProportion)
             .withIntakeSpeed(0)
             .withIntakeUntilSeen(false)
-            .withOuttakeUntilSeen(false)
+            .withOuttakeUntilNotSeen(false)
             .withLastToMove(null);
     }
 
@@ -90,7 +90,7 @@ public class ScoringSuperstructureState {
         .withWristProportion(HopperConstants.Wrist_IDLE_Proportion)
         .withIntakeSpeed(0.0)
         .withIntakeUntilSeen(false)
-        .withOuttakeUntilSeen(true)
+        .withOuttakeUntilNotSeen(true)
         .withLastToMove(HopperSubsystem.class),
 
     HP_LOADING = new ScoringSuperstructureState()
@@ -98,7 +98,7 @@ public class ScoringSuperstructureState {
         .withWristProportion(HopperConstants.Wrist_HP_Proportion)
         .withIntakeSpeed(0.5)
         .withIntakeUntilSeen(true)
-        .withOuttakeUntilSeen(false)
+        .withOuttakeUntilNotSeen(false)
         .withControl(Controls.Operator.HPLoadingTrigger)
         .withStateAfter(IDLE),
 
@@ -107,7 +107,7 @@ public class ScoringSuperstructureState {
         .withWristProportion(HopperConstants.Wrist_L1_Proportion)
         .withIntakeSpeed(0.5)
         .withIntakeUntilSeen(false)
-        .withOuttakeUntilSeen(true)
+        .withOuttakeUntilNotSeen(true)
         .withLastToMove(ElevatorSubsystem.class)
         .withControl(Controls.Operator.L1Trigger)
         .withStateAfter(IDLE),
@@ -117,7 +117,7 @@ public class ScoringSuperstructureState {
         .withWristProportion(HopperConstants.Wrist_L2_Proportion)
         .withIntakeSpeed(0.5)
         .withIntakeUntilSeen(false)
-        .withOuttakeUntilSeen(true)
+        .withOuttakeUntilNotSeen(true)
         .withLastToMove(ElevatorSubsystem.class)
         .withControl(Controls.Operator.L2Trigger)
         .withStateAfter(IDLE),
@@ -127,7 +127,7 @@ public class ScoringSuperstructureState {
         .withWristProportion(HopperConstants.Wrist_L3_Proportion)
         .withIntakeSpeed(0.5)
         .withIntakeUntilSeen(false)
-        .withOuttakeUntilSeen(true)
+        .withOuttakeUntilNotSeen(true)
         .withLastToMove(ElevatorSubsystem.class)
         .withControl(Controls.Operator.L3Trigger)
         .withStateAfter(IDLE),
@@ -137,7 +137,7 @@ public class ScoringSuperstructureState {
         .withWristProportion(HopperConstants.Wrist_L4_Proportion)
         .withIntakeSpeed(0.5)
         .withIntakeUntilSeen(false)
-        .withOuttakeUntilSeen(true)
+        .withOuttakeUntilNotSeen(true)
         .withLastToMove(ElevatorSubsystem.class)
         .withControl(Controls.Operator.L4Trigger)
         .withStateAfter(IDLE),
@@ -147,7 +147,7 @@ public class ScoringSuperstructureState {
         .withWristProportion(HopperConstants.Wrist_L2_ALGAE_Proportion)
         .withIntakeSpeed(-0.5)
         .withIntakeUntilSeen(false)
-        .withOuttakeUntilSeen(false)
+        .withOuttakeUntilNotSeen(false)
         .withLastToMove(ElevatorSubsystem.class)
         .withControl(Controls.Operator.L2AlgaeTrigger)
         .withStateAfter(IDLE),
@@ -157,7 +157,7 @@ public class ScoringSuperstructureState {
         .withWristProportion(HopperConstants.Wrist_L3_ALGAE_Proportion)
         .withIntakeSpeed(-0.5)
         .withIntakeUntilSeen(false)
-        .withOuttakeUntilSeen(false)
+        .withOuttakeUntilNotSeen(false)
         .withLastToMove(ElevatorSubsystem.class)
         .withControl(Controls.Operator.L3AlgaeTrigger)
         .withStateAfter(IDLE),
@@ -167,7 +167,7 @@ public class ScoringSuperstructureState {
         .withWristProportion(HopperConstants.Wrist_Barge_Proportion)
         .withIntakeSpeed(1)
         .withIntakeUntilSeen(false)
-        .withOuttakeUntilSeen(false)
+        .withOuttakeUntilNotSeen(false)
         .withLastToMove(ElevatorSubsystem.class)
         .withControl(Controls.Operator.BargeScoringTrigger)
         .withStateAfter(IDLE),
@@ -177,7 +177,7 @@ public class ScoringSuperstructureState {
         .withWristProportion(0.5)
         .withIntakeSpeed(0)
         .withIntakeUntilSeen(false)
-        .withOuttakeUntilSeen(false);
+        .withOuttakeUntilNotSeen(false);
 
     public double getElevatorAbsolutePosition() {
         return ScoringConstants.ElevatorConstants.DOWN_POSITION

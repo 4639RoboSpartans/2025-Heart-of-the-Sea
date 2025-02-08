@@ -45,6 +45,14 @@ public class TunableNumber {
         }
     }
 
+    public TunableNumber withDefaultValue(double defaultValue) {
+        this.defaultValue = defaultValue;
+        if(Constants.tuningMode) {
+            SmartDashboard.putNumber(key, SmartDashboard.getNumber(key, defaultValue));
+        }
+        return this;
+    }
+
     /**
      * Get the current value, from dashboard if available and in tuning mode
      *

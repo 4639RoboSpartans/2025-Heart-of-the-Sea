@@ -18,6 +18,8 @@ import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
 import frc.robot.subsystems.scoring.constants.ScoringPIDs;
 
+import java.util.Optional;
+
 public class ConcreteHopperSubsystem extends HopperSubsystem {
     private final SparkFlex intakeMotor, wristMotor;
     private final DutyCycleEncoder wristEncoder;
@@ -123,13 +125,14 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
 
     @Override
     public boolean hasCoral() {
-        LaserCan.Measurement measurement = laserCAN.getMeasurement();
-        if (measurement != null && measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
-            if (state.intakeUntilSeen) {
-                return measurement.distance_mm <= 20;
-            }
-        }
-        return false;
+        return Optional.ofNullable(laserCAN.getMeasurement()).map(measurement ->
+            measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT
+                    && measurement.distance_mm <= 20
+        ).orElse(false);
+
+        /*
+        no reason to check intake state at this point
+         */
     }
 
     @Override
@@ -169,7 +172,8 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
                 wristEncoder.get(),
                 wristPID.getGoal().position
         );
-//        uncomment when down and up positions are set
+        //        for the love of god michael if youre going to comment something out please leave a todo
+//        TODO: uncomment when down and up positions are set
 //        wristMotor.set(wristPIDOutput);
     }
 
@@ -181,13 +185,13 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
         }
         LaserCan.Measurement measurement = laserCAN.getMeasurement();
         if (measurement != null && measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
-            if (state.intakeUntilSeen) {
+            if (state.intakeUntilGamePieceSeen) {
                 if (hasCoral()) {
                     intakeMotor.set(0);
                     isStateFinished = true;
                 }
-            } else if (state.outtakeUntilSeen) {
-                if (hasCoral()) {
+            } else if (state.outtakeUntilGamePieceNotSeen) {
+                if (!hasCoral()) {
                     intakeMotor.set(0);
                     isStateFinished = true;
                 }
