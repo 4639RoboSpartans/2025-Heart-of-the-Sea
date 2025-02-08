@@ -12,21 +12,24 @@ import java.util.Objects;
 public abstract class HopperSubsystem extends SubsystemBase {
     private static HopperSubsystem instance;
 
-    // TODO: Don't do this! Singleton getInstance() should never take parameters.
-    //  Side note: if you really do need different instances for different parameters, use some sort of map from
-    //  parameter to instance, and name it getInstanceFor(param1, param2, ...)
-    public static HopperSubsystem getInstance(ScoringSuperstructure scoringSuperstructure) {
-        // if (Robot.isReal()) {
-        //     return instance = Objects.requireNonNullElseGet(
-        //             instance,
-        //             () -> new ConcreteHopperSubsystem(scoringSuperstructure)
-        //     );
-        // } else {
+    //Turns out, there is never more than one ScoringSuperstructure (good)
+    //which means there is no reason to pass in the ScoringSuperstructure object
+    //which means we do this instead
+    public static HopperSubsystem getInstance() {
+        //doing this to stop the hopper from existing before its ready without commenting out a bunch of code
+        // (also, please multiline the comments instead of commenting out every line individually)
+        //TODO: remove the false flag when hopper is ready
+         if (false && Robot.isReal()) {
+             return instance = Objects.requireNonNullElseGet(
+                     instance,
+                     () -> new ConcreteHopperSubsystem(ScoringSuperstructure.getInstance())
+             );
+        } else {
             return instance = Objects.requireNonNullElseGet(
                     instance,
-                    () -> new SimHopperSubsystem(scoringSuperstructure)
+                    () -> new SimHopperSubsystem(ScoringSuperstructure.getInstance())
             );
-        // }
+        }
     }
 
     public abstract double getCurrentPosition();
