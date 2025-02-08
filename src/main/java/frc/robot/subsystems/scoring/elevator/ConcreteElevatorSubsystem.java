@@ -42,6 +42,7 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
                     .withKI(ScoringPIDs.elevatorKi.get())
                     .withKD(ScoringPIDs.elevatorKd.get())
             );
+
         leftConfigurator.apply(configuration);
         rightConfigurator.apply(configuration);
         leftElevator.setNeutralMode(NeutralModeValue.Brake);

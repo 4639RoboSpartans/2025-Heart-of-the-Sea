@@ -9,9 +9,9 @@ public class DrivePIDs {
     public static TunableNumber pidToPoseAcceleration = new TunableNumber("PID To Pose Acceleration");
 
     static {
-        pidToPoseXkP.setDefault(5);
-        pidToPoseYkP.setDefault(5);
-        pidToPoseVelocity.setDefault(0.5);
-        pidToPoseAcceleration.setDefault(0.5);
+        pidToPoseXkP.setDefaultValue(5);
+        pidToPoseYkP.setDefaultValue(5);
+        pidToPoseVelocity.setDefaultValue(0.5);
+        pidToPoseAcceleration.setDefaultValue(0.5);
     }
 }

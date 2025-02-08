@@ -13,6 +13,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.lib.TunableNumber;
 import frc.robot.subsystems.scoring.ScoringSuperstructure;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
@@ -37,55 +38,57 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
     public ConcreteHopperSubsystem(ScoringSuperstructure scoringSuperstructure) {
         this.scoringSuperstructure = scoringSuperstructure;
         intakeMotor = new SparkFlex(
-                ScoringConstants.IDs.IntakeMotorID,
-                SparkLowLevel.MotorType.kBrushless
+            ScoringConstants.IDs.IntakeMotorID,
+            SparkLowLevel.MotorType.kBrushless
         );
         wristMotor = new SparkFlex(
-                ScoringConstants.IDs.WristMotorID,
-                SparkLowLevel.MotorType.kBrushless
+            ScoringConstants.IDs.WristMotorID,
+            SparkLowLevel.MotorType.kBrushless
         );
         intakeMotor.configure(
-                new SparkFlexConfig()
-                        .apply(
-                                new SoftLimitConfig()
-                                        .forwardSoftLimit(
-                                                40
-                                        )
-                                        .reverseSoftLimit(
-                                                40
-                                        )
-                        ),
-                SparkBase.ResetMode.kResetSafeParameters,
-                SparkBase.PersistMode.kPersistParameters
+            new SparkFlexConfig()
+                .apply(
+                    new SoftLimitConfig()
+                        .forwardSoftLimit(
+                            40
+                        )
+                        .reverseSoftLimit(
+                            40
+                        )
+                ),
+            SparkBase.ResetMode.kResetSafeParameters,
+            SparkBase.PersistMode.kPersistParameters
         );
         wristMotor.configure(
-                new SparkFlexConfig()
-                        .apply(
-                                new SoftLimitConfig()
-                                        .forwardSoftLimit(
-                                                30
-                                        )
-                                        .reverseSoftLimit(
-                                                30
-                                        )
-                        ),
-                SparkBase.ResetMode.kResetSafeParameters,
-                SparkBase.PersistMode.kPersistParameters
+            new SparkFlexConfig()
+                .apply(
+                    new SoftLimitConfig()
+                        .forwardSoftLimit(
+                            30
+                        )
+                        .reverseSoftLimit(
+                            30
+                        )
+                ),
+            SparkBase.ResetMode.kResetSafeParameters,
+            SparkBase.PersistMode.kPersistParameters
         );
         wristEncoder = new DutyCycleEncoder(
-                ScoringConstants.IDs.WristEncoderID,
-                1,
-                ScoringConstants.HopperConstants.WRIST_ABSOLUTE_DOWN_POSITION
+            ScoringConstants.IDs.WristEncoderID,
+            1,
+            ScoringConstants.HopperConstants.WRIST_ABSOLUTE_DOWN_POSITION
         );
-        wristPID = new ProfiledPIDController(
-                ScoringPIDs.wristKp.get(),
-                ScoringPIDs.wristKi.get(),
-                ScoringPIDs.wristKd.get(),
-                new TrapezoidProfile.Constraints(
-                        ScoringPIDs.wristVelocity.get(),
-                        ScoringPIDs.wristAcceleration.get()
-                )
+
+        wristPID = new ProfiledPIDController(0, 0, 0, null);
+        ScoringPIDs.wristKp.onChange(wristPID::setP);
+        ScoringPIDs.wristKi.onChange(wristPID::setI);
+        ScoringPIDs.wristKd.onChange(wristPID::setD);
+        TunableNumber.onAnyChange(
+            (values) -> wristPID.setConstraints(new TrapezoidProfile.Constraints(values[0], values[1])),
+            ScoringPIDs.wristVelocity,
+            ScoringPIDs.wristAcceleration
         );
+
         laserCAN = new LaserCan(ScoringConstants.IDs.LaserCANID);
         try {
             laserCAN.setRangingMode(LaserCan.RangingMode.SHORT);
@@ -127,7 +130,7 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
     public boolean hasCoral() {
         return Optional.ofNullable(laserCAN.getMeasurement()).map(measurement ->
             measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT
-                    && measurement.distance_mm <= 20
+                && measurement.distance_mm <= 20
         ).orElse(false);
 
         /*
@@ -138,9 +141,9 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
     @Override
     public boolean isHopperAtPosition() {
         return MathUtil.isNear(
-                getTargetPosition(),
-                getCurrentPosition(),
-                ScoringConstants.HopperConstants.WRIST_TOLERANCE
+            getTargetPosition(),
+            getCurrentPosition(),
+            ScoringConstants.HopperConstants.WRIST_TOLERANCE
         );
     }
 
@@ -158,7 +161,6 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
 
     @Override
     public void periodic() {
-        updateConstants();
         runHopperPosition();
         if (isHopperAtPosition()) {
             runHopper();
@@ -169,8 +171,8 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
     protected void runHopperPosition() {
         @SuppressWarnings("unused")
         double wristPIDOutput = wristPID.calculate(
-                wristEncoder.get(),
-                wristPID.getGoal().position
+            wristEncoder.get(),
+            wristPID.getGoal().position
         );
         //        for the love of god michael if youre going to comment something out please leave a todo
 //        TODO: uncomment when down and up positions are set
@@ -197,19 +199,5 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
                 }
             }
         }
-    }
-
-    private void updateConstants() {
-        wristPID.setPID(
-                ScoringPIDs.wristKp.get(),
-                ScoringPIDs.wristKi.get(),
-                ScoringPIDs.wristKd.get()
-        );
-        wristPID.setConstraints(
-                new TrapezoidProfile.Constraints(
-                        ScoringPIDs.wristVelocity.get(),
-                        ScoringPIDs.wristAcceleration.get()
-                )
-        );
     }
 }
