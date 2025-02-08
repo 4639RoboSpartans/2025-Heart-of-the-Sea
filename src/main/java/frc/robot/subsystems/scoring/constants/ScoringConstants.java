@@ -14,22 +14,25 @@ public final class ScoringConstants {
         public static double DOWN_POSITION = 0;
         public static final double POSITION_DIFF = UP_POSITION - DOWN_POSITION;
 
-        public static double positionToProportion(double position) {
-            return (position - DOWN_POSITION) / POSITION_DIFF;
-        }
-
         public static final double ELEVATOR_TOLERANCE = 0.1;
 
-        //Elevator proportions
-        public static final double IDLE_Proportion = 0.0;
-        public static final double HP_Proportion = 0.5;
-        public static final double L1_Proportion = 0.3;
-        public static final double L2_Proportion = 0.25;
-        public static final double L3_Proportion = 0.35;
-        public static final double L4_Proportion = 0.8;
-        public static final double L2_ALGAE_Proportion = 0.55;
-        public static final double L3_ALGAE_Proportion = 0.65;
-        public static final double Barge_Proportion = 1;
+        public static final class Proportions{
+
+            //Elevator proportions
+            public static final double IDLE_Proportion = 0.0;
+            public static final double HP_Proportion = 0.5;
+            public static final double L1_Proportion = 0.3;
+            public static final double L2_Proportion = 0.25;
+            public static final double L3_Proportion = 0.35;
+            public static final double L4_Proportion = 0.8;
+            public static final double L2_ALGAE_Proportion = 0.55;
+            public static final double L3_ALGAE_Proportion = 0.65;
+            public static final double Barge_Proportion = 1;
+
+            public static double positionToProportion(double position) {
+                return (position - DOWN_POSITION) / POSITION_DIFF;
+            }
+        }
     }
 
     public static class HopperConstants {
@@ -44,20 +47,23 @@ public final class ScoringConstants {
 
         public static final double WRIST_TOLERANCE = 0.1;
 
-        public static double positionToProportion(double position) {
-            return (position - IDLE_POSITION) / POSITION_DIFF;
-        }
+        public static final class Proportions{
 
-        //Wrist Proportions
-        public static final double Wrist_IDLE_Proportion = 0.0;
-        public static final double Wrist_HP_Proportion = 0.0;
-        public static final double Wrist_L1_Proportion = 1.0;
-        public static final double Wrist_L2_Proportion = 0.25;
-        public static final double Wrist_L3_Proportion = 0.25;
-        public static final double Wrist_L4_Proportion = 0.5;
-        public static final double Wrist_L2_ALGAE_Proportion = 1.0;
-        public static final double Wrist_L3_ALGAE_Proportion = 1.0;
-        public static final double Wrist_Barge_Proportion = 0.5;
+            //Wrist Proportions
+            public static final double Wrist_IDLE_Proportion = 0.0;
+            public static final double Wrist_HP_Proportion = 0.0;
+            public static final double Wrist_L1_Proportion = 1.0;
+            public static final double Wrist_L2_Proportion = 0.25;
+            public static final double Wrist_L3_Proportion = 0.25;
+            public static final double Wrist_L4_Proportion = 0.5;
+            public static final double Wrist_L2_ALGAE_Proportion = 1.0;
+            public static final double Wrist_L3_ALGAE_Proportion = 1.0;
+            public static final double Wrist_Barge_Proportion = 0.5;
+
+            public static double positionToProportion(double position) {
+                return (position - IDLE_POSITION) / POSITION_DIFF;
+            }
+        }
     }
 
     public static class IDs {
