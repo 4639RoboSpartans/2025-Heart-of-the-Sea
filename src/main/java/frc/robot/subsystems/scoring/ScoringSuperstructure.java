@@ -28,7 +28,7 @@ public class ScoringSuperstructure extends SubsystemBase {
 
     public ScoringSuperstructure() {
         this.elevator = ElevatorSubsystem.getInstance();
-        this.hopper = HopperSubsystem.getInstance(this);
+        this.hopper = HopperSubsystem.getInstance();
     }
 
     private void setState(ScoringSuperstructureState state) {
