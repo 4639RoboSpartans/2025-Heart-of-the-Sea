@@ -111,9 +111,10 @@ public class SimElevatorSubsystem extends ElevatorSubsystem {
     public void runElevator() {
         elevatorPID.setGoal(ScoringSuperstructureState.getElevatorSimPosition(state.getElevatorLength()));
         double output = -elevatorPID.calculate(getCurrentPosition())
-                + elevatorFeedforward.calculate(getCurrentPosition());
+                + elevatorFeedforward.calculate(elevatorPID.getSetpoint().velocity);
         elevatorSim.setInputVoltage(output);
         SmartDashboard.putNumber("Elevator PID output", output);
+        SmartDashboard.putNumber("Elevator Sim Position", getCurrentPosition());
     }
 
     private void updatePIDs() {
