@@ -4,7 +4,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.robot.Robot;
-import frc.robot.subsystems.scoring.ScoringSuperstructure;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 
 import java.util.Objects;
@@ -22,12 +21,12 @@ public abstract class HopperSubsystem extends SubsystemBase {
          if (false && Robot.isReal()) {
              return instance = Objects.requireNonNullElseGet(
                      instance,
-                     () -> new ConcreteHopperSubsystem(ScoringSuperstructure.getInstance())
+                     ConcreteHopperSubsystem::new
              );
         } else {
             return instance = Objects.requireNonNullElseGet(
                     instance,
-                    () -> new SimHopperSubsystem(ScoringSuperstructure.getInstance())
+                    SimHopperSubsystem::new
             );
         }
     }

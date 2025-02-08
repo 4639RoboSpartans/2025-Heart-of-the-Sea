@@ -34,8 +34,8 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
 
     private final ScoringSuperstructure scoringSuperstructure;
 
-    public ConcreteHopperSubsystem(ScoringSuperstructure scoringSuperstructure) {
-        this.scoringSuperstructure = scoringSuperstructure;
+    public ConcreteHopperSubsystem() {
+        this.scoringSuperstructure = ScoringSuperstructure.getInstance();
         intakeMotor = new SparkFlex(
                 ScoringConstants.IDs.IntakeMotorID,
                 SparkLowLevel.MotorType.kBrushless

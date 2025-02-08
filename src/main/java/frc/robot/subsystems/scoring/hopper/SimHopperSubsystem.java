@@ -30,8 +30,8 @@ public class SimHopperSubsystem extends HopperSubsystem {
 
     private boolean isStateFinished = false;
 
-    public SimHopperSubsystem(ScoringSuperstructure scoringSuperstructure) {
-        this.scoringSuperstructure = scoringSuperstructure;
+    public SimHopperSubsystem() {
+        this.scoringSuperstructure = ScoringSuperstructure.getInstance();
         intakeSpeed = 0;
         pivotPID = new ProfiledPIDController(
                 ScoringPIDs.wristKp.get(),

@@ -17,7 +17,7 @@ import frc.robot.subsystems.scoring.constants.ScoringConstants;
 import frc.robot.subsystems.scoring.constants.ScoringPIDs;
 
 public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
-    private final TalonFX leftElevator, rightElevator;
+    private final TalonFX leftElevatorMotor, rightElevatorMotor;
     private final MotionMagicVoltage controlRequest;
 
     private ScoringSuperstructureState state = ScoringSuperstructureState.IDLE;
@@ -25,12 +25,12 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
     private boolean isStateFinished = false;
 
     public ConcreteElevatorSubsystem() {
-        leftElevator = new TalonFX(ScoringConstants.IDs.ElevatorLeftID, ScoringConstants.IDs.ElevatorCANBusName);
-        rightElevator = new TalonFX(ScoringConstants.IDs.ElevatorRightID, ScoringConstants.IDs.ElevatorCANBusName);
-        leftElevator.setNeutralMode(NeutralModeValue.Brake);
-        rightElevator.setNeutralMode(NeutralModeValue.Brake);
-        var leftConfigurator = leftElevator.getConfigurator();
-        var rightConfigurator = rightElevator.getConfigurator();
+        leftElevatorMotor = new TalonFX(ScoringConstants.IDs.ElevatorLeftID, ScoringConstants.IDs.ElevatorCANBusName);
+        rightElevatorMotor = new TalonFX(ScoringConstants.IDs.ElevatorRightID, ScoringConstants.IDs.ElevatorCANBusName);
+        leftElevatorMotor.setNeutralMode(NeutralModeValue.Brake);
+        rightElevatorMotor.setNeutralMode(NeutralModeValue.Brake);
+        var leftConfigurator = leftElevatorMotor.getConfigurator();
+        var rightConfigurator = rightElevatorMotor.getConfigurator();
         TalonFXConfiguration configuration = new TalonFXConfiguration()
             .withMotionMagic(
                 new MotionMagicConfigs()
@@ -44,15 +44,15 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
             );
         leftConfigurator.apply(configuration);
         rightConfigurator.apply(configuration);
-        leftElevator.setNeutralMode(NeutralModeValue.Brake);
-        rightElevator.setNeutralMode(NeutralModeValue.Brake);
-        rightElevator.setControl(new Follower(ScoringConstants.IDs.ElevatorLeftID, true));
-        controlRequest = new MotionMagicVoltage(leftElevator.getPosition().getValueAsDouble());
+        leftElevatorMotor.setNeutralMode(NeutralModeValue.Brake);
+        rightElevatorMotor.setNeutralMode(NeutralModeValue.Brake);
+        rightElevatorMotor.setControl(new Follower(ScoringConstants.IDs.ElevatorLeftID, true));
+        controlRequest = new MotionMagicVoltage(leftElevatorMotor.getPosition().getValueAsDouble());
     }
 
     @Override
     public double getCurrentPosition() {
-        return leftElevator.getPosition(true).getValueAsDouble();
+        return leftElevatorMotor.getPosition(true).getValueAsDouble();
     }
 
     @Override
@@ -77,7 +77,7 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
     public boolean isElevatorAtPosition() {
         return MathUtil.isNear(
             controlRequest.Position,
-            leftElevator.getPosition().getValueAsDouble(),
+            leftElevatorMotor.getPosition().getValueAsDouble(),
             ScoringConstants.ElevatorConstants.ELEVATOR_TOLERANCE
         );
     }
@@ -89,8 +89,8 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
     }
 
     public void runElevator() {
-        leftElevator.setControl(controlRequest);
-        SmartDashboard.putNumber("output", leftElevator.getMotorVoltage().getValueAsDouble());
+        leftElevatorMotor.setControl(controlRequest);
+        SmartDashboard.putNumber("output", leftElevatorMotor.getMotorVoltage().getValueAsDouble());
     }
 
     @Override
@@ -98,12 +98,12 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
         if (isElevatorAtPosition()) {
             isStateFinished = true;
         }
-        SmartDashboard.putNumber("ELevator Position", getCurrentPosition());
+        SmartDashboard.putNumber("Elevator Position", getCurrentPosition());
         SmartDashboard.putBoolean("At State", isElevatorAtPosition());
     }
 
     @Override
     public void setElevatorMotorVoltsSysID(Voltage voltage) {
-        leftElevator.setControl(new VoltageOut(voltage));
+        leftElevatorMotor.setControl(new VoltageOut(voltage));
     }
 }
