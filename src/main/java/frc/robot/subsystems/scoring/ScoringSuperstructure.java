@@ -3,6 +3,7 @@ package frc.robot.subsystems.scoring;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.RobotState;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -74,31 +75,28 @@ public class ScoringSuperstructure extends SubsystemBase {
     public Command runScoringState() {
         return Commands.run(
             () -> {
-                if (state.lastToMove == null) {
+                if (!state.useTransitionState) {
                     hopper.runHopper();
                     elevator.runElevator();
-                } else if (state.lastToMove == ElevatorSubsystem.class) {
-                    if (hopper.isHopperAtPosition()) {
-                        elevator.runElevator();
-                        if (elevator.isElevatorAtPosition()) {
-                            hopper.setHopper(state);
+                } else {
+                    if (hopper.getHopperState() == ScoringSuperstructureState.TRANSITION_STATE) {
+                        if (hopper.isHopperAtPosition()) {
+                            if (elevator.isElevatorAtPosition()) {
+                                hopper.setHopper(state);
+                            }
+                            hopper.runHopper();
+                            elevator.runElevator();
+                        } else {
+                            hopper.runHopper();
                         }
-                        hopper.runHopper();
                     } else {
                         if (!elevator.isElevatorAtPosition()) {
                             hopper.setHopper(ScoringSuperstructureState.TRANSITION_STATE);
+                            hopper.runHopper();
+                        } else {
+                            hopper.runHopper();
+                            elevator.runElevator();
                         }
-                        hopper.runHopper();
-                    }
-                } else if (state.lastToMove == HopperSubsystem.class) {
-                    if (elevator.isElevatorAtPosition()) {
-                        hopper.setHopper(state);
-                        hopper.runHopper();
-                        elevator.runElevator();
-                    } else {
-                        elevator.runElevator();
-                        hopper.setHopper(ScoringSuperstructureState.TRANSITION_STATE);
-                        hopper.runHopper();
                     }
                 }
             },
@@ -137,6 +135,10 @@ public class ScoringSuperstructure extends SubsystemBase {
         } else if (RobotState.isTeleop() && !state.control.getAsBoolean()) {
             setState(ScoringSuperstructureState.IDLE);
         }
+        SmartDashboard.putBoolean("Scoring Superstructure State Finished", isStateFinished());
+        SmartDashboard.putBoolean("Scoring Superstructure At Position", isAtPosition());
+        SmartDashboard.putBoolean("Elevator At Position", elevator.isElevatorAtPosition());
+        SmartDashboard.putBoolean("Hopper At Position", hopper.isHopperAtPosition());
     }
 
     /**

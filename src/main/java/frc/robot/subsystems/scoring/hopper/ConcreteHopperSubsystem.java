@@ -124,6 +124,11 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
     }
 
     @Override
+    public ScoringSuperstructureState getHopperState() {
+        return state;
+    }
+
+    @Override
     public boolean hasCoral() {
         return Optional.ofNullable(laserCAN.getMeasurement()).map(measurement ->
             measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT

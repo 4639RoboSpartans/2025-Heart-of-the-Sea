@@ -1,7 +1,6 @@
 package frc.robot.subsystems.scoring.hopper;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -9,7 +8,6 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.lib.TunableArmFeedforward;
 import frc.robot.subsystems.scoring.ScoringSuperstructure;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
@@ -19,7 +17,6 @@ public class SimHopperSubsystem extends HopperSubsystem {
     private static final double secondsUntilIntakeOuttakeEnd = 1;
 
     private final ProfiledPIDController pivotPID;
-    private final TunableArmFeedforward pivotFeedforward;
     private final SingleJointedArmSim pivotSim;
 
     private ScoringSuperstructureState state = ScoringSuperstructureState.IDLE;
@@ -39,12 +36,6 @@ public class SimHopperSubsystem extends HopperSubsystem {
                         ScoringPIDs.wristVelocity.get(),
                         ScoringPIDs.wristAcceleration.get()
                 )
-        );
-        pivotFeedforward = new TunableArmFeedforward(
-                ScoringPIDs.wristKs.get(),
-                ScoringPIDs.wristKg.get(),
-                ScoringPIDs.wristKv.get(),
-                ScoringPIDs.wristKa.get()
         );
         pivotSim = new SingleJointedArmSim(
                 LinearSystemId.createSingleJointedArmSystem(
@@ -88,6 +79,11 @@ public class SimHopperSubsystem extends HopperSubsystem {
     }
 
     @Override
+    public ScoringSuperstructureState getHopperState() {
+        return state;
+    }
+
+    @Override
     public boolean isHopperAtPosition() {
         return MathUtil.isNear(
                 ScoringSuperstructureState.getWristSimPosition(getTargetRotation()),
@@ -123,8 +119,7 @@ public class SimHopperSubsystem extends HopperSubsystem {
     @Override
     protected void runHopperPosition() {
         pivotSim.update(0.020);
-        double output = pivotPID.calculate(getCurrentPosition())
-                + pivotFeedforward.calculate(pivotPID.getSetpoint().position, pivotPID.getSetpoint().velocity);
+        double output = -pivotPID.calculate(getCurrentPosition());
         pivotSim.setInputVoltage(output);
         SmartDashboard.putNumber("Wrist Output", output);
         SmartDashboard.putNumber("Wrist Current Position", getCurrentPosition());
@@ -165,15 +160,6 @@ public class SimHopperSubsystem extends HopperSubsystem {
                         ScoringPIDs.wristVelocity.get(),
                         ScoringPIDs.wristAcceleration.get()
                 )
-        );
-        pivotFeedforward.setKg(
-                ScoringPIDs.elevatorKg.get()
-        );
-        pivotFeedforward.setKv(
-                ScoringPIDs.elevatorKv.get()
-        );
-        pivotFeedforward.setKa(
-                ScoringPIDs.elevatorKa.get()
         );
     }
 }

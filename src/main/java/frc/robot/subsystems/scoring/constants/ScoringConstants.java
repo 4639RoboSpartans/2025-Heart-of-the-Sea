@@ -16,7 +16,7 @@ public final class ScoringConstants {
         public static double UP_POSITION = 63;
         public static double DOWN_POSITION = 0;
 
-        public static final double ELEVATOR_TOLERANCE = 0.01;
+        public static final double ELEVATOR_TOLERANCE = 1;
 
         public static final UnitConvertor<Double, Double> ProportionToPosition = UnitConvertor.linearConvertingRange(
             0, 1, DOWN_POSITION, UP_POSITION

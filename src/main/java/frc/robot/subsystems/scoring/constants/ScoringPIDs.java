@@ -13,13 +13,9 @@ public class ScoringPIDs {
     public static TunableNumber elevatorKv = new TunableNumber("Elevator Kv").withDefaultValue(0.11568);
     public static TunableNumber elevatorKa = new TunableNumber("Elevator Ka").withDefaultValue(0.0);
 
-    public static TunableNumber wristKp = new TunableNumber("Wrist kP").withDefaultValue(0);
+    public static TunableNumber wristKp = new TunableNumber("Wrist kP").withDefaultValue(10);
     public static TunableNumber wristKi = new TunableNumber("Wrist kI").withDefaultValue(0.0);
     public static TunableNumber wristKd = new TunableNumber("Wrist kD").withDefaultValue(0);
-    public static TunableNumber wristVelocity = new TunableNumber("Wrist Velocity").withDefaultValue(0);
-    public static TunableNumber wristAcceleration = new TunableNumber("Wrist Acceleration").withDefaultValue(0);
-    public static TunableNumber wristKs = new TunableNumber("Wrist Ks").withDefaultValue(0.0);
-    public static TunableNumber wristKg = new TunableNumber("Wrist Kg").withDefaultValue(0.0);
-    public static TunableNumber wristKv = new TunableNumber("Wrist Kv").withDefaultValue(0);
-    public static TunableNumber wristKa = new TunableNumber("Wrist Ka").withDefaultValue(0.0);
+    public static TunableNumber wristVelocity = new TunableNumber("Wrist Velocity").withDefaultValue(5);
+    public static TunableNumber wristAcceleration = new TunableNumber("Wrist Acceleration").withDefaultValue(5);
 }

@@ -39,6 +39,10 @@ public abstract class HopperSubsystem extends SubsystemBase {
 
     public abstract Rotation2d getTargetRotation();
 
+    public abstract double getIntakeSpeed();
+
+    public abstract ScoringSuperstructureState getHopperState();
+
     public abstract boolean isHopperAtPosition();
     public Trigger isHopperAtPosition = new Trigger(this::isHopperAtPosition);
 
@@ -53,6 +57,4 @@ public abstract class HopperSubsystem extends SubsystemBase {
     protected abstract void runHopperPosition();
 
     public abstract void runHopper();
-
-    public abstract double getIntakeSpeed();
 }
