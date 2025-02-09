@@ -22,6 +22,7 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
 
     private ScoringSuperstructureState state = ScoringSuperstructureState.IDLE;
 
+
     private boolean isStateFinished = false;
 
     public ConcreteElevatorSubsystem() {
@@ -100,6 +101,7 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
             isStateFinished = true;
         }
         SmartDashboard.putNumber("Elevator Position", getCurrentPosition());
+        SmartDashboard.putNumber("Elevator Proportion", ScoringConstants.ElevatorConstants.Proportions.positionToProportion(getCurrentPosition()));
         SmartDashboard.putBoolean("At State", isElevatorAtPosition());
     }
 

@@ -11,6 +11,7 @@ import frc.robot.subsystems.scoring.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.scoring.hopper.HopperSubsystem;
 
 import java.util.Objects;
+import java.util.function.Supplier;
 
 public class ScoringSuperstructure extends SubsystemBase {
     private static ScoringSuperstructure instance;
@@ -43,9 +44,18 @@ public class ScoringSuperstructure extends SubsystemBase {
      * superstructure, only sets the state.
      */
     public Command setScoringState(ScoringSuperstructureState state) {
+        return setScoringState(() -> state);
+    }
+
+    /**
+     * @param state the new state to set the scoring superstructure to.
+     * @return an instantaneous command that sets the state to {@param state}. It does not run the scoring
+     * superstructure, only sets the state.
+     */
+    public Command setScoringState(Supplier<ScoringSuperstructureState> state) {
         return Commands.runOnce(
-            () -> setState(state),
-            this
+                () -> setState(state.get()),
+                this
         );
     }
 

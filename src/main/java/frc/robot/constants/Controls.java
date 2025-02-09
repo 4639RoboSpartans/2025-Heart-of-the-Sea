@@ -90,6 +90,6 @@ public class Controls {
 
         public static final Trigger HPLoadingTrigger = operatorController.B_BUTTON;
 
-        public static final Trigger HoldTrigger = operatorController.LEFT_STICK.or(operatorController.RIGHT_STICK);
+        public static final Trigger HoldTrigger = operatorController.POV_UP;
     }
 }
