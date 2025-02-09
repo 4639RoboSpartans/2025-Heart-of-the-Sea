@@ -1,5 +1,7 @@
 package frc.robot.subsystems.scoring.elevator;
 
+import com.ctre.phoenix6.SignalLogger;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -7,6 +9,7 @@ import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.Distance;
@@ -33,16 +36,27 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
         var leftConfigurator = leftElevatorMotor.getConfigurator();
         var rightConfigurator = rightElevatorMotor.getConfigurator();
         TalonFXConfiguration configuration = new TalonFXConfiguration()
-            .withMotionMagic(
-                new MotionMagicConfigs()
-                    .withMotionMagicAcceleration(ScoringPIDs.elevatorAcceleration.get())
-                    .withMotionMagicCruiseVelocity(ScoringPIDs.elevatorVelocity.get()))
-            .withSlot0(
-                new Slot0Configs()
-                    .withKP(ScoringPIDs.elevatorKp.get())
-                    .withKI(ScoringPIDs.elevatorKi.get())
-                    .withKD(ScoringPIDs.elevatorKd.get())
-            );
+                .withMotionMagic(
+                        new MotionMagicConfigs()
+                                .withMotionMagicAcceleration(ScoringPIDs.elevatorAcceleration.get())
+                                .withMotionMagicCruiseVelocity(ScoringPIDs.elevatorVelocity.get()))
+                .withSlot0(
+                        new Slot0Configs()
+                                .withKP(ScoringPIDs.elevatorKp.get())
+                                .withKI(ScoringPIDs.elevatorKi.get())
+                                .withKD(ScoringPIDs.elevatorKd.get())
+                                .withKA(ScoringPIDs.elevatorKa.get())
+                                .withKS(ScoringPIDs.elevatorKs.get())
+                                .withKV(ScoringPIDs.elevatorKv.get())
+                                .withKG(ScoringPIDs.elevatorKg.get())
+                                .withGravityType(GravityTypeValue.Elevator_Static)
+                )
+                .withCurrentLimits(
+                        new CurrentLimitsConfigs()
+                                .withStatorCurrentLimit(
+                                        30
+                                )
+                );
 
         leftConfigurator.apply(configuration);
         rightConfigurator.apply(configuration);
@@ -78,9 +92,9 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
 
     public boolean isElevatorAtPosition() {
         return MathUtil.isNear(
-            controlRequest.Position,
-            leftElevatorMotor.getPosition().getValueAsDouble(),
-            ScoringConstants.ElevatorConstants.ELEVATOR_TOLERANCE
+                controlRequest.Position,
+                leftElevatorMotor.getPosition().getValueAsDouble(),
+                ScoringConstants.ElevatorConstants.ELEVATOR_TOLERANCE
         );
     }
 
@@ -103,6 +117,10 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
         SmartDashboard.putNumber("Elevator Position", getCurrentPosition());
         SmartDashboard.putNumber("Elevator Proportion", ScoringConstants.ElevatorConstants.Proportions.positionToProportion(getCurrentPosition()));
         SmartDashboard.putBoolean("At State", isElevatorAtPosition());
+        SignalLogger.writeDouble("Elevator Position", leftElevatorMotor.getPosition().getValueAsDouble());
+        SignalLogger.writeDouble("Elevator Velocity", leftElevatorMotor.getVelocity().getValueAsDouble());
+        SignalLogger.writeDouble("Elevator Acceleration", leftElevatorMotor.getAcceleration().getValueAsDouble());
+        SignalLogger.writeDouble("Elevator Volage", leftElevatorMotor.getMotorVoltage().getValueAsDouble());
     }
 
     @Override

@@ -22,8 +22,12 @@ public class Robot extends TimedRobot
     
     public Robot()
     {
+        SignalLogger.enableAutoLogging(true);
         robotContainer = new RobotContainer();
-        SignalLogger.start();
+    }
+
+    @Override
+    public void robotInit() {
     }
     
     
@@ -69,6 +73,7 @@ public class Robot extends TimedRobot
     @Override
     public void teleopInit()
     {
+        SignalLogger.start();
         if (autonomousCommand != null)
         {
             autonomousCommand.cancel();
@@ -81,7 +86,9 @@ public class Robot extends TimedRobot
     
     
     @Override
-    public void teleopExit() {}
+    public void teleopExit() {
+        SignalLogger.stop();
+    }
     
     
     @Override

@@ -6,8 +6,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
 import frc.robot.subsystems.scoring.elevator.ElevatorSubsystem;
+import frc.robot.subsystems.scoring.elevator.ElevatorSysID;
 import frc.robot.subsystems.scoring.hopper.HopperSubsystem;
 
 import java.util.Objects;
@@ -54,8 +56,7 @@ public class ScoringSuperstructure extends SubsystemBase {
      */
     public Command setScoringState(Supplier<ScoringSuperstructureState> state) {
         return Commands.runOnce(
-                () -> setState(state.get()),
-                this
+                () -> setState(state.get())
         );
     }
 
@@ -163,5 +164,13 @@ public class ScoringSuperstructure extends SubsystemBase {
      */
     public Rotation2d getTargetWristRotation() {
         return hopper.getTargetRotation();
+    }
+
+    public Command elevatorSysIDQuasistatic(SysIdRoutine.Direction direction) {
+        return ElevatorSysID.sysIdQuasistatic(direction);
+    }
+
+    public Command elevatorSysIDDynamic(SysIdRoutine.Direction direction) {
+        return ElevatorSysID.sysIdDynamic(direction);
     }
 }

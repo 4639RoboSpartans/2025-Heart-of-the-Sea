@@ -21,9 +21,9 @@ public final class ScoringConstants {
             //Elevator proportions
             public static final double IDLE_Proportion = 0.0;
             public static final double HP_Proportion = 0.5;
-            public static final double L1_Proportion = 0.3;
+            public static final double L1_Proportion = 0.15;
             public static final double L2_Proportion = 0.25;
-            public static final double L3_Proportion = 0.35;
+            public static final double L3_Proportion = 0.4;
             public static final double L4_Proportion = 0.8;
             public static final double L2_ALGAE_Proportion = 0.55;
             public static final double L3_ALGAE_Proportion = 0.65;
