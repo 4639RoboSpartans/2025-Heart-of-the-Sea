@@ -33,10 +33,7 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
 
     private boolean isStateFinished = false;
 
-    private final ScoringSuperstructure scoringSuperstructure;
-
     public ConcreteHopperSubsystem() {
-        this.scoringSuperstructure = ScoringSuperstructure.getInstance();
         intakeMotor = new SparkFlex(
             ScoringConstants.IDs.IntakeMotorID,
             SparkLowLevel.MotorType.kBrushless
@@ -76,7 +73,7 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
         wristEncoder = new DutyCycleEncoder(
             ScoringConstants.IDs.WristEncoderID,
             1,
-            ScoringConstants.HopperConstants.WRIST_ABSOLUTE_DOWN_POSITION
+            0
         );
 
         wristPID = new ProfiledPIDController(0, 0, 0, null);
@@ -182,7 +179,7 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
     @Override
     public void runHopper() {
         runHopperPosition();
-        if (scoringSuperstructure.isAtPosition() && !isStateFinished) {
+        if (ScoringSuperstructure.getInstance().isAtPosition() && !isStateFinished) {
             intakeMotor.set(state.intakeSpeed);
         }
         LaserCan.Measurement measurement = laserCAN.getMeasurement();
