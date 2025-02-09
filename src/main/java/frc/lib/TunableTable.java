@@ -1,4 +1,4 @@
-package frc.lib.tuning;
+package frc.lib;
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -6,12 +6,27 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TunableTableSource extends ConstantTableSource {
+public class TunableTable {
+    protected final String name;
+    protected final String[] columnNames;
+    protected final double[][] data;
+    private final int numRows;
+    private final int numCols;
     private final List<TableSourceListener> listeners = new ArrayList<>();
     private int currRow = 0;
 
-    public TunableTableSource(String name, int numRows, int numCols, String[] columnNames, double[][] data) {
-        super(name, numRows, numCols, columnNames, data);
+    public interface TableSourceListener {
+        void onTableChange(int row, int col, double value);
+    }
+
+    public TunableTable(String name, int numRows, int numCols, String[] columnNames, double[][] data) {
+
+        this.name = name;
+        this.numRows = numRows;
+        this.numCols = numCols;
+        this.columnNames = columnNames;
+        this.data = data;
+
         // Add full display
         SmartDashboard.putData(name, builder -> {
             builder.setSmartDashboardType("Network Table Tree");
@@ -59,11 +74,26 @@ public class TunableTableSource extends ConstantTableSource {
         });
     }
 
+    public int numRows() {
+        return numRows;
+    }
+
+    public int numColumns() {
+        return numCols;
+    }
+
+    public String getColumnName(int col) {
+        return columnNames[col];
+    }
+
+    public double getCellAsDouble(int row, int col) {
+        return data[row][col];
+    }
+
     private void updateCurrentRow(int x) {
         currRow = x;
     }
 
-    @Override
     public void addListener(TableSourceListener listener) {
         listeners.add(listener);
     }
