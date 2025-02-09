@@ -115,7 +115,7 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
             isStateFinished = true;
         }
         SmartDashboard.putNumber("Elevator Position", getCurrentPosition());
-        SmartDashboard.putNumber("Elevator Proportion", ScoringConstants.ElevatorConstants.Proportions.positionToProportion(getCurrentPosition()));
+        SmartDashboard.putNumber("Elevator Proportion", ScoringConstants.ElevatorConstants.ProportionToPosition.convertBackwards(getCurrentPosition()));
         SmartDashboard.putBoolean("At State", isElevatorAtPosition());
         SignalLogger.writeDouble("Elevator Position", leftElevatorMotor.getPosition().getValueAsDouble());
         SignalLogger.writeDouble("Elevator Velocity", leftElevatorMotor.getVelocity().getValueAsDouble());
