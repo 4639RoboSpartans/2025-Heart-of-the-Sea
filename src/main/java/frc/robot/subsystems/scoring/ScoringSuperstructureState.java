@@ -4,13 +4,10 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.Controls;
-import frc.robot.subsystems.scoring.constants.ScoringConstants;
 import frc.robot.subsystems.scoring.constants.ScoringConstants.ElevatorConstants;
 import frc.robot.subsystems.scoring.constants.ScoringConstants.HopperConstants;
 import frc.robot.subsystems.scoring.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.scoring.hopper.HopperSubsystem;
-
-import static edu.wpi.first.units.Units.Inches;
 
 @SuppressWarnings("rawtypes")
 public class ScoringSuperstructureState {
@@ -180,54 +177,35 @@ public class ScoringSuperstructureState {
         .withOuttakeUntilNotSeen(false);
 
     public double getElevatorAbsolutePosition() {
-        return ScoringConstants.ElevatorConstants.DOWN_POSITION
-            + ScoringConstants.ElevatorConstants.POSITION_DIFF * elevatorProportion;
+        return ElevatorConstants.ProportionToPosition.convert(elevatorProportion);
     }
 
     public double getWristAbsolutePosition() {
-        return ScoringConstants.HopperConstants.EXTENDED_POSITION
-            + ScoringConstants.HopperConstants.POSITION_DIFF * wristProportion;
+        return HopperConstants.ProportionToPosition.convert(wristProportion);
     }
 
-    public Distance getElevatorLength() {
-        return Inches.of(elevatorProportion
-            * ScoringConstants.ElevatorConstants.MAX_EXTENSION.in(Inches)
-            + ScoringConstants.ElevatorConstants.STARTING_HEIGHT.in(Inches)
-        );
+    public Distance getElevatorHeight() {
+        return ElevatorConstants.ProportionToHeight.convert(elevatorProportion);
     }
 
     public static double getElevatorSimPosition(Distance distance) {
-        double position = (distance.in(Inches) - ScoringConstants.ElevatorConstants.STARTING_HEIGHT.in(Inches))
-            / ScoringConstants.ElevatorConstants.MAX_EXTENSION.in(Inches);
-        return ScoringConstants.ElevatorConstants.DOWN_POSITION
-            + ScoringConstants.ElevatorConstants.POSITION_DIFF * position;
+        return ElevatorConstants.PositionToHeight.convertBackwards(distance);
     }
 
     public static Distance getElevatorSimDistance(double position) {
-        double rawDist = (position - ScoringConstants.ElevatorConstants.DOWN_POSITION)
-            / ScoringConstants.ElevatorConstants.POSITION_DIFF;
-        return Inches.of(rawDist * ScoringConstants.ElevatorConstants.MAX_EXTENSION.in(Inches)
-            + ScoringConstants.ElevatorConstants.STARTING_HEIGHT.in(Inches));
+        return ElevatorConstants.PositionToHeight.convert(position);
     }
 
     public Rotation2d getWristSimRotation() {
-        return ScoringConstants.HopperConstants.MAX_ROTATION
-            .times(wristProportion)
-            .plus(ScoringConstants.HopperConstants.IDLE_ROTATION);
+        return HopperConstants.ProportionToRotation.convert(wristProportion);
     }
 
     public static double getWristSimPosition(Rotation2d rotation) {
-        double position = (rotation.getDegrees() - ScoringConstants.HopperConstants.IDLE_ROTATION.getDegrees())
-            / ScoringConstants.HopperConstants.MAX_ROTATION.getDegrees();
-        return ScoringConstants.HopperConstants.EXTENDED_POSITION
-            + ScoringConstants.HopperConstants.POSITION_DIFF * position;
+        return HopperConstants.PositionToRotation.convertBackwards(rotation);
     }
 
     public static Rotation2d getWristSimRotation(double position) {
-        double rawRotation = (position - ScoringConstants.HopperConstants.EXTENDED_POSITION)
-            / ScoringConstants.HopperConstants.POSITION_DIFF;
-        return Rotation2d.fromDegrees(rawRotation * ScoringConstants.HopperConstants.MAX_ROTATION.getDegrees())
-            .plus(ScoringConstants.HopperConstants.IDLE_ROTATION);
+        return HopperConstants.PositionToRotation.convert(position);
     }
 
     public ScoringSuperstructureState getStateAfter() {
