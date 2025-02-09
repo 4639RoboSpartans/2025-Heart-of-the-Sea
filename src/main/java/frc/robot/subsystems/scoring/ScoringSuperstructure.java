@@ -2,6 +2,7 @@ package frc.robot.subsystems.scoring;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -133,7 +134,7 @@ public class ScoringSuperstructure extends SubsystemBase {
     public void periodic() {
         if (isStateFinished()) {
             setState(state.getStateAfter());
-        } else if (!state.control.getAsBoolean()) {
+        } else if (RobotState.isTeleop() && !state.control.getAsBoolean()) {
             setState(ScoringSuperstructureState.IDLE);
         }
     }

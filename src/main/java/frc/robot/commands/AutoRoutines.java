@@ -30,7 +30,7 @@ public class AutoRoutines {
 
         routine.active().onTrue(
                 Commands.sequence(
-                        ScoringSuperstructure.getInstance().setScoringState(ScoringSuperstructureState.L4),
+                        ScoringSuperstructure.getInstance().setScoringState(ScoringSuperstructureState.HP_LOADING),
                         ScoringSuperstructure.getInstance().runScoringState()
                 )
         );

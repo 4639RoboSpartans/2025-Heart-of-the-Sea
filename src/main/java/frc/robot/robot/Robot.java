@@ -10,6 +10,7 @@ import com.ctre.phoenix6.SignalLogger;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.subsystems.scoring.ScoringSuperstructure;
 
 
 
@@ -28,6 +29,7 @@ public class Robot extends TimedRobot
 
     @Override
     public void robotInit() {
+        ScoringSuperstructure.getInstance().setDefaultCommand(ScoringSuperstructure.getInstance().runScoringState());
     }
     
     
@@ -39,7 +41,9 @@ public class Robot extends TimedRobot
     
     
     @Override
-    public void disabledInit() {}
+    public void disabledInit() {
+
+    }
     
     
     @Override
