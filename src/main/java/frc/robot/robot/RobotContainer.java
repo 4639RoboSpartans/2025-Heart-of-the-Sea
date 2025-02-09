@@ -9,9 +9,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import frc.lib.AllianceFlipUtil;
-import frc.lib.PoseUtil;
 import frc.robot.constants.Controls;
 import frc.robot.constants.FieldConstants;
 import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
@@ -49,7 +46,7 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-        swerve.setDefaultCommand(swerve.applyRequest(swerve::fieldCentricRequestSupplier));
+        swerve.setDefaultCommand(swerve.applyRequest(swerve::getFieldCentricRequest));
         scoringSuperstructure.setDefaultCommand(scoringSuperstructure.runScoringState());
 
         //Scoring Controls

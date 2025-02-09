@@ -58,12 +58,12 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
 
     private boolean hasAppliedOperatorPerspective = false;
 
-    private final PIDController pathXController = new PIDController(12, 0, 0);
-    private final PIDController pathYController = new PIDController(12, 0, 0);
-    private final PIDController pathThetaController = new PIDController(7, 0, 0);
-
-    private final PIDController pidXController = new PIDController(1, 0, 0);
-    private final PIDController pidYController = new PIDController(1, 0, 0);
+    private final PIDController
+        pathXController = new PIDController(12, 0, 0),
+        pathYController = new PIDController(12, 0, 0),
+        pathThetaController = new PIDController(7, 0, 0),
+        pidXController = new PIDController(1, 0, 0),
+        pidYController = new PIDController(1, 0, 0);
 
     private final PhoenixPIDController headingController = new PhoenixPIDController(0, 0, 0);
 
@@ -232,7 +232,7 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
         return applyRequest(SwerveRequest.SwerveDriveBrake::new);
     }
 
-    public SwerveRequest fieldCentricRequestSupplier() {
+    public SwerveRequest getFieldCentricRequest() {
         double forwards = (DriverStationHelpers.getAlliance() == Alliance.Blue ? 1 : -1) * Controls.Driver.SwerveForwardAxis.getAsDouble() * DriveConstants.CURRENT_MAX_ROBOT_MPS;
         double strafe = (DriverStationHelpers.getAlliance() == Alliance.Blue ? 1 : -1) * -Controls.Driver.SwerveStrafeAxis.getAsDouble() * DriveConstants.CURRENT_MAX_ROBOT_MPS;
         double rotation = Controls.Driver.SwerveRotationAxis.getAsDouble() * DriveConstants.TELOP_ROTATION_SPEED;
