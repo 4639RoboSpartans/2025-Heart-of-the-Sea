@@ -50,10 +50,10 @@ public class SimElevatorSubsystem extends ElevatorSubsystem {
                         10
                 ),
                 DCMotor.getKrakenX60(2),
-                ScoringSuperstructureState.IDLE.getElevatorLength().in(Meters),
-                ScoringSuperstructureState.BARGE_SCORING.getElevatorLength().in(Meters),
+                ScoringSuperstructureState.IDLE.getElevatorHeight().in(Meters),
+                ScoringSuperstructureState.BARGE_SCORING.getElevatorHeight().in(Meters),
                 true,
-                ScoringSuperstructureState.IDLE.getElevatorLength().in(Meters)
+                ScoringSuperstructureState.IDLE.getElevatorHeight().in(Meters)
         );
     }
 
@@ -74,7 +74,7 @@ public class SimElevatorSubsystem extends ElevatorSubsystem {
 
     @Override
     public Distance getTargetLength() {
-        return state.getElevatorLength();
+        return state.getElevatorHeight();
     }
 
     public boolean isElevatorStateFinished() {
@@ -109,7 +109,7 @@ public class SimElevatorSubsystem extends ElevatorSubsystem {
 
     @Override
     public void runElevator() {
-        elevatorPID.setGoal(ScoringSuperstructureState.getElevatorSimPosition(state.getElevatorLength()));
+        elevatorPID.setGoal(ScoringSuperstructureState.getElevatorSimPosition(state.getElevatorHeight()));
         double output = -elevatorPID.calculate(getCurrentPosition())
                 + elevatorFeedforward.calculate(elevatorPID.getSetpoint().velocity);
         elevatorSim.setInputVoltage(output);

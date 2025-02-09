@@ -2,22 +2,36 @@ package frc.robot.subsystems.scoring.constants;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Distance;
+import frc.lib.UnitConvertor;
 
 import static edu.wpi.first.units.Units.Inches;
 
 public final class ScoringConstants {
     public static final class ElevatorConstants {
+        // The range of the elevator
         public static final Distance MAX_EXTENSION = Inches.of(84);
+        // The initial height of the elevator
         public static final Distance STARTING_HEIGHT = Inches.of(12);
 
         public static double UP_POSITION = 63;
         public static double DOWN_POSITION = 0;
-        public static final double POSITION_DIFF = UP_POSITION - DOWN_POSITION;
 
         public static final double ELEVATOR_TOLERANCE = 0.01;
 
-        public static final class Proportions{
+        public static final UnitConvertor<Double, Double> ProportionToPosition = UnitConvertor.linearConvertingRange(
+            0, 1, DOWN_POSITION, UP_POSITION
+        );
 
+        public static final UnitConvertor<Double, Distance> ProportionToHeight = UnitConvertor.linear(
+            MAX_EXTENSION.in(Inches), STARTING_HEIGHT.in(Inches), false
+        ).then(UnitConvertor.toDistance(Inches));
+
+        public static final UnitConvertor<Double, Distance> PositionToHeight = UnitConvertor.compose(
+            ProportionToPosition.inverted(),
+            ProportionToHeight
+        );
+
+        public static final class Proportions {
             //Elevator proportions
             public static final double IDLE_Proportion = 0.0;
             public static final double HP_Proportion = 0.5;
@@ -28,10 +42,6 @@ public final class ScoringConstants {
             public static final double L2_ALGAE_Proportion = 0.55;
             public static final double L3_ALGAE_Proportion = 0.65;
             public static final double Barge_Proportion = 1;
-
-            public static double positionToProportion(double position) {
-                return (position - DOWN_POSITION) / POSITION_DIFF;
-            }
         }
     }
 
@@ -41,13 +51,21 @@ public final class ScoringConstants {
 
         public static final double IDLE_POSITION = 0;
         public static final double EXTENDED_POSITION = 1;
-        public static final double POSITION_DIFF = IDLE_POSITION - EXTENDED_POSITION;
 
-        public static final double WRIST_ABSOLUTE_DOWN_POSITION = 0;
+        public static final UnitConvertor<Double, Double> ProportionToPosition = UnitConvertor.linearConvertingRange(
+            0, 1, IDLE_POSITION, EXTENDED_POSITION
+        );
+        public static final UnitConvertor<Double, Rotation2d> ProportionToRotation = UnitConvertor.linear(
+            MAX_ROTATION.getRadians(), IDLE_ROTATION.getRadians(), false
+        ).then(UnitConvertor.radiansToRotation2d());
+        public static final UnitConvertor<Double, Rotation2d> PositionToRotation = UnitConvertor.compose(
+            ProportionToPosition.inverted(),
+            ProportionToRotation
+        );
 
         public static final double WRIST_TOLERANCE = 0.01;
 
-        public static final class Proportions{
+        public static final class Proportions {
 
             //Wrist Proportions
             public static final double Wrist_IDLE_Proportion = 0.0;
@@ -60,9 +78,6 @@ public final class ScoringConstants {
             public static final double Wrist_L3_ALGAE_Proportion = 1.0;
             public static final double Wrist_Barge_Proportion = 0.5;
 
-            public static double positionToProportion(double position) {
-                return (position - IDLE_POSITION) / POSITION_DIFF;
-            }
         }
     }
 
