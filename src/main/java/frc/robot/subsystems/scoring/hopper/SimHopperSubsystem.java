@@ -9,6 +9,7 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.lib.TunableArmFeedforward;
 import frc.robot.subsystems.scoring.ScoringSuperstructure;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
@@ -18,7 +19,7 @@ public class SimHopperSubsystem extends HopperSubsystem {
     private static final double secondsUntilIntakeOuttakeEnd = 1;
 
     private final ProfiledPIDController pivotPID;
-    private final ArmFeedforward pivotFeedforward;
+    private final TunableArmFeedforward pivotFeedforward;
     private final SingleJointedArmSim pivotSim;
 
     private ScoringSuperstructureState state = ScoringSuperstructureState.IDLE;
@@ -31,33 +32,33 @@ public class SimHopperSubsystem extends HopperSubsystem {
     public SimHopperSubsystem() {
         intakeSpeed = 0;
         pivotPID = new ProfiledPIDController(
-            ScoringPIDs.wristKp.get(),
-            ScoringPIDs.wristKi.get(),
-            ScoringPIDs.wristKd.get(),
-            new TrapezoidProfile.Constraints(
-                ScoringPIDs.wristVelocity.get(),
-                ScoringPIDs.wristAcceleration.get()
-            )
+                ScoringPIDs.wristKp.get(),
+                ScoringPIDs.wristKi.get(),
+                ScoringPIDs.wristKd.get(),
+                new TrapezoidProfile.Constraints(
+                        ScoringPIDs.wristVelocity.get(),
+                        ScoringPIDs.wristAcceleration.get()
+                )
         );
-        pivotFeedforward = new ArmFeedforward(
-            ScoringPIDs.elevatorKs.get(),
-            ScoringPIDs.elevatorKg.get(),
-            ScoringPIDs.elevatorKv.get(),
-            ScoringPIDs.elevatorKa.get()
+        pivotFeedforward = new TunableArmFeedforward(
+                ScoringPIDs.wristKs.get(),
+                ScoringPIDs.wristKg.get(),
+                ScoringPIDs.wristKv.get(),
+                ScoringPIDs.wristKa.get()
         );
         pivotSim = new SingleJointedArmSim(
-            LinearSystemId.createSingleJointedArmSystem(
+                LinearSystemId.createSingleJointedArmSystem(
+                        DCMotor.getNEO(1),
+                        SingleJointedArmSim.estimateMOI(0.419, 2.22),
+                        25.6
+                ),
                 DCMotor.getNEO(1),
-                SingleJointedArmSim.estimateMOI(0.419, 2.22),
-                25.6
-            ),
-            DCMotor.getNEO(1),
-            25.6,
-            0.419,
-            ScoringConstants.HopperConstants.ProportionToRotation.convert(1.).getRadians(),
-            ScoringConstants.HopperConstants.ProportionToRotation.convert(0.).getRadians(),
-            true,
-            ScoringConstants.HopperConstants.ProportionToRotation.convert(0.).getRadians()
+                25.6,
+                0.419,
+                ScoringConstants.HopperConstants.ProportionToRotation.convert(1.).getRadians(),
+                ScoringConstants.HopperConstants.ProportionToRotation.convert(0.).getRadians(),
+                false,
+                ScoringConstants.HopperConstants.ProportionToRotation.convert(0.).getRadians()
         );
     }
 
@@ -73,7 +74,7 @@ public class SimHopperSubsystem extends HopperSubsystem {
 
     @Override
     public double getTargetPosition() {
-        return ScoringSuperstructureState.getWristSimPosition(getTargetRotation());
+        return state.getWristAbsolutePosition();
     }
 
     @Override
@@ -89,9 +90,9 @@ public class SimHopperSubsystem extends HopperSubsystem {
     @Override
     public boolean isHopperAtPosition() {
         return MathUtil.isNear(
-            ScoringSuperstructureState.getWristSimPosition(getTargetRotation()),
-            ScoringSuperstructureState.getWristSimPosition(getCurrentRotation()),
-            ScoringConstants.HopperConstants.WRIST_TOLERANCE
+                ScoringSuperstructureState.getWristSimPosition(getTargetRotation()),
+                ScoringSuperstructureState.getWristSimPosition(getCurrentRotation()),
+                ScoringConstants.HopperConstants.WRIST_TOLERANCE
         ) && pivotPID.getVelocityError() < 0.01;
     }
 
@@ -123,9 +124,14 @@ public class SimHopperSubsystem extends HopperSubsystem {
     protected void runHopperPosition() {
         pivotSim.update(0.020);
         double output = pivotPID.calculate(getCurrentPosition())
-            + pivotFeedforward.calculate(getCurrentRotation().getRadians(), pivotPID.getVelocityError());
+                + pivotFeedforward.calculate(pivotPID.getSetpoint().position, pivotPID.getSetpoint().velocity);
         pivotSim.setInputVoltage(output);
         SmartDashboard.putNumber("Wrist Output", output);
+        SmartDashboard.putNumber("Wrist Current Position", getCurrentPosition());
+        SmartDashboard.putNumber("Wrist Sim Angle", Rotation2d.fromRadians(pivotSim.getAngleRads()).getDegrees());
+        SmartDashboard.putNumber("Wrist Target Position", getTargetPosition());
+        SmartDashboard.putNumber("Wrist Setpoint Position", pivotPID.getSetpoint().position);
+        SmartDashboard.putNumber("Wrist Setpoint Velocity", pivotPID.getSetpoint().velocity);
     }
 
     @Override
@@ -150,15 +156,24 @@ public class SimHopperSubsystem extends HopperSubsystem {
 
     private void updatePIDs() {
         pivotPID.setPID(
-            ScoringPIDs.wristKp.get(),
-            ScoringPIDs.wristKi.get(),
-            ScoringPIDs.wristKd.get()
+                ScoringPIDs.wristKp.get(),
+                ScoringPIDs.wristKi.get(),
+                ScoringPIDs.wristKd.get()
         );
         pivotPID.setConstraints(
-            new TrapezoidProfile.Constraints(
-                ScoringPIDs.wristVelocity.get(),
-                ScoringPIDs.wristAcceleration.get()
-            )
+                new TrapezoidProfile.Constraints(
+                        ScoringPIDs.wristVelocity.get(),
+                        ScoringPIDs.wristAcceleration.get()
+                )
+        );
+        pivotFeedforward.setKg(
+                ScoringPIDs.elevatorKg.get()
+        );
+        pivotFeedforward.setKv(
+                ScoringPIDs.elevatorKv.get()
+        );
+        pivotFeedforward.setKa(
+                ScoringPIDs.elevatorKa.get()
         );
     }
 }
