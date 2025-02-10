@@ -2,6 +2,7 @@ package frc.robot.subsystems.scoring.hopper;
 
 import au.grapplerobotics.ConfigurationFailedException;
 import au.grapplerobotics.LaserCan;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.spark.SparkBase;
@@ -55,7 +56,7 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
                         .reverseSoftLimit(
                             40
                         )
-                ),
+                ).smartCurrentLimit(30),
             SparkBase.ResetMode.kResetSafeParameters,
             SparkBase.PersistMode.kPersistParameters
         );
@@ -63,6 +64,10 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
                 new SoftwareLimitSwitchConfigs()
                         .withForwardSoftLimitThreshold(30)
                         .withReverseSoftLimitThreshold(30)
+        );
+        wristMotor.getConfigurator().apply(
+                new CurrentLimitsConfigs()
+                        .withStatorCurrentLimit(30)
         );
         wristEncoder = new DutyCycleEncoder(
             ScoringConstants.IDs.WristEncoderID,
