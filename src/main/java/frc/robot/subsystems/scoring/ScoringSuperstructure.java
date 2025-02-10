@@ -76,29 +76,26 @@ public class ScoringSuperstructure extends SubsystemBase {
         return Commands.run(
             () -> {
                 if (!state.useTransitionState) {
-                    hopper.runHopper();
                     elevator.runElevator();
                 } else {
-                    if (hopper.getHopperState() == ScoringSuperstructureState.TRANSITION_STATE) {
+                    if (hopper.getHopperState() != ScoringSuperstructureState.TRANSITION_STATE) {
+                        if (elevator.isElevatorAtPosition()) {
+                            elevator.runElevator();
+                        } else {
+                            hopper.setHopper(ScoringSuperstructureState.TRANSITION_STATE);
+                        }
+                    } else {
                         if (hopper.isHopperAtPosition()) {
                             if (elevator.isElevatorAtPosition()) {
                                 hopper.setHopper(state);
                             }
-                            hopper.runHopper();
-                            elevator.runElevator();
-                        } else {
-                            hopper.runHopper();
-                        }
-                    } else {
-                        if (!elevator.isElevatorAtPosition()) {
-                            hopper.setHopper(ScoringSuperstructureState.TRANSITION_STATE);
-                            hopper.runHopper();
-                        } else {
-                            hopper.runHopper();
                             elevator.runElevator();
                         }
                     }
                 }
+                //TODO: choose one place to call runHopper
+                //either in hopper periodic or in here but right now it runs in both
+                hopper.runHopper();
             },
             this
         );

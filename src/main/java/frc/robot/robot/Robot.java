@@ -34,8 +34,8 @@ public class Robot extends LoggedRobot {
         Logger.start();
         ScoringSuperstructure.getInstance().setDefaultCommand(ScoringSuperstructure.getInstance().runScoringState());
     }
-
-
+    
+    
     @Override
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
@@ -55,76 +55,72 @@ public class Robot extends LoggedRobot {
                 new Pose3d(),
                 new Pose3d());
     }
-
-
+    
+    
     @Override
     public void disabledInit() {
 
     }
-
-
+    
+    
     @Override
-    public void disabledPeriodic() {
-    }
-
-
+    public void disabledPeriodic() {}
+    
+    
     @Override
-    public void disabledExit() {
-    }
-
-
+    public void disabledExit() {}
+    
+    
     @Override
-    public void autonomousInit() {
+    public void autonomousInit()
+    {
         autonomousCommand = robotContainer.getAutonomousCommand();
 
         if (autonomousCommand != null) {
             autonomousCommand.schedule();
         }
     }
-
-
+    
+    
     @Override
-    public void autonomousPeriodic() {
-    }
-
-
+    public void autonomousPeriodic() {}
+    
+    
     @Override
-    public void autonomousExit() {
-    }
-
-
+    public void autonomousExit() {}
+    
+    
     @Override
-    public void teleopInit() {
+    public void teleopInit()
+    {
         SignalLogger.start();
         if (autonomousCommand != null) {
             autonomousCommand.cancel();
         }
     }
-
-
+    
+    
     @Override
-    public void teleopPeriodic() {
-    }
-
-
+    public void teleopPeriodic() {}
+    
+    
     @Override
     public void teleopExit() {
         SignalLogger.stop();
     }
-
-
+    
+    
     @Override
-    public void testInit() {
+    public void testInit()
+    {
         CommandScheduler.getInstance().cancelAll();
     }
-
-
+    
+    
     @Override
-    public void testPeriodic() {
-    }
-
-
+    public void testPeriodic() {}
+    
+    
     @Override
-    public void testExit() {
-    }
+    public void testExit() {}
 }

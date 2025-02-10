@@ -23,14 +23,13 @@ public class AutoRoutines {
     public AutoRoutine auto1() {
         var pathName = "Path 1";
         var numPaths = 3;
-        var resetOdometry = true;
         AutoRoutine routine = factory.newRoutine(pathName);
 
         ArrayList<AutoTrajectory> paths = new ArrayList<AutoTrajectory>();
         for (int i : IntStream.range(0, numPaths).toArray()) paths.add(routine.trajectory(pathName, i));
 
         routine.active().onTrue(Commands.sequence(
-                resetOdometry ? paths.get(0).resetOdometry() : Commands.none(),
+                paths.get(0).resetOdometry(),
                 paths.get(0).cmd(),
                 AutoCommands.L4Score.get(),
                 paths.get(1).cmd(),
@@ -44,14 +43,13 @@ public class AutoRoutines {
     public AutoRoutine auto2() {
         var pathName = "Path 2";
         var numPaths = 3;
-        var resetOdometry = true;
         AutoRoutine routine = factory.newRoutine(pathName);
 
         ArrayList<AutoTrajectory> paths = new ArrayList<AutoTrajectory>();
         for (int i : IntStream.range(0, numPaths).toArray()) paths.add(routine.trajectory(pathName, i));
 
         routine.active().onTrue(Commands.sequence(
-                resetOdometry ? paths.get(0).resetOdometry() : Commands.none(),
+                paths.get(0).resetOdometry(),
                 paths.get(0).cmd(),
                 AutoCommands.L4Score.get(),
                 paths.get(1).cmd(),
@@ -65,14 +63,13 @@ public class AutoRoutines {
     public AutoRoutine auto3() {
         var pathName = "Path 3";
         var numPaths = 3;
-        var resetOdometry = true;
         AutoRoutine routine = factory.newRoutine(pathName);
 
         ArrayList<AutoTrajectory> paths = new ArrayList<AutoTrajectory>();
         for (int i : IntStream.range(0, numPaths).toArray()) paths.add(routine.trajectory(pathName, i));
 
         routine.active().onTrue(Commands.sequence(
-                resetOdometry ? paths.get(0).resetOdometry() : Commands.none(),
+                paths.get(0).resetOdometry(),
                 paths.get(0).cmd(),
                 AutoCommands.L4Score.get(),
                 paths.get(1).cmd(),
@@ -86,14 +83,13 @@ public class AutoRoutines {
     public AutoRoutine auto4() {
         var pathName = "Path 4";
         var numPaths = 3;
-        var resetOdometry = true;
         AutoRoutine routine = factory.newRoutine(pathName);
 
         ArrayList<AutoTrajectory> paths = new ArrayList<AutoTrajectory>();
         for (int i : IntStream.range(0, numPaths).toArray()) paths.add(routine.trajectory(pathName, i));
 
         routine.active().onTrue(Commands.sequence(
-                resetOdometry ? paths.get(0).resetOdometry() : Commands.none(),
+                paths.get(0).resetOdometry(),
                 paths.get(0).cmd(),
                 AutoCommands.L4Score.get(),
                 paths.get(1).cmd(),
