@@ -29,7 +29,6 @@ public class Robot extends TimedRobot
 
     @Override
     public void robotInit() {
-        ScoringSuperstructure.getInstance().setDefaultCommand(ScoringSuperstructure.getInstance().runScoringState());
     }
     
     

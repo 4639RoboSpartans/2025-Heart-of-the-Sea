@@ -2,6 +2,8 @@ package frc.robot.subsystems.scoring.hopper;
 
 import au.grapplerobotics.ConfigurationFailedException;
 import au.grapplerobotics.LaserCan;
+import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel;
@@ -22,7 +24,8 @@ import frc.robot.subsystems.scoring.constants.ScoringPIDs;
 import java.util.Optional;
 
 public class ConcreteHopperSubsystem extends HopperSubsystem {
-    private final SparkFlex intakeMotor, wristMotor;
+    private final SparkFlex intakeMotor;
+    private final TalonFX wristMotor;
     private final DutyCycleEncoder wristEncoder;
 
     private final LaserCan laserCAN;
@@ -38,9 +41,9 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
             ScoringConstants.IDs.IntakeMotorID,
             SparkLowLevel.MotorType.kBrushless
         );
-        wristMotor = new SparkFlex(
-            ScoringConstants.IDs.WristMotorID,
-            SparkLowLevel.MotorType.kBrushless
+        wristMotor = new TalonFX(
+                ScoringConstants.IDs.WristMotorID,
+                "MainCANivore"
         );
         intakeMotor.configure(
             new SparkFlexConfig()
@@ -56,19 +59,10 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
             SparkBase.ResetMode.kResetSafeParameters,
             SparkBase.PersistMode.kPersistParameters
         );
-        wristMotor.configure(
-            new SparkFlexConfig()
-                .apply(
-                    new SoftLimitConfig()
-                        .forwardSoftLimit(
-                            30
-                        )
-                        .reverseSoftLimit(
-                            30
-                        )
-                ),
-            SparkBase.ResetMode.kResetSafeParameters,
-            SparkBase.PersistMode.kPersistParameters
+        wristMotor.getConfigurator().apply(
+                new SoftwareLimitSwitchConfigs()
+                        .withForwardSoftLimitThreshold(30)
+                        .withReverseSoftLimitThreshold(30)
         );
         wristEncoder = new DutyCycleEncoder(
             ScoringConstants.IDs.WristEncoderID,
@@ -76,7 +70,9 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
             0
         );
 
+        //TODO: now that we are running a Talon instead of a NEO, probably better to use motion magic
         wristPID = new ProfiledPIDController(0, 0, 0, null);
+
         ScoringPIDs.wristKp.onChange(wristPID::setP);
         ScoringPIDs.wristKi.onChange(wristPID::setI);
         ScoringPIDs.wristKd.onChange(wristPID::setD);
@@ -95,6 +91,8 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
             System.out.println("Configuration failed! " + e);
         }
         hasCoral = new Trigger(this::hasCoral);
+        //TODO: is two seconds really necessary?
+        //having the debounce on for too long could mess with our cycle time
         hasCoral.debounce(2);
     }
 
@@ -163,10 +161,9 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
 
     @Override
     public void periodic() {
-        runHopperPosition();
-        if (isHopperAtPosition()) {
+        if (isHopperAtPosition())
             runHopper();
-        }
+        else runHopperPosition();
     }
 
     @Override
@@ -176,7 +173,6 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
             wristEncoder.get(),
             wristPID.getGoal().position
         );
-        //        for the love of god michael if youre going to comment something out please leave a todo
 //        TODO: uncomment when down and up positions are set
 //        wristMotor.set(wristPIDOutput);
     }
