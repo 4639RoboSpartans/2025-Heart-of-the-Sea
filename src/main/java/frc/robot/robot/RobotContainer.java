@@ -31,7 +31,7 @@ public class RobotContainer {
         configureBindings();
 
         autoChooser = new SendableChooser<>();
-        autoChooser.addOption("Auto 1", swerve.getAutoRoutines().Path1().cmd());
+        autoChooser.addOption("Auto 1", swerve.getAutoRoutines().auto1().cmd());
         autoChooser.addOption("Auto 2", swerve.getAutoRoutines().auto2().cmd());
         autoChooser.addOption("Auto 3", swerve.getAutoRoutines().auto3().cmd());
         autoChooser.addOption("Auto 4", swerve.getAutoRoutines().auto4().cmd());
