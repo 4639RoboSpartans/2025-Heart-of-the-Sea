@@ -21,6 +21,7 @@ import frc.robot.subsystems.scoring.ScoringSuperstructure;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
 import frc.robot.subsystems.scoring.constants.ScoringPIDs;
+import frc.robot.subsystems.scoring.constants.ScoringConstants.HopperConstants;
 
 import java.util.Optional;
 
@@ -44,30 +45,30 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
         );
         wristMotor = new TalonFX(
                 ScoringConstants.IDs.WristMotorID,
-                "MainCANivore"
+                ScoringConstants.IDs.WristCANBusName
         );
         intakeMotor.configure(
             new SparkFlexConfig()
                 .apply(
                     new SoftLimitConfig()
                         .forwardSoftLimit(
-                            40
+                            HopperConstants.IntakeForwardSoftLimit
                         )
                         .reverseSoftLimit(
-                            40
+                            HopperConstants.IntakeReverseSoftLimit
                         )
-                ).smartCurrentLimit(30),
+                ).smartCurrentLimit(HopperConstants.IntakeCurrentLimit),
             SparkBase.ResetMode.kResetSafeParameters,
             SparkBase.PersistMode.kPersistParameters
         );
         wristMotor.getConfigurator().apply(
                 new SoftwareLimitSwitchConfigs()
-                        .withForwardSoftLimitThreshold(30)
-                        .withReverseSoftLimitThreshold(30)
+                        .withForwardSoftLimitThreshold(HopperConstants.WristForwardSoftLimit)
+                        .withReverseSoftLimitThreshold(HopperConstants.WristReverseSoftLimit)
         );
         wristMotor.getConfigurator().apply(
                 new CurrentLimitsConfigs()
-                        .withStatorCurrentLimit(30)
+                        .withStatorCurrentLimit(HopperConstants.WristCurrentLimit)
         );
         wristEncoder = new DutyCycleEncoder(
             ScoringConstants.IDs.WristEncoderID,

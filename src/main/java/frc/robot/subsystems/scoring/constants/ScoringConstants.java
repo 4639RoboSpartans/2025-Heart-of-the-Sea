@@ -65,6 +65,17 @@ public final class ScoringConstants {
 
         public static final double WRIST_TOLERANCE = 0.1;
 
+        //Limits for Intake
+        public static final double IntakeForwardSoftLimit = 40;
+        public static final double IntakeReverseSoftLimit = 40;
+        public static final int IntakeCurrentLimit = 30;
+
+        //Limits for Wrist
+        public static final double WristForwardSoftLimit = 30;
+        public static final double WristReverseSoftLimit = 30;
+        public static final int WristCurrentLimit = 30;
+
+
         public static final class Proportions {
 
             //Wrist Proportions
@@ -86,6 +97,7 @@ public final class ScoringConstants {
         public static final int ElevatorRightID = 22;
 
         public static final String ElevatorCANBusName = "MainCANivore";
+        public static final String WristCANBusName = "MainCANivore";
 
         public static final int IntakeMotorID = 10;
         public static final int WristMotorID = 11;
