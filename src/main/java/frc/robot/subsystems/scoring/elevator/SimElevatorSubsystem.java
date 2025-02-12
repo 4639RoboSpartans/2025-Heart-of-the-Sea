@@ -11,11 +11,11 @@ import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
-import frc.robot.subsystems.scoring.constants.ScoringConstants;
 import frc.robot.subsystems.scoring.constants.ScoringPIDs;
 
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Volts;
+import static frc.robot.subsystems.scoring.constants.ScoringConstants.ElevatorConstants;
 
 public class SimElevatorSubsystem extends ElevatorSubsystem {
     private final ProfiledPIDController elevatorPID;
@@ -26,38 +26,38 @@ public class SimElevatorSubsystem extends ElevatorSubsystem {
 
     public SimElevatorSubsystem() {
         elevatorPID = new ProfiledPIDController(
-                ScoringPIDs.elevatorKp.get(),
-                ScoringPIDs.elevatorKi.get(),
-                ScoringPIDs.elevatorKd.get(),
-                new TrapezoidProfile.Constraints(
-                        ScoringPIDs.elevatorVelocity.get(),
-                        ScoringPIDs.elevatorAcceleration.get()
-                )
+            ScoringPIDs.elevatorKp.get(),
+            ScoringPIDs.elevatorKi.get(),
+            ScoringPIDs.elevatorKd.get(),
+            new TrapezoidProfile.Constraints(
+                ScoringPIDs.elevatorVelocity.get(),
+                ScoringPIDs.elevatorAcceleration.get()
+            )
         );
         elevatorFeedforward = new ElevatorFeedforward(
-                ScoringPIDs.elevatorKs.get(),
-                ScoringPIDs.elevatorKg.get(),
-                ScoringPIDs.elevatorKv.get(),
-                ScoringPIDs.elevatorKa.get()
+            ScoringPIDs.elevatorKs.get(),
+            ScoringPIDs.elevatorKg.get(),
+            ScoringPIDs.elevatorKv.get(),
+            ScoringPIDs.elevatorKa.get()
         );
         elevatorSim = new ElevatorSim(
-                LinearSystemId.createElevatorSystem(
-                        DCMotor.getKrakenX60(2),
-                        10,
-                        0.0762,
-                        10
-                ),
+            LinearSystemId.createElevatorSystem(
                 DCMotor.getKrakenX60(2),
-                ScoringSuperstructureState.IDLE.getElevatorHeight().in(Meters),
-                ScoringSuperstructureState.BARGE_SCORING.getElevatorHeight().in(Meters),
-                true,
-                ScoringSuperstructureState.IDLE.getElevatorHeight().in(Meters)
+                10,
+                0.0762,
+                10
+            ),
+            DCMotor.getKrakenX60(2),
+            ScoringSuperstructureState.IDLE.getElevatorHeight().in(Meters),
+            ScoringSuperstructureState.BARGE_SCORING.getElevatorHeight().in(Meters),
+            true,
+            ScoringSuperstructureState.IDLE.getElevatorHeight().in(Meters)
         );
     }
 
     @Override
     public double getCurrentPosition() {
-        return ScoringSuperstructureState.getElevatorSimPosition(getCurrentLength());
+        return ElevatorConstants.PositionToHeight.convertBackwards(getCurrentLength());
     }
 
     @Override
@@ -67,7 +67,7 @@ public class SimElevatorSubsystem extends ElevatorSubsystem {
 
     @Override
     public double getTargetPosition() {
-        return ScoringSuperstructureState.getElevatorSimPosition(getTargetLength());
+        return ElevatorConstants.PositionToHeight.convertBackwards(getTargetLength());
     }
 
     @Override
@@ -82,9 +82,9 @@ public class SimElevatorSubsystem extends ElevatorSubsystem {
     @Override
     public boolean isElevatorAtPosition() {
         return MathUtil.isNear(
-                ScoringSuperstructureState.getElevatorSimPosition(getTargetLength()),
-                ScoringSuperstructureState.getElevatorSimPosition(getCurrentLength()),
-                ScoringConstants.ElevatorConstants.ELEVATOR_TOLERANCE
+            getTargetPosition(),
+            getCurrentPosition(),
+            ElevatorConstants.ELEVATOR_TOLERANCE
         );
     }
 
@@ -103,9 +103,9 @@ public class SimElevatorSubsystem extends ElevatorSubsystem {
 
     @Override
     public void runElevator() {
-        elevatorPID.setGoal(ScoringSuperstructureState.getElevatorSimPosition(state.getElevatorHeight()));
+        elevatorPID.setGoal(ElevatorConstants.PositionToHeight.convertBackwards(state.getElevatorHeight()));
         double output = elevatorPID.calculate(getCurrentPosition())
-                + elevatorFeedforward.calculate(elevatorPID.getSetpoint().velocity);
+            + elevatorFeedforward.calculate(elevatorPID.getSetpoint().velocity);
         elevatorSim.setInputVoltage(output);
         SmartDashboard.putNumber("Elevator PID output", output);
         SmartDashboard.putNumber("Elevator Sim Position", getCurrentPosition());
@@ -113,15 +113,15 @@ public class SimElevatorSubsystem extends ElevatorSubsystem {
 
     private void updatePIDs() {
         elevatorPID.setPID(
-                ScoringPIDs.elevatorKp.get(),
-                ScoringPIDs.elevatorKi.get(),
-                ScoringPIDs.elevatorKd.get()
+            ScoringPIDs.elevatorKp.get(),
+            ScoringPIDs.elevatorKi.get(),
+            ScoringPIDs.elevatorKd.get()
         );
         elevatorPID.setConstraints(
-                new TrapezoidProfile.Constraints(
-                        ScoringPIDs.elevatorVelocity.get(),
-                        ScoringPIDs.elevatorAcceleration.get()
-                )
+            new TrapezoidProfile.Constraints(
+                ScoringPIDs.elevatorVelocity.get(),
+                ScoringPIDs.elevatorAcceleration.get()
+            )
         );
     }
 
