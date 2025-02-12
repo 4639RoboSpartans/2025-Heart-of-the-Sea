@@ -12,20 +12,20 @@ public class DriveCommands {
 
     public static Command pathfindToReefCommand(FieldConstants.TargetPositions targetPosition) {
         return Commands.sequence(
-                swerve.pathfindCommand(
+                swerve.pathfindTo(
                         AllianceFlipUtil.apply(
                                 targetPosition.Pose
                         )
                 ),
                 Commands.either(
-                        swerve.pidToPoseCommand(
+                        swerve.directlyMoveTo(
                                 AllianceFlipUtil.apply(
                                         PoseUtil.leftOf(
                                                 targetPosition
                                         )
                                 )
                         ),
-                        swerve.pidToPoseCommand(
+                        swerve.directlyMoveTo(
                                 AllianceFlipUtil.apply(
                                         PoseUtil.rightOf(
                                                 targetPosition

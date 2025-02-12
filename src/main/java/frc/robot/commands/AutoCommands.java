@@ -11,7 +11,7 @@ import java.util.function.Supplier;
 public class AutoCommands {
     private static final CommandSwerveDrivetrain swerve = CommandSwerveDrivetrain.getInstance();
     private static final ScoringSuperstructure superstructure = ScoringSuperstructure.getInstance();
-    public static final Supplier<Command> oneSecondTimeout = () -> swerve.stopCommand().withTimeout(1);
+    public static final Supplier<Command> oneSecondTimeout = () -> swerve.stop().withTimeout(1);
     //TODO: do these need to be suppliers
     public static final Supplier<Command> L4Score =
             () -> Commands.deadline(
@@ -21,7 +21,7 @@ public class AutoCommands {
                             superstructure.setScoringState(ScoringSuperstructureState.IDLE),
                             superstructure.runScoringState().until(superstructure.isStateFinished)
                     ),
-                    swerve.stopCommand()
+                    swerve.stop()
             );
     public static final Supplier<Command> HPLoad =
             () -> Commands.deadline(
@@ -31,6 +31,6 @@ public class AutoCommands {
                             superstructure.setScoringState(ScoringSuperstructureState.IDLE),
                             superstructure.runScoringState().until(superstructure.isStateFinished)
                     ),
-                    swerve.stopCommand()
+                    swerve.stop()
             );
 }
