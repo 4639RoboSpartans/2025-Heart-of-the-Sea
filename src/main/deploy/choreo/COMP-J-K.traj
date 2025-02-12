@@ -1,5 +1,5 @@
 {
- "name":"Path 1",
+ "name":"COMP-J-K",
  "version":1,
  "snapshot":{
   "waypoints":[
@@ -30,7 +30,7 @@
  },
  "params":{
   "waypoints":[
-    {"x":{"exp":"7.561896800994873 m", "val":7.561896800994873}, "y":{"exp":"6.703902721405029 m", "val":6.703902721405029}, "heading":{"exp":"3.141592653589793 rad", "val":3.141592653589793}, "intervals":27, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"LEFT_START.x", "val":7.561896800994873}, "y":{"exp":"LEFT_START.y", "val":6.703902721405029}, "heading":{"exp":"LEFT_START.heading", "val":3.141592653589793}, "intervals":27, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"5.6454176902771 m", "val":5.6454176902771}, "y":{"exp":"5.787247657775879 m", "val":5.787247657775879}, "heading":{"exp":"-2.1462205062541533 rad", "val":-2.1462205062541533}, "intervals":26, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"5.084397792816162 m", "val":5.084397792816162}, "y":{"exp":"5.409418106079102 m", "val":5.409418106079102}, "heading":{"exp":"-2.0899420506707704 rad", "val":-2.0899420506707704}, "intervals":23, "split":true, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"4.237143516540527 m", "val":4.237143516540527}, "y":{"exp":"5.958988666534424 m", "val":5.958988666534424}, "heading":{"exp":"0 deg", "val":0.0}, "intervals":28, "split":false, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
@@ -237,10 +237,5 @@
     {"t":4.69608, "x":3.83642, "y":5.36362, "heading":-1.07145, "vx":0.0, "vy":0.0, "omega":0.0, "ax":0.0, "ay":0.0, "alpha":0.0, "fx":[0.0,0.0,0.0,0.0], "fy":[0.0,0.0,0.0,0.0]}],
   "splits":[0,53,120]
  },
- "events":[
-   {"name":"Score", "from":{"target":2, "targetTimestamp":1.44052, "offset":{"exp":"0 s", "val":0.0}}, "event":null},
-   {"name":"Coral Station Pickup", "from":{"target":5, "targetTimestamp":3.1591, "offset":{"exp":"0 s", "val":0.0}}, "event":null},
-   {"name":"Score", "from":{"target":7, "targetTimestamp":4.69608, "offset":{"exp":"0 s", "val":0.0}}, "event":null},
-   {"name":"Marker", "from":{"target":5, "targetTimestamp":3.1591, "offset":{"exp":"0 s", "val":0.0}}, "event":null},
-   {"name":"Marker", "from":{"target":5, "targetTimestamp":3.1591, "offset":{"exp":"0 s", "val":0.0}}, "event":null}]
+ "events":[]
 }
