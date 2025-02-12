@@ -1,6 +1,7 @@
 package frc.robot.subsystems.drive.constants;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Rotation2d;
 
 public class DriveConstants {
     public static final double centerToWheel = 0.245;
@@ -14,4 +15,7 @@ public class DriveConstants {
     public static final PIDController choreoY = new PIDController(7, 0, 0.1);
     public static final PIDController choreoRotation = new PIDController(4, 0, 0.1);
     public static final double TIME_BEFORE_INTAKE_START = 1;
+
+    public static final Rotation2d BlueAlliancePerspectiveRotation = Rotation2d.kZero;
+    public static final Rotation2d RedAlliancePerspectiveRotation = Rotation2d.k180deg;
 }

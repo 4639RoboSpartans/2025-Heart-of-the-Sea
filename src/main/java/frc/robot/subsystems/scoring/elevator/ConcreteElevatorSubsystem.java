@@ -1,36 +1,41 @@
 package frc.robot.subsystems.scoring.elevator;
 
 import com.ctre.phoenix6.SignalLogger;
-import com.ctre.phoenix6.configs.*;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
+import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.lib.Helpers;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
 import frc.robot.subsystems.scoring.constants.ScoringPIDs;
 
-import static edu.wpi.first.units.Units.*;
-
 public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
-    private final TalonFX leftElevator, rightElevator;
+    private final TalonFX leftElevatorMotor, rightElevatorMotor;
     private final MotionMagicVoltage controlRequest;
 
-    private final SysIdRoutine elevatorRoutine;
+    private ScoringSuperstructureState state = ScoringSuperstructureState.IDLE;
+
+
+    private boolean isStateFinished = false;
 
     public ConcreteElevatorSubsystem() {
-        leftElevator = new TalonFX(ScoringConstants.IDs.ElevatorLeftID);
-        rightElevator = new TalonFX(ScoringConstants.IDs.ElevatorRightID);
-        leftElevator.setNeutralMode(NeutralModeValue.Brake);
-        rightElevator.setNeutralMode(NeutralModeValue.Brake);
-        var leftConfigurator = leftElevator.getConfigurator();
-        TalonFXConfiguration leftConfiguration = new TalonFXConfiguration()
+        leftElevatorMotor = new TalonFX(ScoringConstants.IDs.ElevatorLeftID, ScoringConstants.IDs.ElevatorCANBusName);
+        rightElevatorMotor = new TalonFX(ScoringConstants.IDs.ElevatorRightID, ScoringConstants.IDs.ElevatorCANBusName);
+        leftElevatorMotor.setNeutralMode(NeutralModeValue.Brake);
+        rightElevatorMotor.setNeutralMode(NeutralModeValue.Brake);
+        var leftConfigurator = leftElevatorMotor.getConfigurator();
+        var rightConfigurator = rightElevatorMotor.getConfigurator();
+        TalonFXConfiguration configuration = new TalonFXConfiguration()
                 .withMotionMagic(
                         new MotionMagicConfigs()
                                 .withMotionMagicAcceleration(ScoringPIDs.elevatorAcceleration.get())
@@ -40,64 +45,86 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
                                 .withKP(ScoringPIDs.elevatorKp.get())
                                 .withKI(ScoringPIDs.elevatorKi.get())
                                 .withKD(ScoringPIDs.elevatorKd.get())
-                );
-        leftConfigurator.apply(leftConfiguration);
-        rightElevator.setControl(new Follower(ScoringConstants.IDs.ElevatorLeftID, true));
-        controlRequest = new MotionMagicVoltage(leftElevator.getPosition().getValueAsDouble());
-
-        elevatorRoutine = new SysIdRoutine(
-                new SysIdRoutine.Config(
-                        Volts.of(4).per(Second),
-                        Volts.of(3),
-                        Seconds.of(1.75),
-                        (state) -> SignalLogger.writeString("state", state.toString())
-                ),
-                new SysIdRoutine.Mechanism(
-                        output -> leftElevator.setControl(new VoltageOut(output.in(Volts))),
-                        null,
-                        this
+                                .withKA(ScoringPIDs.elevatorKa.get())
+                                .withKS(ScoringPIDs.elevatorKs.get())
+                                .withKV(ScoringPIDs.elevatorKv.get())
+                                .withKG(ScoringPIDs.elevatorKg.get())
+                                .withGravityType(GravityTypeValue.Elevator_Static)
                 )
-        );
+                .withCurrentLimits(
+                        new CurrentLimitsConfigs()
+                                .withStatorCurrentLimit(
+                                        30
+                                )
+                );
+
+        leftConfigurator.apply(configuration);
+        rightConfigurator.apply(configuration);
+        leftElevatorMotor.setNeutralMode(NeutralModeValue.Brake);
+        rightElevatorMotor.setNeutralMode(NeutralModeValue.Brake);
+        rightElevatorMotor.setControl(new Follower(ScoringConstants.IDs.ElevatorLeftID, true));
+        controlRequest = new MotionMagicVoltage(leftElevatorMotor.getPosition().getValueAsDouble());
     }
 
-    public void setElevator(ScoringSuperstructureState state) {
-        controlRequest.Position = state.getElevatorAbsolutePosition();
-    }
-
-    public void runElevator() {
-// //        only uncomment this when the upper and lower positions are initialized
-//        leftElevator.setControl(controlRequest);
-        SmartDashboard.putNumber("output", leftElevator.getMotorVoltage().getValueAsDouble());
-    }
-
-    protected boolean atState() {
-        return MathUtil.isNear(
-                controlRequest.Position,
-                leftElevator.getPosition().getValueAsDouble(),
-                ScoringConstants.ElevatorConstants.ELEVATOR_TOLERANCE
-        );
-    }
-
+    @Override
     public double getCurrentPosition() {
-        return leftElevator.getPosition().getValueAsDouble();
+        return leftElevatorMotor.getPosition(true).getValueAsDouble();
+    }
+
+    @Override
+    public Distance getCurrentLength() {
+        return ScoringSuperstructureState.getElevatorSimDistance(getCurrentPosition());
     }
 
     @Override
     public double getTargetPosition() {
-        return controlRequest.Position;
+        return state.getElevatorAbsolutePosition();
+    }
+
+    @Override
+    public Distance getTargetLength() {
+        return ScoringSuperstructureState.getElevatorSimDistance(getTargetPosition());
+    }
+
+    public boolean isElevatorStateFinished() {
+        return isStateFinished;
+    }
+
+    public boolean isElevatorAtPosition() {
+        return MathUtil.isNear(
+                controlRequest.Position,
+                leftElevatorMotor.getPosition().getValueAsDouble(),
+                ScoringConstants.ElevatorConstants.ELEVATOR_TOLERANCE
+        );
+    }
+
+    public void setElevatorState(ScoringSuperstructureState state) {
+        this.state = state;
+        isStateFinished = false;
+        controlRequest.Position = state.getElevatorAbsolutePosition();
+    }
+
+    public void runElevator() {
+        leftElevatorMotor.setControl(controlRequest);
+        SmartDashboard.putNumber("output", leftElevatorMotor.getMotorVoltage().getValueAsDouble());
     }
 
     @Override
     public void periodic() {
-        runElevator();
-        SmartDashboard.putBoolean("At State", atState());
+        if (isElevatorAtPosition()) {
+            isStateFinished = true;
+        }
+        SmartDashboard.putNumber("Elevator Position", getCurrentPosition());
+        SmartDashboard.putNumber("Elevator Proportion", ScoringConstants.ElevatorConstants.ProportionToPosition.convertBackwards(getCurrentPosition()));
+        SmartDashboard.putBoolean("At State", isElevatorAtPosition());
+        SignalLogger.writeDouble("Elevator Position", leftElevatorMotor.getPosition().getValueAsDouble());
+        SignalLogger.writeDouble("Elevator Velocity", leftElevatorMotor.getVelocity().getValueAsDouble());
+        SignalLogger.writeDouble("Elevator Acceleration", leftElevatorMotor.getAcceleration().getValueAsDouble());
+        SignalLogger.writeDouble("Elevator Volage", leftElevatorMotor.getMotorVoltage().getValueAsDouble());
     }
 
-    public Command quasistatic(SysIdRoutine.Direction direction) {
-        return elevatorRoutine.quasistatic(direction);
-    }
-
-    public Command dynamic(SysIdRoutine.Direction direction) {
-        return elevatorRoutine.dynamic(direction);
+    @Override
+    public void setElevatorMotorVoltsSysID(Voltage voltage) {
+        leftElevatorMotor.setControl(new VoltageOut(voltage));
     }
 }

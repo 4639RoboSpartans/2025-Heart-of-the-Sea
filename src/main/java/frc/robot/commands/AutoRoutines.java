@@ -1,9 +1,17 @@
 package frc.robot.commands;
 
+import java.util.ArrayList;
+import java.util.function.Supplier;
+import java.util.stream.IntStream;
+
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
+import frc.robot.subsystems.scoring.ScoringSuperstructure;
+import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 
 public class AutoRoutines {
     private final AutoFactory factory;
@@ -12,51 +20,83 @@ public class AutoRoutines {
         this.factory = factory;
     }
 
-    public AutoRoutine branching2024Auto() {
-        AutoRoutine routine = factory.newRoutine("branching2024Auto");
+    public AutoRoutine auto1() {
+        var pathName = "Path 1";
+        var numPaths = 3;
+        AutoRoutine routine = factory.newRoutine(pathName);
 
-        // This routine uses segments between pre-defined handoff points.
-        // Expand the tooltip for information about their naming convention ->
+        ArrayList<AutoTrajectory> paths = new ArrayList<AutoTrajectory>();
+        for (int i : IntStream.range(0, numPaths).toArray()) paths.add(routine.trajectory(pathName, i));
 
-        // Load the routine's trajectories
-        AutoTrajectory startToC2 = routine.trajectory("");
+        routine.active().onTrue(Commands.sequence(
+                paths.get(0).resetOdometry(),
+                paths.get(0).cmd(),
+                AutoCommands.L4Score.get(),
+                paths.get(1).cmd(),
+                AutoCommands.HPLoad.get(),
+                paths.get(2).cmd(),
+                AutoCommands.L4Score.get()
+        ));
+        return routine;
+    }
 
-        // When the routine starts, reset odometry, shoot the first gamepiece, then go to the "C2" location
-        routine.active().onTrue(
-                Commands.sequence(
-                        startToC2.resetOdometry(),
-                        startToC2.cmd()
-                )
-        );
+    public AutoRoutine auto2() {
+        var pathName = "Path 2";
+        var numPaths = 3;
+        AutoRoutine routine = factory.newRoutine(pathName);
 
-//        // Pick up and shoot the gamepiece at the "C2" location, then go to the "M1" location
-//        startToC2.active().whileTrue(intakeSubsystem.intake());
-//        startToC2.done().onTrue(shooterSubsystem.shoot().andThen(C2toM1.cmd()));
-//
-//        // Run the intake when we are approaching a gamepiece
-//        routine.anyActive(C2toM1, scoreToM2, scoreToM3, M1toM2, M2toM3) //
-//                .whileTrue(intakeSubsystem.intake());
+        ArrayList<AutoTrajectory> paths = new ArrayList<AutoTrajectory>();
+        for (int i : IntStream.range(0, numPaths).toArray()) paths.add(routine.trajectory(pathName, i));
 
-        // If we picked up the gamepiece, go score, then go to the next midline location
-        // If we didn't pick up the gamepiece, go directly to the next midline location
+        routine.active().onTrue(Commands.sequence(
+                paths.get(0).resetOdometry(),
+                paths.get(0).cmd(),
+                AutoCommands.L4Score.get(),
+                paths.get(1).cmd(),
+                AutoCommands.HPLoad.get(),
+                paths.get(2).cmd(),
+                AutoCommands.L4Score.get()
+        ));
+        return routine;
+    }
 
-//        // M1
-//        Trigger atM1 = C2toM1.done();
-//        atM1.and(shooterSubsystem::noGamepiece).onTrue(M1toM2.cmd());
-//        atM1.and(shooterSubsystem::hasGamepiece).onTrue(M1toScore.cmd());
-//        M1toScore.done().onTrue(shooterSubsystem.shoot().andThen(scoreToM2.cmd()));
-//
-//        // M2
-//        Trigger atM2 = routine.anyDone(scoreToM2, M1toM2); //
-//        atM2.and(shooterSubsystem::noGamepiece).onTrue(M2toM3.cmd());
-//        atM2.and(shooterSubsystem::hasGamepiece).onTrue(M2toScore.cmd());
-//        M2toScore.done().onTrue(shooterSubsystem.shoot().andThen(scoreToM3.cmd()));
-//
-//        // M3
-//        Trigger atM3 = routine.anyDone(scoreToM3, M2toM3);
-//        atM3.and(shooterSubsystem::hasGamepiece).onTrue(M3toScore.cmd());
-//        M3toScore.done().onTrue(shooterSubsystem.shoot());
+    public AutoRoutine auto3() {
+        var pathName = "Path 3";
+        var numPaths = 3;
+        AutoRoutine routine = factory.newRoutine(pathName);
 
+        ArrayList<AutoTrajectory> paths = new ArrayList<AutoTrajectory>();
+        for (int i : IntStream.range(0, numPaths).toArray()) paths.add(routine.trajectory(pathName, i));
+
+        routine.active().onTrue(Commands.sequence(
+                paths.get(0).resetOdometry(),
+                paths.get(0).cmd(),
+                AutoCommands.L4Score.get(),
+                paths.get(1).cmd(),
+                AutoCommands.HPLoad.get(),
+                paths.get(2).cmd(),
+                AutoCommands.L4Score.get()
+        ));
+        return routine;
+    }
+
+    public AutoRoutine auto4() {
+        var pathName = "Path 4";
+        var numPaths = 3;
+        AutoRoutine routine = factory.newRoutine(pathName);
+
+        ArrayList<AutoTrajectory> paths = new ArrayList<AutoTrajectory>();
+        for (int i : IntStream.range(0, numPaths).toArray()) paths.add(routine.trajectory(pathName, i));
+
+        routine.active().onTrue(Commands.sequence(
+                paths.get(0).resetOdometry(),
+                paths.get(0).cmd(),
+                AutoCommands.L4Score.get(),
+                paths.get(1).cmd(),
+                AutoCommands.HPLoad.get(),
+                paths.get(2).cmd(),
+                AutoCommands.L4Score.get()
+        ));
         return routine;
     }
 }

@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public class Controller {
-    private static final double DEADZONE_VALUE = 0.08;
+    private static final double DEADZONE_VALUE = 0.1;
 
     private final XboxController controller;
 
@@ -99,7 +99,7 @@ public class Controller {
      * Gets the right joystick's x axis, a number from -1 (left) to 1 (right)
      */
     public double rightStickX() {
-        return applyDeadzone(controller.getRightX());
+        return applyDeadzone(-controller.getRightX());
     }
 
     /**

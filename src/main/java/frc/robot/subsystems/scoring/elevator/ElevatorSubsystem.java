@@ -1,37 +1,42 @@
 package frc.robot.subsystems.scoring.elevator;
 
-import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.Robot;
+import frc.robot.robot.Robot;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
+
+import java.util.Objects;
 
 public abstract class ElevatorSubsystem extends SubsystemBase {
     private static ElevatorSubsystem instance;
 
     public static ElevatorSubsystem getInstance() {
-        if (instance == null) {
-            instance = new ConcreteElevatorSubsystem();
+        if (Robot.isReal()) {
+            return instance = Objects.requireNonNullElseGet(instance, ConcreteElevatorSubsystem::new);
+        } else {
+            return instance = Objects.requireNonNullElseGet(instance, SimElevatorSubsystem::new);
         }
-        return instance;
     }
-
-    public abstract void setElevator(ScoringSuperstructureState state);
-
-    public abstract void runElevator();
-
-    protected abstract boolean atState();
 
     public abstract double getCurrentPosition();
 
-    public Trigger atRequestedStateTrigger() {
-        return new Trigger(this::atState);
-    }
+    public abstract Distance getCurrentLength();
 
     public abstract double getTargetPosition();
 
-    public abstract Command quasistatic(SysIdRoutine.Direction direction);
+    public abstract Distance getTargetLength();
 
-    public abstract Command dynamic(SysIdRoutine.Direction direction);
+    public abstract boolean isElevatorAtPosition();
+    public final Trigger isElevatorAtPosition = new Trigger(this::isElevatorAtPosition);
+
+    public abstract boolean isElevatorStateFinished();
+    public Trigger isElevatorStateFinished = new Trigger(this::isElevatorStateFinished);
+
+    public abstract void setElevatorState(ScoringSuperstructureState state);
+
+    public abstract void runElevator();
+
+    public abstract void setElevatorMotorVoltsSysID(Voltage voltage);
 }
