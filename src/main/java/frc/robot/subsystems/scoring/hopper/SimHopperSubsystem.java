@@ -14,7 +14,7 @@ import frc.robot.subsystems.scoring.constants.ScoringConstants;
 import frc.robot.subsystems.scoring.constants.ScoringPIDs;
 
 public class SimHopperSubsystem extends HopperSubsystem {
-    private static final double secondsUntilIntakeOuttakeEnd = 1;
+    private static final double secondsUntilIntakeOuttakeEnd = 0.25;
 
     private final ProfiledPIDController pivotPID;
     private final SingleJointedArmSim pivotSim;
@@ -94,6 +94,7 @@ public class SimHopperSubsystem extends HopperSubsystem {
 
     @Override
     public boolean isHopperStateFinished() {
+        if (state == ScoringSuperstructureState.IDLE) return isHopperAtPosition();
         return isStateFinished;
     }
 

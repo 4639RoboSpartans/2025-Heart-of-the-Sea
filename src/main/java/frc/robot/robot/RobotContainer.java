@@ -5,6 +5,7 @@
 
 package frc.robot.robot;
 
+import choreo.auto.AutoRoutine;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -19,6 +20,7 @@ import frc.robot.subsystems.scoring.ScoringSuperstructure;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 
 import java.util.Arrays;
+import java.util.List;
 
 
 public class RobotContainer {
@@ -32,19 +34,14 @@ public class RobotContainer {
     public RobotContainer() {
         configureBindings();
 
-        AutoRoutines swerveAutoRoutines = SwerveAutoRoutinesCreator.createAutoRoutines(swerve);
-
         autoChooser = new SendableChooser<>();
-        autoChooser.addOption("Auto 1", swerveAutoRoutines.auto1().cmd());
-        autoChooser.addOption("Auto 2", swerveAutoRoutines.auto2().cmd());
-        autoChooser.addOption("Auto 3", swerveAutoRoutines.auto3().cmd());
-        autoChooser.addOption("Auto 4", swerveAutoRoutines.auto4().cmd());
+        addAllCompAutons(autoChooser);
         SmartDashboard.putData("Auto Chooser", autoChooser);
 
         startPositionChooser.setDefaultOption("DEFAULT", new Pose2d());
         SmartDashboard.putBoolean("pigeon reset", false);
         Arrays.stream(FieldConstants.AutonStartingPositions.values()).forEach(
-            position -> startPositionChooser.addOption(position.name(), position.Pose)
+                position -> startPositionChooser.addOption(position.name(), position.Pose)
         );
         SmartDashboard.putData("Selected Reset Position", startPositionChooser);
     }
@@ -137,6 +134,15 @@ public class RobotContainer {
                     FieldConstants.TargetPositions.REEF_5
                 )
             );
+        }
+    }
+
+    private void addAllCompAutons(SendableChooser<Command> autoChooser) {
+        AutoRoutines swerveAutoRoutines = SwerveAutoRoutinesCreator.createAutoRoutines(swerve);
+
+        List<AutoRoutine> allCompAutons = SwerveAutoRoutinesCreator.createAutoRoutines(swerve).getAllCompRoutines();
+        for (AutoRoutine a : allCompAutons) {
+            autoChooser.addOption(a.toString(), a.cmd());
         }
     }
 

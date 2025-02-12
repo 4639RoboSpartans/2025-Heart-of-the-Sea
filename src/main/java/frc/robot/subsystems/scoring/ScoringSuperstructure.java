@@ -132,10 +132,6 @@ public class ScoringSuperstructure extends SubsystemBase {
         } else if (RobotState.isTeleop() && !state.control.getAsBoolean()) {
             setState(ScoringSuperstructureState.IDLE);
         }
-        SmartDashboard.putBoolean("Scoring Superstructure State Finished", isStateFinished());
-        SmartDashboard.putBoolean("Scoring Superstructure At Position", isAtPosition());
-        SmartDashboard.putBoolean("Elevator At Position", elevator.isElevatorAtPosition());
-        SmartDashboard.putBoolean("Hopper At Position", hopper.isHopperAtPosition());
     }
 
     /**
