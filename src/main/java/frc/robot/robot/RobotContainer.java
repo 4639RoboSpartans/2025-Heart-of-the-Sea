@@ -5,6 +5,7 @@
 
 package frc.robot.robot;
 
+import choreo.auto.AutoRoutine;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -17,6 +18,7 @@ import frc.robot.subsystems.scoring.ScoringSuperstructure;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 
 import java.util.Arrays;
+import java.util.List;
 
 
 public class RobotContainer {
@@ -25,24 +27,21 @@ public class RobotContainer {
     @SuppressWarnings("unused")
     private final RobotSim robotSim = new RobotSim();
     private final SendableChooser<Command> autoChooser;
-    private final SendableChooser<Pose2d> m_startPositionChooser = new SendableChooser<>();
+    private final SendableChooser<Pose2d> startPositionChooser = new SendableChooser<>();
 
     public RobotContainer() {
         configureBindings();
 
         autoChooser = new SendableChooser<>();
-        autoChooser.addOption("Auto 1", swerve.getAutoRoutines().auto1().cmd());
-        autoChooser.addOption("Auto 2", swerve.getAutoRoutines().auto2().cmd());
-        autoChooser.addOption("Auto 3", swerve.getAutoRoutines().auto3().cmd());
-        autoChooser.addOption("Auto 4", swerve.getAutoRoutines().auto4().cmd());
+        addAllCompAutons(autoChooser);
         SmartDashboard.putData("Auto Chooser", autoChooser);
 
-        m_startPositionChooser.setDefaultOption("DEFAULT", new Pose2d());
+        startPositionChooser.setDefaultOption("DEFAULT", new Pose2d());
         SmartDashboard.putBoolean("pigeon reset", false);
         Arrays.stream(FieldConstants.AutonStartingPositions.values()).forEach(
-                position -> m_startPositionChooser.addOption(position.name(), position.Pose)
+                position -> startPositionChooser.addOption(position.name(), position.Pose)
         );
-        SmartDashboard.putData("Selected Reset Position", m_startPositionChooser);
+        SmartDashboard.putData("Selected Reset Position", startPositionChooser);
     }
 
     private void configureBindings() {
@@ -133,6 +132,13 @@ public class RobotContainer {
                             FieldConstants.TargetPositions.REEF_5
                     )
             );
+        }
+    }
+
+    private void addAllCompAutons(SendableChooser<Command> autoChooser) {
+        List<AutoRoutine> allCompAutons = swerve.getAutoRoutines().getAllCompRoutines();
+        for (AutoRoutine a : allCompAutons) {
+            autoChooser.addOption(a.toString(), a.cmd());
         }
     }
 

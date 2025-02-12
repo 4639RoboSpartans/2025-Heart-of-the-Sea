@@ -24,8 +24,6 @@ public class SimElevatorSubsystem extends ElevatorSubsystem {
 
     private ScoringSuperstructureState state = ScoringSuperstructureState.IDLE;
 
-    private boolean isStateFinished = false;
-
     public SimElevatorSubsystem() {
         elevatorPID = new ProfiledPIDController(
                 ScoringPIDs.elevatorKp.get(),
@@ -78,7 +76,7 @@ public class SimElevatorSubsystem extends ElevatorSubsystem {
     }
 
     public boolean isElevatorStateFinished() {
-        return isStateFinished;
+        return isElevatorAtPosition();
     }
 
     @Override
@@ -101,10 +99,6 @@ public class SimElevatorSubsystem extends ElevatorSubsystem {
         updatePIDs();
         elevatorSim.update(0.020);
         elevatorSim.setState(elevatorSim.getPositionMeters(), elevatorSim.getVelocityMetersPerSecond());
-
-        if (isElevatorAtPosition()) {
-            isStateFinished = true;
-        }
     }
 
     @Override

@@ -12,25 +12,21 @@ public class AutoCommands {
     private static final CommandSwerveDrivetrain swerve = CommandSwerveDrivetrain.getInstance();
     private static final ScoringSuperstructure superstructure = ScoringSuperstructure.getInstance();
     public static final Supplier<Command> oneSecondTimeout = () -> swerve.stopCommand().withTimeout(1);
-    //TODO: do these need to be suppliers
-    public static final Supplier<Command> L4Score =
-            () -> Commands.deadline(
-                    Commands.sequence(
-                            superstructure.setScoringState(ScoringSuperstructureState.L4),
-                            superstructure.runScoringState().until(superstructure.isStateFinished),
-                            superstructure.setScoringState(ScoringSuperstructureState.IDLE),
-                            superstructure.runScoringState().until(superstructure.isStateFinished)
-                    ),
-                    swerve.stopCommand()
-            );
-    public static final Supplier<Command> HPLoad =
-            () -> Commands.deadline(
-                    Commands.sequence(
-                            superstructure.setScoringState(ScoringSuperstructureState.HP_LOADING),
-                            superstructure.runScoringState().until(superstructure.isStateFinished),
-                            superstructure.setScoringState(ScoringSuperstructureState.IDLE),
-                            superstructure.runScoringState().until(superstructure.isStateFinished)
-                    ),
-                    swerve.stopCommand()
-            );
+    public static final Supplier<Command> L4Score = () -> getScoringSuperstructureCommand(ScoringSuperstructureState.L4);
+    public static final Supplier<Command> L3Score = () -> getScoringSuperstructureCommand(ScoringSuperstructureState.L3);
+    public static final Supplier<Command> L2Score = () -> getScoringSuperstructureCommand(ScoringSuperstructureState.L2);
+    public static final Supplier<Command> L1Score = () -> getScoringSuperstructureCommand(ScoringSuperstructureState.L1);
+    public static final Supplier<Command> HPLoad = () -> getScoringSuperstructureCommand(ScoringSuperstructureState.HP_LOADING);
+
+    private static Command getScoringSuperstructureCommand(ScoringSuperstructureState state) {
+        return Commands.deadline(
+                Commands.sequence(
+                        superstructure.setScoringState(state),
+                        superstructure.runScoringState().until(superstructure.isStateFinished),
+                        superstructure.setScoringState(ScoringSuperstructureState.IDLE),
+                        superstructure.runScoringState().until(superstructure.isStateFinished)
+                ),
+                swerve.stopCommand()
+        );
+    }
 }

@@ -34,7 +34,7 @@ public final class ScoringConstants {
         public static final class Proportions {
             //Elevator proportions
             public static final double IDLE_Proportion = 0.0;
-            public static final double HP_Proportion = 0;
+            public static final double HP_Proportion = 0.2;
             public static final double L1_Proportion = 0.15;
             public static final double L2_Proportion = 0.25;
             public static final double L3_Proportion = 0.4;
