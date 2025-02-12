@@ -7,7 +7,7 @@ import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.PackagePrivate;
-import frc.robot.commands.IDs;
+import frc.robot.constants.IDs;
 
 import java.util.function.DoubleSupplier;
 
@@ -26,6 +26,7 @@ class ConcreteClimberSubsystem extends ClimberSubsystem {
         SparkBaseConfig cfg = new SparkFlexConfig()
             .idleMode(SparkBaseConfig.IdleMode.kBrake)
             .smartCurrentLimit(30); // TODO: use a better value
+            //On a full size neo 40-60 should be fine -- Jasper
 
         leftPivot.configure(cfg, SparkBase.ResetMode.kNoResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
         rightPivot = new SparkFlex(IDs.RIGHT_CLIMBER_MOTOR, SparkLowLevel.MotorType.kBrushless);
