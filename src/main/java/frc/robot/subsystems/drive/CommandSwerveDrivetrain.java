@@ -34,6 +34,7 @@ import frc.robot.constants.Controls;
 import frc.robot.subsystems.drive.constants.DriveConstants;
 import frc.robot.subsystems.drive.constants.DrivePIDs;
 import frc.robot.subsystems.drive.constants.TunerConstants;
+import frc.robot.subsystems.scoring.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
 
 import java.util.Objects;
@@ -130,6 +131,9 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
 
         if (Controls.Driver.precisionTrigger.getAsBoolean()) {
             chassisSpeeds = chassisSpeeds.div(4.0);
+        }
+        else{
+            chassisSpeeds = chassisSpeeds.times(getSwerveSpeedMultiplier());
         }
 
         SwerveSetpoint setpoint = swerveSetpointGenerator.generateSetpoint(
@@ -321,5 +325,10 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
             getPigeon2().getAccelerationX().getValueAsDouble(),
             getPigeon2().getAccelerationY().getValueAsDouble()
         );
+    }
+
+    //Slows the robot swerve when the elevator is raised. Reduction is proportional to the proportional height of the elevator.
+    public double getSwerveSpeedMultiplier(){
+        return 1 - Math.pow(ElevatorSubsystem.getInstance().getCurrentProportion(), 3) / 2;
     }
 }
