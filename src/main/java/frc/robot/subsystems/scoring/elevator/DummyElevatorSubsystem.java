@@ -25,7 +25,7 @@ public class DummyElevatorSubsystem extends ElevatorSubsystem {
     }
 
     @Override
-    public void setElevatorState(ScoringSuperstructureState state) {
+    public void updateElevatorState(ScoringSuperstructureState state) {
         this.state = state;
     }
 

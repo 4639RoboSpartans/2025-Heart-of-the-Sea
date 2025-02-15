@@ -91,7 +91,7 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
     }
 
     @Override
-    public void setElevatorState(ScoringSuperstructureState state) {
+    public void updateElevatorState(ScoringSuperstructureState state) {
         this.state = state;
         isStateFinished = false;
         controlRequest.Position = getTargetPosition();

@@ -75,7 +75,7 @@ public class SimElevatorSubsystem extends ElevatorSubsystem {
     }
 
     @Override
-    public void setElevatorState(ScoringSuperstructureState state) {
+    public void updateElevatorState(ScoringSuperstructureState state) {
         this.state = state;
         elevatorPID.setGoal(state.getElevatorAbsolutePosition());
     }

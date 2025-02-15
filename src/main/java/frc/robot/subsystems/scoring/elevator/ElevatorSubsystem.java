@@ -37,7 +37,7 @@ public abstract class ElevatorSubsystem extends SubsystemBase {
      * Get the current position of the elevator. This is used by PID.
      */
     public double getCurrentPosition() {
-        return ProportionToPosition.convertBackwards(getCurrentProportion());
+        return ProportionToPosition.convert(getCurrentProportion());
     }
 
     /**
@@ -82,7 +82,7 @@ public abstract class ElevatorSubsystem extends SubsystemBase {
     /**
      * Set the current state of the elevator
      */
-    public abstract void setElevatorState(ScoringSuperstructureState state);
+    public abstract void updateElevatorState(ScoringSuperstructureState state);
 
     /**
      * Runs the elevator
