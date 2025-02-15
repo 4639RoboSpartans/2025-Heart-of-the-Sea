@@ -32,6 +32,10 @@ public class RobotContainer {
     private final SendableChooser<Pose2d> startPositionChooser = new SendableChooser<>();
 
     public RobotContainer() {
+        // create auto routines here because we're configuring AutoBuilder in this method
+        //TODO: take this out when we correctly refactor configurAutoBuilder to a new place
+        AutoRoutines swerveAutoRoutines = SwerveAutoRoutinesCreator.createAutoRoutines(swerve);
+
         configureBindings();
 
         autoChooser = new SendableChooser<>();
@@ -138,8 +142,6 @@ public class RobotContainer {
     }
 
     private void addAllCompAutons(SendableChooser<Command> autoChooser) {
-        AutoRoutines swerveAutoRoutines = SwerveAutoRoutinesCreator.createAutoRoutines(swerve);
-
         List<AutoRoutine> allCompAutons = SwerveAutoRoutinesCreator.createAutoRoutines(swerve).getAllCompRoutines();
         for (AutoRoutine a : allCompAutons) {
             autoChooser.addOption(a.toString(), a.cmd());
