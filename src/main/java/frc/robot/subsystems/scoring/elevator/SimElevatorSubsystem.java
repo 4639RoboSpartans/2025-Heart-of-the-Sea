@@ -26,19 +26,19 @@ public class SimElevatorSubsystem extends ElevatorSubsystem {
 
     public SimElevatorSubsystem() {
         elevatorPID = new ProfiledPIDController(
-                ScoringPIDs.elevatorKp.get(),
-                ScoringPIDs.elevatorKi.get(),
-                ScoringPIDs.elevatorKd.get(),
+                ScoringPIDs.simElevatorKp.get(),
+                ScoringPIDs.simElevatorKi.get(),
+                ScoringPIDs.simElevatorKd.get(),
                 new TrapezoidProfile.Constraints(
-                        ScoringPIDs.elevatorVelocity.get(),
-                        ScoringPIDs.elevatorAcceleration.get()
+                        ScoringPIDs.simElevatorVelocity.get(),
+                        ScoringPIDs.simElevatorAcceleration.get()
                 )
         );
         elevatorFeedforward = new ElevatorFeedforward(
-                ScoringPIDs.elevatorKs.get(),
-                ScoringPIDs.elevatorKg.get(),
-                ScoringPIDs.elevatorKv.get(),
-                ScoringPIDs.elevatorKa.get()
+                ScoringPIDs.simElevatorKs.get(),
+                ScoringPIDs.simElevatorKg.get(),
+                ScoringPIDs.simElevatorKv.get(),
+                ScoringPIDs.simElevatorKa.get()
         );
         elevatorSim = new ElevatorSim(
                 LinearSystemId.createElevatorSystem(

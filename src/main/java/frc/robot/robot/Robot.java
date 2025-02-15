@@ -7,8 +7,12 @@ package frc.robot.robot;
 
 import com.ctre.phoenix6.SignalLogger;
 
+import edu.wpi.first.epilogue.logging.EpilogueBackend;
+import edu.wpi.first.epilogue.logging.NTEpilogueBackend;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -20,6 +24,8 @@ import org.littletonrobotics.junction.Logger;
 
 public class Robot extends LoggedRobot {
     private Command autonomousCommand;
+    private StructArrayPublisher<Pose3d> componentPoses = NetworkTableInstance.getDefault()
+            .getStructArrayTopic("zeroed component poses", Pose3d.struct).publish();
 
     private final RobotContainer robotContainer;
 
@@ -31,96 +37,92 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void robotInit() {
-        Logger.start();
         ScoringSuperstructure.getInstance().setDefaultCommand(ScoringSuperstructure.getInstance().runScoringState());
     }
-    
-    
+
+
     @Override
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
-        Logger.recordOutput(
-                "Robot Pose", new Pose2d()
+        componentPoses.set(
+                new Pose3d[] {
+                        new Pose3d(),
+                        new Pose3d(),
+                        new Pose3d(),
+                        new Pose3d()
+                }
         );
-        Logger.recordOutput(
-                "ZeroedComponentPoses",
-                new Pose3d(),
-                new Pose3d(),
-                new Pose3d(),
-                new Pose3d());
-        Logger.recordOutput(
-                "FinalComponentPoses",
-                new Pose3d(),
-                new Pose3d(),
-                new Pose3d(),
-                new Pose3d());
     }
-    
-    
+
+
     @Override
     public void disabledInit() {
 
     }
-    
-    
+
+
     @Override
-    public void disabledPeriodic() {}
-    
-    
+    public void disabledPeriodic() {
+    }
+
+
     @Override
-    public void disabledExit() {}
-    
-    
+    public void disabledExit() {
+    }
+
+
     @Override
-    public void autonomousInit()
-    {
+    public void autonomousInit() {
         autonomousCommand = robotContainer.getAutonomousCommand();
 
         if (autonomousCommand != null) {
             autonomousCommand.schedule();
         }
     }
-    
-    
+
+
     @Override
-    public void autonomousPeriodic() {}
-    
-    
+    public void autonomousPeriodic() {
+    }
+
+
     @Override
-    public void autonomousExit() {}
-    
-    
+    public void autonomousExit() {
+    }
+
+
     @Override
-    public void teleopInit()
-    {
+    public void teleopInit() {
         SignalLogger.start();
         if (autonomousCommand != null) {
             autonomousCommand.cancel();
         }
     }
-    
-    
+
+
     @Override
-    public void teleopPeriodic() {}
-    
-    
+    public void teleopPeriodic() {
+    }
+
+
     @Override
     public void teleopExit() {
         SignalLogger.stop();
     }
-    
-    
+
+
     @Override
-    public void testInit()
-    {
+    public void testInit() {
         CommandScheduler.getInstance().cancelAll();
     }
-    
-    
+
+
     @Override
-    public void testPeriodic() {}
-    
-    
+    public void testPeriodic() {
+    }
+
+
     @Override
-    public void testExit() {}
+    public void testExit() {
+    }
 }
