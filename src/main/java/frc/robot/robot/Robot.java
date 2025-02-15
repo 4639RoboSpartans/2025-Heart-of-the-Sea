@@ -24,8 +24,6 @@ import org.littletonrobotics.junction.Logger;
 
 public class Robot extends LoggedRobot {
     private Command autonomousCommand;
-    private StructArrayPublisher<Pose3d> componentPoses = NetworkTableInstance.getDefault()
-            .getStructArrayTopic("zeroed component poses", Pose3d.struct).publish();
 
     private final RobotContainer robotContainer;
 
@@ -44,14 +42,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
-        componentPoses.set(
-                new Pose3d[] {
-                        new Pose3d(),
-                        new Pose3d(),
-                        new Pose3d(),
-                        new Pose3d()
-                }
-        );
+        robotContainer.add3DComponentPoses();
     }
 
 

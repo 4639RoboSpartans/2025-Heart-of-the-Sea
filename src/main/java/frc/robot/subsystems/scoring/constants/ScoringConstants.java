@@ -1,10 +1,12 @@
 package frc.robot.subsystems.scoring.constants;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.measure.Distance;
 import frc.lib.UnitConvertor;
 
 import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Meters;
 
 public final class ScoringConstants {
     public static final class ElevatorConstants {
@@ -46,7 +48,7 @@ public final class ScoringConstants {
     }
 
     public static class HopperConstants {
-        public static final Rotation2d MAX_ROTATION = Rotation2d.fromDegrees(-155);
+        public static final Rotation2d MAX_ROTATION = Rotation2d.fromDegrees(-180);
         public static final Rotation2d IDLE_ROTATION = Rotation2d.fromDegrees(30);
 
         public static final double IDLE_POSITION = 0;
@@ -82,14 +84,20 @@ public final class ScoringConstants {
             public static final double Wrist_IDLE_Proportion = 0.0;
             public static final double Wrist_HP_Proportion = 0.0;
             public static final double Wrist_L1_Proportion = 1.0;
-            public static final double Wrist_L2_Proportion = 0.25;
-            public static final double Wrist_L3_Proportion = 0.25;
-            public static final double Wrist_L4_Proportion = 0.5;
+            public static final double Wrist_L2_Proportion = 0.5;
+            public static final double Wrist_L3_Proportion = 0.5;
+            public static final double Wrist_L4_Proportion = 1.0;
             public static final double Wrist_L2_ALGAE_Proportion = 1.0;
             public static final double Wrist_L3_ALGAE_Proportion = 1.0;
             public static final double Wrist_Barge_Proportion = 0.5;
 
         }
+
+        public static final Translation3d Hopper3DSimOffset = new Translation3d(
+                0.275,
+                0,
+                0.38125
+        );
     }
 
     public static class IDs {
