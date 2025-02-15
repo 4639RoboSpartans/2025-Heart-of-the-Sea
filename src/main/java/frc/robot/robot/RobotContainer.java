@@ -15,6 +15,8 @@ import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.lib.oi.OI;
 import frc.robot.commands.AutoRoutines;
 import frc.robot.constants.Controls;
 import frc.robot.constants.FieldConstants;
@@ -24,6 +26,7 @@ import frc.robot.subsystems.drive.SwerveAutoRoutinesCreator;
 import frc.robot.subsystems.scoring.ScoringSuperstructure;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
+import frc.robot.subsystems.scoring.elevator.ElevatorSysID;
 
 import java.util.Arrays;
 import java.util.List;
@@ -150,6 +153,19 @@ public class RobotContainer {
                     )
             );
         }
+        /*OI.getInstance().operatorController().Y_BUTTON.whileTrue(
+                ElevatorSysID.sysIdQuasistatic(SysIdRoutine.Direction.kForward)
+        );
+        OI.getInstance().operatorController().A_BUTTON.whileTrue(
+                ElevatorSysID.sysIdQuasistatic(SysIdRoutine.Direction.kReverse)
+        );
+        OI.getInstance().operatorController().POV_UP.whileTrue(
+                ElevatorSysID.sysIdDynamic(SysIdRoutine.Direction.kForward)
+        );
+        OI.getInstance().operatorController().POV_DOWN.whileTrue(
+                ElevatorSysID.sysIdDynamic(SysIdRoutine.Direction.kReverse)
+        );*/
+
     }
 
     private void addAllCompAutons(SendableChooser<Command> autoChooser) {
