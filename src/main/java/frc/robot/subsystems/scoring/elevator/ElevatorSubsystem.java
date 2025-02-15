@@ -3,7 +3,6 @@ package frc.robot.subsystems.scoring.elevator;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.robot.Robot;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 
@@ -77,16 +76,8 @@ public abstract class ElevatorSubsystem extends SubsystemBase {
      */
     public abstract boolean isAtTarget();
 
-    /**
-     * A trigger that checks whether the elevator is at its target
-     */
-    public final Trigger isAtTarget = new Trigger(this::isAtTarget);
-
     // TODO: document this
     public abstract boolean isElevatorStateFinished();
-
-    // TODO: (and this)
-    public final Trigger isElevatorStateFinished = new Trigger(this::isElevatorStateFinished);
 
     /**
      * Set the current state of the elevator

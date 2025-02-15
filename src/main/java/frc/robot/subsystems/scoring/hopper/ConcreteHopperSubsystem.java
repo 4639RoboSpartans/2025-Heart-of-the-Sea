@@ -20,8 +20,8 @@ import frc.lib.TunableNumber;
 import frc.robot.subsystems.scoring.ScoringSuperstructure;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
-import frc.robot.subsystems.scoring.constants.ScoringPIDs;
 import frc.robot.subsystems.scoring.constants.ScoringConstants.HopperConstants;
+import frc.robot.subsystems.scoring.constants.ScoringPIDs;
 
 import java.util.Optional;
 
@@ -34,8 +34,6 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
 
     private final ProfiledPIDController wristPID;
 
-    private ScoringSuperstructureState state = ScoringSuperstructureState.IDLE;
-
     private boolean isStateFinished = false;
 
     public ConcreteHopperSubsystem() {
@@ -44,8 +42,8 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
             SparkLowLevel.MotorType.kBrushless
         );
         wristMotor = new TalonFX(
-                ScoringConstants.IDs.WristMotorID,
-                ScoringConstants.IDs.WristCANBusName
+            ScoringConstants.IDs.WristMotorID,
+            ScoringConstants.IDs.WristCANBusName
         );
         intakeMotor.configure(
             new SparkFlexConfig()
@@ -62,13 +60,13 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
             SparkBase.PersistMode.kPersistParameters
         );
         wristMotor.getConfigurator().apply(
-                new SoftwareLimitSwitchConfigs()
-                        .withForwardSoftLimitThreshold(HopperConstants.WristForwardSoftLimit)
-                        .withReverseSoftLimitThreshold(HopperConstants.WristReverseSoftLimit)
+            new SoftwareLimitSwitchConfigs()
+                .withForwardSoftLimitThreshold(HopperConstants.WristForwardSoftLimit)
+                .withReverseSoftLimitThreshold(HopperConstants.WristReverseSoftLimit)
         );
         wristMotor.getConfigurator().apply(
-                new CurrentLimitsConfigs()
-                        .withStatorCurrentLimit(HopperConstants.WristCurrentLimit)
+            new CurrentLimitsConfigs()
+                .withStatorCurrentLimit(HopperConstants.WristCurrentLimit)
         );
         wristEncoder = new DutyCycleEncoder(
             ScoringConstants.IDs.WristEncoderID,
@@ -103,33 +101,13 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
     }
 
     @Override
-    public double getCurrentPosition() {
-        return wristEncoder.get();
-    }
-
-    @Override
     public Rotation2d getCurrentRotation() {
-        return ScoringSuperstructureState.getWristSimRotation(getCurrentPosition());
-    }
-
-    @Override
-    public double getTargetPosition() {
-        return state.getWristAbsolutePosition();
-    }
-
-    @Override
-    public Rotation2d getTargetRotation() {
-        return ScoringSuperstructureState.getWristSimRotation(getTargetPosition());
+        return HopperConstants.PositionToRotation.convert(wristEncoder.get());
     }
 
     @Override
     public double getIntakeSpeed() {
         return intakeMotor.get();
-    }
-
-    @Override
-    public ScoringSuperstructureState getHopperState() {
-        return state;
     }
 
     @Override
@@ -145,7 +123,7 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
     }
 
     @Override
-    public boolean isHopperAtPosition() {
+    public boolean isAtTarget() {
         return MathUtil.isNear(
             getTargetPosition(),
             getCurrentPosition(),
@@ -167,7 +145,7 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
 
     @Override
     public void periodic() {
-        if (isHopperAtPosition())
+        if (isAtTarget())
             runHopper();
         else runHopperPosition();
     }

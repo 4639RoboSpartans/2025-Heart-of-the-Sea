@@ -88,7 +88,7 @@ public class ScoringSuperstructure extends SubsystemBase {
                             hopper.setHopper(ScoringSuperstructureState.TRANSITION_STATE);
                         }
                     } else {
-                        if (hopper.isHopperAtPosition()) {
+                        if (hopper.isAtTarget()) {
                             if (elevator.isAtTarget()) {
                                 hopper.setHopper(state);
                             }
@@ -109,7 +109,7 @@ public class ScoringSuperstructure extends SubsystemBase {
      * @return whether both "sub-subsystems" at the specified position
      */
     public boolean isAtPosition() {
-        return elevator.isAtTarget() && hopper.isHopperAtPosition();
+        return elevator.isAtTarget() && hopper.isAtTarget();
     }
 
     public Trigger isAtPosition = new Trigger(this::isAtPosition);

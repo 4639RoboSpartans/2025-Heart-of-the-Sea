@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.robot.Robot;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
+import frc.robot.subsystems.scoring.constants.ScoringConstants;
 
 import java.util.Objects;
 
@@ -18,38 +19,47 @@ public abstract class HopperSubsystem extends SubsystemBase {
         //doing this to stop the hopper from existing before its ready without commenting out a bunch of code
         // (also, please multiline the comments instead of commenting out every line individually)
         //TODO: remove the false flag when hopper is ready
-         if (false && Robot.isReal()) {
-             return instance = Objects.requireNonNullElseGet(
-                     instance,
-                     ConcreteHopperSubsystem::new
-             );
+        if (false && Robot.isReal()) {
+            return instance = Objects.requireNonNullElseGet(
+                instance,
+                ConcreteHopperSubsystem::new
+            );
         } else {
             return instance = Objects.requireNonNullElseGet(
-                    instance,
-                    SimHopperSubsystem::new
+                instance,
+                SimHopperSubsystem::new
             );
         }
     }
 
-    public abstract double getCurrentPosition();
+    protected ScoringSuperstructureState state = ScoringSuperstructureState.IDLE;
+
+    public final ScoringSuperstructureState getHopperState() {
+        return state;
+    }
 
     public abstract Rotation2d getCurrentRotation();
 
-    public abstract double getTargetPosition();
+    public final double getCurrentPosition() {
+        return ScoringConstants.HopperConstants.PositionToRotation.convertBackwards(getCurrentRotation());
+    }
 
-    public abstract Rotation2d getTargetRotation();
+    public final Rotation2d getTargetRotation() {
+        return state.getRotation();
+    }
+
+    public final double getTargetPosition() {
+        return ScoringConstants.HopperConstants.PositionToRotation.convertBackwards(getTargetRotation());
+    }
 
     public abstract double getIntakeSpeed();
 
-    public abstract ScoringSuperstructureState getHopperState();
-
-    public abstract boolean isHopperAtPosition();
-    public Trigger isHopperAtPosition = new Trigger(this::isHopperAtPosition);
+    public abstract boolean isAtTarget();
 
     public abstract boolean isHopperStateFinished();
-    public Trigger isHopperStateFinished = new Trigger(this::isHopperStateFinished);
 
     public abstract boolean hasCoral();
+
     public Trigger hasCoral = new Trigger(this::hasCoral);
 
     public abstract void setHopper(ScoringSuperstructureState state);

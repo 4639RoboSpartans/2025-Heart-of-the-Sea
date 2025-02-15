@@ -186,7 +186,7 @@ public class ScoringSuperstructureState {
         return ElevatorConstants.ProportionToHeight.convert(elevatorProportion);
     }
 
-    public Rotation2d getWristSimRotation() {
+    public Rotation2d getRotation() {
         return HopperConstants.ProportionToRotation.convert(wristProportion);
     }
 
@@ -194,7 +194,7 @@ public class ScoringSuperstructureState {
         return HopperConstants.PositionToRotation.convertBackwards(rotation);
     }
 
-    public static Rotation2d getWristSimRotation(double position) {
+    public static Rotation2d getRotation(double position) {
         return HopperConstants.PositionToRotation.convert(position);
     }
 
