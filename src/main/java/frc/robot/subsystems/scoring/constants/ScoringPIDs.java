@@ -7,7 +7,7 @@ public class ScoringPIDs {
     public static TunableNumber elevatorKi = new TunableNumber("Scoring PIDs/Elevator kI").withDefaultValue(0.0);
     public static TunableNumber elevatorKd = new TunableNumber("Scoring PIDs/Elevator kD").withDefaultValue(0.0);
     public static TunableNumber elevatorVelocity = new TunableNumber("Scoring PIDs/Elevator Velocity").withDefaultValue(280.0);
-    public static TunableNumber elevatorAcceleration = new TunableNumber("Scoring PIDs/Elevator Acceleration").withDefaultValue(240.0);
+    public static TunableNumber elevatorAcceleration = new TunableNumber("Scoring PIDs/Elevator Acceleration").withDefaultValue(120.0);
     public static TunableNumber elevatorKs = new TunableNumber("Scoring PIDs/Elevator Ks").withDefaultValue(0.34316);
     public static TunableNumber elevatorKg = new TunableNumber("Scoring PIDs/Elevator Kg").withDefaultValue(0.16563);
     public static TunableNumber elevatorKv = new TunableNumber("Scoring PIDs/Elevator Kv").withDefaultValue(0.11568);
