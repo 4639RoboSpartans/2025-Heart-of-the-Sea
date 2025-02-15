@@ -34,7 +34,7 @@ public class PhotonVision implements Camera {
      */
     public PhotonVision(String name, Transform3d transformFromRobotOrigin){
         camera = new PhotonCamera(name);
-        poseEstimator = new PhotonPoseEstimator(AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape), PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, transformFromRobotOrigin);
+        poseEstimator = new PhotonPoseEstimator(AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark), PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, transformFromRobotOrigin);
     }
 
     @Override
