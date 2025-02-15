@@ -41,7 +41,7 @@ public class ScoringSuperstructure extends SubsystemBase {
             prevState = this.state;
         }
         this.state = state;
-        elevator.setElevatorState(state);
+        elevator.updateElevatorState(state);
         hopper.setHopper(state);
     }
 
