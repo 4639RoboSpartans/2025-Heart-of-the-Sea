@@ -293,6 +293,9 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
         SmartDashboard.putData("Field2D", field);
     }
 
+    /**
+     * Runs the thread that sets the simulation state
+     */
     @SuppressWarnings("resource")
     private void startSimThread() {
         new Notifier(new Runnable() {
@@ -312,14 +315,29 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
         }).startPeriodic(SIM_LOOP_PERIOD); // Run the simulation at a faster rate so PID behaves more reasonably
     }
 
+    /**
+     * Gets the estimated position of the robot as coordinates on the field
+     * 
+     * @return position as Pose2d
+     */
     public Pose2d getPose() {
         return getState().Pose;
     }
 
+    /**
+     * Gets the chassis speeds of the robot
+     * 
+     * @return chassis speeds as ChassisSpeeds
+     */
     public ChassisSpeeds getChassisSpeeds() {
         return getState().Speeds;
     }
 
+    /**
+     * Estimates the acceleration of the robot in gs
+     * 
+     * @return acceleration in gs as double
+    */
     public double getAccelerationInGs() {
         return Math.hypot(
             getPigeon2().getAccelerationX().getValueAsDouble(),
@@ -327,7 +345,11 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
         );
     }
 
-    //Slows the robot swerve when the elevator is raised. Reduction is proportional to the proportional height of the elevator.
+    /**
+     * Slows the robot swerve when the elevator is raised. Reduction is proportional to the proportional height of the elevator.
+     * 
+     * @return multiplier as double
+     */
     public double getSwerveSpeedMultiplier(){
         return 1 - Math.pow(ElevatorSubsystem.getInstance().getCurrentProportion(), 3) / 2;
     }
