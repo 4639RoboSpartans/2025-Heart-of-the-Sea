@@ -3,7 +3,6 @@ package frc.robot.subsystems.scoring;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.RobotState;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -62,7 +61,7 @@ public class ScoringSuperstructure extends SubsystemBase {
      */
     public Command setScoringState(Supplier<ScoringSuperstructureState> state) {
         return Commands.runOnce(
-                () -> setState(state.get())
+            () -> setState(state.get())
         );
     }
 
@@ -83,22 +82,23 @@ public class ScoringSuperstructure extends SubsystemBase {
                     elevator.runElevator();
                 } else {
                     if (hopper.getHopperState() != ScoringSuperstructureState.TRANSITION_STATE) {
-                        if (elevator.isElevatorAtPosition()) {
+                        if (elevator.isAtTarget()) {
                             elevator.runElevator();
                         } else {
                             hopper.setHopper(ScoringSuperstructureState.TRANSITION_STATE);
                         }
                     } else {
                         if (hopper.isHopperAtPosition()) {
-                            if (elevator.isElevatorAtPosition()) {
+                            if (elevator.isAtTarget()) {
                                 hopper.setHopper(state);
                             }
                             elevator.runElevator();
                         }
                     }
                 }
-                //TODO: choose one place to call runHopper
-                //either in hopper periodic or in here but right now it runs in both
+
+                // TODO: choose one place to call runHopper
+                //  either in hopper periodic or in here but right now it runs in both
                 hopper.runHopper();
             },
             this
@@ -109,7 +109,7 @@ public class ScoringSuperstructure extends SubsystemBase {
      * @return whether both "sub-subsystems" at the specified position
      */
     public boolean isAtPosition() {
-        return elevator.isElevatorAtPosition() && hopper.isHopperAtPosition();
+        return elevator.isAtTarget() && hopper.isHopperAtPosition();
     }
 
     public Trigger isAtPosition = new Trigger(this::isAtPosition);
@@ -142,14 +142,14 @@ public class ScoringSuperstructure extends SubsystemBase {
      * @return the real life length of the elevator, for use in simulation only.
      */
     public Distance getCurrentElevatorLength() {
-        return elevator.getCurrentLength();
+        return elevator.getCurrentHeight();
     }
 
     /**
      * @return the real life target length of the elevator, for use in simulation only.
      */
     public Distance getTargetElevatorLength() {
-        return elevator.getTargetLength();
+        return elevator.getTargetHeight();
     }
 
     /**

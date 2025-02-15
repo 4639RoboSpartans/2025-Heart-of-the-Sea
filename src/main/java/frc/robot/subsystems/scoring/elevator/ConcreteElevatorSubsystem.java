@@ -12,7 +12,6 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
@@ -24,8 +23,6 @@ import static frc.robot.subsystems.scoring.constants.ScoringPIDs.*;
 public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
     private final TalonFX elevatorMotor;
     private final MotionMagicVoltage controlRequest;
-
-    private ScoringSuperstructureState state = ScoringSuperstructureState.IDLE;
 
     private boolean isStateFinished = false;
 
@@ -73,43 +70,34 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
     }
 
     @Override
-    public double getCurrentPosition() {
-        return elevatorMotor.getPosition(true).getValueAsDouble();
+    public double getCurrentProportion() {
+        return ElevatorConstants.ProportionToPosition.convertBackwards(
+            elevatorMotor.getPosition(true).getValueAsDouble()
+        );
     }
 
     @Override
-    public Distance getCurrentLength() {
-        return ElevatorConstants.PositionToHeight.convert(getCurrentPosition());
-    }
-
-    @Override
-    public double getTargetPosition() {
-        return state.getElevatorAbsolutePosition();
-    }
-
-    @Override
-    public Distance getTargetLength() {
-        return ElevatorConstants.PositionToHeight.convert(getTargetPosition());
-    }
-
     public boolean isElevatorStateFinished() {
         return isStateFinished;
     }
 
-    public boolean isElevatorAtPosition() {
+    @Override
+    public boolean isAtTarget() {
         return MathUtil.isNear(
             controlRequest.Position,
-            elevatorMotor.getPosition().getValueAsDouble(),
+            getCurrentPosition(),
             ElevatorConstants.ELEVATOR_TOLERANCE
         );
     }
 
+    @Override
     public void setElevatorState(ScoringSuperstructureState state) {
         this.state = state;
         isStateFinished = false;
-        controlRequest.Position = state.getElevatorAbsolutePosition();
+        controlRequest.Position = getTargetPosition();
     }
 
+    @Override
     public void runElevator() {
         elevatorMotor.setControl(controlRequest);
         SmartDashboard.putNumber("output", elevatorMotor.getMotorVoltage().getValueAsDouble());
@@ -117,12 +105,12 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
 
     @Override
     public void periodic() {
-        if (isElevatorAtPosition()) {
+        if (isAtTarget()) {
             isStateFinished = true;
         }
         SmartDashboard.putNumber("Elevator Proportion", ElevatorConstants.ProportionToPosition.convertBackwards(getCurrentPosition()));
         SmartDashboard.putNumber("Elevator Position", getCurrentPosition());
-        SmartDashboard.putBoolean("At State", isElevatorAtPosition());
+        SmartDashboard.putBoolean("Elevator is at Target", isAtTarget());
         SignalLogger.writeDouble("Elevator Position", elevatorMotor.getPosition().getValueAsDouble());
         SignalLogger.writeDouble("Elevator Velocity", elevatorMotor.getVelocity().getValueAsDouble());
         SignalLogger.writeDouble("Elevator Acceleration", elevatorMotor.getAcceleration().getValueAsDouble());
@@ -130,7 +118,7 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
     }
 
     @Override
-    public void setElevatorMotorVoltsSysID(Voltage voltage) {
+    public void setRawMotorVoltage(Voltage voltage) {
         elevatorMotor.setControl(new VoltageOut(voltage));
     }
 }

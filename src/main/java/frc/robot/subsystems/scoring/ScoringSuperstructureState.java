@@ -8,7 +8,7 @@ import frc.robot.subsystems.scoring.constants.ScoringConstants.ElevatorConstants
 import frc.robot.subsystems.scoring.constants.ScoringConstants.HopperConstants;
 
 public class ScoringSuperstructureState {
-    private double elevatorProportion; //proportion of the distance between lower and upper limit
+    public double elevatorProportion; //proportion of the distance between lower and upper limit
     private double wristProportion; // proportion of the distance between lower and upper limit
     public double intakeSpeed; // speed of intake wheels
     public boolean intakeUntilGamePieceSeen; // whether to stop spinning intake wheels when game piece is seen

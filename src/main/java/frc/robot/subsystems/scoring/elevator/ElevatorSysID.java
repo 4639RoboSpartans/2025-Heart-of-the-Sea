@@ -17,7 +17,7 @@ public class ElevatorSysID {
                     (state) -> SignalLogger.writeString("state", state.toString())
             ),
             new SysIdRoutine.Mechanism(
-                    elevator::setElevatorMotorVoltsSysID,
+                    elevator::setRawMotorVoltage,
                     null,
                     elevator
             )
