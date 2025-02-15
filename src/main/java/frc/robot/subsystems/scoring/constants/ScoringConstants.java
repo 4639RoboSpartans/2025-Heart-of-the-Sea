@@ -36,11 +36,11 @@ public final class ScoringConstants {
         public static final class Proportions {
             //Elevator proportions
             public static final double IDLE_Proportion = 0.0;
-            public static final double HP_Proportion = 0.2;
+            public static final double HP_Proportion = 0.1;
             public static final double L1_Proportion = 0.15;
             public static final double L2_Proportion = 0.25;
             public static final double L3_Proportion = 0.4;
-            public static final double L4_Proportion = 0.8;
+            public static final double L4_Proportion = 0.85;
             public static final double L2_ALGAE_Proportion = 0.55;
             public static final double L3_ALGAE_Proportion = 0.65;
             public static final double Barge_Proportion = 1;
@@ -48,7 +48,7 @@ public final class ScoringConstants {
     }
 
     public static class HopperConstants {
-        public static final Rotation2d MAX_ROTATION = Rotation2d.fromDegrees(-180);
+        public static final Rotation2d MAX_ROTATION = Rotation2d.fromDegrees(-200);
         public static final Rotation2d IDLE_ROTATION = Rotation2d.fromDegrees(30);
 
         public static final double IDLE_POSITION = 0;

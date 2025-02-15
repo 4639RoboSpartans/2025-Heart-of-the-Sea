@@ -169,7 +169,7 @@ public class ScoringSuperstructureState {
 
     TRANSITION_STATE = new ScoringSuperstructureState()
         .withElevatorProportion(0)
-        .withWristProportion(0.5)
+        .withWristProportion(0.4)
         .withIntakeSpeed(0)
         .withIntakeUntilSeen(false)
         .withOuttakeUntilNotSeen(false);

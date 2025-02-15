@@ -30,6 +30,7 @@ public class ScoringSuperstructure extends SubsystemBase {
     private final HopperSubsystem hopper;
 
     private ScoringSuperstructureState state = ScoringSuperstructureState.IDLE;
+    private ScoringSuperstructureState prevState = ScoringSuperstructureState.IDLE;
 
     public ScoringSuperstructure() {
         this.elevator = ElevatorSubsystem.getInstance();
@@ -37,6 +38,9 @@ public class ScoringSuperstructure extends SubsystemBase {
     }
 
     private void setState(ScoringSuperstructureState state) {
+        if (this.state != state) {
+            prevState = this.state;
+        }
         this.state = state;
         elevator.setElevatorState(state);
         hopper.setHopper(state);
@@ -75,7 +79,7 @@ public class ScoringSuperstructure extends SubsystemBase {
     public Command runScoringState() {
         return Commands.run(
             () -> {
-                if (!state.useTransitionState) {
+                if (!state.useTransitionState || !prevState.useTransitionState) {
                     elevator.runElevator();
                 } else {
                     if (hopper.getHopperState() != ScoringSuperstructureState.TRANSITION_STATE) {
