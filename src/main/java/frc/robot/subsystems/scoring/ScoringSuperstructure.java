@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
 import frc.robot.subsystems.scoring.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.scoring.elevator.ElevatorSysID;
@@ -134,6 +135,11 @@ public class ScoringSuperstructure extends SubsystemBase {
         if (isStateFinished()) {
             setState(state.getStateAfter());
         } else if (RobotState.isTeleop() && !state.control.getAsBoolean()) {
+            setState(ScoringSuperstructureState.IDLE);
+        }
+
+        //Sets scoring mechanisms to IDLE in case robot acceleration is high.
+        if(CommandSwerveDrivetrain.getInstance().getAccelerationInGs() >= .4){
             setState(ScoringSuperstructureState.IDLE);
         }
     }
