@@ -1,0 +1,93 @@
+{
+  "name": "Crab Bot",
+  "rotations": [
+    {
+      "axis": "y",
+      "degrees": 180
+    },
+    {
+      "axis": "z",
+      "degrees": 181.25
+    }
+  ],
+  "position": [
+    -0.35025,
+    0.24,
+    0.0825
+  ],
+  "cameras": [],
+  "components": [
+    {
+      "zeroedRotations": [
+        {
+          "axis": "x",
+          "degrees": 180
+        },
+        {
+          "axis": "z",
+          "degrees": 180
+        }
+      ],
+      "zeroedPosition": [
+        0.49375,
+        0.811, 
+        -0.9125
+      ]
+    },
+    {
+      "zeroedRotations": [
+        {
+          "axis": "x",
+          "degrees": 180
+        },
+        {
+          "axis": "z",
+          "degrees": 180
+        }
+      ],
+      "zeroedPosition": [
+        0.49375,
+        0.811,
+        -2.0575
+      ]
+    },
+    {
+      "zeroedRotations": [
+        {
+          "axis": "x",
+          "degrees": 180
+        },
+        {
+          "axis": "z",
+          "degrees": 180
+        }
+      ],
+      "zeroedPosition": [
+        0.49375,
+        0.811,
+        -2.3725
+      ]
+    },
+    {
+      "zeroedRotations": [
+        {
+          "axis": "x",
+          "degrees": 180
+        },
+        {
+          "axis": "z",
+          "degrees": 270
+        },
+        {
+          "axis": "y",
+          "degrees": 30
+        }
+      ],
+      "zeroedPosition": [
+        0.65,
+        0.0125,
+        0.4125
+      ]
+    }
+  ]
+}
