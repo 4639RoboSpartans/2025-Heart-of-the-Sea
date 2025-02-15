@@ -28,12 +28,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.Subsystem;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.DriverStationHelpers;
 import frc.robot.constants.Controls;
 import frc.robot.subsystems.drive.constants.DriveConstants;
 import frc.robot.subsystems.drive.constants.DrivePIDs;
 import frc.robot.subsystems.drive.constants.TunerConstants;
+import frc.robot.subsystems.drive.constants.TunerConstants.TunerSwerveDrivetrain;
 import frc.robot.subsystems.scoring.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
 
@@ -43,7 +44,9 @@ import java.util.function.Supplier;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
 
-public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrain implements Subsystem {
+public class CommandSwerveDrivetrain extends Drivetrain {
+    private final TunerSwerveDrivetrain drivetrain;
+
     private static final double SIM_LOOP_PERIOD = 0.005; // 5 ms
 
     private boolean didApplyOperatorPerspective = false;
@@ -89,7 +92,7 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
         SwerveDrivetrainConstants drivetrainConstants,
         SwerveModuleConstants<?, ?, ?>... modules
     ) {
-        super(drivetrainConstants, modules);
+        this.drivetrain = new TunerSwerveDrivetrain(drivetrainConstants, modules);
 
         RobotConfig config = RobotConfigLoader.getOrLoadConfig();
 
@@ -99,7 +102,7 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
             // When we start the robot, it should not be moving
             new ChassisSpeeds(),
             // Use the current state of the modules, which may not be zeroed
-            getState().ModuleStates,
+            drivetrain.getState().ModuleStates,
             // When we start the robot, it should not be moving
             DriveFeedforwards.zeros(config.numModules)
         );
@@ -131,8 +134,7 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
 
         if (Controls.Driver.precisionTrigger.getAsBoolean()) {
             chassisSpeeds = chassisSpeeds.div(4.0);
-        }
-        else{
+        } else {
             chassisSpeeds = chassisSpeeds.times(getSwerveSpeedMultiplier());
         }
 
@@ -140,7 +142,7 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
             prevSwerveSetpoint,
             ChassisSpeeds.fromFieldRelativeSpeeds(
                 chassisSpeeds,
-                Rotation2d.fromRadians(getPigeon2().getYaw().getValue().in(Radians))
+                Rotation2d.fromRadians(drivetrain.getPigeon2().getYaw().getValue().in(Radians))
             ),
             0.02
         );
@@ -151,7 +153,7 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
             .withSpeeds(
                 ChassisSpeeds.fromRobotRelativeSpeeds(
                     setpoint.robotRelativeSpeeds(),
-                    Rotation2d.fromRadians(getPigeon2().getYaw().getValue().in(Radians))
+                    Rotation2d.fromRadians(drivetrain.getPigeon2().getYaw().getValue().in(Radians))
                 )
             )
             .withWheelForceFeedforwardsX(setpoint.feedforwards().robotRelativeForcesX())
@@ -165,7 +167,7 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
      */
     public Command resetPigeon() {
         return Commands.runOnce(
-            () -> getPigeon2().setYaw(
+            () -> drivetrain.getPigeon2().setYaw(
                 Angle.ofBaseUnits(
                     0,
                     Degrees
@@ -191,7 +193,7 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
      */
     public Command pathfindTo(Pose2d targetPose) {
         double driveBaseRadius = 0;
-        for (var moduleLocation : getModuleLocations()) {
+        for (var moduleLocation : drivetrain.getModuleLocations()) {
             driveBaseRadius = Math.max(driveBaseRadius, moduleLocation.getNorm());
         }
         PathConstraints constraints = new PathConstraints(
@@ -241,7 +243,7 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
      * @return Command to run
      */
     public Command applyRequest(Supplier<SwerveRequest> requestSupplier) {
-        return run(() -> this.setControl(requestSupplier.get()));
+        return run(() -> drivetrain.setControl(requestSupplier.get()));
     }
 
     /**
@@ -259,7 +261,7 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
             pose.getRotation().getRadians(), sample.heading
         );
 
-        setControl(new SwerveRequest.ApplyFieldSpeeds()
+        drivetrain.setControl(new SwerveRequest.ApplyFieldSpeeds()
             .withSpeeds(targetSpeeds)
             .withWheelForceFeedforwardsX(sample.moduleForcesX())
             .withWheelForceFeedforwardsY(sample.moduleForcesY())
@@ -271,7 +273,7 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
         // Update the operator perspective if needed
         if (!didApplyOperatorPerspective || DriverStation.isDisabled()) {
             DriverStation.getAlliance().ifPresent(allianceColor -> {
-                setOperatorPerspectiveForward(
+                drivetrain.setOperatorPerspectiveForward(
                     allianceColor == Alliance.Red
                         ? DriveConstants.RedAlliancePerspectiveRotation
                         : DriveConstants.BlueAlliancePerspectiveRotation
@@ -281,7 +283,7 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
         }
         // Update vision
         VisionSubsystem.getInstance().getVisionResults().forEach(
-            visionResult -> addVisionMeasurement(
+            visionResult -> drivetrain.addVisionMeasurement(
                 visionResult.getVisionPose(),
                 visionResult.getTimestamp()
             )
@@ -307,7 +309,7 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
                 double deltaTimeSeconds = Utils.getCurrentTimeSeconds() - lastUpdateTimeSeconds;
                 lastUpdateTimeSeconds += deltaTimeSeconds;
 
-                CommandSwerveDrivetrain.this.updateSimState(
+                drivetrain.updateSimState(
                     deltaTimeSeconds,
                     RobotController.getBatteryVoltage()
                 );
@@ -321,7 +323,7 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
      * @return position as Pose2d
      */
     public Pose2d getPose() {
-        return getState().Pose;
+        return drivetrain.getState().Pose;
     }
 
     /**
@@ -330,7 +332,7 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
      * @return chassis speeds as ChassisSpeeds
      */
     public ChassisSpeeds getChassisSpeeds() {
-        return getState().Speeds;
+        return drivetrain.getState().Speeds;
     }
 
     /**
@@ -340,8 +342,8 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
     */
     public double getAccelerationInGs() {
         return Math.hypot(
-            getPigeon2().getAccelerationX().getValueAsDouble(),
-            getPigeon2().getAccelerationY().getValueAsDouble()
+            drivetrain.getPigeon2().getAccelerationX().getValueAsDouble(),
+            drivetrain.getPigeon2().getAccelerationY().getValueAsDouble()
         );
     }
 
@@ -350,7 +352,7 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
      * 
      * @return multiplier as double
      */
-    public double getSwerveSpeedMultiplier(){
+    public double getSwerveSpeedMultiplier() {
         return 1 - Math.pow(ElevatorSubsystem.getInstance().getCurrentProportion(), 3) / 2;
     }
 }

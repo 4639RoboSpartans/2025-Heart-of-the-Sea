@@ -67,8 +67,8 @@ public class ScoringSuperstructure extends SubsystemBase {
     }
 
     public Command hold() {
-        return setScoringState(ScoringSuperstructureState.HOLD(
-            ScoringConstants.ElevatorConstants.ProportionToPosition.convertBackwards(elevator.getCurrentPosition()),
+        return setScoringState(() -> ScoringSuperstructureState.HOLD(
+            elevator.getCurrentProportion(),
             ScoringConstants.HopperConstants.ProportionToPosition.convertBackwards(hopper.getCurrentPosition())
         ));
     }
@@ -139,7 +139,7 @@ public class ScoringSuperstructure extends SubsystemBase {
         }
 
         //Sets scoring mechanisms to IDLE in case robot acceleration is high.
-        if(CommandSwerveDrivetrain.getInstance().getAccelerationInGs() >= .4){
+        if (CommandSwerveDrivetrain.getInstance().getAccelerationInGs() >= .4) {
             setState(ScoringSuperstructureState.IDLE);
         }
     }
