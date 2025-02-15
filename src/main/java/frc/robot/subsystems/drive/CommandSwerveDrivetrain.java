@@ -1,7 +1,5 @@
 package frc.robot.subsystems.drive;
 
-import choreo.Choreo.TrajectoryLogger;
-import choreo.auto.AutoFactory;
 import choreo.trajectory.SwerveSample;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
@@ -9,23 +7,17 @@ import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.utility.PhoenixPIDController;
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
-import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.PathPlannerLogging;
 import com.pathplanner.lib.util.swerve.SwerveSetpoint;
 import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -35,9 +27,9 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.lib.DriverStationHelpers;
-import frc.robot.commands.AutoRoutines;
 import frc.robot.constants.Controls;
 import frc.robot.subsystems.drive.constants.DriveConstants;
 import frc.robot.subsystems.drive.constants.DrivePIDs;
@@ -51,31 +43,32 @@ import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
 
 public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrain implements Subsystem {
-    private static CommandSwerveDrivetrain instance;
-
     private static final double SIM_LOOP_PERIOD = 0.005; // 5 ms
-    private double lastSimTime;
 
-    private boolean hasAppliedOperatorPerspective = false;
+    private boolean didApplyOperatorPerspective = false;
 
+    private final PhoenixPIDController headingController = new PhoenixPIDController(28.48, 0, 1.1466);
     private final PIDController
         pathXController = new PIDController(12, 0, 0),
         pathYController = new PIDController(12, 0, 0),
-        pathThetaController = new PIDController(7, 0, 0),
+        pathHeadingController = new PIDController(7, 0, 0),
         pidXController = new PIDController(1, 0, 0),
         pidYController = new PIDController(1, 0, 0);
 
-    private final PhoenixPIDController headingController = new PhoenixPIDController(0, 0, 0);
+    {
+        pathHeadingController.enableContinuousInput(-Math.PI, Math.PI);
+        // Set up tunable numbers for drive pids
+        DrivePIDs.pidToPoseXkP.onChange(pidXController::setP);
+        DrivePIDs.pidToPoseYkP.onChange(pidYController::setP);
+    }
 
     private final Field2d field = new Field2d();
 
-    private final AutoFactory autoFactory;
-    private final AutoRoutines autoRoutines;
-
     private final SwerveSetpointGenerator swerveSetpointGenerator;
-    private final RobotConfig config;
+    private SwerveSetpoint prevSwerveSetpoint;
+    private static final double MAX_STEER_VELOCITY_RADS_PER_SEC = 12.49;
 
-    private SwerveSetpoint prevSetpoint;
+    private static CommandSwerveDrivetrain instance;
 
     public static CommandSwerveDrivetrain getInstance() {
         return instance = Objects.requireNonNullElseGet(instance, TunerConstants::createDrivetrain);
@@ -96,181 +89,103 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
         SwerveModuleConstants<?, ?, ?>... modules
     ) {
         super(drivetrainConstants, modules);
-        if (Utils.isSimulation()) {
-            startSimThread();
-        }
-        try {
-            config = RobotConfig.fromGUISettings();
-        } catch (Exception e) {
-            throw new RuntimeException("Swerve Config Failed");
-        }
-        ChassisSpeeds currentSpeeds = getState().Speeds; // Method to get current robot-relative chassis speeds
-        SwerveModuleState[] currentStates = getState().ModuleStates; // Method to get the current swerve module states
-        swerveSetpointGenerator = new SwerveSetpointGenerator(config, 12.49);
-        prevSetpoint = new SwerveSetpoint(currentSpeeds, currentStates, DriveFeedforwards.zeros(config.numModules));
-        prevSetpoint = new SwerveSetpoint(new ChassisSpeeds(), getState().ModuleStates, DriveFeedforwards.zeros(config.numModules));
-        autoFactory = createAutoFactory();
-        autoRoutines = new AutoRoutines(autoFactory);
-        configureAutoBuilder();
 
-        headingController.setPID(
-            28.48,
-            0,
-            1.1466
+        RobotConfig config = RobotConfigLoader.getOrLoadConfig();
+
+        // Set up swerve setpoint generator
+        swerveSetpointGenerator = new SwerveSetpointGenerator(config, MAX_STEER_VELOCITY_RADS_PER_SEC);
+        prevSwerveSetpoint = new SwerveSetpoint(
+            // When we start the robot, it should not be moving
+            new ChassisSpeeds(),
+            // Use the current state of the modules, which may not be zeroed
+            getState().ModuleStates,
+            // When we start the robot, it should not be moving
+            DriveFeedforwards.zeros(config.numModules)
         );
+
+        PathPlannerLogging.setLogActivePathCallback((poses) -> {
+            field.getObject("Pathplanner Path").setPoses(poses);
+        });
+
+        // Start the simulation thread if needed
+        if (Utils.isSimulation()) startSimThread();
     }
 
     /**
-     * Constructs a CTRE SwerveDrivetrain using the specified constants.
-     * <p>
-     * This constructs the underlying hardware devices, so users should not construct
-     * the devices themselves. If they need the devices, they can access them through
-     * getters in the classes.
+     * Get a SwerveRequest for field centric movement controlled by the human drivers. This should be called
+     * periodically in a command to always get the latest values from the controllers.
      *
-     * @param drivetrainConstants     Drivetrain-wide constants for the swerve drive
-     * @param odometryUpdateFrequency The frequency to run the odometry loop. If
-     *                                unspecified or set to 0 Hz, this is 250 Hz on
-     *                                CAN FD, and 100 Hz on CAN 2.0.
-     * @param modules                 Constants for each specific module
+     * @return The swerve request.
      */
-    public CommandSwerveDrivetrain(
-        SwerveDrivetrainConstants drivetrainConstants,
-        double odometryUpdateFrequency,
-        SwerveModuleConstants<?, ?, ?>... modules
-    ) {
-        super(drivetrainConstants, odometryUpdateFrequency, modules);
-        if (Utils.isSimulation()) {
-            startSimThread();
-        }
-        try {
-            config = RobotConfig.fromGUISettings();
-        } catch (Exception e) {
-            throw new RuntimeException("Swerve Config Failed");
-        }
-        ChassisSpeeds currentSpeeds = getState().Speeds; // Method to get current robot-relative chassis speeds
-        SwerveModuleState[] currentStates = getState().ModuleStates; // Method to get the current swerve module states
-        swerveSetpointGenerator = new SwerveSetpointGenerator(config, 12.49);
-        prevSetpoint = new SwerveSetpoint(currentSpeeds, currentStates, DriveFeedforwards.zeros(config.numModules));
-        autoFactory = createAutoFactory();
-        autoRoutines = new AutoRoutines(autoFactory);
-        configureAutoBuilder();
-    }
-
-    /**
-     * Constructs a CTRE SwerveDrivetrain using the specified constants.
-     * <p>
-     * This constructs the underlying hardware devices, so users should not construct
-     * the devices themselves. If they need the devices, they can access them through
-     * getters in the classes.
-     *
-     * @param drivetrainConstants       Drivetrain-wide constants for the swerve drive
-     * @param odometryUpdateFrequency   The frequency to run the odometry loop. If
-     *                                  unspecified or set to 0 Hz, this is 250 Hz on
-     *                                  CAN FD, and 100 Hz on CAN 2.0.
-     * @param odometryStandardDeviation The standard deviation for odometry calculation
-     *                                  in the form [x, y, theta]ᵀ, with units in meters
-     *                                  and radians
-     * @param visionStandardDeviation   The standard deviation for vision calculation
-     *                                  in the form [x, y, theta]ᵀ, with units in meters
-     *                                  and radians
-     * @param modules                   Constants for each specific module
-     */
-    public CommandSwerveDrivetrain(
-        SwerveDrivetrainConstants drivetrainConstants,
-        double odometryUpdateFrequency,
-        Matrix<N3, N1> odometryStandardDeviation,
-        Matrix<N3, N1> visionStandardDeviation,
-        SwerveModuleConstants<?, ?, ?>... modules
-    ) {
-        super(drivetrainConstants, odometryUpdateFrequency, odometryStandardDeviation, visionStandardDeviation, modules);
-        if (Utils.isSimulation()) {
-            startSimThread();
-        }
-        try {
-            config = RobotConfig.fromGUISettings();
-        } catch (Exception e) {
-            throw new RuntimeException("Swerve Config Failed");
-        }
-        ChassisSpeeds currentSpeeds = getState().Speeds; // Method to get current robot-relative chassis speeds
-        SwerveModuleState[] currentStates = getState().ModuleStates; // Method to get the current swerve module states
-        swerveSetpointGenerator = new SwerveSetpointGenerator(config, 12.49);
-        prevSetpoint = new SwerveSetpoint(currentSpeeds, currentStates, DriveFeedforwards.zeros(config.numModules));
-        autoFactory = createAutoFactory();
-        autoRoutines = new AutoRoutines(autoFactory);
-        configureAutoBuilder();
-    }
-
-    /**
-     * Creates a new auto factory for this drivetrain.
-     *
-     * @return AutoFactory for this drivetrain
-     */
-    public AutoFactory createAutoFactory() {
-        return createAutoFactory((sample, isStart) -> {});
-    }
-
-    /**
-     * Creates a new auto factory for this drivetrain with the given
-     * trajectory logger.
-     *
-     * @param trajLogger Logger for the trajectory
-     * @return AutoFactory for this drivetrain
-     */
-    public AutoFactory createAutoFactory(TrajectoryLogger<SwerveSample> trajLogger) {
-        return new AutoFactory(
-            () -> getState().Pose,
-            this::resetPose,
-            this::followPath,
-            true,
-            this,
-            trajLogger
-        );
-    }
-
-
-    public Command stopCommand() {
-        return applyRequest(SwerveRequest.SwerveDriveBrake::new);
-    }
-
     public SwerveRequest getFieldCentricRequest() {
-        double forwards = (DriverStationHelpers.getAlliance() == Alliance.Blue ? 1 : -1) * Controls.Driver.SwerveForwardAxis.getAsDouble() * DriveConstants.CURRENT_MAX_ROBOT_MPS;
-        double strafe = (DriverStationHelpers.getAlliance() == Alliance.Blue ? 1 : -1) * -Controls.Driver.SwerveStrafeAxis.getAsDouble() * DriveConstants.CURRENT_MAX_ROBOT_MPS;
-        double rotation = Controls.Driver.SwerveRotationAxis.getAsDouble() * DriveConstants.TELOP_ROTATION_SPEED;
+        double rawForwards = Controls.Driver.SwerveForwardAxis.getAsDouble() * DriveConstants.CURRENT_MAX_ROBOT_MPS;
+        double rawStrafe = -Controls.Driver.SwerveStrafeAxis.getAsDouble() * DriveConstants.CURRENT_MAX_ROBOT_MPS;
+        double rawRotation = Controls.Driver.SwerveRotationAxis.getAsDouble() * DriveConstants.TELOP_ROTATION_SPEED;
+        double allianceBasedDirection = DriverStationHelpers.getAlliance() == Alliance.Blue ? 1 : -1;
+        ChassisSpeeds chassisSpeeds = new ChassisSpeeds(
+            allianceBasedDirection * rawForwards,
+            allianceBasedDirection * rawStrafe,
+            rawRotation
+        );
+
         if (Controls.Driver.precisionTrigger.getAsBoolean()) {
-            forwards /= 4;
-            strafe /= 4;
-            rotation /= 4;
+            chassisSpeeds = chassisSpeeds.div(4.0);
         }
-        SwerveSetpoint newSetpoint = swerveSetpointGenerator.generateSetpoint(
-            prevSetpoint,
+
+        SwerveSetpoint setpoint = swerveSetpointGenerator.generateSetpoint(
+            prevSwerveSetpoint,
             ChassisSpeeds.fromFieldRelativeSpeeds(
-                new ChassisSpeeds(
-                    forwards,
-                    strafe,
-                    rotation
-                ),
+                chassisSpeeds,
                 Rotation2d.fromRadians(getPigeon2().getYaw().getValue().in(Radians))
             ),
             0.02
         );
-        prevSetpoint = newSetpoint;
+        prevSwerveSetpoint = setpoint;
+
         return new SwerveRequest.ApplyFieldSpeeds()
             .withDesaturateWheelSpeeds(true)
             .withSpeeds(
                 ChassisSpeeds.fromRobotRelativeSpeeds(
-                    newSetpoint.robotRelativeSpeeds(),
+                    setpoint.robotRelativeSpeeds(),
                     Rotation2d.fromRadians(getPigeon2().getYaw().getValue().in(Radians))
                 )
             )
-            .withWheelForceFeedforwardsX(
-                newSetpoint.feedforwards().robotRelativeForcesX()
-            )
-            .withWheelForceFeedforwardsY(
-                newSetpoint.feedforwards().robotRelativeForcesY()
-            );
+            .withWheelForceFeedforwardsX(setpoint.feedforwards().robotRelativeForcesX())
+            .withWheelForceFeedforwardsY(setpoint.feedforwards().robotRelativeForcesY());
     }
 
-    public Command pathfindCommand(Pose2d targetPose) {
+    /**
+     * Returns a command that resets the heading of the robot such that the current heading is zero
+     *
+     * @return Command to run
+     */
+    public Command resetPigeon() {
+        return Commands.runOnce(
+            () -> getPigeon2().setYaw(
+                Angle.ofBaseUnits(
+                    0,
+                    Degrees
+                )
+            )
+        );
+    }
+
+    /**
+     * Returns a command that stops the swerve drive
+     *
+     * @return Command to run
+     */
+    public Command stop() {
+        return applyRequest(SwerveRequest.SwerveDriveBrake::new);
+    }
+
+    /**
+     * Returns a command that makes the robot pathfind to the specified pose
+     *
+     * @param targetPose The pose to move to
+     * @return Command to run
+     */
+    public Command pathfindTo(Pose2d targetPose) {
         double driveBaseRadius = 0;
         for (var moduleLocation : getModuleLocations()) {
             driveBaseRadius = Math.max(driveBaseRadius, moduleLocation.getNorm());
@@ -285,32 +200,34 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
         );
     }
 
-    public Command pidToPoseCommand(Pose2d targetPose) {
-        return applyRequest(
+    /**
+     * Returns a command that moves the robot to the specified pose under PID control, without pathfinding
+     *
+     * @param targetPose The pose to move to
+     * @return Command to run
+     */
+    public Command directlyMoveTo(Pose2d targetPose) {
+        return new InstantCommand(() -> {
+            pidXController.setSetpoint(targetPose.getX());
+            pidYController.setSetpoint(targetPose.getY());
+        }).andThen(applyRequest(
             () -> {
-                pidXController.setSetpoint(targetPose.getX());
-                pidYController.setSetpoint(targetPose.getY());
-                double pidXOutput = -pidXController.calculate(getState().Pose.getX());
-                double pidYOutput = -pidYController.calculate(getState().Pose.getY());
+                double pidXOutput = -pidXController.calculate(getPose().getX());
+                double pidYOutput = -pidYController.calculate(getPose().getY());
 
                 var request = new SwerveRequest.FieldCentricFacingAngle();
                 request.HeadingController = headingController;
 
                 return request
-                    .withTargetDirection(
-                        targetPose.getRotation().plus(Rotation2d.fromDegrees(180))
-                    )
-                    .withVelocityX(
-                        pidXOutput
-                    )
-                    .withVelocityY(
-                        pidYOutput
-                    );
+                    .withVelocityX(pidXOutput)
+                    .withVelocityY(pidYOutput)
+                    // Michael says not sure why the 180-degree rotation is needed, but it just works
+                    .withTargetDirection(targetPose.getRotation().plus(Rotation2d.k180deg));
             }
         ).until(
-            () -> MathUtil.isNear(targetPose.getX(), getState().Pose.getX(), 0.025)
-                && MathUtil.isNear(targetPose.getY(), getState().Pose.getY(), 0.025)
-        );
+            () -> MathUtil.isNear(targetPose.getX(), getPose().getX(), 0.025)
+                && MathUtil.isNear(targetPose.getY(), getPose().getY(), 0.025)
+        ));
     }
 
     /**
@@ -329,18 +246,12 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
      * @param sample Sample along the path to follow
      */
     public void followPath(SwerveSample sample) {
-        pathThetaController.enableContinuousInput(-Math.PI, Math.PI);
-
-        var pose = getState().Pose;
+        var pose = getPose();
 
         var targetSpeeds = sample.getChassisSpeeds();
-        targetSpeeds.vxMetersPerSecond += pathXController.calculate(
-            pose.getX(), sample.x
-        );
-        targetSpeeds.vyMetersPerSecond += pathYController.calculate(
-            pose.getY(), sample.y
-        );
-        targetSpeeds.omegaRadiansPerSecond += pathThetaController.calculate(
+        targetSpeeds.vxMetersPerSecond += pathXController.calculate(pose.getX(), sample.x);
+        targetSpeeds.vyMetersPerSecond += pathYController.calculate(pose.getY(), sample.y);
+        targetSpeeds.omegaRadiansPerSecond += pathHeadingController.calculate(
             pose.getRotation().getRadians(), sample.heading
         );
 
@@ -353,104 +264,56 @@ public class CommandSwerveDrivetrain extends TunerConstants.TunerSwerveDrivetrai
 
     @Override
     public void periodic() {
-        updatePIDs();
-        if (!hasAppliedOperatorPerspective || DriverStation.isDisabled()) {
+        // Update the operator perspective if needed
+        if (!didApplyOperatorPerspective || DriverStation.isDisabled()) {
             DriverStation.getAlliance().ifPresent(allianceColor -> {
                 setOperatorPerspectiveForward(
                     allianceColor == Alliance.Red
                         ? DriveConstants.RedAlliancePerspectiveRotation
                         : DriveConstants.BlueAlliancePerspectiveRotation
                 );
-                hasAppliedOperatorPerspective = true;
+                didApplyOperatorPerspective = true;
             });
         }
-        VisionSubsystem
-            .getInstance()
-            .getVisionResults()
-            .forEach(
-                visionResult -> addVisionMeasurement(
-                    visionResult.getVisionPose(),
-                    visionResult.getTimestamp())
-            );
-        field.setRobotPose(getState().Pose);
+        // Update vision
+        VisionSubsystem.getInstance().getVisionResults().forEach(
+            visionResult -> addVisionMeasurement(
+                visionResult.getVisionPose(),
+                visionResult.getTimestamp()
+            )
+        );
+        // Update robot pose
+        field.setRobotPose(getPose());
+
+        // Update field on dashboard
         SmartDashboard.putData("Field2D", field);
     }
 
-    private void updatePIDs() {
-        pidXController.setP(DrivePIDs.pidToPoseXkP.get());
-        pidYController.setP(DrivePIDs.pidToPoseYkP.get());
-        pidXController.calculate(getState().Pose.getX());
-        pidYController.calculate(getState().Pose.getY());
-    }
-
+    @SuppressWarnings("resource")
     private void startSimThread() {
-        lastSimTime = Utils.getCurrentTimeSeconds();
+        new Notifier(new Runnable() {
+            double lastUpdateTimeSeconds = Utils.getCurrentTimeSeconds();
 
-        /* Run simulation at a faster rate so PID gains behave more reasonably */
-        /* use the measured time delta, get battery voltage from WPILib */
-        @SuppressWarnings("resource")
-        Notifier simNotifier = new Notifier(() -> {
-            final double currentTime = Utils.getCurrentTimeSeconds();
-            double deltaTime = currentTime - lastSimTime;
-            lastSimTime = currentTime;
+            @Override
+            public void run() {
+                // Calculate the actual time elapsed since the last invocation
+                double deltaTimeSeconds = Utils.getCurrentTimeSeconds() - lastUpdateTimeSeconds;
+                lastUpdateTimeSeconds += deltaTimeSeconds;
 
-            /* use the measured time delta, get battery voltage from WPILib */
-            updateSimState(deltaTime, RobotController.getBatteryVoltage());
-        });
-        simNotifier.startPeriodic(SIM_LOOP_PERIOD);
-    }
-
-    private void configureAutoBuilder() {
-        try {
-            var config = RobotConfig.fromGUISettings();
-            AutoBuilder.configure(
-                () -> getState().Pose,   // Supplier of current robot pose
-                this::resetPose,         // Consumer for seeding pose against auto
-                () -> getState().Speeds, // Supplier of current robot speeds
-                // Consumer of ChassisSpeeds and feedforwards to drive the robot
-                (speeds, feedforwards) -> setControl(new SwerveRequest.ApplyRobotSpeeds()
-                    .withSpeeds(speeds)
-                    .withWheelForceFeedforwardsX(feedforwards.robotRelativeForcesXNewtons())
-                    .withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesYNewtons())
-                ),
-                new PPHolonomicDriveController(
-                    // PID constants for translation
-                    new PIDConstants(10, 0, 0),
-                    // PID constants for rotation
-                    new PIDConstants(7, 0, 0)
-                ),
-                config,
-                // Assume the path needs to be flipped for Red vs Blue, this is normally the case
-                () -> false,
-                this // Subsystem for requirements
-            );
-            PathPlannerLogging.setLogActivePathCallback((poses) -> {
-                field.getObject("Pathplanner Path").setPoses(poses);
-            });
-        } catch (Exception ex) {
-            DriverStation.reportError("Failed to load PathPlanner config and configure AutoBuilder", ex.getStackTrace());
-        }
-    }
-
-    public AutoFactory getAutoFactory() {
-        return autoFactory;
-    }
-
-    public AutoRoutines getAutoRoutines() {
-        return autoRoutines;
-    }
-
-    public Command resetPigeonCommand() {
-        return Commands.runOnce(
-            () -> {
-                getPigeon2().setYaw(
-                    Angle.ofBaseUnits(
-                        0,
-                        Degrees
-                    )
+                CommandSwerveDrivetrain.this.updateSimState(
+                    deltaTimeSeconds,
+                    RobotController.getBatteryVoltage()
                 );
             }
-        );
+        }).startPeriodic(SIM_LOOP_PERIOD); // Run the simulation at a faster rate so PID behaves more reasonably
+    }
+
+    public Pose2d getPose() {
+        return getState().Pose;
+    }
+
+    public ChassisSpeeds getChassisSpeeds() {
+        return getState().Speeds;
     }
 
     public double getAccelerationInGs() {

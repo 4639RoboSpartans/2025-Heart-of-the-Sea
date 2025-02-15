@@ -11,7 +11,7 @@ import java.util.function.Supplier;
 public class AutoCommands {
     private static final CommandSwerveDrivetrain swerve = CommandSwerveDrivetrain.getInstance();
     private static final ScoringSuperstructure superstructure = ScoringSuperstructure.getInstance();
-    public static final Supplier<Command> oneSecondTimeout = () -> swerve.stopCommand().withTimeout(1);
+    public static final Supplier<Command> oneSecondTimeout = () -> swerve.stop().withTimeout(1);
     public static final Supplier<Command> L4Score = () -> getScoringSuperstructureCommand(ScoringSuperstructureState.L4);
     public static final Supplier<Command> L3Score = () -> getScoringSuperstructureCommand(ScoringSuperstructureState.L3);
     public static final Supplier<Command> L2Score = () -> getScoringSuperstructureCommand(ScoringSuperstructureState.L2);
@@ -20,13 +20,13 @@ public class AutoCommands {
 
     private static Command getScoringSuperstructureCommand(ScoringSuperstructureState state) {
         return Commands.deadline(
-                Commands.sequence(
-                        superstructure.setScoringState(state),
-                        superstructure.runScoringState().until(superstructure.isStateFinished),
-                        superstructure.setScoringState(ScoringSuperstructureState.IDLE),
-                        superstructure.runScoringState().until(superstructure.isStateFinished)
-                ),
-                swerve.stopCommand()
+            Commands.sequence(
+                superstructure.setScoringState(state),
+                superstructure.runScoringState().until(superstructure.isStateFinished),
+                superstructure.setScoringState(ScoringSuperstructureState.IDLE),
+                superstructure.runScoringState().until(superstructure.isStateFinished)
+            ),
+            swerve.stop()
         );
     }
 }
