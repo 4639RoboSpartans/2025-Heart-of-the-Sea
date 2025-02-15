@@ -15,8 +15,8 @@ public final class ScoringConstants {
         // The initial height of the elevator
         public static final Distance STARTING_HEIGHT = Inches.of(12);
 
-        public static double UP_POSITION = 63;
-        public static double DOWN_POSITION = 0;
+        public static double UP_POSITION = 63.77;
+        public static double DOWN_POSITION = 1.2;
 
         public static final double ELEVATOR_TOLERANCE = 1;
 

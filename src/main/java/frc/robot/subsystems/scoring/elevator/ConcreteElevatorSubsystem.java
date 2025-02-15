@@ -65,9 +65,9 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
         rightConfigurator.apply(configuration);
         leftElevatorMotor.setNeutralMode(NeutralModeValue.Brake);
         rightElevatorMotor.setNeutralMode(NeutralModeValue.Brake);
-        rightElevatorMotor.setControl(new Follower(IDs.ElevatorLeftID, true));
+        leftElevatorMotor.setControl(new Follower(IDs.ElevatorRightID, true));
 
-        elevatorMotor = leftElevatorMotor;
+        elevatorMotor = rightElevatorMotor;
 
         controlRequest = new MotionMagicVoltage(leftElevatorMotor.getPosition().getValueAsDouble());
     }
@@ -121,6 +121,7 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
             isStateFinished = true;
         }
         SmartDashboard.putNumber("Elevator Proportion", ElevatorConstants.ProportionToPosition.convertBackwards(getCurrentPosition()));
+        SmartDashboard.putNumber("Elevator Position", getCurrentPosition());
         SmartDashboard.putBoolean("At State", isElevatorAtPosition());
         SignalLogger.writeDouble("Elevator Position", elevatorMotor.getPosition().getValueAsDouble());
         SignalLogger.writeDouble("Elevator Velocity", elevatorMotor.getVelocity().getValueAsDouble());
