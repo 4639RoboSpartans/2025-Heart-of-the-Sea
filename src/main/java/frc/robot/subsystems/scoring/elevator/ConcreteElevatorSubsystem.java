@@ -69,6 +69,11 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
         controlRequest = new MotionMagicVoltage(leftElevatorMotor.getPosition().getValueAsDouble());
     }
 
+    /**
+     * Gets the current proprtion that the elevator is at
+     * 
+     * @return elevator proportion as double
+     */
     @Override
     public double getCurrentProportion() {
         return ElevatorConstants.ProportionToPosition.convertBackwards(
@@ -76,11 +81,21 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
         );
     }
 
+    /**
+     * Checks if the elevator is at its desired state
+     * 
+     * @returns if elevator is at desired state as boolean
+     */
     @Override
     public boolean isElevatorStateFinished() {
         return isStateFinished;
     }
 
+    /**
+     * Checks if the elevator is at its target position
+     * 
+     * @return if elevator is at position as boolean
+     */
     @Override
     public boolean isAtTarget() {
         return MathUtil.isNear(
@@ -90,6 +105,9 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
         );
     }
 
+    /**
+     * Sets the state of the elevator and its target position
+     */
     @Override
     public void updateElevatorState(ScoringSuperstructureState state) {
         this.state = state;
@@ -97,6 +115,9 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
         controlRequest.Position = getTargetPosition();
     }
 
+    /**
+     * Runs the Elevator
+     */
     @Override
     public void runElevator() {
         elevatorMotor.setControl(controlRequest);
@@ -117,6 +138,11 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
         SignalLogger.writeDouble("Elevator Voltage", elevatorMotor.getMotorVoltage().getValueAsDouble());
     }
 
+    /**
+     * Sets the elevator motors as a specific Voltage
+     * 
+     * @param Voltage the voltage elevator is being set to
+     */
     @Override
     public void setRawMotorVoltage(Voltage voltage) {
         elevatorMotor.setControl(new VoltageOut(voltage));
