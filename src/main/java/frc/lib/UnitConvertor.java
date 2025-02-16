@@ -78,8 +78,8 @@ public interface UnitConvertor<A, B> {
      * Creates a unit converter between units that have a linear relationship, with an offset
      *
      * @param applyOffsetFirst If true, {@link UnitConvertor#convert convert(x)} returns
-     *                         (x * factor) + offset, otherwise, it returns
-     *                         (x + offset) * factor
+     *                         (x + offset) * factor, otherwise, it returns
+     *                         (x * factor) + offset
      */
     static UnitConvertor<Double, Double> linear(double factor, double offset, boolean applyOffsetFirst) {
         double actualOffset = applyOffsetFirst ? offset * factor : offset;
@@ -92,7 +92,7 @@ public interface UnitConvertor<A, B> {
 
             @Override
             public Double convertBackwards(Double amountB) {
-                return (amountB - offset) / actualOffset;
+                return (amountB - actualOffset) / factor;
             }
         };
     }
@@ -101,7 +101,7 @@ public interface UnitConvertor<A, B> {
      * Creates a unit convertor that linearly scales a range (minA, maxA) to a range (minB, maxB).
      */
     static UnitConvertor<Double, Double> linearConvertingRange(double minA, double maxA, double minB, double maxB) {
-        double factor = (maxB - minB) / (maxA - maxB);
+        double factor = (maxB - minB) / (maxA - minA);
         return linear(
             factor,
             minB - factor * minA,

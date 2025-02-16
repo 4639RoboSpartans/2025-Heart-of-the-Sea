@@ -5,138 +5,230 @@
 
 package frc.robot.robot;
 
+import choreo.auto.AutoRoutine;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.commands.AutoRoutines;
 import frc.robot.constants.Controls;
 import frc.robot.constants.FieldConstants;
-import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
 import frc.robot.subsystems.drive.DriveCommands;
+import frc.robot.subsystems.drive.DrivetrainSubsystem;
+import frc.robot.subsystems.drive.SwerveAutoRoutinesCreator;
 import frc.robot.subsystems.scoring.ScoringSuperstructure;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
+import frc.robot.subsystems.scoring.constants.ScoringConstants;
+import frc.robot.subsystems.vision.VisionSubsystem;
 
 import java.util.Arrays;
 
+import static edu.wpi.first.units.Units.Meters;
+
 
 public class RobotContainer {
-    private final CommandSwerveDrivetrain swerve = CommandSwerveDrivetrain.getInstance();
+    private final DrivetrainSubsystem swerve = DrivetrainSubsystem.getInstance();
     private final ScoringSuperstructure scoringSuperstructure = ScoringSuperstructure.getInstance();
     @SuppressWarnings("unused")
     private final RobotSim robotSim = new RobotSim();
     private final SendableChooser<Command> autoChooser;
-    private final SendableChooser<Pose2d> m_startPositionChooser = new SendableChooser<>();
+    private final SendableChooser<Pose2d> startPositionChooser = new SendableChooser<>();
+
+    private StructArrayPublisher<Pose3d> componentPoses = NetworkTableInstance.getDefault()
+        .getStructArrayTopic("zeroed component poses", Pose3d.struct).publish();
 
     public RobotContainer() {
+        // DO NOT REMOVE! As of now, the only other place that VisionSubsystem is instantiated
+        // is in the periodic() method of CommandSwerveDriveTrain. However, if we instantiate a
+        // subsystem in a periodic method, it will result in a concurrentModificationException
+        // during the command scheduler run because a new Subsystem will be added to the Set of
+        // subsystems as the scheduler iterates over them. Thus, we pre-instantiate the vision
+        // subsystem here to avoid that problem.
+        VisionSubsystem.getInstance();
+
+        // create auto routines here because we're configuring AutoBuilder in this method
+        //TODO: take this out when we correctly refactor configurAutoBuilder to a new place
+        AutoRoutines swerveAutoRoutines = SwerveAutoRoutinesCreator.createAutoRoutines(swerve);
+
         configureBindings();
 
         autoChooser = new SendableChooser<>();
-        autoChooser.addOption("Auto 1", swerve.getAutoRoutines().Path1().cmd());
-        autoChooser.addOption("Auto 2", swerve.getAutoRoutines().auto2().cmd());
-        autoChooser.addOption("Auto 3", swerve.getAutoRoutines().auto3().cmd());
-        autoChooser.addOption("Auto 4", swerve.getAutoRoutines().auto4().cmd());
+        addAllCompAutons(autoChooser, swerveAutoRoutines);
         SmartDashboard.putData("Auto Chooser", autoChooser);
 
-        m_startPositionChooser.setDefaultOption("DEFAULT", new Pose2d());
+        startPositionChooser.setDefaultOption("DEFAULT", new Pose2d());
         SmartDashboard.putBoolean("pigeon reset", false);
         Arrays.stream(FieldConstants.AutonStartingPositions.values()).forEach(
-                position -> m_startPositionChooser.addOption(position.name(), position.Pose)
+            position -> startPositionChooser.addOption(position.name(), position.Pose)
         );
-        SmartDashboard.putData("Selected Reset Position", m_startPositionChooser);
+        SmartDashboard.putData("Selected Reset Position", startPositionChooser);
     }
 
     private void configureBindings() {
-        swerve.setDefaultCommand(swerve.applyRequest(swerve::getFieldCentricRequest));
+        swerve.setDefaultCommand(swerve.manualControl());
         scoringSuperstructure.setDefaultCommand(scoringSuperstructure.runScoringState());
 
         //Scoring Controls
         {
             Controls.Driver.rotationResetTrigger.onTrue(
-                    swerve.resetPigeonCommand()
+                swerve.resetPigeon()
             );
 
             Controls.Operator.BargeScoringTrigger.onTrue(
-                    scoringSuperstructure.setScoringState(
-                            ScoringSuperstructureState.BARGE_SCORING
-                    )
+                scoringSuperstructure.setScoringState(
+                    ScoringSuperstructureState.BARGE_SCORING
+                )
             );
             Controls.Operator.HPLoadingTrigger.onTrue(
-                    scoringSuperstructure.setScoringState(
-                            ScoringSuperstructureState.HP_LOADING
-                    )
+                scoringSuperstructure.setScoringState(
+                    ScoringSuperstructureState.HP_LOADING
+                )
             );
             Controls.Operator.L1Trigger.onTrue(
-                    scoringSuperstructure.setScoringState(
-                            ScoringSuperstructureState.L1
-                    )
+                scoringSuperstructure.setScoringState(
+                    ScoringSuperstructureState.L1
+                )
             );
             Controls.Operator.L2Trigger.onTrue(
-                    scoringSuperstructure.setScoringState(
-                            ScoringSuperstructureState.L2
-                    )
+                scoringSuperstructure.setScoringState(
+                    ScoringSuperstructureState.L2
+                )
             );
             Controls.Operator.L3Trigger.onTrue(
-                    scoringSuperstructure.setScoringState(
-                            ScoringSuperstructureState.L3
-                    )
+                scoringSuperstructure.setScoringState(
+                    ScoringSuperstructureState.L3
+                )
             );
             Controls.Operator.L4Trigger.onTrue(
-                    scoringSuperstructure.setScoringState(
-                            ScoringSuperstructureState.L4
-                    )
+                scoringSuperstructure.setScoringState(
+                    ScoringSuperstructureState.L4
+                )
             );
             Controls.Operator.L2AlgaeTrigger.onTrue(
-                    scoringSuperstructure.setScoringState(
-                            ScoringSuperstructureState.L2_ALGAE
-                    )
+                scoringSuperstructure.setScoringState(
+                    ScoringSuperstructureState.L2_ALGAE
+                )
             );
             Controls.Operator.L3AlgaeTrigger.onTrue(
-                    scoringSuperstructure.setScoringState(
-                            ScoringSuperstructureState.L3_ALGAE
-                    )
+                scoringSuperstructure.setScoringState(
+                    ScoringSuperstructureState.L3_ALGAE
+                )
             );
             Controls.Operator.HoldTrigger.onTrue(
                 scoringSuperstructure.hold()
-//                    scoringSuperstructure.setScoringState(ScoringSuperstructureState.L2_ALGAE)
+            );
+
+            Controls.Operator.ToggleManualControlTrigger.whileTrue(
+                scoringSuperstructure.toggleManualControl()
             );
         }
 
         //Driving Controls
         {
             Controls.Driver.PathfindReef_0.whileTrue(
-                    DriveCommands.pathfindToReefCommand(
-                            FieldConstants.TargetPositions.REEF_0
-                    )
+                DriveCommands.pathfindToReefCommand(
+                    FieldConstants.TargetPositions.REEF_0
+                )
             );
             Controls.Driver.PathfindReef_1.whileTrue(
-                    DriveCommands.pathfindToReefCommand(
-                            FieldConstants.TargetPositions.REEF_1
-                    )
+                DriveCommands.pathfindToReefCommand(
+                    FieldConstants.TargetPositions.REEF_1
+                )
             );
             Controls.Driver.PathfindReef_2.whileTrue(
-                    DriveCommands.pathfindToReefCommand(
-                            FieldConstants.TargetPositions.REEF_2
-                    )
+                DriveCommands.pathfindToReefCommand(
+                    FieldConstants.TargetPositions.REEF_2
+                )
             );
             Controls.Driver.PathfindReef_3.whileTrue(
-                    DriveCommands.pathfindToReefCommand(
-                            FieldConstants.TargetPositions.REEF_3
-                    )
+                DriveCommands.pathfindToReefCommand(
+                    FieldConstants.TargetPositions.REEF_3
+                )
             );
             Controls.Driver.PathfindReef_4.whileTrue(
-                    DriveCommands.pathfindToReefCommand(
-                            FieldConstants.TargetPositions.REEF_4
-                    )
+                DriveCommands.pathfindToReefCommand(
+                    FieldConstants.TargetPositions.REEF_4
+                )
             );
             Controls.Driver.PathfindReef_5.whileTrue(
-                    DriveCommands.pathfindToReefCommand(
-                            FieldConstants.TargetPositions.REEF_5
-                    )
+                DriveCommands.pathfindToReefCommand(
+                    FieldConstants.TargetPositions.REEF_5
+                )
             );
+        }
+        /*OI.getInstance().operatorController().Y_BUTTON.whileTrue(
+                ElevatorSysID.sysIdQuasistatic(SysIdRoutine.Direction.kForward)
+        );
+        OI.getInstance().operatorController().A_BUTTON.whileTrue(
+                ElevatorSysID.sysIdQuasistatic(SysIdRoutine.Direction.kReverse)
+        );
+        OI.getInstance().operatorController().POV_UP.whileTrue(
+                ElevatorSysID.sysIdDynamic(SysIdRoutine.Direction.kForward)
+        );
+        OI.getInstance().operatorController().POV_DOWN.whileTrue(
+                ElevatorSysID.sysIdDynamic(SysIdRoutine.Direction.kReverse)
+        );*/
+
+    }
+
+    private void addAllCompAutons(SendableChooser<Command> autoChooser, AutoRoutines swerveAutoRoutines) {
+        for (AutoRoutine a : swerveAutoRoutines.getAllCompRoutines()) {
+            autoChooser.addOption(a.toString(), a.cmd());
         }
     }
 
     public Command getAutonomousCommand() {
         return autoChooser.getSelected();
+    }
+
+    public void add3DComponentPoses() {
+        componentPoses.set(
+            new Pose3d[]{
+                new Pose3d(
+                    new Translation3d(
+                        0,
+                        0,
+                        (scoringSuperstructure.getCurrentElevatorLength().in(Meters)
+                            - ScoringConstants.ElevatorConstants.STARTING_HEIGHT.in(Meters)) / 3.0),
+                    new Rotation3d()
+                ),
+                new Pose3d(
+                    new Translation3d(
+                        0,
+                        0,
+                        (scoringSuperstructure.getCurrentElevatorLength().in(Meters)
+                            - ScoringConstants.ElevatorConstants.STARTING_HEIGHT.in(Meters)) * 2.0 / 3.0),
+                    new Rotation3d()
+                ),
+                new Pose3d(
+                    new Translation3d(
+                        0,
+                        0,
+                        (scoringSuperstructure.getCurrentElevatorLength().in(Meters)
+                            - ScoringConstants.ElevatorConstants.STARTING_HEIGHT.in(Meters))),
+                    new Rotation3d()
+                ),
+                new Pose3d(
+                    new Translation3d(
+                        0,
+                        0,
+                        (scoringSuperstructure.getCurrentElevatorLength().in(Meters)
+                            - ScoringConstants.ElevatorConstants.STARTING_HEIGHT.in(Meters))
+                    ).plus(
+                        ScoringConstants.HopperConstants.Hopper3DSimOffset
+                    ),
+                    new Rotation3d(
+                        0,
+                        -scoringSuperstructure.getCurrentWristRotation().minus(ScoringConstants.HopperConstants.IDLE_ROTATION).getRadians(),
+                        0
+                    )
+                )
+            }
+        );
     }
 }

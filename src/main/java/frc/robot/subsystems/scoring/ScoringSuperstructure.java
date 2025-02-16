@@ -3,11 +3,13 @@ package frc.robot.subsystems.scoring;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.RobotState;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.subsystems.drive.DrivetrainSubsystem;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
 import frc.robot.subsystems.scoring.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.scoring.elevator.ElevatorSysID;
@@ -29,15 +31,21 @@ public class ScoringSuperstructure extends SubsystemBase {
     private final HopperSubsystem hopper;
 
     private ScoringSuperstructureState state = ScoringSuperstructureState.IDLE;
+    private ScoringSuperstructureState prevState = ScoringSuperstructureState.IDLE;
+    private boolean isManualControlEnabled = false;
 
     public ScoringSuperstructure() {
         this.elevator = ElevatorSubsystem.getInstance();
         this.hopper = HopperSubsystem.getInstance();
+        SmartDashboard.putBoolean("isManualControlEnabled", isManualControlEnabled);
     }
 
     private void setState(ScoringSuperstructureState state) {
+        if (this.state != state) {
+            prevState = this.state;
+        }
         this.state = state;
-        elevator.setElevatorState(state);
+        elevator.updateElevatorState(state);
         hopper.setHopper(state);
     }
 
@@ -57,13 +65,13 @@ public class ScoringSuperstructure extends SubsystemBase {
      */
     public Command setScoringState(Supplier<ScoringSuperstructureState> state) {
         return Commands.runOnce(
-                () -> setState(state.get())
+            () -> setState(state.get())
         );
     }
 
     public Command hold() {
-        return setScoringState(ScoringSuperstructureState.HOLD(
-            ScoringConstants.ElevatorConstants.ProportionToPosition.convertBackwards(elevator.getCurrentPosition()),
+        return setScoringState(() -> ScoringSuperstructureState.HOLD(
+            elevator.getCurrentProportion(),
             ScoringConstants.HopperConstants.ProportionToPosition.convertBackwards(hopper.getCurrentPosition())
         ));
     }
@@ -74,43 +82,46 @@ public class ScoringSuperstructure extends SubsystemBase {
     public Command runScoringState() {
         return Commands.run(
             () -> {
-                if (state.lastToMove == null) {
-                    hopper.runHopper();
+                if (!state.useTransitionState || !prevState.useTransitionState) {
                     elevator.runElevator();
-                } else if (state.lastToMove == ElevatorSubsystem.class) {
-                    if (hopper.isHopperAtPosition()) {
-                        elevator.runElevator();
-                        if (elevator.isElevatorAtPosition()) {
-                            hopper.setHopper(state);
-                        }
-                        hopper.runHopper();
-                    } else {
-                        if (!elevator.isElevatorAtPosition()) {
+                } else {
+                    if (hopper.getHopperState() != ScoringSuperstructureState.TRANSITION_STATE) {
+                        if (elevator.isAtTarget()) {
+                            elevator.runElevator();
+                        } else {
                             hopper.setHopper(ScoringSuperstructureState.TRANSITION_STATE);
                         }
-                        hopper.runHopper();
-                    }
-                } else if (state.lastToMove == HopperSubsystem.class) {
-                    if (elevator.isElevatorAtPosition()) {
-                        hopper.setHopper(state);
-                        hopper.runHopper();
-                        elevator.runElevator();
                     } else {
-                        elevator.runElevator();
-                        hopper.setHopper(ScoringSuperstructureState.TRANSITION_STATE);
-                        hopper.runHopper();
+                        if (hopper.isAtTarget()) {
+                            if (elevator.isAtTarget()) {
+                                hopper.setHopper(state);
+                            }
+                            elevator.runElevator();
+                        }
                     }
                 }
+
+                // TODO: choose one place to call runHopper
+                //  either in hopper periodic or in here but right now it runs in both
+                hopper.runHopper();
             },
             this
         );
+    }
+
+    public Command toggleManualControl() {
+        return runOnce(() -> {
+            this.isManualControlEnabled = !this.isManualControlEnabled;
+            this.elevator.setManualControlEnabled(isManualControlEnabled);
+            this.hopper.setManualControlEnabled(isManualControlEnabled);
+        });
     }
 
     /**
      * @return whether both "sub-subsystems" at the specified position
      */
     public boolean isAtPosition() {
-        return elevator.isElevatorAtPosition() && hopper.isHopperAtPosition();
+        return elevator.isAtTarget() && hopper.isAtTarget();
     }
 
     public Trigger isAtPosition = new Trigger(this::isAtPosition);
@@ -137,20 +148,26 @@ public class ScoringSuperstructure extends SubsystemBase {
         } else if (RobotState.isTeleop() && !state.control.getAsBoolean()) {
             setState(ScoringSuperstructureState.IDLE);
         }
+
+        //Sets scoring mechanisms to IDLE in case robot acceleration is high.
+        if (DrivetrainSubsystem.getInstance().getAccelerationInGs() >= .4) {
+            setState(ScoringSuperstructureState.IDLE);
+        }
+        SmartDashboard.putBoolean("isManualControlEnabled", isManualControlEnabled);
     }
 
     /**
      * @return the real life length of the elevator, for use in simulation only.
      */
     public Distance getCurrentElevatorLength() {
-        return elevator.getCurrentLength();
+        return elevator.getCurrentHeight();
     }
 
     /**
      * @return the real life target length of the elevator, for use in simulation only.
      */
     public Distance getTargetElevatorLength() {
-        return elevator.getTargetLength();
+        return elevator.getTargetHeight();
     }
 
     /**

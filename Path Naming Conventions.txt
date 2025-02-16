@@ -1,0 +1,24 @@
+Paths for use in competitions start with "COMP-"
+Otherwise, start with "TEST-"
+
+Reef sides are designated as follows:
+A, B are on the side facing DS, A on left, B on right
+Going counter-clockwise from A and B, each of the 2 branches on each face has its own letter
+
+    GH
+  IJ  EF
+  KL  CD
+    AB
+    DS
+
+Full path examples:
+COMP-A-B-C
+TEST-I-L-H-C
+
+We can assign scoring heights to the auton in code, so heights are unneeded when naming paths.
+When naming paths in code, add the heights after each location
+For example:
+A4, C2, L1, etc.
+
+Full auton example:
+COMP-A4-B4-C3

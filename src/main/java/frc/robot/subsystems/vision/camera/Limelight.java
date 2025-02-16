@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.lib.DriverStationHelpers;
 import frc.lib.network.LimelightHelpers;
 import frc.lib.network.LimelightHelpers.PoseEstimate;
-import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
+import frc.robot.subsystems.drive.DrivetrainSubsystem;
 import frc.robot.subsystems.vision.VisionResult;
 
 /**
@@ -35,7 +35,7 @@ public class Limelight implements Camera {
 
     @Override
     public Optional<VisionResult> getBotPoseAsVisionResult(boolean allianceFlipped) {
-        LimelightHelpers.SetRobotOrientation(name, CommandSwerveDrivetrain.getInstance().getState().Pose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
+        LimelightHelpers.SetRobotOrientation(name, DrivetrainSubsystem.getInstance().getPose().getRotation().getDegrees(), 0, 0, 0, 0, 0);
         PoseEstimate poseEstimate = DriverStationHelpers.getAlliance() == Alliance.Blue || !allianceFlipped 
                                         ? LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(name)
                                         : LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2(name);
@@ -49,7 +49,7 @@ public class Limelight implements Camera {
     private Optional<Pose2d> verifyPose(Pose2d measurement, boolean allianceFlipped){
         return (measurement.getX() == 0 || measurement.getY() == 0
             ? Optional.empty()
-            : (measurement.getTranslation().getDistance(CommandSwerveDrivetrain.getInstance().getState().Pose.getTranslation()) <= 1
+            : (measurement.getTranslation().getDistance(DrivetrainSubsystem.getInstance().getPose().getTranslation()) <= 1
                 ? Optional.of(measurement)
                 : Optional.empty())
             );

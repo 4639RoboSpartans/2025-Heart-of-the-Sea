@@ -1,7 +1,6 @@
 package frc.robot.subsystems.scoring.hopper;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -15,13 +14,11 @@ import frc.robot.subsystems.scoring.constants.ScoringConstants;
 import frc.robot.subsystems.scoring.constants.ScoringPIDs;
 
 public class SimHopperSubsystem extends HopperSubsystem {
-    private static final double secondsUntilIntakeOuttakeEnd = 1;
+    private static final double secondsUntilIntakeOuttakeEnd = 0.25;
 
     private final ProfiledPIDController pivotPID;
-    private final ArmFeedforward pivotFeedforward;
     private final SingleJointedArmSim pivotSim;
 
-    private ScoringSuperstructureState state = ScoringSuperstructureState.IDLE;
     private double intakeSpeed;
 
     private double secondsFromIntakeOuttakeStart = 0;
@@ -39,12 +36,6 @@ public class SimHopperSubsystem extends HopperSubsystem {
                 ScoringPIDs.wristAcceleration.get()
             )
         );
-        pivotFeedforward = new ArmFeedforward(
-            ScoringPIDs.elevatorKs.get(),
-            ScoringPIDs.elevatorKg.get(),
-            ScoringPIDs.elevatorKv.get(),
-            ScoringPIDs.elevatorKa.get()
-        );
         pivotSim = new SingleJointedArmSim(
             LinearSystemId.createSingleJointedArmSystem(
                 DCMotor.getNEO(1),
@@ -56,14 +47,9 @@ public class SimHopperSubsystem extends HopperSubsystem {
             0.419,
             ScoringConstants.HopperConstants.ProportionToRotation.convert(1.).getRadians(),
             ScoringConstants.HopperConstants.ProportionToRotation.convert(0.).getRadians(),
-            true,
+            false,
             ScoringConstants.HopperConstants.ProportionToRotation.convert(0.).getRadians()
         );
-    }
-
-    @Override
-    public double getCurrentPosition() {
-        return ScoringSuperstructureState.getWristSimPosition(getCurrentRotation());
     }
 
     @Override
@@ -72,22 +58,12 @@ public class SimHopperSubsystem extends HopperSubsystem {
     }
 
     @Override
-    public double getTargetPosition() {
-        return ScoringSuperstructureState.getWristSimPosition(getTargetRotation());
-    }
-
-    @Override
-    public Rotation2d getTargetRotation() {
-        return state.getWristSimRotation();
-    }
-
-    @Override
     public double getIntakeSpeed() {
         return intakeSpeed;
     }
 
     @Override
-    public boolean isHopperAtPosition() {
+    public boolean isAtTarget() {
         return MathUtil.isNear(
             ScoringSuperstructureState.getWristSimPosition(getTargetRotation()),
             ScoringSuperstructureState.getWristSimPosition(getCurrentRotation()),
@@ -97,6 +73,7 @@ public class SimHopperSubsystem extends HopperSubsystem {
 
     @Override
     public boolean isHopperStateFinished() {
+        if (state == ScoringSuperstructureState.IDLE) return isAtTarget();
         return isStateFinished;
     }
 
@@ -122,10 +99,14 @@ public class SimHopperSubsystem extends HopperSubsystem {
     @Override
     protected void runHopperPosition() {
         pivotSim.update(0.020);
-        double output = pivotPID.calculate(getCurrentPosition())
-            + pivotFeedforward.calculate(getCurrentRotation().getRadians(), pivotPID.getVelocityError());
+        double output = -pivotPID.calculate(getCurrentPosition());
         pivotSim.setInputVoltage(output);
         SmartDashboard.putNumber("Wrist Output", output);
+        SmartDashboard.putNumber("Wrist Current Position", getCurrentPosition());
+        SmartDashboard.putNumber("Wrist Sim Angle", Rotation2d.fromRadians(pivotSim.getAngleRads()).getDegrees());
+        SmartDashboard.putNumber("Wrist Target Position", getTargetPosition());
+        SmartDashboard.putNumber("Wrist Setpoint Position", pivotPID.getSetpoint().position);
+        SmartDashboard.putNumber("Wrist Setpoint Velocity", pivotPID.getSetpoint().velocity);
     }
 
     @Override

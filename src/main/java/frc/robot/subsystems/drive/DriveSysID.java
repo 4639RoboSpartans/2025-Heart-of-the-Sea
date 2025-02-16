@@ -9,7 +9,7 @@ import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 
 public class DriveSysID {
-    private static final CommandSwerveDrivetrain drivetrain = CommandSwerveDrivetrain.getInstance();
+    private static final DrivetrainSubsystem drivetrain = DrivetrainSubsystem.getInstance();
     private static final SwerveRequest.SysIdSwerveTranslation m_translationCharacterization = new SwerveRequest.SysIdSwerveTranslation();
     private static final SwerveRequest.SysIdSwerveSteerGains m_steerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
     private static final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();

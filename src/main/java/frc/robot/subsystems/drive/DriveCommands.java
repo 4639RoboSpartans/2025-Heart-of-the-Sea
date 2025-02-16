@@ -8,24 +8,24 @@ import frc.robot.constants.Controls;
 import frc.robot.constants.FieldConstants;
 
 public class DriveCommands {
-    private static final CommandSwerveDrivetrain swerve = CommandSwerveDrivetrain.getInstance();
+    private static final DrivetrainSubsystem swerve = DrivetrainSubsystem.getInstance();
 
     public static Command pathfindToReefCommand(FieldConstants.TargetPositions targetPosition) {
         return Commands.sequence(
-                swerve.pathfindCommand(
+                swerve.pathfindTo(
                         AllianceFlipUtil.apply(
                                 targetPosition.Pose
                         )
                 ),
                 Commands.either(
-                        swerve.pidToPoseCommand(
+                        swerve.directlyMoveTo(
                                 AllianceFlipUtil.apply(
                                         PoseUtil.leftOf(
                                                 targetPosition
                                         )
                                 )
                         ),
-                        swerve.pidToPoseCommand(
+                        swerve.directlyMoveTo(
                                 AllianceFlipUtil.apply(
                                         PoseUtil.rightOf(
                                                 targetPosition

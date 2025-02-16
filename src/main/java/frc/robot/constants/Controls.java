@@ -83,6 +83,7 @@ public class Controls {
         public static final Trigger L3Trigger = operatorController.LEFT_BUMPER;
         public static final Trigger L4Trigger = operatorController.RIGHT_BUMPER;
 
+
         public static final Trigger L2AlgaeTrigger = operatorController.X_BUTTON;
         public static final Trigger L3AlgaeTrigger = operatorController.Y_BUTTON;
 
@@ -91,5 +92,16 @@ public class Controls {
         public static final Trigger HPLoadingTrigger = operatorController.B_BUTTON;
 
         public static final Trigger HoldTrigger = operatorController.POV_UP;
+
+        public static Trigger ToggleManualControlTrigger = operatorController.LEFT_STICK;
+
+        public static final DoubleSupplier ManualControlHopper = () -> (
+            (operatorController.POV_RIGHT.getAsBoolean() ? 1 : 0) -
+                (operatorController.POV_LEFT.getAsBoolean() ? 1 : 0)
+        );
+        public static final DoubleSupplier ManualControlElevator = () -> (
+            (operatorController.POV_UP.getAsBoolean() ? 1 : 0) -
+                (operatorController.POV_DOWN.getAsBoolean() ? 1 : 0)
+        );
     }
 }

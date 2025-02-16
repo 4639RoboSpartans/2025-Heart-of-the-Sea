@@ -13,11 +13,11 @@ public class ElevatorSysID {
             new SysIdRoutine.Config(
                     Volts.of(4).per(Second),
                     Volts.of(3),
-                    Seconds.of(2),
+                    Seconds.of(3),
                     (state) -> SignalLogger.writeString("state", state.toString())
             ),
             new SysIdRoutine.Mechanism(
-                    elevator::setElevatorMotorVoltsSysID,
+                    elevator::setRawMotorVoltage,
                     null,
                     elevator
             )
