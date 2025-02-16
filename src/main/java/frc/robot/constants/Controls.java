@@ -91,5 +91,16 @@ public class Controls {
         public static final Trigger HPLoadingTrigger = operatorController.B_BUTTON;
 
         public static final Trigger HoldTrigger = operatorController.POV_UP;
+
+        public static Trigger ToggleManualControlTrigger = operatorController.A_BUTTON.and(operatorController.B_BUTTON).and(operatorController.POV_UP);
+
+        public static final DoubleSupplier ManualControlHopper = () -> (
+            (operatorController.POV_RIGHT.getAsBoolean() ? 1 : 0) -
+                (operatorController.POV_LEFT.getAsBoolean() ? 1 : 0)
+        );
+        public static final DoubleSupplier ManualControlElevator = () -> (
+            (operatorController.POV_UP.getAsBoolean() ? 1 : 0) -
+                (operatorController.POV_DOWN.getAsBoolean() ? 1 : 0)
+        );
     }
 }

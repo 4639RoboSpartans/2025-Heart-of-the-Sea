@@ -5,6 +5,7 @@ import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
@@ -14,6 +15,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.constants.Controls;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 
 import static frc.robot.subsystems.scoring.constants.ScoringConstants.ElevatorConstants;
@@ -99,12 +101,23 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
 
     @Override
     public void runElevator() {
-        elevatorMotor.setControl(controlRequest);
+        if (!isManualControlEnabled) {
+            elevatorMotor.setControl(controlRequest);
+        }
         SmartDashboard.putNumber("output", elevatorMotor.getMotorVoltage().getValueAsDouble());
     }
 
+
     @Override
     public void periodic() {
+        if (isManualControlEnabled) {
+            double outputSpeed = Controls.Operator.ManualControlElevator.getAsDouble() * 0.8;
+            // TODO: implement limits
+            elevatorMotor.setControl(new DutyCycleOut(
+                outputSpeed
+            ));
+        }
+
         if (isAtTarget()) {
             isStateFinished = true;
         }

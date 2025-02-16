@@ -6,7 +6,6 @@ import edu.wpi.first.units.measure.Distance;
 import frc.lib.UnitConvertor;
 
 import static edu.wpi.first.units.Units.Inches;
-import static edu.wpi.first.units.Units.Meters;
 
 public final class ScoringConstants {
     public static final class ElevatorConstants {
@@ -94,9 +93,9 @@ public final class ScoringConstants {
         }
 
         public static final Translation3d Hopper3DSimOffset = new Translation3d(
-                0.275,
-                0,
-                0.38125
+            0.275,
+            0,
+            0.38125
         );
     }
 
@@ -107,11 +106,11 @@ public final class ScoringConstants {
         public static final String ElevatorCANBusName = "MainCANivore";
         public static final String WristCANBusName = "MainCANivore";
 
-        public static final int IntakeMotorID = 10;
-        public static final int WristMotorID = 11;
+        public static final int IntakeMotorID = 23;
+        public static final int WristMotorID = 24;
 
-        public static final int WristEncoderID = 12;
+        public static final int WristEncoderID = 25;
 
-        public static final int LaserCANID = 13;
+        public static final int LaserCANID = 26;
     }
 }

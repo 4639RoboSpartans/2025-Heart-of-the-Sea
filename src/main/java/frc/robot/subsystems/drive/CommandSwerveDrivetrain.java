@@ -45,7 +45,8 @@ import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
 
 public class CommandSwerveDrivetrain extends Drivetrain {
-    private final TunerSwerveDrivetrain drivetrain;
+    // TODO: fix everything else so that this can be not public
+    public final TunerSwerveDrivetrain drivetrain;
 
     private static final double SIM_LOOP_PERIOD = 0.005; // 5 ms
 
@@ -354,5 +355,9 @@ public class CommandSwerveDrivetrain extends Drivetrain {
      */
     public double getSwerveSpeedMultiplier() {
         return 1 - Math.pow(ElevatorSubsystem.getInstance().getCurrentProportion(), 3) / 2;
+    }
+
+    public void resetPose(Pose2d pose) {
+        drivetrain.resetPose(pose);
     }
 }

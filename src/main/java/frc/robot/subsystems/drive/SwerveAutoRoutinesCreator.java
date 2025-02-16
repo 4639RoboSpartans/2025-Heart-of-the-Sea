@@ -20,7 +20,7 @@ public final class SwerveAutoRoutinesCreator {
             drivetrain::resetPose,
             drivetrain::getChassisSpeeds,
             // Function that uses chassisSpeeds and feedforward values to drive the robot
-            (speeds, feedforwards) -> drivetrain.setControl(
+            (speeds, feedforwards) -> drivetrain.drivetrain.setControl(
                 new SwerveRequest.ApplyRobotSpeeds()
                     .withSpeeds(speeds)
                     .withWheelForceFeedforwardsX(feedforwards.robotRelativeForcesXNewtons())

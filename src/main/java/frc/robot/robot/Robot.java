@@ -45,7 +45,6 @@ public class Robot extends LoggedRobot {
         robotContainer.add3DComponentPoses();
     }
 
-
     @Override
     public void disabledInit() {
 
@@ -70,7 +69,6 @@ public class Robot extends LoggedRobot {
             autonomousCommand.schedule();
         }
     }
-
 
     @Override
     public void autonomousPeriodic() {

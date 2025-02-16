@@ -60,7 +60,7 @@ public class PhotonVision implements Camera {
         Pose2d measurement = getPose2dAllianceFlipped(pose, allianceFlipped);
         return (measurement.getX() == 0 || measurement.getY() == 0
             ? Optional.empty()
-            : (measurement.getTranslation().getDistance(CommandSwerveDrivetrain.getInstance().getState().Pose.getTranslation()) <= 1
+            : (measurement.getTranslation().getDistance(CommandSwerveDrivetrain.getInstance().drivetrain.getState().Pose.getTranslation()) <= 1
                 ? Optional.of(measurement)
                 : Optional.empty())
             );

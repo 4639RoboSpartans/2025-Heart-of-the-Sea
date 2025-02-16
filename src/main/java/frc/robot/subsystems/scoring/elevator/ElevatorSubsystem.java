@@ -27,6 +27,12 @@ public abstract class ElevatorSubsystem extends SubsystemBase {
      */
     protected ScoringSuperstructureState state = ScoringSuperstructureState.IDLE;
 
+    protected boolean isManualControlEnabled = false;
+
+    public void setManualControlEnabled(boolean manualControlEnabled) {
+        isManualControlEnabled = manualControlEnabled;
+    }
+
     /**
      * Get the current extension proportion of the elevator, where 0 means
      * fully retracted and 1 means fully extended

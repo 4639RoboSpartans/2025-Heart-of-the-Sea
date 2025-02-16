@@ -23,7 +23,7 @@ public class DriveSysID {
                     state -> SignalLogger.writeString("SysIdTranslation_State", state.toString())
             ),
             new SysIdRoutine.Mechanism(
-                    output -> drivetrain.setControl(m_translationCharacterization.withVolts(output)),
+                    output -> drivetrain.drivetrain.setControl(m_translationCharacterization.withVolts(output)),
                     null,
                     drivetrain
             )
@@ -39,7 +39,7 @@ public class DriveSysID {
                     state -> SignalLogger.writeString("SysIdSteer_State", state.toString())
             ),
             new SysIdRoutine.Mechanism(
-                    volts -> drivetrain.setControl(m_steerCharacterization.withVolts(volts)),
+                    volts -> drivetrain.drivetrain.setControl(m_steerCharacterization.withVolts(volts)),
                     null,
                     drivetrain
             )
@@ -55,7 +55,7 @@ public class DriveSysID {
             ),
             new SysIdRoutine.Mechanism(
                     output -> {
-                        drivetrain.setControl(m_rotationCharacterization.withRotationalRate(output.in(Volts)));
+                        drivetrain.drivetrain.setControl(m_rotationCharacterization.withRotationalRate(output.in(Volts)));
                         SignalLogger.writeDouble("Rotational_Rate", output.in(Volts));
                     },
                     null,

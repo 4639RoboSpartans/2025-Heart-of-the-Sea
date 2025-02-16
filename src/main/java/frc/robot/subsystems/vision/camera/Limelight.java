@@ -35,7 +35,7 @@ public class Limelight implements Camera {
 
     @Override
     public Optional<VisionResult> getBotPoseAsVisionResult(boolean allianceFlipped) {
-        LimelightHelpers.SetRobotOrientation(name, CommandSwerveDrivetrain.getInstance().getState().Pose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
+        LimelightHelpers.SetRobotOrientation(name, CommandSwerveDrivetrain.getInstance().drivetrain.getState().Pose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
         PoseEstimate poseEstimate = DriverStationHelpers.getAlliance() == Alliance.Blue || !allianceFlipped 
                                         ? LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(name)
                                         : LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2(name);
@@ -49,7 +49,7 @@ public class Limelight implements Camera {
     private Optional<Pose2d> verifyPose(Pose2d measurement, boolean allianceFlipped){
         return (measurement.getX() == 0 || measurement.getY() == 0
             ? Optional.empty()
-            : (measurement.getTranslation().getDistance(CommandSwerveDrivetrain.getInstance().getState().Pose.getTranslation()) <= 1
+            : (measurement.getTranslation().getDistance(CommandSwerveDrivetrain.getInstance().drivetrain.getState().Pose.getTranslation()) <= 1
                 ? Optional.of(measurement)
                 : Optional.empty())
             );

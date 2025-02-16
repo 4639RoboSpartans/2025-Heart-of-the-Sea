@@ -31,6 +31,7 @@ public class ScoringSuperstructure extends SubsystemBase {
 
     private ScoringSuperstructureState state = ScoringSuperstructureState.IDLE;
     private ScoringSuperstructureState prevState = ScoringSuperstructureState.IDLE;
+    private boolean isManualControlEnabled = false;
 
     public ScoringSuperstructure() {
         this.elevator = ElevatorSubsystem.getInstance();
@@ -104,6 +105,13 @@ public class ScoringSuperstructure extends SubsystemBase {
             },
             this
         );
+    }
+
+    public Command toggleManualControl() {
+        return runOnce(() -> {
+            this.isManualControlEnabled = !this.isManualControlEnabled;
+            this.elevator.setManualControlEnabled(isManualControlEnabled);
+        });
     }
 
     /**
