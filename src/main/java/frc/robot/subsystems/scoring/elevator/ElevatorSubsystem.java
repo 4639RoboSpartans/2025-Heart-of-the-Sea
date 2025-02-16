@@ -3,7 +3,6 @@ package frc.robot.subsystems.scoring.elevator;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.robot.Robot;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 
 import java.util.Objects;
@@ -15,11 +14,11 @@ public abstract class ElevatorSubsystem extends SubsystemBase {
     private static ElevatorSubsystem instance;
 
     public static ElevatorSubsystem getInstance() {
-        if (Robot.isReal()) {
-            return instance = Objects.requireNonNullElseGet(instance, ConcreteElevatorSubsystem::new);
-        } else {
-            return instance = Objects.requireNonNullElseGet(instance, SimElevatorSubsystem::new);
-        }
+//        if (Robot.isReal()) {
+//            return instance = Objects.requireNonNullElseGet(instance, ConcreteElevatorSubsystem::new);
+//        } else {
+        return instance = Objects.requireNonNullElseGet(instance, SimElevatorSubsystem::new);
+//        }
     }
 
     /**

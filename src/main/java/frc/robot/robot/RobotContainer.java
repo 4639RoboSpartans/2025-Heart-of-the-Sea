@@ -24,6 +24,7 @@ import frc.robot.subsystems.drive.SwerveAutoRoutinesCreator;
 import frc.robot.subsystems.scoring.ScoringSuperstructure;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
+import frc.robot.subsystems.vision.VisionSubsystem;
 
 import java.util.Arrays;
 
@@ -42,6 +43,14 @@ public class RobotContainer {
         .getStructArrayTopic("zeroed component poses", Pose3d.struct).publish();
 
     public RobotContainer() {
+        // DO NOT REMOVE! As of now, the only other place that VisionSubsystem is instantiated
+        // is in the periodic() method of CommandSwerveDriveTrain. However, if we instantiate a
+        // subsystem in a periodic method, it will result in a concurrentModificationException
+        // during the command scheduler run because a new Subsystem will be added to the Set of
+        // subsystems as the scheduler iterates over them. Thus, we pre-instantiate the vision
+        // subsystem here to avoid that problem.
+        VisionSubsystem.getInstance();
+
         // create auto routines here because we're configuring AutoBuilder in this method
         //TODO: take this out when we correctly refactor configurAutoBuilder to a new place
         AutoRoutines swerveAutoRoutines = SwerveAutoRoutinesCreator.createAutoRoutines(swerve);
@@ -112,10 +121,9 @@ public class RobotContainer {
             );
             Controls.Operator.HoldTrigger.onTrue(
                 scoringSuperstructure.hold()
-//                    scoringSuperstructure.setScoringState(ScoringSuperstructureState.L2_ALGAE)
             );
 
-            Controls.Operator.ToggleManualControlTrigger.onTrue(
+            Controls.Operator.ToggleManualControlTrigger.whileTrue(
                 scoringSuperstructure.toggleManualControl()
             );
         }
