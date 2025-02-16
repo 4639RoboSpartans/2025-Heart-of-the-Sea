@@ -9,7 +9,7 @@ import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 
 public class DriveSysID {
-    private static final CommandSwerveDrivetrain drivetrain = CommandSwerveDrivetrain.getInstance();
+    private static final Drivetrain drivetrain = Drivetrain.getInstance();
     private static final SwerveRequest.SysIdSwerveTranslation m_translationCharacterization = new SwerveRequest.SysIdSwerveTranslation();
     private static final SwerveRequest.SysIdSwerveSteerGains m_steerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
     private static final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
@@ -23,7 +23,7 @@ public class DriveSysID {
                     state -> SignalLogger.writeString("SysIdTranslation_State", state.toString())
             ),
             new SysIdRoutine.Mechanism(
-                    output -> drivetrain.drivetrain.setControl(m_translationCharacterization.withVolts(output)),
+                    output -> drivetrain.setControl(m_translationCharacterization.withVolts(output)),
                     null,
                     drivetrain
             )
@@ -39,7 +39,7 @@ public class DriveSysID {
                     state -> SignalLogger.writeString("SysIdSteer_State", state.toString())
             ),
             new SysIdRoutine.Mechanism(
-                    volts -> drivetrain.drivetrain.setControl(m_steerCharacterization.withVolts(volts)),
+                    volts -> drivetrain.setControl(m_steerCharacterization.withVolts(volts)),
                     null,
                     drivetrain
             )
@@ -55,7 +55,7 @@ public class DriveSysID {
             ),
             new SysIdRoutine.Mechanism(
                     output -> {
-                        drivetrain.drivetrain.setControl(m_rotationCharacterization.withRotationalRate(output.in(Volts)));
+                        drivetrain.setControl(m_rotationCharacterization.withRotationalRate(output.in(Volts)));
                         SignalLogger.writeDouble("Rotational_Rate", output.in(Volts));
                     },
                     null,

@@ -12,7 +12,7 @@ public final class SwerveAutoRoutinesCreator {
     private static final PIDConstants AUTON_TRANSLATION_PID_CONSTANTS = new PIDConstants(10, 0, 0);
     private static final PIDConstants AUTON_ROTATION_PID_CONSTANTS = new PIDConstants(7, 0, 0);
 
-    public static AutoRoutines createAutoRoutines(CommandSwerveDrivetrain drivetrain) {
+    public static AutoRoutines createAutoRoutines(Drivetrain drivetrain) {
         RobotConfig config = RobotConfigLoader.getOrLoadConfig();
 
         AutoBuilder.configure(
@@ -20,7 +20,7 @@ public final class SwerveAutoRoutinesCreator {
             drivetrain::resetPose,
             drivetrain::getChassisSpeeds,
             // Function that uses chassisSpeeds and feedforward values to drive the robot
-            (speeds, feedforwards) -> drivetrain.drivetrain.setControl(
+            (speeds, feedforwards) -> drivetrain.setControl(
                 new SwerveRequest.ApplyRobotSpeeds()
                     .withSpeeds(speeds)
                     .withWheelForceFeedforwardsX(feedforwards.robotRelativeForcesXNewtons())

@@ -18,8 +18,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.commands.AutoRoutines;
 import frc.robot.constants.Controls;
 import frc.robot.constants.FieldConstants;
-import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
 import frc.robot.subsystems.drive.DriveCommands;
+import frc.robot.subsystems.drive.Drivetrain;
 import frc.robot.subsystems.drive.SwerveAutoRoutinesCreator;
 import frc.robot.subsystems.scoring.ScoringSuperstructure;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
@@ -32,7 +32,7 @@ import static edu.wpi.first.units.Units.Meters;
 
 
 public class RobotContainer {
-    private final CommandSwerveDrivetrain swerve = CommandSwerveDrivetrain.getInstance();
+    private final Drivetrain swerve = Drivetrain.getInstance();
     private final ScoringSuperstructure scoringSuperstructure = ScoringSuperstructure.getInstance();
     @SuppressWarnings("unused")
     private final RobotSim robotSim = new RobotSim();
@@ -70,7 +70,7 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-        swerve.setDefaultCommand(swerve.applyRequest(swerve::getFieldCentricRequest));
+        swerve.setDefaultCommand(swerve.manualControl());
         scoringSuperstructure.setDefaultCommand(scoringSuperstructure.runScoringState());
 
         //Scoring Controls
