@@ -35,7 +35,7 @@ public abstract class HopperSubsystem extends SubsystemBase {
     protected ScoringSuperstructureState state = ScoringSuperstructureState.IDLE;
 
     /**
-     * Gets the current state of the the hopper.
+     * Gets the current state of the hopper.
      * 
      * @return state of hopper as ScoringSuperStructureState
      */
@@ -78,7 +78,7 @@ public abstract class HopperSubsystem extends SubsystemBase {
     }
 
     /**
-     * Gets the speed of the rollers on scoring mechanism.
+     * Gets the speed of the rollers on the scoring mechanism.
      * 
      * @return speed of rollers as double
      */
@@ -101,7 +101,7 @@ public abstract class HopperSubsystem extends SubsystemBase {
     /**
      * Checks if the scoring mechanism contains a coral.
      * 
-     * @return if scoring mechanism has a coral as boolean
+     * @return if the scoring mechanism has a coral as boolean
      */
     public abstract boolean hasCoral();
 
