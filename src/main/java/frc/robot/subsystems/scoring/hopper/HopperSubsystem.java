@@ -123,4 +123,10 @@ public abstract class HopperSubsystem extends SubsystemBase {
      * Runs the intake/rollers.
      */
     public abstract void runHopper();
+
+    protected boolean manualControlEnabled = false;
+
+    public void setManualControlEnabled(boolean enabled) {
+        manualControlEnabled = enabled;
+    }
 }
