@@ -111,10 +111,10 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
     @Override
     public void periodic() {
         if (isManualControlEnabled) {
-            double outputSpeed = Controls.Operator.ManualControlElevator.getAsDouble() * 0.8;
+            double outputVoltage = Controls.Operator.ManualControlElevator.getAsDouble() * 0.5 + 0.1;
             // TODO: implement limits
             elevatorMotor.setControl(new DutyCycleOut(
-                outputSpeed
+                outputVoltage
             ));
         }
 

@@ -93,7 +93,7 @@ public class Controls {
 
         public static final Trigger HoldTrigger = operatorController.POV_UP;
 
-        public static Trigger ToggleManualControlTrigger = operatorController.A_BUTTON.and(operatorController.B_BUTTON).and(operatorController.POV_UP);
+        public static Trigger ToggleManualControlTrigger = operatorController.A_BUTTON.and(operatorController.POV_UP);
 
         public static final DoubleSupplier ManualControlHopper = () -> (
             (operatorController.POV_RIGHT.getAsBoolean() ? 1 : 0) -
