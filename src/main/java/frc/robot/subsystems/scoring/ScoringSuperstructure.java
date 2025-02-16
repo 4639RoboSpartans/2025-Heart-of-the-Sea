@@ -3,6 +3,7 @@ package frc.robot.subsystems.scoring;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.RobotState;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -36,6 +37,7 @@ public class ScoringSuperstructure extends SubsystemBase {
     public ScoringSuperstructure() {
         this.elevator = ElevatorSubsystem.getInstance();
         this.hopper = HopperSubsystem.getInstance();
+        SmartDashboard.putBoolean("isManualControlEnabled", isManualControlEnabled);
     }
 
     private void setState(ScoringSuperstructureState state) {
@@ -151,6 +153,7 @@ public class ScoringSuperstructure extends SubsystemBase {
         if (Drivetrain.getInstance().getAccelerationInGs() >= .4) {
             setState(ScoringSuperstructureState.IDLE);
         }
+        SmartDashboard.putBoolean("isManualControlEnabled", isManualControlEnabled);
     }
 
     /**

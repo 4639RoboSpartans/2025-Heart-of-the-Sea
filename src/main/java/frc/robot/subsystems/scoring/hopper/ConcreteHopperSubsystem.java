@@ -15,8 +15,10 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.TunableNumber;
+import frc.lib.oi.OI;
 import frc.robot.constants.Controls;
 import frc.robot.subsystems.scoring.ScoringSuperstructure;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
@@ -80,7 +82,15 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
             0
         );
 
-        wristPID = new ProfiledPIDController(0, 0, 0, null);
+        wristPID = new ProfiledPIDController(
+                ScoringPIDs.wristKp.get(),
+                ScoringPIDs.wristKi.get(),
+                ScoringPIDs.wristKd.get(),
+                new TrapezoidProfile.Constraints(
+                    ScoringPIDs.wristVelocity.get(),
+                    ScoringPIDs.wristAcceleration.get()
+                )
+        );
 
         ScoringPIDs.wristKp.onChange(wristPID::setP);
         ScoringPIDs.wristKi.onChange(wristPID::setI);
@@ -144,7 +154,9 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
     public void setHopper(ScoringSuperstructureState state) {
         this.state = state;
         isStateFinished = false;
-        intakeMotor.set(0);
+        if(!manualControlEnabled) {
+            intakeMotor.set(0);
+        }
         wristPID.setGoal(state.getWristAbsolutePosition());
     }
 
@@ -155,8 +167,13 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
                 runHopper();
             else runHopperPosition();
         }else {
-            intakeMotor.set(Controls.Operator.ManualControlHopper.getAsDouble() * 0.1);
+            wristMotor.set(Controls.Operator.ManualControlHopper.getAsDouble() * 0.2);
+            var intakeSpeed = (OI.getInstance().operatorController().A_BUTTON.getAsBoolean() ? 1 : 0) - (OI.getInstance().operatorController().B_BUTTON.getAsBoolean() ? 1 : 0);
+            intakeMotor.set(intakeSpeed * 0.7);
         }
+
+        SmartDashboard.putNumber("Wrist Position", wristMotor.getEncoder().getPosition());
+
     }
 
     @Override

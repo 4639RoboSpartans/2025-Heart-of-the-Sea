@@ -69,7 +69,7 @@ public final class ScoringConstants {
         //Limits for Intake
         public static final double IntakeForwardSoftLimit = 40;
         public static final double IntakeReverseSoftLimit = 40;
-        public static final int IntakeCurrentLimit = 30;
+        public static final int IntakeCurrentLimit = 50;
 
         //Limits for Wrist
         public static final double WristForwardSoftLimit = 30;
