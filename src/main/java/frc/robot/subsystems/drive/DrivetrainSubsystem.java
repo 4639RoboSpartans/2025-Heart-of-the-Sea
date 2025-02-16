@@ -11,10 +11,10 @@ import frc.robot.subsystems.scoring.elevator.ElevatorSubsystem;
 
 import java.util.Objects;
 
-public abstract class Drivetrain extends SubsystemBase {
-    private static Drivetrain instance;
+public abstract class DrivetrainSubsystem extends SubsystemBase {
+    private static DrivetrainSubsystem instance;
 
-    public static Drivetrain getInstance() {
+    public static DrivetrainSubsystem getInstance() {
         return instance = Objects.requireNonNullElseGet(instance,
             Robot.isReal() ? PhysicalSwerveDrivetrain::new : SimSwerveDrivetrain::new
         );

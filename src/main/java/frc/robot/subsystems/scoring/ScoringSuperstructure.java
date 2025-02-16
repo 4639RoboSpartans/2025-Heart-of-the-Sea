@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.subsystems.drive.Drivetrain;
+import frc.robot.subsystems.drive.DrivetrainSubsystem;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
 import frc.robot.subsystems.scoring.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.scoring.elevator.ElevatorSysID;
@@ -150,7 +150,7 @@ public class ScoringSuperstructure extends SubsystemBase {
         }
 
         //Sets scoring mechanisms to IDLE in case robot acceleration is high.
-        if (Drivetrain.getInstance().getAccelerationInGs() >= .4) {
+        if (DrivetrainSubsystem.getInstance().getAccelerationInGs() >= .4) {
             setState(ScoringSuperstructureState.IDLE);
         }
         SmartDashboard.putBoolean("isManualControlEnabled", isManualControlEnabled);

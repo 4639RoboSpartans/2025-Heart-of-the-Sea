@@ -8,7 +8,7 @@ import frc.robot.constants.Controls;
 import frc.robot.constants.FieldConstants;
 
 public class DriveCommands {
-    private static final Drivetrain swerve = Drivetrain.getInstance();
+    private static final DrivetrainSubsystem swerve = DrivetrainSubsystem.getInstance();
 
     public static Command pathfindToReefCommand(FieldConstants.TargetPositions targetPosition) {
         return Commands.sequence(
