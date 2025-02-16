@@ -167,9 +167,14 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
                 runHopper();
             else runHopperPosition();
         }else {
-            wristMotor.set(Controls.Operator.ManualControlHopper.getAsDouble() * 0.2);
-            var intakeSpeed = (OI.getInstance().operatorController().A_BUTTON.getAsBoolean() ? 1 : 0) - (OI.getInstance().operatorController().B_BUTTON.getAsBoolean() ? 1 : 0);
-            intakeMotor.set(intakeSpeed * 0.7);
+            wristMotor.set(wristPID.calculate(
+                wristEncoder.get(), 
+                ScoringConstants
+                .HopperConstants
+                .ProportionToPosition
+                .convert(
+                    (OI.getInstance().operatorController().rightStickY() + 1)/2.0)
+            ));
         }
 
         SmartDashboard.putNumber("Wrist Position", wristMotor.getEncoder().getPosition());

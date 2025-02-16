@@ -51,7 +51,7 @@ public final class ScoringConstants {
         public static final Rotation2d IDLE_ROTATION = Rotation2d.fromDegrees(30);
 
         public static final double IDLE_POSITION = 0;
-        public static final double EXTENDED_POSITION = 1;
+        public static final double EXTENDED_POSITION = 36.877;
 
         public static final UnitConvertor<Double, Double> ProportionToPosition = UnitConvertor.linearConvertingRange(
             0, 1, IDLE_POSITION, EXTENDED_POSITION
