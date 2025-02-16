@@ -17,6 +17,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.TunableNumber;
+import frc.robot.constants.Controls;
 import frc.robot.subsystems.scoring.ScoringSuperstructure;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
@@ -27,7 +28,7 @@ import java.util.Optional;
 
 public class ConcreteHopperSubsystem extends HopperSubsystem {
     private final SparkFlex intakeMotor;
-    private final TalonFX wristMotor;
+    private final SparkFlex wristMotor;
     private final DutyCycleEncoder wristEncoder;
 
     private final LaserCan laserCAN;
@@ -41,9 +42,9 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
             ScoringConstants.IDs.IntakeMotorID,
             SparkLowLevel.MotorType.kBrushless
         );
-        wristMotor = new TalonFX(
-            ScoringConstants.IDs.WristMotorID,
-            ScoringConstants.IDs.WristCANBusName
+        wristMotor = new SparkFlex(
+                ScoringConstants.IDs.WristMotorID,
+                SparkLowLevel.MotorType.kBrushless
         );
         intakeMotor.configure(
             new SparkFlexConfig()
@@ -59,14 +60,19 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
             SparkBase.ResetMode.kResetSafeParameters,
             SparkBase.PersistMode.kPersistParameters
         );
-        wristMotor.getConfigurator().apply(
-            new SoftwareLimitSwitchConfigs()
-                .withForwardSoftLimitThreshold(HopperConstants.WristForwardSoftLimit)
-                .withReverseSoftLimitThreshold(HopperConstants.WristReverseSoftLimit)
-        );
-        wristMotor.getConfigurator().apply(
-            new CurrentLimitsConfigs()
-                .withStatorCurrentLimit(HopperConstants.WristCurrentLimit)
+        wristMotor.configure(
+                new SparkFlexConfig()
+                        .apply(
+                                new SoftLimitConfig()
+                                        .forwardSoftLimit(
+                                                HopperConstants.WristForwardSoftLimit
+                                        )
+                                        .reverseSoftLimit(
+                                                HopperConstants.WristReverseSoftLimit
+                                        )
+                        ).smartCurrentLimit(HopperConstants.WristCurrentLimit),
+                SparkBase.ResetMode.kResetSafeParameters,
+                SparkBase.PersistMode.kPersistParameters
         );
         wristEncoder = new DutyCycleEncoder(
             ScoringConstants.IDs.WristEncoderID,
@@ -74,7 +80,6 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
             0
         );
 
-        //TODO: now that we are running a Talon instead of a NEO, probably better to use motion magic
         wristPID = new ProfiledPIDController(0, 0, 0, null);
 
         ScoringPIDs.wristKp.onChange(wristPID::setP);
@@ -145,41 +150,49 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
 
     @Override
     public void periodic() {
-        if (isAtTarget())
-            runHopper();
-        else runHopperPosition();
+        if(!manualControlEnabled){
+            if (isAtTarget())
+                runHopper();
+            else runHopperPosition();
+        }else {
+            intakeMotor.set(Controls.Operator.ManualControlHopper.getAsDouble() * 0.1);
+        }
     }
 
     @Override
     protected void runHopperPosition() {
-        @SuppressWarnings("unused")
-        double wristPIDOutput = wristPID.calculate(
-            wristEncoder.get(),
-            wristPID.getGoal().position
-        );
+        if(!manualControlEnabled)       {
+            double wristPIDOutput = wristPID.calculate(
+                    wristEncoder.get(),
+                    wristPID.getGoal().position
+            );
 //        TODO: uncomment when down and up positions are set
 //        wristMotor.set(wristPIDOutput);
+        }
     }
 
     @Override
     public void runHopper() {
-        runHopperPosition();
-        if (ScoringSuperstructure.getInstance().isAtPosition() && !isStateFinished) {
-            intakeMotor.set(state.intakeSpeed);
-        }
-        LaserCan.Measurement measurement = laserCAN.getMeasurement();
-        if (measurement != null && measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
-            if (state.intakeUntilGamePieceSeen) {
-                if (hasCoral()) {
-                    intakeMotor.set(0);
-                    isStateFinished = true;
-                }
-            } else if (state.outtakeUntilGamePieceNotSeen) {
-                if (!hasCoral()) {
-                    intakeMotor.set(0);
-                    isStateFinished = true;
+        if(!manualControlEnabled){
+            runHopperPosition();
+            if (ScoringSuperstructure.getInstance().isAtPosition() && !isStateFinished) {
+                intakeMotor.set(state.intakeSpeed);
+            }
+            LaserCan.Measurement measurement = laserCAN.getMeasurement();
+            if (measurement != null && measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
+                if (state.intakeUntilGamePieceSeen) {
+                    if (hasCoral()) {
+                        intakeMotor.set(0);
+                        isStateFinished = true;
+                    }
+                } else if (state.outtakeUntilGamePieceNotSeen) {
+                    if (!hasCoral()) {
+                        intakeMotor.set(0);
+                        isStateFinished = true;
+                    }
                 }
             }
         }
+
     }
 }

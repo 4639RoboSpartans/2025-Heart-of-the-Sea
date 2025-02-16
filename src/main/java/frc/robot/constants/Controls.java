@@ -83,6 +83,7 @@ public class Controls {
         public static final Trigger L3Trigger = operatorController.LEFT_BUMPER;
         public static final Trigger L4Trigger = operatorController.RIGHT_BUMPER;
 
+
         public static final Trigger L2AlgaeTrigger = operatorController.X_BUTTON;
         public static final Trigger L3AlgaeTrigger = operatorController.Y_BUTTON;
 

@@ -111,6 +111,7 @@ public class ScoringSuperstructure extends SubsystemBase {
         return runOnce(() -> {
             this.isManualControlEnabled = !this.isManualControlEnabled;
             this.elevator.setManualControlEnabled(isManualControlEnabled);
+            this.hopper.setManualControlEnabled(isManualControlEnabled);
         });
     }
 
