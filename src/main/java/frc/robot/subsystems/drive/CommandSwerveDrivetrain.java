@@ -25,17 +25,17 @@ import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.*;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.lib.DriverStationHelpers;
 import frc.robot.constants.Controls;
 import frc.robot.subsystems.drive.constants.DriveConstants;
 import frc.robot.subsystems.drive.constants.DrivePIDs;
 import frc.robot.subsystems.drive.constants.TunerConstants;
 import frc.robot.subsystems.drive.constants.TunerConstants.TunerSwerveDrivetrain;
-import frc.robot.subsystems.scoring.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
 
-import java.util.Objects;
 import java.util.function.Supplier;
 
 import static edu.wpi.first.units.Units.Degrees;
@@ -70,26 +70,15 @@ public class CommandSwerveDrivetrain extends Drivetrain {
     private SwerveSetpoint prevSwerveSetpoint;
     private static final double MAX_STEER_VELOCITY_RADS_PER_SEC = 12.49;
 
-    private static CommandSwerveDrivetrain instance;
+    public CommandSwerveDrivetrain() {
+        SwerveDrivetrainConstants drivetrainConstants = TunerConstants.DrivetrainConstants;
+        SwerveModuleConstants<?, ?, ?>[] modules = {
+            TunerConstants.FrontLeft,
+            TunerConstants.FrontRight,
+            TunerConstants.BackLeft,
+            TunerConstants.BackRight
+        };
 
-    public static CommandSwerveDrivetrain getInstance() {
-        return instance = Objects.requireNonNullElseGet(instance, TunerConstants::createDrivetrain);
-    }
-
-    /**
-     * Constructs a CTRE SwerveDrivetrain using the specified constants.
-     * <p>
-     * This constructs the underlying hardware devices, so users should not construct
-     * the devices themselves. If they need the devices, they can access them through
-     * getters in the classes.
-     *
-     * @param drivetrainConstants Drivetrain-wide constants for the swerve drive
-     * @param modules             Constants for each specific module
-     */
-    public CommandSwerveDrivetrain(
-        SwerveDrivetrainConstants drivetrainConstants,
-        SwerveModuleConstants<?, ?, ?>... modules
-    ) {
         this.drivetrain = new TunerSwerveDrivetrain(drivetrainConstants, modules);
 
         RobotConfig config = RobotConfigLoader.getOrLoadConfig();
@@ -113,13 +102,12 @@ public class CommandSwerveDrivetrain extends Drivetrain {
         if (Utils.isSimulation()) startSimThread();
     }
 
-    /**
-     * Get a SwerveRequest for field centric movement controlled by the human drivers. This should be called
-     * periodically in a command to always get the latest values from the controllers.
-     *
-     * @return The swerve request.
-     */
-    public SwerveRequest getFieldCentricRequest() {
+    @Override
+    public Command manualControl() {
+        return applyRequest(this::getFieldCentricRequest);
+    }
+
+    private SwerveRequest getFieldCentricRequest() {
         double rawForwards = Controls.Driver.SwerveForwardAxis.getAsDouble() * DriveConstants.CURRENT_MAX_ROBOT_MPS;
         double rawStrafe = -Controls.Driver.SwerveStrafeAxis.getAsDouble() * DriveConstants.CURRENT_MAX_ROBOT_MPS;
         double rawRotation = Controls.Driver.SwerveRotationAxis.getAsDouble() * DriveConstants.TELOP_ROTATION_SPEED;
@@ -158,11 +146,7 @@ public class CommandSwerveDrivetrain extends Drivetrain {
             .withWheelForceFeedforwardsY(setpoint.feedforwards().robotRelativeForcesY());
     }
 
-    /**
-     * Returns a command that resets the heading of the robot such that the current heading is zero
-     *
-     * @return Command to run
-     */
+    @Override
     public Command resetPigeon() {
         return Commands.runOnce(
             () -> drivetrain.getPigeon2().setYaw(
@@ -174,21 +158,12 @@ public class CommandSwerveDrivetrain extends Drivetrain {
         );
     }
 
-    /**
-     * Returns a command that stops the swerve drive
-     *
-     * @return Command to run
-     */
+    @Override
     public Command stop() {
         return applyRequest(SwerveRequest.SwerveDriveBrake::new);
     }
 
-    /**
-     * Returns a command that makes the robot pathfind to the specified pose
-     *
-     * @param targetPose The pose to move to
-     * @return Command to run
-     */
+    @Override
     public Command pathfindTo(Pose2d targetPose) {
         double driveBaseRadius = 0;
         for (var moduleLocation : drivetrain.getModuleLocations()) {
@@ -204,12 +179,7 @@ public class CommandSwerveDrivetrain extends Drivetrain {
         );
     }
 
-    /**
-     * Returns a command that moves the robot to the specified pose under PID control, without pathfinding
-     *
-     * @param targetPose The pose to move to
-     * @return Command to run
-     */
+    @Override
     public Command directlyMoveTo(Pose2d targetPose) {
         return new InstantCommand(() -> {
             pidXController.setSetpoint(targetPose.getX());
@@ -241,14 +211,10 @@ public class CommandSwerveDrivetrain extends Drivetrain {
      * @return Command to run
      */
     public Command applyRequest(Supplier<SwerveRequest> requestSupplier) {
-        return run(() -> drivetrain.setControl(requestSupplier.get()));
+        return run(() -> setControl(requestSupplier.get()));
     }
 
-    /**
-     * Follows the given field-centric path sample with PID.
-     *
-     * @param sample Sample along the path to follow
-     */
+    @Override
     public void followPath(SwerveSample sample) {
         var pose = getPose();
 
@@ -264,6 +230,11 @@ public class CommandSwerveDrivetrain extends Drivetrain {
             .withWheelForceFeedforwardsX(sample.moduleForcesX())
             .withWheelForceFeedforwardsY(sample.moduleForcesY())
         );
+    }
+
+    @Override
+    public void setControl(SwerveRequest control) {
+        drivetrain.setControl(control);
     }
 
     @Override
@@ -315,29 +286,17 @@ public class CommandSwerveDrivetrain extends Drivetrain {
         }).startPeriodic(SIM_LOOP_PERIOD); // Run the simulation at a faster rate so PID behaves more reasonably
     }
 
-    /**
-     * Gets the estimated position of the robot as coordinates on the field
-     * 
-     * @return position as Pose2d
-     */
+    @Override
     public Pose2d getPose() {
         return drivetrain.getState().Pose;
     }
 
-    /**
-     * Gets the chassis speeds of the robot
-     * 
-     * @return chassis speeds as ChassisSpeeds
-     */
+    @Override
     public ChassisSpeeds getChassisSpeeds() {
         return drivetrain.getState().Speeds;
     }
 
-    /**
-     * Estimates the acceleration of the robot in gs
-     * 
-     * @return acceleration in gs as double
-    */
+    @Override
     public double getAccelerationInGs() {
         return Math.hypot(
             drivetrain.getPigeon2().getAccelerationX().getValueAsDouble(),
@@ -345,15 +304,7 @@ public class CommandSwerveDrivetrain extends Drivetrain {
         );
     }
 
-    /**
-     * Slows the robot swerve when the elevator is raised. Reduction is proportional to the proportional height of the elevator.
-     * 
-     * @return multiplier as double
-     */
-    public double getSwerveSpeedMultiplier() {
-        return 1 - Math.pow(ElevatorSubsystem.getInstance().getCurrentProportion(), 3) / 2;
-    }
-
+    @Override
     public void resetPose(Pose2d pose) {
         drivetrain.resetPose(pose);
     }
