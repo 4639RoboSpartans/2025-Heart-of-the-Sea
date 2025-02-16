@@ -39,8 +39,7 @@ import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
 
 public class PhysicalSwerveDrivetrain extends Drivetrain {
-    // TODO: fix everything else so that this can be not public
-    public final TunerSwerveDrivetrain drivetrain;
+    protected final TunerSwerveDrivetrain drivetrain;
 
     private boolean didApplyOperatorPerspective = false;
 
