@@ -12,7 +12,7 @@ public final class SwerveAutoRoutinesCreator {
     private static final PIDConstants AUTON_TRANSLATION_PID_CONSTANTS = new PIDConstants(10, 0, 0);
     private static final PIDConstants AUTON_ROTATION_PID_CONSTANTS = new PIDConstants(7, 0, 0);
 
-    public static AutoRoutines createAutoRoutines(Drivetrain drivetrain) {
+    public static AutoRoutines createAutoRoutines(DrivetrainSubsystem drivetrain) {
         RobotConfig config = RobotConfigLoader.getOrLoadConfig();
 
         AutoBuilder.configure(
