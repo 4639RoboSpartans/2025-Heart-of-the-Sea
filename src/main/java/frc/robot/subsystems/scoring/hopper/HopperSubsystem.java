@@ -19,7 +19,7 @@ public abstract class HopperSubsystem extends SubsystemBase {
         //doing this to stop the hopper from existing before its ready without commenting out a bunch of code
         // (also, please multiline the comments instead of commenting out every line individually)
         //TODO: remove the false flag when hopper is ready
-        if (false && Robot.isReal()) {
+        if (Robot.isReal()) {
             return instance = Objects.requireNonNullElseGet(
                 instance,
                 ConcreteHopperSubsystem::new

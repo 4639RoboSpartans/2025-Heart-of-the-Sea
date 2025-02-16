@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.robot.Robot;
 import frc.robot.subsystems.scoring.elevator.ElevatorSubsystem;
 
 import java.util.Objects;
@@ -14,7 +15,9 @@ public abstract class Drivetrain extends SubsystemBase {
     private static Drivetrain instance;
 
     public static Drivetrain getInstance() {
-        return instance = Objects.requireNonNullElseGet(instance, CommandSwerveDrivetrain::new);
+        return instance = Objects.requireNonNullElseGet(instance,
+            Robot.isReal() ? PhysicalSwerveDrivetrain::new : SimSwerveDrivetrain::new
+        );
     }
 
     /**

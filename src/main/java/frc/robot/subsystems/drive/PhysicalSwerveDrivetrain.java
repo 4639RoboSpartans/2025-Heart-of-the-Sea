@@ -1,7 +1,6 @@
 package frc.robot.subsystems.drive;
 
 import choreo.trajectory.SwerveSample;
-import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
@@ -21,8 +20,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.Notifier;
-import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -41,11 +38,9 @@ import java.util.function.Supplier;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
 
-public class CommandSwerveDrivetrain extends Drivetrain {
+public class PhysicalSwerveDrivetrain extends Drivetrain {
     // TODO: fix everything else so that this can be not public
     public final TunerSwerveDrivetrain drivetrain;
-
-    private static final double SIM_LOOP_PERIOD = 0.005; // 5 ms
 
     private boolean didApplyOperatorPerspective = false;
 
@@ -70,7 +65,7 @@ public class CommandSwerveDrivetrain extends Drivetrain {
     private SwerveSetpoint prevSwerveSetpoint;
     private static final double MAX_STEER_VELOCITY_RADS_PER_SEC = 12.49;
 
-    public CommandSwerveDrivetrain() {
+    public PhysicalSwerveDrivetrain() {
         SwerveDrivetrainConstants drivetrainConstants = TunerConstants.DrivetrainConstants;
         SwerveModuleConstants<?, ?, ?>[] modules = {
             TunerConstants.FrontLeft,
@@ -97,9 +92,6 @@ public class CommandSwerveDrivetrain extends Drivetrain {
         PathPlannerLogging.setLogActivePathCallback((poses) -> {
             field.getObject("Pathplanner Path").setPoses(poses);
         });
-
-        // Start the simulation thread if needed
-        if (Utils.isSimulation()) startSimThread();
     }
 
     @Override
@@ -262,28 +254,6 @@ public class CommandSwerveDrivetrain extends Drivetrain {
 
         // Update field on dashboard
         SmartDashboard.putData("Field2D", field);
-    }
-
-    /**
-     * Runs the thread that sets the simulation state
-     */
-    @SuppressWarnings("resource")
-    private void startSimThread() {
-        new Notifier(new Runnable() {
-            double lastUpdateTimeSeconds = Utils.getCurrentTimeSeconds();
-
-            @Override
-            public void run() {
-                // Calculate the actual time elapsed since the last invocation
-                double deltaTimeSeconds = Utils.getCurrentTimeSeconds() - lastUpdateTimeSeconds;
-                lastUpdateTimeSeconds += deltaTimeSeconds;
-
-                drivetrain.updateSimState(
-                    deltaTimeSeconds,
-                    RobotController.getBatteryVoltage()
-                );
-            }
-        }).startPeriodic(SIM_LOOP_PERIOD); // Run the simulation at a faster rate so PID behaves more reasonably
     }
 
     @Override
