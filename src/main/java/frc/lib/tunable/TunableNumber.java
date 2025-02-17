@@ -1,4 +1,4 @@
-package frc.lib;
+package frc.lib.tunable;
 
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;

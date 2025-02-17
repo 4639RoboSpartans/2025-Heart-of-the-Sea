@@ -40,13 +40,13 @@ public class RobotContainer {
     private final SendableChooser<Command> autoChooser;
     private final SendableChooser<Pose2d> startPositionChooser = new SendableChooser<>();
 
-    private StructArrayPublisher<Pose3d> componentPoses = NetworkTableInstance.getDefault()
+    private final StructArrayPublisher<Pose3d> componentPoses = NetworkTableInstance.getDefault()
         .getStructArrayTopic("zeroed component poses", Pose3d.struct).publish();
 
     public RobotContainer() {
 
         // create auto routines here because we're configuring AutoBuilder in this method
-        //TODO: take this out when we correctly refactor configurAutoBuilder to a new place
+        //TODO: take this out when we correctly refactor configureAutoBuilder to a new place
         AutoRoutines swerveAutoRoutines = SwerveAutoRoutinesCreator.createAutoRoutines(swerve);
 
         configureBindings();
@@ -66,6 +66,8 @@ public class RobotContainer {
     private void configureBindings() {
         swerve.setDefaultCommand(swerve.manualControl());
         scoringSuperstructure.setDefaultCommand(scoringSuperstructure.runScoringState());
+
+        //TODO: make a button for the elevator test
 
         //Scoring Controls
         {

@@ -5,7 +5,7 @@ import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.lib.ForSubsystemManagerUseOnly;
+import frc.lib.annotation.ForSubsystemManagerUseOnly;
 import frc.robot.subsystems.SubsystemManager;
 
 public abstract class AbstractClimberSubsystem extends SubsystemBase {

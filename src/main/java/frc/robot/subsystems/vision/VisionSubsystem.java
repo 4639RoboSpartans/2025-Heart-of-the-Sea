@@ -2,7 +2,8 @@ package frc.robot.subsystems.vision;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.lib.ForSubsystemManagerUseOnly;
+import frc.lib.annotation.ForSubsystemManagerUseOnly;
+import frc.robot.constants.FieldConstants;
 import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.vision.camera.Camera;
 import frc.robot.subsystems.vision.camera.Limelight;
@@ -65,6 +66,14 @@ public class VisionSubsystem extends SubsystemBase {
                     .map(camera -> camera.getBotPoseAsVisionResult(true))
                     .filter(Optional::isPresent).map(Optional::get).forEach(visionResults::add);
         });
+    }
+
+    /**
+     * @param idToTarget AprilTagIDHolder representing a position on the field irrespective of alliance
+     * @return {@link VisionSubsystem#targetedVision(int)} using the AprilTag ID consistent with the current alliance
+     */
+    public Command targetedVision(FieldConstants.AprilTagIDHolder idToTarget) {
+        return targetedVision(idToTarget.getAllianceRespectiveID());
     }
 
     public Set<VisionResult> getVisionResults() {

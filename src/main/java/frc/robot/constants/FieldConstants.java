@@ -7,16 +7,12 @@
 
 package frc.robot.constants;
 
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.*;
 import java.util.stream.Stream;
@@ -274,6 +270,32 @@ public class FieldConstants {
         }
 
         public final Pose2d Pose;
+    }
+
+    public enum AprilTagIDHolder {
+        LeftCoralStation(13, 1),
+        RightCoralStation(12, 2),
+        Processor(16, 3),
+        AllianceBarge(14, 5),
+        OpponentBarge(15, 4),
+        Reef0(18, 7),
+        Reef1(19, 6),
+        Reef2(20, 11),
+        Reef3(21, 10),
+        Reef4(22, 9),
+        Reef5(17, 8);
+
+        private final int blueAllianceID;
+        private final int redAllianceID;
+
+        AprilTagIDHolder(int blueAllianceID, int redAllianceID){
+            this.blueAllianceID = blueAllianceID;
+            this.redAllianceID = redAllianceID;
+        }
+
+        public int getAllianceRespectiveID(){
+            return DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue ? blueAllianceID : redAllianceID;
+        }
     }
 
     public static double reefForwardsDistance = 0.175;

@@ -2,12 +2,11 @@ package frc.robot.subsystems.drive;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.lib.AllianceFlipUtil;
-import frc.lib.PoseUtil;
+import frc.lib.util.AllianceFlipUtil;
+import frc.lib.util.PoseUtil;
 import frc.robot.constants.Controls;
 import frc.robot.constants.FieldConstants;
 import frc.robot.subsystems.SubsystemManager;
-import frc.robot.subsystems.scoring.ScoringSuperstructure;
 
 public class DriveCommands {
     private static final AbstractSwerveDrivetrain swerve = SubsystemManager.getInstance().getDrivetrain();

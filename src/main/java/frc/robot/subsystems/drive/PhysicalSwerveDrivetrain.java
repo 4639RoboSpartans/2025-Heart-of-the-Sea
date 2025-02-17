@@ -25,14 +25,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import frc.lib.DriverStationHelpers;
+import frc.lib.util.DriverStationUtil;
 import frc.robot.constants.Controls;
 import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.drive.constants.DriveConstants;
 import frc.robot.subsystems.drive.constants.DrivePIDs;
 import frc.robot.subsystems.drive.constants.TunerConstants;
 import frc.robot.subsystems.drive.constants.TunerConstants.TunerSwerveDrivetrain;
-import frc.robot.subsystems.vision.VisionSubsystem;
 
 import java.util.function.Supplier;
 
@@ -103,7 +102,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         double rawForwards = Controls.Driver.SwerveForwardAxis.getAsDouble() * DriveConstants.CURRENT_MAX_ROBOT_MPS;
         double rawStrafe = -Controls.Driver.SwerveStrafeAxis.getAsDouble() * DriveConstants.CURRENT_MAX_ROBOT_MPS;
         double rawRotation = Controls.Driver.SwerveRotationAxis.getAsDouble() * DriveConstants.TELOP_ROTATION_SPEED;
-        double allianceBasedDirection = DriverStationHelpers.getAlliance() == Alliance.Blue ? 1 : -1;
+        double allianceBasedDirection = DriverStationUtil.getAlliance() == Alliance.Blue ? 1 : -1;
         ChassisSpeeds chassisSpeeds = new ChassisSpeeds(
             allianceBasedDirection * rawForwards,
             allianceBasedDirection * rawStrafe,

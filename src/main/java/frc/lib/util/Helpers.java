@@ -1,12 +1,7 @@
-package frc.lib;
+package frc.lib.util;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Helper class that contains static methods for common operations that don't fit anywhere else.
