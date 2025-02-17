@@ -6,15 +6,22 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.lib.annotation.ForSubsystemManagerUseOnly;
 import frc.robot.robot.Robot;
-import frc.robot.subsystems.scoring.elevator.ElevatorSubsystem;
+import frc.robot.subsystems.SubsystemManager;
+import frc.robot.subsystems.scoring.elevator.AbstractElevatorSubsystem;
 
 import java.util.Objects;
 
-public abstract class DrivetrainSubsystem extends SubsystemBase {
-    private static DrivetrainSubsystem instance;
+public abstract class AbstractSwerveDrivetrain extends SubsystemBase {
+    private static AbstractSwerveDrivetrain instance;
 
-    public static DrivetrainSubsystem getInstance() {
+    /**
+     * This method should only be accessed from the SubsystemManager class. In other places, use
+     * {@link SubsystemManager#getDrivetrain()} instead.
+     */
+    @ForSubsystemManagerUseOnly
+    public static AbstractSwerveDrivetrain getInstance() {
         return instance = Objects.requireNonNullElseGet(instance,
             Robot.isReal() ? PhysicalSwerveDrivetrain::new : SimSwerveDrivetrain::new
         );
@@ -93,7 +100,7 @@ public abstract class DrivetrainSubsystem extends SubsystemBase {
      * @return multiplier as double
      */
     public double getSwerveSpeedMultiplier() {
-        return 1 - Math.pow(ElevatorSubsystem.getInstance().getCurrentProportion(), 2) * (1.0 - 0.2);
+        return 1 - Math.pow(AbstractElevatorSubsystem.getInstance().getCurrentProportion(), 2) * (1.0 - 0.2);
     }
 
     public abstract void resetPose(Pose2d pose);

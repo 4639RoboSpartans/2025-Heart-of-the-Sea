@@ -2,14 +2,19 @@ package frc.robot.commands;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.IntStream;
 
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.lib.CommandsUtil;
+import frc.lib.util.CommandsUtil;
+import frc.robot.subsystems.SubsystemManager;
+import frc.robot.subsystems.scoring.ScoringSuperstructure;
+import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 
 public class AutoRoutines {
     private final AutoFactory factory;
@@ -121,6 +126,20 @@ public class AutoRoutines {
                 COMP_H_G(),
                 COMP_J_K(),
                 COMP_G_C_D_B()
+        );
+    }
+
+    public Command startScoringCommandWhenNearReef(Command scoringCommand, Command driveCommand, Predicate<Pose2d> withinDistanceThreshold) {
+        return Commands.deadline(
+                Commands.parallel(
+                        SubsystemManager.getInstance().getScoringSuperstructure().setScoringState(ScoringSuperstructureState.IDLE),
+                        SubsystemManager.getInstance().getScoringSuperstructure().runScoringState().until(() -> withinDistanceThreshold.test(SubsystemManager.getInstance().getDrivetrain().getPose())),
+                        scoringCommand
+                ),
+                Commands.parallel(
+                        driveCommand,
+                        SubsystemManager.getInstance().getDrivetrain().stop()
+                )
         );
     }
 }

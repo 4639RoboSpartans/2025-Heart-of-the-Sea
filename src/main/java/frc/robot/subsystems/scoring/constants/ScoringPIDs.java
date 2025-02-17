@@ -1,6 +1,6 @@
 package frc.robot.subsystems.scoring.constants;
 
-import frc.lib.TunableNumber;
+import frc.lib.tunable.TunableNumber;
 
 public class ScoringPIDs {
     public static TunableNumber elevatorKp = new TunableNumber("Scoring PIDs/Elevator kP").withDefaultValue(3.596);

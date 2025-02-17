@@ -1,4 +1,4 @@
-package frc.robot.subsystems.scoring.hopper;
+package frc.robot.subsystems.scoring.endeffector;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -8,13 +8,14 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.subsystems.SubsystemManager;
 import frc.lib.oi.OI;
 import frc.robot.subsystems.scoring.ScoringSuperstructure;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
 import frc.robot.subsystems.scoring.constants.ScoringPIDs;
 
-public class SimHopperSubsystem extends HopperSubsystem {
+public class SimEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
     private static final double secondsUntilIntakeOuttakeEnd = 0.25;
 
     private final ProfiledPIDController pivotPID;
@@ -26,7 +27,7 @@ public class SimHopperSubsystem extends HopperSubsystem {
 
     private boolean isStateFinished = false;
 
-    public SimHopperSubsystem() {
+    public SimEndEffectorSubsystem() {
         intakeSpeed = 0;
         pivotPID = new ProfiledPIDController(
             ScoringPIDs.wristKp.get(),
@@ -129,7 +130,7 @@ public class SimHopperSubsystem extends HopperSubsystem {
     @Override
     public void runHopper() {
         runHopperPosition();
-        if (ScoringSuperstructure.getInstance().isAtPosition() && !isStateFinished) {
+        if (SubsystemManager.getInstance().getScoringSuperstructure().isAtPosition() && !isStateFinished) {
             intakeSpeed = state.intakeSpeed;
             secondsFromIntakeOuttakeStart += 0.020;
         }

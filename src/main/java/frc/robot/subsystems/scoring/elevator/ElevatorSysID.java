@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import static edu.wpi.first.units.Units.*;
 
 public class ElevatorSysID {
-    private static final ElevatorSubsystem elevator = ElevatorSubsystem.getInstance();
+    private static final AbstractElevatorSubsystem elevator = AbstractElevatorSubsystem.getInstance();
 
     private static final SysIdRoutine elevatorRoutine = new SysIdRoutine(
             new SysIdRoutine.Config(

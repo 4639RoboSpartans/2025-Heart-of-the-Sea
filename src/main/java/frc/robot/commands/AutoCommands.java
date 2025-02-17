@@ -2,15 +2,16 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.subsystems.drive.DrivetrainSubsystem;
+import frc.robot.subsystems.SubsystemManager;
+import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
 import frc.robot.subsystems.scoring.ScoringSuperstructure;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 
 import java.util.function.Supplier;
 
 public class AutoCommands {
-    private static final DrivetrainSubsystem swerve = DrivetrainSubsystem.getInstance();
-    private static final ScoringSuperstructure superstructure = ScoringSuperstructure.getInstance();
+    private static final AbstractSwerveDrivetrain swerve = SubsystemManager.getInstance().getDrivetrain();
+    private static final ScoringSuperstructure superstructure = SubsystemManager.getInstance().getScoringSuperstructure();
     public static final Supplier<Command> oneSecondTimeout = () -> swerve.stop().withTimeout(1);
     public static final Supplier<Command> L4Score = () -> getScoringSuperstructureCommand(ScoringSuperstructureState.L4);
     public static final Supplier<Command> L3Score = () -> getScoringSuperstructureCommand(ScoringSuperstructureState.L3);

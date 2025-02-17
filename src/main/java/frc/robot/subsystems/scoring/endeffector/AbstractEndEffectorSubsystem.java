@@ -1,4 +1,4 @@
-package frc.robot.subsystems.scoring.hopper;
+package frc.robot.subsystems.scoring.endeffector;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -9,25 +9,19 @@ import frc.robot.subsystems.scoring.constants.ScoringConstants;
 
 import java.util.Objects;
 
-public abstract class HopperSubsystem extends SubsystemBase {
-    private static HopperSubsystem instance;
+public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
+    private static AbstractEndEffectorSubsystem instance;
 
-    //Turns out, there is never more than one ScoringSuperstructure (good)
-    //which means there is no reason to pass in the ScoringSuperstructure object
-    //which means we do this instead
-    public static HopperSubsystem getInstance() {
-        //doing this to stop the hopper from existing before its ready without commenting out a bunch of code
-        // (also, please multiline the comments instead of commenting out every line individually)
-        //TODO: remove the false flag when hopper is ready
+    public static AbstractEndEffectorSubsystem getInstance() {
         if (Robot.isReal()) {
             return instance = Objects.requireNonNullElseGet(
                 instance,
-                ConcreteHopperSubsystem::new
+                ConcreteEndEffectorSubsystem::new
             );
         } else {
             return instance = Objects.requireNonNullElseGet(
                 instance,
-                SimHopperSubsystem::new
+                SimEndEffectorSubsystem::new
             );
         }
     }
@@ -35,9 +29,9 @@ public abstract class HopperSubsystem extends SubsystemBase {
     protected ScoringSuperstructureState state = ScoringSuperstructureState.IDLE;
 
     /**
-     * Gets the current state of the hopper.
+     * Gets the current state of the endeffector.
      * 
-     * @return state of hopper as ScoringSuperStructureState
+     * @return state of endeffector as ScoringSuperStructureState
      */
     public final ScoringSuperstructureState getHopperState() {
         return state;
@@ -108,9 +102,9 @@ public abstract class HopperSubsystem extends SubsystemBase {
     public Trigger hasCoral = new Trigger(this::hasCoral);
 
     /**
-     * Sets the state of the hopper
+     * Sets the state of the endeffector
      * 
-     * @param state state that hopper is being set to as ScoringSuperstructureState.
+     * @param state state that endeffector is being set to as ScoringSuperstructureState.
      */
     public abstract void setHopper(ScoringSuperstructureState state);
 

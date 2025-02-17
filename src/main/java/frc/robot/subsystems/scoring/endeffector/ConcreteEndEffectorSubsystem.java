@@ -1,14 +1,12 @@
-package frc.robot.subsystems.scoring.hopper;
+package frc.robot.subsystems.scoring.endeffector;
 
 import au.grapplerobotics.ConfigurationFailedException;
 import au.grapplerobotics.LaserCan;
-import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
-import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
-import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel;
 import com.revrobotics.spark.config.SoftLimitConfig;
+import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -17,18 +15,18 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.lib.TunableNumber;
+import frc.lib.tunable.TunableNumber;
 import frc.lib.oi.OI;
 import frc.robot.constants.Controls;
-import frc.robot.subsystems.scoring.ScoringSuperstructure;
+import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
-import frc.robot.subsystems.scoring.constants.ScoringConstants.HopperConstants;
 import frc.robot.subsystems.scoring.constants.ScoringPIDs;
+import frc.robot.subsystems.scoring.constants.ScoringConstants.HopperConstants;
 
 import java.util.Optional;
 
-public class ConcreteHopperSubsystem extends HopperSubsystem {
+public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
     private final SparkFlex intakeMotor;
     private final SparkFlex wristMotor;
     private final DutyCycleEncoder wristEncoder;
@@ -39,7 +37,7 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
 
     private boolean isStateFinished = false;
 
-    public ConcreteHopperSubsystem() {
+    public ConcreteEndEffectorSubsystem() {
         intakeMotor = new SparkFlex(
             ScoringConstants.IDs.IntakeMotorID,
             SparkLowLevel.MotorType.kBrushless
@@ -113,6 +111,11 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
         //TODO: is two seconds really necessary?
         //having the debounce on for too long could mess with our cycle time
         hasCoral.debounce(2);
+        wristMotor.configure(
+                new SparkFlexConfig().idleMode(SparkBaseConfig.IdleMode.kBrake),
+                SparkBase.ResetMode.kNoResetSafeParameters,
+                SparkBase.PersistMode.kPersistParameters
+        );
     }
 
     @Override
@@ -167,14 +170,9 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
                 runHopper();
             else runHopperPosition();
         }else {
-            wristMotor.set(wristPID.calculate(
-                wristEncoder.get(), 
-                ScoringConstants
-                .HopperConstants
-                .ProportionToPosition
-                .convert(
-                    (OI.getInstance().operatorController().rightStickY() + 1)/2.0)
-            ));
+            wristMotor.set(Controls.Operator.ManualControlHopper.getAsDouble() * 0.2);
+            var intakeSpeed = (OI.getInstance().operatorController().A_BUTTON.getAsBoolean() ? 1 : 0) - (OI.getInstance().operatorController().B_BUTTON.getAsBoolean() ? 1 : 0);
+            intakeMotor.set(intakeSpeed * 0.7);
         }
 
         SmartDashboard.putNumber("Wrist Position", wristMotor.getEncoder().getPosition());
@@ -183,21 +181,21 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
 
     @Override
     protected void runHopperPosition() {
-        if(!manualControlEnabled)       {
+        if(!manualControlEnabled) {
             double wristPIDOutput = wristPID.calculate(
                     wristEncoder.get(),
                     wristPID.getGoal().position
             );
+        }
 //        TODO: uncomment when down and up positions are set
 //        wristMotor.set(wristPIDOutput);
-        }
     }
 
     @Override
     public void runHopper() {
         if(!manualControlEnabled){
             runHopperPosition();
-            if (ScoringSuperstructure.getInstance().isAtPosition() && !isStateFinished) {
+            if (SubsystemManager.getInstance().getScoringSuperstructure().isAtPosition() && !isStateFinished) {
                 intakeMotor.set(state.intakeSpeed);
             }
             LaserCan.Measurement measurement = laserCAN.getMeasurement();

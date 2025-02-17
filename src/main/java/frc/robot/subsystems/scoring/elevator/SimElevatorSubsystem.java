@@ -19,7 +19,7 @@ import static frc.robot.subsystems.scoring.constants.ScoringConstants.ElevatorCo
 import static frc.robot.subsystems.scoring.constants.ScoringConstants.ElevatorConstants.ProportionToHeight;
 import static frc.robot.subsystems.scoring.constants.ScoringPIDs.elevatorKg;
 
-public class SimElevatorSubsystem extends ElevatorSubsystem {
+public class SimElevatorSubsystem extends AbstractElevatorSubsystem {
     private final ProfiledPIDController elevatorPID;
     private final ElevatorFeedforward elevatorFeedforward;
     private final ElevatorSim elevatorSim;

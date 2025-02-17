@@ -54,15 +54,15 @@ public class Table {
         Map<String, String> map = new HashMap<String, String>();
         table.getKeys().parallelStream().forEach(key -> {
             var entry = getEntry(key);
-            map.put(key, 
-                (String) switch (entry.getType()) {
-                    case kBoolean -> Boolean.toString(entry.getBoolean(false));
-                    case kDouble -> Double.toString(entry.getDouble(0));
-                    case kFloat -> Float.toString(entry.getFloat(0));
-                    case kString -> entry.getString("UNKNOWN STRING");
-                    case kDoubleArray -> Arrays.toString(entry.getDoubleArray(new double[] {}));
-                    default -> "UNKNOWN VALUE TYPE: " + entry.getType().toString();
-                });
+            map.put(key,
+                    switch (entry.getType()) {
+                        case kBoolean -> Boolean.toString(entry.getBoolean(false));
+                        case kDouble -> Double.toString(entry.getDouble(0));
+                        case kFloat -> Float.toString(entry.getFloat(0));
+                        case kString -> entry.getString("UNKNOWN STRING");
+                        case kDoubleArray -> Arrays.toString(entry.getDoubleArray(new double[] {}));
+                        default -> "UNKNOWN VALUE TYPE: " + entry.getType().toString();
+                    });
             }
         );
         return map;

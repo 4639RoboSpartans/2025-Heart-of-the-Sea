@@ -6,12 +6,12 @@ import com.revrobotics.spark.SparkLowLevel;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.lib.PackagePrivate;
+import frc.lib.annotation.PackagePrivate;
 
 import java.util.function.DoubleSupplier;
 
 @PackagePrivate
-class ConcreteClimberSubsystem extends ClimberSubsystem {
+class ConcreteClimberSubsystem extends AbstractClimberSubsystem {
     @SuppressWarnings("FieldCanBeLocal")
     private final SparkFlex leftPivot, rightPivot;
 

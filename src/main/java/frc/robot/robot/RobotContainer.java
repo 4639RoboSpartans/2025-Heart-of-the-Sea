@@ -15,16 +15,19 @@ import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.lib.oi.OI;
 import frc.robot.commands.AutoRoutines;
+import frc.robot.commands.MiscellaneousCommands;
 import frc.robot.constants.Controls;
 import frc.robot.constants.FieldConstants;
+import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.drive.DriveCommands;
-import frc.robot.subsystems.drive.DrivetrainSubsystem;
+import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
 import frc.robot.subsystems.drive.SwerveAutoRoutinesCreator;
 import frc.robot.subsystems.scoring.ScoringSuperstructure;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
-import frc.robot.subsystems.vision.VisionSubsystem;
+import frc.robot.subsystems.scoring.elevator.ElevatorSysID;
 
 import java.util.Arrays;
 
@@ -32,27 +35,20 @@ import static edu.wpi.first.units.Units.Meters;
 
 
 public class RobotContainer {
-    private final DrivetrainSubsystem swerve = DrivetrainSubsystem.getInstance();
-    private final ScoringSuperstructure scoringSuperstructure = ScoringSuperstructure.getInstance();
+    private final AbstractSwerveDrivetrain swerve = SubsystemManager.getInstance().getDrivetrain();
+    private final ScoringSuperstructure scoringSuperstructure = SubsystemManager.getInstance().getScoringSuperstructure();
     @SuppressWarnings("unused")
     private final RobotSim robotSim = new RobotSim();
     private final SendableChooser<Command> autoChooser;
     private final SendableChooser<Pose2d> startPositionChooser = new SendableChooser<>();
 
-    private StructArrayPublisher<Pose3d> componentPoses = NetworkTableInstance.getDefault()
+    private final StructArrayPublisher<Pose3d> componentPoses = NetworkTableInstance.getDefault()
         .getStructArrayTopic("zeroed component poses", Pose3d.struct).publish();
 
     public RobotContainer() {
-        // DO NOT REMOVE! As of now, the only other place that VisionSubsystem is instantiated
-        // is in the periodic() method of CommandSwerveDriveTrain. However, if we instantiate a
-        // subsystem in a periodic method, it will result in a concurrentModificationException
-        // during the command scheduler run because a new Subsystem will be added to the Set of
-        // subsystems as the scheduler iterates over them. Thus, we pre-instantiate the vision
-        // subsystem here to avoid that problem.
-        VisionSubsystem.getInstance();
 
         // create auto routines here because we're configuring AutoBuilder in this method
-        //TODO: take this out when we correctly refactor configurAutoBuilder to a new place
+        //TODO: take this out when we correctly refactor configureAutoBuilder to a new place
         AutoRoutines swerveAutoRoutines = SwerveAutoRoutinesCreator.createAutoRoutines(swerve);
 
         configureBindings();
@@ -70,8 +66,10 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-        swerve.setDefaultCommand(swerve.manualControl());
+        //swerve.setDefaultCommand(swerve.manualControl());
         scoringSuperstructure.setDefaultCommand(scoringSuperstructure.runScoringState());
+
+        //TODO: make a button for the elevator test
 
         //Scoring Controls
         {
@@ -132,47 +130,50 @@ public class RobotContainer {
         {
             Controls.Driver.PathfindReef_0.whileTrue(
                 DriveCommands.pathfindToReefCommand(
-                    FieldConstants.TargetPositions.REEF_0
+                    FieldConstants.TargetPositions.REEF_AB
                 )
             );
             Controls.Driver.PathfindReef_1.whileTrue(
                 DriveCommands.pathfindToReefCommand(
-                    FieldConstants.TargetPositions.REEF_1
+                    FieldConstants.TargetPositions.REEF_KL
                 )
             );
             Controls.Driver.PathfindReef_2.whileTrue(
                 DriveCommands.pathfindToReefCommand(
-                    FieldConstants.TargetPositions.REEF_2
+                    FieldConstants.TargetPositions.REEF_IJ
                 )
             );
             Controls.Driver.PathfindReef_3.whileTrue(
                 DriveCommands.pathfindToReefCommand(
-                    FieldConstants.TargetPositions.REEF_3
+                    FieldConstants.TargetPositions.REEF_GH
                 )
             );
             Controls.Driver.PathfindReef_4.whileTrue(
                 DriveCommands.pathfindToReefCommand(
-                    FieldConstants.TargetPositions.REEF_4
+                    FieldConstants.TargetPositions.REEF_EF
                 )
             );
             Controls.Driver.PathfindReef_5.whileTrue(
                 DriveCommands.pathfindToReefCommand(
-                    FieldConstants.TargetPositions.REEF_5
+                    FieldConstants.TargetPositions.REEF_CD
                 )
             );
         }
-        /*OI.getInstance().operatorController().Y_BUTTON.whileTrue(
-                ElevatorSysID.sysIdQuasistatic(SysIdRoutine.Direction.kForward)
-        );
-        OI.getInstance().operatorController().A_BUTTON.whileTrue(
-                ElevatorSysID.sysIdQuasistatic(SysIdRoutine.Direction.kReverse)
-        );
-        OI.getInstance().operatorController().POV_UP.whileTrue(
-                ElevatorSysID.sysIdDynamic(SysIdRoutine.Direction.kForward)
-        );
-        OI.getInstance().operatorController().POV_DOWN.whileTrue(
-                ElevatorSysID.sysIdDynamic(SysIdRoutine.Direction.kReverse)
-        );*/
+        
+        // OI.getInstance().operatorController().Y_BUTTON.whileTrue(
+        //         ElevatorSysID.sysIdQuasistatic(SysIdRoutine.Direction.kForward)
+        // );
+        // OI.getInstance().operatorController().A_BUTTON.whileTrue(
+        //         ElevatorSysID.sysIdQuasistatic(SysIdRoutine.Direction.kReverse)
+        // );
+        // OI.getInstance().operatorController().POV_UP.whileTrue(
+        //         ElevatorSysID.sysIdDynamic(SysIdRoutine.Direction.kForward)
+        // );
+        // OI.getInstance().operatorController().POV_DOWN.whileTrue(
+        //         ElevatorSysID.sysIdDynamic(SysIdRoutine.Direction.kReverse)
+        // );
+
+        // OI.getInstance().driverController().A_BUTTON.onTrue(MiscellaneousCommands.ElevatorUpDownTest());
 
     }
 

@@ -25,20 +25,20 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import frc.lib.DriverStationHelpers;
+import frc.lib.util.DriverStationUtil;
 import frc.robot.constants.Controls;
+import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.drive.constants.DriveConstants;
 import frc.robot.subsystems.drive.constants.DrivePIDs;
 import frc.robot.subsystems.drive.constants.TunerConstants;
 import frc.robot.subsystems.drive.constants.TunerConstants.TunerSwerveDrivetrain;
-import frc.robot.subsystems.vision.VisionSubsystem;
 
 import java.util.function.Supplier;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
 
-public class PhysicalSwerveDrivetrain extends DrivetrainSubsystem {
+public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     protected final TunerSwerveDrivetrain drivetrain;
 
     private boolean didApplyOperatorPerspective = false;
@@ -102,7 +102,7 @@ public class PhysicalSwerveDrivetrain extends DrivetrainSubsystem {
         double rawForwards = Controls.Driver.SwerveForwardAxis.getAsDouble() * DriveConstants.CURRENT_MAX_ROBOT_MPS;
         double rawStrafe = -Controls.Driver.SwerveStrafeAxis.getAsDouble() * DriveConstants.CURRENT_MAX_ROBOT_MPS;
         double rawRotation = Controls.Driver.SwerveRotationAxis.getAsDouble() * DriveConstants.TELOP_ROTATION_SPEED;
-        double allianceBasedDirection = DriverStationHelpers.getAlliance() == Alliance.Blue ? 1 : -1;
+        double allianceBasedDirection = DriverStationUtil.getAlliance() == Alliance.Blue ? 1 : -1;
         ChassisSpeeds chassisSpeeds = new ChassisSpeeds(
             allianceBasedDirection * rawForwards,
             allianceBasedDirection * rawStrafe,
@@ -242,7 +242,7 @@ public class PhysicalSwerveDrivetrain extends DrivetrainSubsystem {
             });
         }
         // Update vision
-        VisionSubsystem.getInstance().getVisionResults().forEach(
+        SubsystemManager.getInstance().getVisionSubsystem().getVisionResults().forEach(
             visionResult -> drivetrain.addVisionMeasurement(
                 visionResult.getVisionPose(),
                 visionResult.getTimestamp()

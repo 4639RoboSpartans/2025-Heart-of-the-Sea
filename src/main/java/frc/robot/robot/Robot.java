@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.scoring.ScoringSuperstructure;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -36,7 +37,7 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void robotInit() {
-        ScoringSuperstructure.getInstance().setDefaultCommand(ScoringSuperstructure.getInstance().runScoringState());
+        SubsystemManager.getInstance().instantiateSubsystems();
     }
 
 
@@ -48,7 +49,7 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void disabledInit() {
-        ScoringSuperstructure.getInstance().setScoringState(ScoringSuperstructureState.IDLE);
+        SubsystemManager.getInstance().getScoringSuperstructure().setScoringState(ScoringSuperstructureState.IDLE);
     }
 
 

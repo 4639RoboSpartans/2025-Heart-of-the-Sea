@@ -6,9 +6,9 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import frc.lib.DriverStationHelpers;
+import frc.lib.util.DriverStationUtil;
 import frc.robot.constants.FieldConstants;
-import frc.robot.subsystems.drive.DrivetrainSubsystem;
+import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.vision.VisionResult;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
@@ -61,14 +61,14 @@ public class PhotonVision implements Camera {
         Pose2d measurement = getPose2dAllianceFlipped(pose, allianceFlipped);
         return (measurement.getX() == 0 || measurement.getY() == 0
             ? Optional.empty()
-            : (measurement.getTranslation().getDistance(DrivetrainSubsystem.getInstance().getPose().getTranslation()) <= 1
+            : (measurement.getTranslation().getDistance(SubsystemManager.getInstance().getDrivetrain().getPose().getTranslation()) <= 1
             ? Optional.of(measurement)
             : Optional.empty())
         );
     }
 
     private Pose2d getPose2dAllianceFlipped(Pose2d pose, boolean toFlip) {
-        if (!toFlip || DriverStationHelpers.getAlliance() == Alliance.Blue) return pose;
+        if (!toFlip || DriverStationUtil.getAlliance() == Alliance.Blue) return pose;
         return new Pose2d(
             FieldConstants.fieldWidth - pose.getX(),
             FieldConstants.fieldLength - pose.getY(),

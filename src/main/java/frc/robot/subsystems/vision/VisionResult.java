@@ -14,8 +14,8 @@ import edu.wpi.first.math.geometry.Pose2d;
  * Used to pass information from cameras to the vision system.
  */
 public class VisionResult {
-    private Pose2d visionPose;
-    private double timestamp;
+    private final Pose2d visionPose;
+    private final double timestamp;
 
     public VisionResult(Pose2d visionPose, double timestamp){
         this.visionPose = visionPose;

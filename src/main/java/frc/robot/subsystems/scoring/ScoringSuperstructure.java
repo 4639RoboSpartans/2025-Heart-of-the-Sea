@@ -9,11 +9,12 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.subsystems.drive.DrivetrainSubsystem;
+import frc.lib.annotation.ForSubsystemManagerUseOnly;
+import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
-import frc.robot.subsystems.scoring.elevator.ElevatorSubsystem;
+import frc.robot.subsystems.scoring.elevator.AbstractElevatorSubsystem;
 import frc.robot.subsystems.scoring.elevator.ElevatorSysID;
-import frc.robot.subsystems.scoring.hopper.HopperSubsystem;
+import frc.robot.subsystems.scoring.endeffector.AbstractEndEffectorSubsystem;
 
 import java.util.Objects;
 import java.util.function.Supplier;
@@ -21,22 +22,27 @@ import java.util.function.Supplier;
 public class ScoringSuperstructure extends SubsystemBase {
     private static ScoringSuperstructure instance;
 
+    /**
+     * This method should only be accessed from the SubsystemManager class. In other places, use
+     * {@link SubsystemManager#getScoringSuperstructure()} instead.
+     */
+    @ForSubsystemManagerUseOnly
     public static ScoringSuperstructure getInstance() {
         return instance = Objects.requireNonNullElseGet(instance,
             ScoringSuperstructure::new
         );
     }
 
-    private final ElevatorSubsystem elevator;
-    private final HopperSubsystem hopper;
+    private final AbstractElevatorSubsystem elevator;
+    private final AbstractEndEffectorSubsystem hopper;
 
     private ScoringSuperstructureState state = ScoringSuperstructureState.IDLE;
     private ScoringSuperstructureState prevState = ScoringSuperstructureState.IDLE;
     private boolean isManualControlEnabled = false;
 
     public ScoringSuperstructure() {
-        this.elevator = ElevatorSubsystem.getInstance();
-        this.hopper = HopperSubsystem.getInstance();
+        this.elevator = AbstractElevatorSubsystem.getInstance();
+        this.hopper = AbstractEndEffectorSubsystem.getInstance();
         SmartDashboard.putBoolean("isManualControlEnabled", isManualControlEnabled);
     }
 
@@ -102,7 +108,7 @@ public class ScoringSuperstructure extends SubsystemBase {
                 }
 
                 // TODO: choose one place to call runHopper
-                //  either in hopper periodic or in here but right now it runs in both
+                //  either in endeffector periodic or in here but right now it runs in both
                 hopper.runHopper();
             },
             this
@@ -150,7 +156,7 @@ public class ScoringSuperstructure extends SubsystemBase {
         }
 
         //Sets scoring mechanisms to IDLE in case robot acceleration is high.
-        if (DrivetrainSubsystem.getInstance().getAccelerationInGs() >= .4) {
+        if (SubsystemManager.getInstance().getDrivetrain().getAccelerationInGs() >= .4) {
             setState(ScoringSuperstructureState.IDLE);
         }
         SmartDashboard.putBoolean("isManualControlEnabled", isManualControlEnabled);
