@@ -25,7 +25,6 @@ import frc.robot.subsystems.drive.SwerveAutoRoutinesCreator;
 import frc.robot.subsystems.scoring.ScoringSuperstructure;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
-import frc.robot.subsystems.vision.VisionSubsystem;
 
 import java.util.Arrays;
 
@@ -128,32 +127,32 @@ public class RobotContainer {
         {
             Controls.Driver.PathfindReef_0.whileTrue(
                 DriveCommands.pathfindToReefCommand(
-                    FieldConstants.TargetPositions.REEF_0
+                    FieldConstants.TargetPositions.REEF_AB
                 )
             );
             Controls.Driver.PathfindReef_1.whileTrue(
                 DriveCommands.pathfindToReefCommand(
-                    FieldConstants.TargetPositions.REEF_1
+                    FieldConstants.TargetPositions.REEF_KL
                 )
             );
             Controls.Driver.PathfindReef_2.whileTrue(
                 DriveCommands.pathfindToReefCommand(
-                    FieldConstants.TargetPositions.REEF_2
+                    FieldConstants.TargetPositions.REEF_IJ
                 )
             );
             Controls.Driver.PathfindReef_3.whileTrue(
                 DriveCommands.pathfindToReefCommand(
-                    FieldConstants.TargetPositions.REEF_3
+                    FieldConstants.TargetPositions.REEF_GH
                 )
             );
             Controls.Driver.PathfindReef_4.whileTrue(
                 DriveCommands.pathfindToReefCommand(
-                    FieldConstants.TargetPositions.REEF_4
+                    FieldConstants.TargetPositions.REEF_EF
                 )
             );
             Controls.Driver.PathfindReef_5.whileTrue(
                 DriveCommands.pathfindToReefCommand(
-                    FieldConstants.TargetPositions.REEF_5
+                    FieldConstants.TargetPositions.REEF_CD
                 )
             );
         }

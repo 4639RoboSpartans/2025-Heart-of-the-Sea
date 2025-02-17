@@ -21,14 +21,14 @@ public class DriveCommands {
                 Commands.either(
                         swerve.directlyMoveTo(
                                 AllianceFlipUtil.apply(
-                                        PoseUtil.leftOf(
+                                        PoseUtil.ReefRelativeLeftOf(
                                                 targetPosition
                                         )
                                 )
                         ),
                         swerve.directlyMoveTo(
                                 AllianceFlipUtil.apply(
-                                        PoseUtil.rightOf(
+                                        PoseUtil.ReefRelativeRightOf(
                                                 targetPosition
                                         )
                                 )
