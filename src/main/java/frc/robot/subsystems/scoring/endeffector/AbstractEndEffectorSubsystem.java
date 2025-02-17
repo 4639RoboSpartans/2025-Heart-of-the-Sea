@@ -12,13 +12,7 @@ import java.util.Objects;
 public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
     private static AbstractEndEffectorSubsystem instance;
 
-    //Turns out, there is never more than one ScoringSuperstructure (good)
-    //which means there is no reason to pass in the ScoringSuperstructure object
-    //which means we do this instead
     public static AbstractEndEffectorSubsystem getInstance() {
-        //doing this to stop the endeffector from existing before its ready without commenting out a bunch of code
-        // (also, please multiline the comments instead of commenting out every line individually)
-        //TODO: remove the false flag when endeffector is ready
         if (Robot.isReal()) {
             return instance = Objects.requireNonNullElseGet(
                 instance,

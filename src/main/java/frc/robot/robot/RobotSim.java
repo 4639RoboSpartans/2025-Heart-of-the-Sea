@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.scoring.ScoringSuperstructure;
 
 import static edu.wpi.first.units.Units.Inches;
@@ -38,7 +39,7 @@ public class RobotSim extends SubsystemBase {
             elevatorRoot.append(
                     new MechanismLigament2d(
                             "Current Elevator Ligament",
-                            ScoringSuperstructure.getInstance().getCurrentElevatorLength().in(Meters),
+                            SubsystemManager.getInstance().getScoringSuperstructure().getCurrentElevatorLength().in(Meters),
                             90,
                             4,
                             new Color8Bit(currentColor.getRed(), currentColor.getGreen(), currentColor.getBlue())
@@ -60,7 +61,7 @@ public class RobotSim extends SubsystemBase {
             elevatorRoot.append(
                     new MechanismLigament2d(
                             "Target Elevator Ligament",
-                            ScoringSuperstructure.getInstance().getTargetElevatorLength().in(Meters),
+                            SubsystemManager.getInstance().getScoringSuperstructure().getTargetElevatorLength().in(Meters),
                             90,
                             2,
                             new Color8Bit(targetColor.getRed(), targetColor.getGreen(), targetColor.getBlue())

@@ -9,6 +9,8 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.lib.ForSubsystemManagerUseOnly;
+import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
 import frc.robot.subsystems.scoring.elevator.AbstractElevatorSubsystem;
@@ -21,6 +23,11 @@ import java.util.function.Supplier;
 public class ScoringSuperstructure extends SubsystemBase {
     private static ScoringSuperstructure instance;
 
+    /**
+     * This method should only be accessed from the SubsystemManager class. In other places, use
+     * {@link SubsystemManager#getScoringSuperstructure()} instead.
+     */
+    @ForSubsystemManagerUseOnly
     public static ScoringSuperstructure getInstance() {
         return instance = Objects.requireNonNullElseGet(instance,
             ScoringSuperstructure::new
@@ -150,7 +157,7 @@ public class ScoringSuperstructure extends SubsystemBase {
         }
 
         //Sets scoring mechanisms to IDLE in case robot acceleration is high.
-        if (AbstractSwerveDrivetrain.getInstance().getAccelerationInGs() >= .4) {
+        if (SubsystemManager.getInstance().getDrivetrain().getAccelerationInGs() >= .4) {
             setState(ScoringSuperstructureState.IDLE);
         }
         SmartDashboard.putBoolean("isManualControlEnabled", isManualControlEnabled);

@@ -6,9 +6,11 @@ import frc.lib.AllianceFlipUtil;
 import frc.lib.PoseUtil;
 import frc.robot.constants.Controls;
 import frc.robot.constants.FieldConstants;
+import frc.robot.subsystems.SubsystemManager;
+import frc.robot.subsystems.scoring.ScoringSuperstructure;
 
 public class DriveCommands {
-    private static final AbstractSwerveDrivetrain swerve = AbstractSwerveDrivetrain.getInstance();
+    private static final AbstractSwerveDrivetrain swerve = SubsystemManager.getInstance().getDrivetrain();
 
     public static Command pathfindToReefCommand(FieldConstants.TargetPositions targetPosition) {
         return Commands.sequence(

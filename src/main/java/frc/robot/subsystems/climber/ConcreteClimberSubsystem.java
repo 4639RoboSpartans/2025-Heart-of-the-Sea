@@ -11,7 +11,7 @@ import frc.lib.PackagePrivate;
 import java.util.function.DoubleSupplier;
 
 @PackagePrivate
-class ConcreteClimberSubsystem extends ClimberSubsystem {
+class ConcreteClimberSubsystem extends AbstractClimberSubsystem {
     @SuppressWarnings("FieldCanBeLocal")
     private final SparkFlex leftPivot, rightPivot;
 

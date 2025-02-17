@@ -2,6 +2,8 @@ package frc.robot.subsystems.vision;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.lib.ForSubsystemManagerUseOnly;
+import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.vision.camera.Camera;
 import frc.robot.subsystems.vision.camera.Limelight;
 import frc.robot.subsystems.vision.camera.PhotonVision;
@@ -16,6 +18,11 @@ public class VisionSubsystem extends SubsystemBase {
     private final Set<Camera> cameras;
     private HashSet<VisionResult> visionResults;
 
+    /**
+     * This method should only be accessed from the SubsystemManager class. In other places, use
+     * {@link SubsystemManager#getVisionSubsystem()} instead.
+     */
+    @ForSubsystemManagerUseOnly
     public static synchronized VisionSubsystem getInstance() {
         return instance = Objects.requireNonNullElseGet(instance, VisionSubsystem::new);
     }

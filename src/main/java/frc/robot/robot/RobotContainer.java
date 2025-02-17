@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.commands.AutoRoutines;
 import frc.robot.constants.Controls;
 import frc.robot.constants.FieldConstants;
+import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.drive.DriveCommands;
 import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
 import frc.robot.subsystems.drive.SwerveAutoRoutinesCreator;
@@ -32,8 +33,8 @@ import static edu.wpi.first.units.Units.Meters;
 
 
 public class RobotContainer {
-    private final AbstractSwerveDrivetrain swerve = AbstractSwerveDrivetrain.getInstance();
-    private final ScoringSuperstructure scoringSuperstructure = ScoringSuperstructure.getInstance();
+    private final AbstractSwerveDrivetrain swerve = SubsystemManager.getInstance().getDrivetrain();
+    private final ScoringSuperstructure scoringSuperstructure = SubsystemManager.getInstance().getScoringSuperstructure();
     @SuppressWarnings("unused")
     private final RobotSim robotSim = new RobotSim();
     private final SendableChooser<Command> autoChooser;
@@ -43,13 +44,6 @@ public class RobotContainer {
         .getStructArrayTopic("zeroed component poses", Pose3d.struct).publish();
 
     public RobotContainer() {
-        // DO NOT REMOVE! As of now, the only other place that VisionSubsystem is instantiated
-        // is in the periodic() method of CommandSwerveDriveTrain. However, if we instantiate a
-        // subsystem in a periodic method, it will result in a concurrentModificationException
-        // during the command scheduler run because a new Subsystem will be added to the Set of
-        // subsystems as the scheduler iterates over them. Thus, we pre-instantiate the vision
-        // subsystem here to avoid that problem.
-        VisionSubsystem.getInstance();
 
         // create auto routines here because we're configuring AutoBuilder in this method
         //TODO: take this out when we correctly refactor configurAutoBuilder to a new place

@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.lib.DriverStationHelpers;
 import frc.robot.constants.Controls;
+import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.drive.constants.DriveConstants;
 import frc.robot.subsystems.drive.constants.DrivePIDs;
 import frc.robot.subsystems.drive.constants.TunerConstants;
@@ -242,7 +243,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
             });
         }
         // Update vision
-        VisionSubsystem.getInstance().getVisionResults().forEach(
+        SubsystemManager.getInstance().getVisionSubsystem().getVisionResults().forEach(
             visionResult -> drivetrain.addVisionMeasurement(
                 visionResult.getVisionPose(),
                 visionResult.getTimestamp()

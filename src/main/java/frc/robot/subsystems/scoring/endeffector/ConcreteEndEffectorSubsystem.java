@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.TunableNumber;
 import frc.lib.oi.OI;
+import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.scoring.ScoringSuperstructure;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
@@ -193,7 +194,7 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
     public void runHopper() {
         if(!manualControlEnabled){
             runHopperPosition();
-            if (ScoringSuperstructure.getInstance().isAtPosition() && !isStateFinished) {
+            if (SubsystemManager.getInstance().getScoringSuperstructure().isAtPosition() && !isStateFinished) {
                 intakeMotor.set(state.intakeSpeed);
             }
             LaserCan.Measurement measurement = laserCAN.getMeasurement();

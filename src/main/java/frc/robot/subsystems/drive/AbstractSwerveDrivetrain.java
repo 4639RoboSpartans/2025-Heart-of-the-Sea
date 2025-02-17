@@ -6,7 +6,9 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.lib.ForSubsystemManagerUseOnly;
 import frc.robot.robot.Robot;
+import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.scoring.elevator.AbstractElevatorSubsystem;
 
 import java.util.Objects;
@@ -14,6 +16,11 @@ import java.util.Objects;
 public abstract class AbstractSwerveDrivetrain extends SubsystemBase {
     private static AbstractSwerveDrivetrain instance;
 
+    /**
+     * This method should only be accessed from the SubsystemManager class. In other places, use
+     * {@link SubsystemManager#getDrivetrain()} instead.
+     */
+    @ForSubsystemManagerUseOnly
     public static AbstractSwerveDrivetrain getInstance() {
         return instance = Objects.requireNonNullElseGet(instance,
             Robot.isReal() ? PhysicalSwerveDrivetrain::new : SimSwerveDrivetrain::new
