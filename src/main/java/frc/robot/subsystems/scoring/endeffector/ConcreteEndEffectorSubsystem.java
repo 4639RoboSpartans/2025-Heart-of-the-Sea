@@ -15,6 +15,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.lib.oi.OI;
 import frc.lib.tunable.TunableNumber;
 import frc.robot.constants.Controls;
 import frc.robot.subsystems.SubsystemManager;
@@ -169,12 +170,15 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
                 runHopper();
             else runHopperPosition();
         } else {
-            wristMotor.set(Controls.Operator.ManualControlHopper.getAsDouble() * 0.2);
-            intakeMotor.set(Controls.Operator.ManualControlIntake.getAsDouble() * 0.7);
+            wristMotor.set(wristPID.calculate(
+                    wristMotor.getEncoder().getPosition(),
+                    HopperConstants.EXTENDED_POSITION/2
+            ));
         }
+        System.out.println(wristPID.getP() + ", " + wristPID.getI() + ", " + wristPID.getD());
 
         SmartDashboard.putNumber("Wrist Position", wristMotor.getEncoder().getPosition());
-
+        SmartDashboard.putNumber("Wrist Setpoint", HopperConstants.EXTENDED_POSITION/2);
     }
 
     @Override
