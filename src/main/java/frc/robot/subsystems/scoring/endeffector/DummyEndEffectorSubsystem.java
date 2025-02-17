@@ -1,9 +1,9 @@
-package frc.robot.subsystems.scoring.hopper;
+package frc.robot.subsystems.scoring.endeffector;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 
-public class DummyHopperSubsystem extends HopperSubsystem {
+public class DummyEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
     @Override
     public Rotation2d getCurrentRotation() {
         return state.getRotation();

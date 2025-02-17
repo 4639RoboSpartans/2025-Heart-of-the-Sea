@@ -8,7 +8,7 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.lib.DriverStationHelpers;
 import frc.robot.constants.FieldConstants;
-import frc.robot.subsystems.drive.DrivetrainSubsystem;
+import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
 import frc.robot.subsystems.vision.VisionResult;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
@@ -61,7 +61,7 @@ public class PhotonVision implements Camera {
         Pose2d measurement = getPose2dAllianceFlipped(pose, allianceFlipped);
         return (measurement.getX() == 0 || measurement.getY() == 0
             ? Optional.empty()
-            : (measurement.getTranslation().getDistance(DrivetrainSubsystem.getInstance().getPose().getTranslation()) <= 1
+            : (measurement.getTranslation().getDistance(AbstractSwerveDrivetrain.getInstance().getPose().getTranslation()) <= 1
             ? Optional.of(measurement)
             : Optional.empty())
         );

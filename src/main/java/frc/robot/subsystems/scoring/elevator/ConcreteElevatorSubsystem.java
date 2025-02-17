@@ -22,7 +22,7 @@ import static frc.robot.subsystems.scoring.constants.ScoringConstants.ElevatorCo
 import static frc.robot.subsystems.scoring.constants.ScoringConstants.IDs;
 import static frc.robot.subsystems.scoring.constants.ScoringPIDs.*;
 
-public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
+public class ConcreteElevatorSubsystem extends AbstractElevatorSubsystem {
     private final TalonFX elevatorMotor;
     private final MotionMagicVoltage controlRequest;
 

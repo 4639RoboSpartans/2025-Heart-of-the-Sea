@@ -38,7 +38,7 @@ import java.util.function.Supplier;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
 
-public class PhysicalSwerveDrivetrain extends DrivetrainSubsystem {
+public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     protected final TunerSwerveDrivetrain drivetrain;
 
     private boolean didApplyOperatorPerspective = false;

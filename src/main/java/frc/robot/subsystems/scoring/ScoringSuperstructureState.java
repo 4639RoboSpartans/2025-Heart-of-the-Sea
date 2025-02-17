@@ -13,7 +13,7 @@ public class ScoringSuperstructureState {
     public double intakeSpeed; // speed of intake wheels
     public boolean intakeUntilGamePieceSeen; // whether to stop spinning intake wheels when game piece is seen
     public boolean outtakeUntilGamePieceNotSeen; // whether to stop spinning intake wheels after game piece isn't detected
-    public boolean useTransitionState; // whether to move the hopper to a transition state until the elevator is in position
+    public boolean useTransitionState; // whether to move the endeffector to a transition state until the elevator is in position
     public Trigger control; // the trigger used to set this state
     public ScoringSuperstructureState stateAfter; // the state to set after this state finishes
 

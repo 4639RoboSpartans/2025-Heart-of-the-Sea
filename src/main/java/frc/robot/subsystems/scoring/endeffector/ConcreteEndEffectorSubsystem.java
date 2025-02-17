@@ -1,10 +1,7 @@
-package frc.robot.subsystems.scoring.hopper;
+package frc.robot.subsystems.scoring.endeffector;
 
 import au.grapplerobotics.ConfigurationFailedException;
 import au.grapplerobotics.LaserCan;
-import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
-import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
-import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel;
@@ -19,16 +16,15 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.TunableNumber;
 import frc.lib.oi.OI;
-import frc.robot.constants.Controls;
 import frc.robot.subsystems.scoring.ScoringSuperstructure;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
-import frc.robot.subsystems.scoring.constants.ScoringConstants.HopperConstants;
 import frc.robot.subsystems.scoring.constants.ScoringPIDs;
+import frc.robot.subsystems.scoring.constants.ScoringConstants.HopperConstants;
 
 import java.util.Optional;
 
-public class ConcreteHopperSubsystem extends HopperSubsystem {
+public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
     private final SparkFlex intakeMotor;
     private final SparkFlex wristMotor;
     private final DutyCycleEncoder wristEncoder;
@@ -39,7 +35,7 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
 
     private boolean isStateFinished = false;
 
-    public ConcreteHopperSubsystem() {
+    public ConcreteEndEffectorSubsystem() {
         intakeMotor = new SparkFlex(
             ScoringConstants.IDs.IntakeMotorID,
             SparkLowLevel.MotorType.kBrushless
@@ -168,7 +164,7 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
             else runHopperPosition();
         }else {
             wristMotor.set(wristPID.calculate(
-                wristEncoder.get(), 
+                wristEncoder.get(),
                 ScoringConstants
                 .HopperConstants
                 .ProportionToPosition
@@ -183,14 +179,14 @@ public class ConcreteHopperSubsystem extends HopperSubsystem {
 
     @Override
     protected void runHopperPosition() {
-        if(!manualControlEnabled)       {
+        if(!manualControlEnabled) {
             double wristPIDOutput = wristPID.calculate(
                     wristEncoder.get(),
                     wristPID.getGoal().position
             );
+        }
 //        TODO: uncomment when down and up positions are set
 //        wristMotor.set(wristPIDOutput);
-        }
     }
 
     @Override

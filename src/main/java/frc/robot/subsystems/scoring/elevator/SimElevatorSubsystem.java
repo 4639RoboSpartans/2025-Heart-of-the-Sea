@@ -17,7 +17,7 @@ import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.subsystems.scoring.constants.ScoringConstants.ElevatorConstants.ELEVATOR_TOLERANCE;
 import static frc.robot.subsystems.scoring.constants.ScoringConstants.ElevatorConstants.ProportionToHeight;
 
-public class SimElevatorSubsystem extends ElevatorSubsystem {
+public class SimElevatorSubsystem extends AbstractElevatorSubsystem {
     private final ProfiledPIDController elevatorPID;
     private final ElevatorFeedforward elevatorFeedforward;
     private final ElevatorSim elevatorSim;

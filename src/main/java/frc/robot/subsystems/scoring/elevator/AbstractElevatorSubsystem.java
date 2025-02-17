@@ -11,10 +11,10 @@ import java.util.Objects;
 import static frc.robot.subsystems.scoring.constants.ScoringConstants.ElevatorConstants.ProportionToHeight;
 import static frc.robot.subsystems.scoring.constants.ScoringConstants.ElevatorConstants.ProportionToPosition;
 
-public abstract class ElevatorSubsystem extends SubsystemBase {
-    private static ElevatorSubsystem instance;
+public abstract class AbstractElevatorSubsystem extends SubsystemBase {
+    private static AbstractElevatorSubsystem instance;
 
-    public static ElevatorSubsystem getInstance() {
+    public static AbstractElevatorSubsystem getInstance() {
         if (Robot.isReal()) {
             return instance = Objects.requireNonNullElseGet(instance, ConcreteElevatorSubsystem::new);
         } else {

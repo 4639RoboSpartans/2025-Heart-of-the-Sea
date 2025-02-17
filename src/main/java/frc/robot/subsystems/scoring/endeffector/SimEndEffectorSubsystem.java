@@ -1,4 +1,4 @@
-package frc.robot.subsystems.scoring.hopper;
+package frc.robot.subsystems.scoring.endeffector;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -13,7 +13,7 @@ import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
 import frc.robot.subsystems.scoring.constants.ScoringPIDs;
 
-public class SimHopperSubsystem extends HopperSubsystem {
+public class SimEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
     private static final double secondsUntilIntakeOuttakeEnd = 0.25;
 
     private final ProfiledPIDController pivotPID;
@@ -25,7 +25,7 @@ public class SimHopperSubsystem extends HopperSubsystem {
 
     private boolean isStateFinished = false;
 
-    public SimHopperSubsystem() {
+    public SimEndEffectorSubsystem() {
         intakeSpeed = 0;
         pivotPID = new ProfiledPIDController(
             ScoringPIDs.wristKp.get(),

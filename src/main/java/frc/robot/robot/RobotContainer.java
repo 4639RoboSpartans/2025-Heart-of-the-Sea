@@ -19,7 +19,7 @@ import frc.robot.commands.AutoRoutines;
 import frc.robot.constants.Controls;
 import frc.robot.constants.FieldConstants;
 import frc.robot.subsystems.drive.DriveCommands;
-import frc.robot.subsystems.drive.DrivetrainSubsystem;
+import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
 import frc.robot.subsystems.drive.SwerveAutoRoutinesCreator;
 import frc.robot.subsystems.scoring.ScoringSuperstructure;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
@@ -32,7 +32,7 @@ import static edu.wpi.first.units.Units.Meters;
 
 
 public class RobotContainer {
-    private final DrivetrainSubsystem swerve = DrivetrainSubsystem.getInstance();
+    private final AbstractSwerveDrivetrain swerve = AbstractSwerveDrivetrain.getInstance();
     private final ScoringSuperstructure scoringSuperstructure = ScoringSuperstructure.getInstance();
     @SuppressWarnings("unused")
     private final RobotSim robotSim = new RobotSim();
