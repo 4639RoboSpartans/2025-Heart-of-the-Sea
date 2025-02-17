@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.robot.Robot;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
+import frc.robot.subsystems.scoring.elevator.DummyElevatorSubsystem;
 
 import java.util.Objects;
 
@@ -13,6 +14,9 @@ public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
     private static AbstractEndEffectorSubsystem instance;
 
     public static AbstractEndEffectorSubsystem getInstance() {
+        boolean dummy = false;
+        // dummy = true
+        if(dummy) return new DummyEndEffectorSubsystem();
         if (Robot.isReal()) {
             return instance = Objects.requireNonNullElseGet(
                 instance,
