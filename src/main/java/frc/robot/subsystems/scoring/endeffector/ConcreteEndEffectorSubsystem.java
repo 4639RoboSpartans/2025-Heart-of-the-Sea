@@ -6,6 +6,7 @@ import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel;
 import com.revrobotics.spark.config.SoftLimitConfig;
+import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -16,6 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.tunable.TunableNumber;
 import frc.lib.oi.OI;
+import frc.robot.constants.Controls;
 import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
@@ -109,6 +111,11 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
         //TODO: is two seconds really necessary?
         //having the debounce on for too long could mess with our cycle time
         hasCoral.debounce(2);
+        wristMotor.configure(
+                new SparkFlexConfig().idleMode(SparkBaseConfig.IdleMode.kBrake),
+                SparkBase.ResetMode.kNoResetSafeParameters,
+                SparkBase.PersistMode.kPersistParameters
+        );
     }
 
     @Override
@@ -163,14 +170,9 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
                 runHopper();
             else runHopperPosition();
         }else {
-            wristMotor.set(wristPID.calculate(
-                wristEncoder.get(),
-                ScoringConstants
-                .HopperConstants
-                .ProportionToPosition
-                .convert(
-                    (OI.getInstance().operatorController().rightStickY() + 1)/2.0)
-            ));
+            wristMotor.set(Controls.Operator.ManualControlHopper.getAsDouble() * 0.2);
+            var intakeSpeed = (OI.getInstance().operatorController().A_BUTTON.getAsBoolean() ? 1 : 0) - (OI.getInstance().operatorController().B_BUTTON.getAsBoolean() ? 1 : 0);
+            intakeMotor.set(intakeSpeed * 0.7);
         }
 
         SmartDashboard.putNumber("Wrist Position", wristMotor.getEncoder().getPosition());

@@ -22,6 +22,11 @@ public class SubsystemManager {
         return instance = Objects.requireNonNullElseGet(instance, SubsystemManager::new);
     }
 
+    static {
+        instance = getInstance();
+        instance.instantiateSubsystems();
+    }
+
     private SubsystemManager() {}
 
     public void instantiateSubsystems() {
