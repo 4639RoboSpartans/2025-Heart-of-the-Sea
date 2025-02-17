@@ -8,6 +8,7 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.lib.oi.OI;
 import frc.robot.subsystems.scoring.ScoringSuperstructure;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
@@ -99,8 +100,24 @@ public class SimHopperSubsystem extends HopperSubsystem {
     @Override
     protected void runHopperPosition() {
         pivotSim.update(0.020);
-        double output = -pivotPID.calculate(getCurrentPosition());
-        pivotSim.setInputVoltage(output);
+        double output;
+        double SIM_VOLTAGE_FUDGE_FACTOR = 0.5;  // Fudge factor to stabilize the simulated hopper
+        if (!manualControlEnabled) {
+            output = -pivotPID.calculate(getCurrentPosition());
+            pivotSim.setInputVoltage(
+                output * SIM_VOLTAGE_FUDGE_FACTOR
+            );
+        } else {
+            double setpointProportion = OI.getInstance().operatorController().rightStickY() * 0.5 + 0.5;
+            output = -pivotPID.calculate(
+                getCurrentPosition(),
+                ScoringConstants
+                    .HopperConstants
+                    .ProportionToPosition
+                    .convert(setpointProportion)
+            );
+            pivotSim.setInputVoltage(output * SIM_VOLTAGE_FUDGE_FACTOR);
+        }
         SmartDashboard.putNumber("Wrist Output", output);
         SmartDashboard.putNumber("Wrist Current Position", getCurrentPosition());
         SmartDashboard.putNumber("Wrist Sim Angle", Rotation2d.fromRadians(pivotSim.getAngleRads()).getDegrees());

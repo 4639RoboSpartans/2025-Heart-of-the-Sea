@@ -5,7 +5,6 @@ import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
@@ -111,10 +110,11 @@ public class ConcreteElevatorSubsystem extends ElevatorSubsystem {
     @Override
     public void periodic() {
         if (isManualControlEnabled) {
-            double outputVoltage = Controls.Operator.ManualControlElevator.getAsDouble() * 0.3;
-            if(outputVoltage < 0) outputVoltage /= 2.;
+            double outputVoltage = Controls.Operator.ManualControlElevator.getAsDouble() * 4;
+            if (outputVoltage < 0) outputVoltage /= 2.;
+//            outputVoltage += elevatorKg.get();
             // TODO: implement limits
-            elevatorMotor.setControl(new DutyCycleOut(
+            elevatorMotor.setControl(new VoltageOut(
                 outputVoltage
             ));
         }

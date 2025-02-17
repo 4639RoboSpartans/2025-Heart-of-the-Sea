@@ -9,6 +9,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.constants.Controls;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 import frc.robot.subsystems.scoring.constants.ScoringPIDs;
 
@@ -16,6 +17,7 @@ import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.subsystems.scoring.constants.ScoringConstants.ElevatorConstants.ELEVATOR_TOLERANCE;
 import static frc.robot.subsystems.scoring.constants.ScoringConstants.ElevatorConstants.ProportionToHeight;
+import static frc.robot.subsystems.scoring.constants.ScoringPIDs.elevatorKg;
 
 public class SimElevatorSubsystem extends ElevatorSubsystem {
     private final ProfiledPIDController elevatorPID;
@@ -82,6 +84,13 @@ public class SimElevatorSubsystem extends ElevatorSubsystem {
 
     @Override
     public void periodic() {
+        if (isManualControlEnabled) {
+            double outputVoltage = Controls.Operator.ManualControlElevator.getAsDouble() * 0.3;
+            if (outputVoltage < 0) outputVoltage /= 2.;
+            elevatorSim.setInputVoltage(outputVoltage * 12 + elevatorKg.get() * 3.8);
+        }
+        SmartDashboard.putBoolean("Is manual", isManualControlEnabled);
+
         updatePIDs();
         elevatorSim.update(0.020);
         elevatorSim.setState(elevatorSim.getPositionMeters(), elevatorSim.getVelocityMetersPerSecond());
@@ -92,7 +101,10 @@ public class SimElevatorSubsystem extends ElevatorSubsystem {
         elevatorPID.setGoal(state.getElevatorAbsolutePosition());
         double output = elevatorPID.calculate(getCurrentPosition())
             + elevatorFeedforward.calculate(elevatorPID.getSetpoint().velocity);
-        elevatorSim.setInputVoltage(output);
+
+        if (!isManualControlEnabled) {
+            elevatorSim.setInputVoltage(output);
+        }
         SmartDashboard.putNumber("Elevator PID output", output);
         SmartDashboard.putNumber("Elevator Sim Position", getCurrentPosition());
     }
