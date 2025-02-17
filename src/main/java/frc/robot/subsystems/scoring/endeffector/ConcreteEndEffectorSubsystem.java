@@ -15,14 +15,14 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.lib.tunable.TunableNumber;
 import frc.lib.oi.OI;
+import frc.lib.tunable.TunableNumber;
 import frc.robot.constants.Controls;
 import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
-import frc.robot.subsystems.scoring.constants.ScoringPIDs;
 import frc.robot.subsystems.scoring.constants.ScoringConstants.HopperConstants;
+import frc.robot.subsystems.scoring.constants.ScoringPIDs;
 
 import java.util.Optional;
 
@@ -43,8 +43,8 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
             SparkLowLevel.MotorType.kBrushless
         );
         wristMotor = new SparkFlex(
-                ScoringConstants.IDs.WristMotorID,
-                SparkLowLevel.MotorType.kBrushless
+            ScoringConstants.IDs.WristMotorID,
+            SparkLowLevel.MotorType.kBrushless
         );
         intakeMotor.configure(
             new SparkFlexConfig()
@@ -61,18 +61,18 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
             SparkBase.PersistMode.kPersistParameters
         );
         wristMotor.configure(
-                new SparkFlexConfig()
-                        .apply(
-                                new SoftLimitConfig()
-                                        .forwardSoftLimit(
-                                                HopperConstants.WristForwardSoftLimit
-                                        )
-                                        .reverseSoftLimit(
-                                                HopperConstants.WristReverseSoftLimit
-                                        )
-                        ).smartCurrentLimit(HopperConstants.WristCurrentLimit),
-                SparkBase.ResetMode.kResetSafeParameters,
-                SparkBase.PersistMode.kPersistParameters
+            new SparkFlexConfig()
+                .apply(
+                    new SoftLimitConfig()
+                        .forwardSoftLimit(
+                            HopperConstants.WristForwardSoftLimit
+                        )
+                        .reverseSoftLimit(
+                            HopperConstants.WristReverseSoftLimit
+                        )
+                ).smartCurrentLimit(HopperConstants.WristCurrentLimit),
+            SparkBase.ResetMode.kResetSafeParameters,
+            SparkBase.PersistMode.kPersistParameters
         );
         wristEncoder = new DutyCycleEncoder(
             ScoringConstants.IDs.WristEncoderID,
@@ -81,13 +81,13 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
         );
 
         wristPID = new ProfiledPIDController(
-                ScoringPIDs.wristKp.get(),
-                ScoringPIDs.wristKi.get(),
-                ScoringPIDs.wristKd.get(),
-                new TrapezoidProfile.Constraints(
-                    ScoringPIDs.wristVelocity.get(),
-                    ScoringPIDs.wristAcceleration.get()
-                )
+            ScoringPIDs.wristKp.get(),
+            ScoringPIDs.wristKi.get(),
+            ScoringPIDs.wristKd.get(),
+            new TrapezoidProfile.Constraints(
+                ScoringPIDs.wristVelocity.get(),
+                ScoringPIDs.wristAcceleration.get()
+            )
         );
 
         ScoringPIDs.wristKp.onChange(wristPID::setP);
@@ -112,9 +112,9 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
         //having the debounce on for too long could mess with our cycle time
         hasCoral.debounce(2);
         wristMotor.configure(
-                new SparkFlexConfig().idleMode(SparkBaseConfig.IdleMode.kBrake),
-                SparkBase.ResetMode.kNoResetSafeParameters,
-                SparkBase.PersistMode.kPersistParameters
+            new SparkFlexConfig().idleMode(SparkBaseConfig.IdleMode.kBrake),
+            SparkBase.ResetMode.kNoResetSafeParameters,
+            SparkBase.PersistMode.kPersistParameters
         );
     }
 
@@ -157,7 +157,7 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
     public void setHopper(ScoringSuperstructureState state) {
         this.state = state;
         isStateFinished = false;
-        if(!manualControlEnabled) {
+        if (!manualControlEnabled) {
             intakeMotor.set(0);
         }
         wristPID.setGoal(state.getWristAbsolutePosition());
@@ -165,26 +165,28 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
 
     @Override
     public void periodic() {
-        if(!manualControlEnabled){
+        if (!manualControlEnabled) {
             if (isAtTarget())
                 runHopper();
             else runHopperPosition();
-        }else {
-            wristMotor.set(Controls.Operator.ManualControlHopper.getAsDouble() * 0.2);
-            var intakeSpeed = (OI.getInstance().operatorController().A_BUTTON.getAsBoolean() ? 1 : 0) - (OI.getInstance().operatorController().B_BUTTON.getAsBoolean() ? 1 : 0);
-            intakeMotor.set(intakeSpeed * 0.7);
+        } else {
+            wristMotor.set(wristPID.calculate(
+                    wristMotor.getEncoder().getPosition(),
+                    HopperConstants.EXTENDED_POSITION/2
+            ));
         }
+        System.out.println(wristPID.getP() + ", " + wristPID.getI() + ", " + wristPID.getD());
 
         SmartDashboard.putNumber("Wrist Position", wristMotor.getEncoder().getPosition());
-
+        SmartDashboard.putNumber("Wrist Setpoint", HopperConstants.EXTENDED_POSITION/2);
     }
 
     @Override
     protected void runHopperPosition() {
-        if(!manualControlEnabled) {
+        if (!manualControlEnabled) {
             double wristPIDOutput = wristPID.calculate(
-                    wristEncoder.get(),
-                    wristPID.getGoal().position
+                wristEncoder.get(),
+                wristPID.getGoal().position
             );
         }
 //        TODO: uncomment when down and up positions are set
@@ -193,7 +195,7 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
 
     @Override
     public void runHopper() {
-        if(!manualControlEnabled){
+        if (!manualControlEnabled) {
             runHopperPosition();
             if (SubsystemManager.getInstance().getScoringSuperstructure().isAtPosition() && !isStateFinished) {
                 intakeMotor.set(state.intakeSpeed);

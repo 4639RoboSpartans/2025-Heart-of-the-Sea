@@ -15,10 +15,14 @@ public abstract class AbstractElevatorSubsystem extends SubsystemBase {
     private static AbstractElevatorSubsystem instance;
 
     public static AbstractElevatorSubsystem getInstance() {
+        boolean dummy = false;
+        // dummy = true;
+        if(dummy) return new DummyElevatorSubsystem();
+        
         if (Robot.isReal()) {
             return instance = Objects.requireNonNullElseGet(instance, ConcreteElevatorSubsystem::new);
         } else {
-        return instance = Objects.requireNonNullElseGet(instance, SimElevatorSubsystem::new);
+            return instance = Objects.requireNonNullElseGet(instance, SimElevatorSubsystem::new);
         }
     }
 
