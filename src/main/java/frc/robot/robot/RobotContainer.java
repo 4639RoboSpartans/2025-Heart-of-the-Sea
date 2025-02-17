@@ -66,7 +66,7 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-        //swerve.setDefaultCommand(swerve.manualControl());
+        swerve.setDefaultCommand(swerve.manualControl()); //
         scoringSuperstructure.setDefaultCommand(scoringSuperstructure.runScoringState());
 
         //TODO: make a button for the elevator test
