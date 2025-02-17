@@ -6,7 +6,6 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.robot.Robot;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
-import frc.robot.subsystems.scoring.elevator.DummyElevatorSubsystem;
 
 import java.util.Objects;
 
@@ -54,7 +53,7 @@ public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
      * @return position of wrist as double
      */
     public final double getCurrentPosition() {
-        return ScoringConstants.HopperConstants.PositionToRotation.convertBackwards(getCurrentRotation());
+        return ScoringConstants.EndEffectorConstants.PositionToRotation.convertBackwards(getCurrentRotation());
     }
 
     /**
@@ -72,7 +71,7 @@ public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
      * @return target position of wrist as double
      */
     public final double getTargetPosition() {
-        return ScoringConstants.HopperConstants.PositionToRotation.convertBackwards(getTargetRotation());
+        return ScoringConstants.EndEffectorConstants.PositionToRotation.convertBackwards(getTargetRotation());
     }
 
     /**

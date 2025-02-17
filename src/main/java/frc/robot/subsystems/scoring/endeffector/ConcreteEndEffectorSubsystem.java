@@ -17,11 +17,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.oi.OI;
 import frc.lib.tunable.TunableNumber;
-import frc.robot.constants.Controls;
 import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
-import frc.robot.subsystems.scoring.constants.ScoringConstants.HopperConstants;
+import frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConstants;
 import frc.robot.subsystems.scoring.constants.ScoringPIDs;
 
 import java.util.Optional;
@@ -51,12 +50,12 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
                 .apply(
                     new SoftLimitConfig()
                         .forwardSoftLimit(
-                            HopperConstants.IntakeForwardSoftLimit
+                            EndEffectorConstants.IntakeForwardSoftLimit
                         )
                         .reverseSoftLimit(
-                            HopperConstants.IntakeReverseSoftLimit
+                            EndEffectorConstants.IntakeReverseSoftLimit
                         )
-                ).smartCurrentLimit(HopperConstants.IntakeCurrentLimit),
+                ).smartCurrentLimit(EndEffectorConstants.IntakeCurrentLimit),
             SparkBase.ResetMode.kResetSafeParameters,
             SparkBase.PersistMode.kPersistParameters
         );
@@ -65,12 +64,12 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
                 .apply(
                     new SoftLimitConfig()
                         .forwardSoftLimit(
-                            HopperConstants.WristForwardSoftLimit
+                            EndEffectorConstants.WristForwardSoftLimit
                         )
                         .reverseSoftLimit(
-                            HopperConstants.WristReverseSoftLimit
+                            EndEffectorConstants.WristReverseSoftLimit
                         )
-                ).smartCurrentLimit(HopperConstants.WristCurrentLimit),
+                ).smartCurrentLimit(EndEffectorConstants.WristCurrentLimit),
             SparkBase.ResetMode.kResetSafeParameters,
             SparkBase.PersistMode.kPersistParameters
         );
@@ -120,7 +119,7 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
 
     @Override
     public Rotation2d getCurrentRotation() {
-        return HopperConstants.PositionToRotation.convert(wristEncoder.get());
+        return EndEffectorConstants.PositionToRotation.convert(wristEncoder.get());
     }
 
     @Override
@@ -145,7 +144,7 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
         return MathUtil.isNear(
             getTargetPosition(),
             getCurrentPosition(),
-            ScoringConstants.HopperConstants.WRIST_TOLERANCE
+            EndEffectorConstants.WRIST_TOLERANCE
         );
     }
 
@@ -172,13 +171,13 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
         } else {
             wristMotor.set(wristPID.calculate(
                     wristMotor.getEncoder().getPosition(),
-                    HopperConstants.EXTENDED_POSITION/2
+                    EndEffectorConstants.ProportionToPosition.convert(OI.getInstance().operatorController().rightStickY() * 0.5 + 0.5)
             ));
         }
         System.out.println(wristPID.getP() + ", " + wristPID.getI() + ", " + wristPID.getD());
 
         SmartDashboard.putNumber("Wrist Position", wristMotor.getEncoder().getPosition());
-        SmartDashboard.putNumber("Wrist Setpoint", HopperConstants.EXTENDED_POSITION/2);
+        SmartDashboard.putNumber("Wrist Setpoint", EndEffectorConstants.EXTENDED_POSITION/2);
     }
 
     @Override

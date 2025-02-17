@@ -46,7 +46,7 @@ public final class ScoringConstants {
         }
     }
 
-    public static class HopperConstants {
+    public static class EndEffectorConstants {
         public static final Rotation2d MAX_ROTATION = Rotation2d.fromDegrees(-200);
         public static final Rotation2d IDLE_ROTATION = Rotation2d.fromDegrees(30);
 

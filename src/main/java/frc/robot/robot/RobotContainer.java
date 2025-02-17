@@ -66,7 +66,7 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-        //swerve.setDefaultCommand(swerve.manualControl());
+        swerve.setDefaultCommand(swerve.manualControl());
         scoringSuperstructure.setDefaultCommand(scoringSuperstructure.runScoringState());
 
         //TODO: make a button for the elevator test
@@ -221,11 +221,11 @@ public class RobotContainer {
                         (scoringSuperstructure.getCurrentElevatorLength().in(Meters)
                             - ScoringConstants.ElevatorConstants.STARTING_HEIGHT.in(Meters))
                     ).plus(
-                        ScoringConstants.HopperConstants.Hopper3DSimOffset
+                        ScoringConstants.EndEffectorConstants.Hopper3DSimOffset
                     ),
                     new Rotation3d(
                         0,
-                        -scoringSuperstructure.getCurrentWristRotation().minus(ScoringConstants.HopperConstants.IDLE_ROTATION).getRadians(),
+                        -scoringSuperstructure.getCurrentWristRotation().minus(ScoringConstants.EndEffectorConstants.IDLE_ROTATION).getRadians(),
                         0
                     )
                 )
