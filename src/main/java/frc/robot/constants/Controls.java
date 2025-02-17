@@ -103,5 +103,9 @@ public class Controls {
             (operatorController.POV_UP.getAsBoolean() ? 1 : 0) -
                 (operatorController.POV_DOWN.getAsBoolean() ? 1 : 0)
         );
+        public static final DoubleSupplier ManualControlIntake = () -> (
+            (operatorController.A_BUTTON.getAsBoolean() ? 1 : 0) -
+                (operatorController.B_BUTTON.getAsBoolean() ? 1 : 0)
+        );
     }
 }

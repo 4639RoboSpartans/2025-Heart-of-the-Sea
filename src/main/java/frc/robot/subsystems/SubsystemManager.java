@@ -13,6 +13,11 @@ import java.util.Objects;
 public class SubsystemManager {
     private static volatile SubsystemManager instance;
 
+    public static final class GetInstanceAccess {
+        private GetInstanceAccess() {}
+    }
+    private static final GetInstanceAccess getInstanceAccess = new GetInstanceAccess();
+
     private AbstractClimberSubsystem climberSubsystem;
     private AbstractSwerveDrivetrain drivetrain;
     private ScoringSuperstructure scoringSuperstructure;
@@ -31,7 +36,7 @@ public class SubsystemManager {
 
     public void instantiateSubsystems() {
         climberSubsystem = AbstractClimberSubsystem.getInstance();
-        drivetrain = AbstractSwerveDrivetrain.getInstance();
+        drivetrain = AbstractSwerveDrivetrain.getInstance(getInstanceAccess);
         scoringSuperstructure = ScoringSuperstructure.getInstance();
         visionSubsystem = VisionSubsystem.getInstance();
     }

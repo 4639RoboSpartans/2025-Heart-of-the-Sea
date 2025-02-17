@@ -18,7 +18,7 @@ public abstract class AbstractElevatorSubsystem extends SubsystemBase {
         if (Robot.isReal()) {
             return instance = Objects.requireNonNullElseGet(instance, ConcreteElevatorSubsystem::new);
         } else {
-        return instance = Objects.requireNonNullElseGet(instance, SimElevatorSubsystem::new);
+            return instance = Objects.requireNonNullElseGet(instance, SimElevatorSubsystem::new);
         }
     }
 
