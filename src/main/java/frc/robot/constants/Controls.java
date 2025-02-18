@@ -76,22 +76,25 @@ public class Controls {
         public static final Trigger PathfindReef_5 = reefRightPoses.and(reefLeft.or(reefRight))
             .and(driverController.A_BUTTON);
 
-        public static final Trigger L2AlgaeTrigger = operatorController.X_BUTTON;
-        public static final Trigger L3AlgaeTrigger = operatorController.Y_BUTTON;
-        public static final Trigger ProcessorTrigger = operatorController.POV_RIGHT;
-        public static final Trigger BargeScoringTrigger = operatorController.A_BUTTON;
+        public static final Trigger L2AlgaeTrigger = driverController.X_BUTTON;
+        public static final Trigger L3AlgaeTrigger = driverController.Y_BUTTON;
+        public static final Trigger ProcessorTrigger = driverController.POV_RIGHT;
+        public static final Trigger BargeScoringTrigger = driverController.A_BUTTON;
     }
 
     public static class Operator {
+        //Setpoints +Operator Controls
         public static final Trigger L1Trigger = operatorController.LEFT_TRIGGER;
-        public static final Trigger L2Trigger = operatorController.RIGHT_TRIGGER;
-        public static final Trigger L3Trigger = operatorController.LEFT_BUMPER;
-        public static final Trigger L4Trigger = operatorController.RIGHT_BUMPER;
+        public static final Trigger L2Trigger = operatorController.LEFT_BUMPER;
+        public static final Trigger L3Trigger = operatorController.RIGHT_BUMPER;
+        public static final Trigger L4Trigger = operatorController.RIGHT_TRIGGER;
+        //till need to add 
 
         public static final Trigger HPLoadingTrigger = operatorController.B_BUTTON;
 
         public static final Trigger HoldTrigger = operatorController.POV_UP;
 
+        //Manual Override Controls
         public static Trigger ToggleManualControlTrigger = operatorController.LEFT_STICK;
 
         public static final DoubleSupplier ManualControlHopper = () -> (
