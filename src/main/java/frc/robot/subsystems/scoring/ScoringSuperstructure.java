@@ -46,7 +46,6 @@ public class ScoringSuperstructure extends SubsystemBase {
             prevState = this.currentState;
         }
         this.currentState = currentState;
-        elevator.setTargetExtensionProportion(currentState);
         hopper.setHopper(currentState);
     }
 
@@ -84,11 +83,12 @@ public class ScoringSuperstructure extends SubsystemBase {
         return Commands.run(
             () -> {
                 if (!currentState.useTransitionState || !prevState.useTransitionState) {
-                    elevator.runElevator();
+                    // If neither current nor last state requires transition, just do the elevator thing
+                    elevator.setTargetExtensionProportion(currentState.elevatorExtensionProportion);
                 } else {
                     if (hopper.getHopperState() != ScoringSuperstructureState.TRANSITION_STATE) {
                         if (elevator.isAtTarget()) {
-                            elevator.runElevator();
+                            elevator.setTargetExtensionProportion(currentState.elevatorExtensionProportion);
                         } else {
                             hopper.setHopper(ScoringSuperstructureState.TRANSITION_STATE);
                         }
@@ -97,14 +97,10 @@ public class ScoringSuperstructure extends SubsystemBase {
                             if (elevator.isAtTarget()) {
                                 hopper.setHopper(currentState);
                             }
-                            elevator.runElevator();
+                            elevator.setTargetExtensionProportion(currentState.elevatorExtensionProportion);
                         }
                     }
                 }
-
-                // TODO: choose one place to call runHopper
-                //  either in endeffector periodic or in here but right now it runs in both
-                hopper.runHopper();
             },
             this
         );
