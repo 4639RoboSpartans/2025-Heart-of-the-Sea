@@ -1,0 +1,84 @@
+package frc.lib;
+
+import com.google.errorprone.annotations.Immutable;
+
+import java.util.Arrays;
+
+/**
+ * Wraps a double as a proportion
+ */
+@Immutable
+public final class Proportion {
+    private final double value;
+
+    private Proportion(double value) {
+        this.value = value;
+    }
+
+    private static Proportion ofPrivate(Double d) throws InvalidProportionException{
+        if(!d.equals(Math.clamp(d, 0.0, 1.0)))
+            throw new InvalidProportionException(d);
+        else return new Proportion(d);
+    }
+
+    public static Proportion of(double d){
+        try{
+            return ofPrivate(d);
+        }catch(InvalidProportionException e){
+            System.err.println(e.getMessage());
+            System.err.println(Arrays.toString(e.getStackTrace()));
+            return new Proportion(Math.clamp(d, 0.0, 1.0));
+        }
+    }
+
+    public double getValue() {
+        return value;
+    }
+
+    public Proportion plus(double d){
+        return of(value + d);
+    }
+
+    public Proportion plus(Proportion p){
+        return plus(p.value);
+    }
+
+    public Proportion minus(double d){
+        return of(value - d);
+    }
+
+    public Proportion minus(Proportion p){
+        return minus(p.value);
+    }
+
+    public Proportion times(double d){
+        return of(value * d);
+    }
+
+    public Proportion times(Proportion p){
+        return times(p.value);
+    }
+
+    public Proportion dividedBy(double d){
+        return of(value / d);
+    }
+
+    public Proportion dividedBy(Proportion p){
+        return dividedBy(p.value);
+    }
+
+    public Proportion exponentiatedBy(double d){
+        return of(Math.exp(d));
+    }
+
+    public Proportion exponentiatedBy(Proportion p){
+        return exponentiatedBy(p.value);
+    }
+
+    public static class InvalidProportionException extends RuntimeException {
+
+        public InvalidProportionException(double value) {
+            super("Invalid Proportion: " + value + ". Proportions must be between 0 and 1. This proportion has been replaced with " + Math.clamp(value, 0.0, 1.0));
+        }
+    }
+}
