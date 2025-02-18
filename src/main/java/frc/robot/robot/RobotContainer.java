@@ -15,8 +15,12 @@ import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.lib.FunctionalTrigger;
 import frc.lib.led.LEDStrip;
 import frc.lib.led.PhysicalLEDStrip;
+import frc.lib.oi.OI;
 import frc.robot.commands.AutoRoutines;
 import frc.robot.constants.Controls;
 import frc.robot.constants.FieldConstants;
@@ -29,6 +33,7 @@ import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
 
 import java.util.Arrays;
+import java.util.function.BooleanSupplier;
 
 import static edu.wpi.first.units.Units.Meters;
 
@@ -132,7 +137,7 @@ public class RobotContainer {
         }
 
         //Driving Controls
-        {
+        /*{
             Controls.Driver.PathfindReef_0.whileTrue(
                 DriveCommands.pathfindToReefCommand(
                     FieldConstants.TargetPositions.REEF_AB
@@ -163,7 +168,9 @@ public class RobotContainer {
                     FieldConstants.TargetPositions.REEF_CD
                 )
             );
-        }
+        }*/
+
+        FunctionalTrigger.of(OI.getInstance().driverController().A_BUTTON).whileTrue(() -> DriveCommands.pathFindToClosestReefCommand(SubsystemManager.getInstance().getDrivetrain()::getPose));
 
         // OI.getInstance().operatorController().Y_BUTTON.whileTrue(
         //         ElevatorSysID.sysIdQuasistatic(SysIdRoutine.Direction.kForward)
@@ -179,7 +186,6 @@ public class RobotContainer {
         // );
 
         // OI.getInstance().driverController().A_BUTTON.onTrue(MiscellaneousCommands.ElevatorUpDownTest());
-
     }
 
     private void addAllCompAutons(SendableChooser<Command> autoChooser, AutoRoutines swerveAutoRoutines) {
