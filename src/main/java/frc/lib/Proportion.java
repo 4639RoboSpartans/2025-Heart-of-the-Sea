@@ -2,8 +2,7 @@ package frc.lib;
 
 import com.google.errorprone.annotations.Immutable;
 
-import frc.robot.subsystems.scoring.constants.ScoringConstants;
-
+import frc.lib.util.MathUtil;
 import java.util.Arrays;
 import java.util.function.UnaryOperator;
 
@@ -19,7 +18,7 @@ public final class Proportion {
     }
 
     private static Proportion ofPrivate(Double d) throws InvalidProportionException{
-        if(!d.equals(Math.clamp(d, 0.0, 1.0)))
+        if(!d.equals(MathUtil.clamp(d, 0.0, 1.0)))
             throw new InvalidProportionException(d);
         else return new Proportion(d);
     }
@@ -30,7 +29,7 @@ public final class Proportion {
         }catch(InvalidProportionException e){
             System.err.println(e.getMessage());
             System.err.println(Arrays.toString(e.getStackTrace()));
-            return new Proportion(Math.clamp(d, 0.0, 1.0));
+            return new Proportion(MathUtil.clamp(d, 0.0, 1.0));
         }
     }
 
@@ -91,7 +90,7 @@ public final class Proportion {
     public static class InvalidProportionException extends RuntimeException {
 
         public InvalidProportionException(double value) {
-            super("Invalid Proportion: " + value + ". Proportions must be between 0 and 1. This proportion has been replaced with " + Math.clamp(value, 0.0, 1.0));
+            super("Invalid Proportion: " + value + ". Proportions must be between 0 and 1. This proportion has been replaced with " + MathUtil.clamp(value, 0.0, 1.0));
         }
     }
 }
