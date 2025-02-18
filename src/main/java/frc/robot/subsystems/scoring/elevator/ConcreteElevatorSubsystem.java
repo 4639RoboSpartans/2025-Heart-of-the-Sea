@@ -114,15 +114,15 @@ public class ConcreteElevatorSubsystem extends AbstractElevatorSubsystem {
             if (outputVoltage < 0) outputVoltage /= 2.;
 
             // Prevent movement if we are too high or low
-            double ELEVATOR_MANUAL_ENDPOINT_LIMIT = -0.05;
-            if (outputVoltage > 0 && getCurrentProportion() > 1 - ELEVATOR_MANUAL_ENDPOINT_LIMIT) {
-                outputVoltage = 0;
-            }
-            if (outputVoltage < 0 && getCurrentProportion() < ELEVATOR_MANUAL_ENDPOINT_LIMIT) {
-                outputVoltage = 0;
-            }
+            // double ELEVATOR_MANUAL_ENDPOINT_LIMIT = -0.05;
+            // if (outputVoltage > 0 && getCurrentProportion() > 1 - ELEVATOR_MANUAL_ENDPOINT_LIMIT) {
+            //     outputVoltage = 0;
+            // }
+            // if (outputVoltage < 0 && getCurrentProportion() < ELEVATOR_MANUAL_ENDPOINT_LIMIT) {
+            //     outputVoltage = 0;
+            // }
 
-//            outputVoltage += elevatorKg.get();
+           outputVoltage += elevatorKg.get() * 1.2;
 
             elevatorMotor.setControl(new VoltageOut(
                 outputVoltage

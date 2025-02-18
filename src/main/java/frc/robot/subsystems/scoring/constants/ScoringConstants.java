@@ -37,11 +37,18 @@ public final class ScoringConstants {
             public static final double IDLE_Proportion = 0.0;
             public static final double HP_Proportion = 0.1;
             public static final double L1_Proportion = 0.15;
+            // 29.5 & -36.9
             public static final double L2_Proportion = 0.25;
+            // 41.4
             public static final double L3_Proportion = 0.4;
+            // 
             public static final double L4_Proportion = 0.85;
+            
+            // 30.54 & -30.04
             public static final double L2_ALGAE_Proportion = 0.55;
+            // 40.69 & -30.04
             public static final double L3_ALGAE_Proportion = 0.65;
+            
             public static final double Barge_Proportion = 1;
         }
     }
@@ -51,7 +58,7 @@ public final class ScoringConstants {
         public static final Rotation2d IDLE_ROTATION = Rotation2d.fromDegrees(30);
 
         public static final double IDLE_POSITION = 0;
-        public static final double EXTENDED_POSITION = -36.877;
+        public static final double EXTENDED_POSITION = -40.5;
 
         public static final UnitConvertor<Double, Double> ProportionToPosition = UnitConvertor.linearConvertingRange(
             0, 1, IDLE_POSITION, EXTENDED_POSITION

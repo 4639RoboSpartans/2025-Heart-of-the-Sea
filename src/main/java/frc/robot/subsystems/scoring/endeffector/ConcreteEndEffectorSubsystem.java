@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.oi.OI;
 import frc.lib.tunable.TunableNumber;
+import frc.robot.constants.Controls;
 import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
@@ -173,6 +174,7 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
                     wristMotor.getEncoder().getPosition(),
                     EndEffectorConstants.ProportionToPosition.convert(OI.getInstance().operatorController().rightStickY() * 0.5 + 0.5)
             ));
+            intakeMotor.set(Controls.Operator.ManualControlIntake.getAsDouble() * 0.7);
         }
         System.out.println(wristPID.getP() + ", " + wristPID.getI() + ", " + wristPID.getD());
 

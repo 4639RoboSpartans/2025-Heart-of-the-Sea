@@ -105,7 +105,7 @@ public abstract class AbstractSwerveDrivetrain extends SubsystemBase {
      * @return multiplier as double
      */
     public double getSwerveSpeedMultiplier() {
-        return 1 - Math.pow(AbstractElevatorSubsystem.getInstance().getCurrentProportion(), 2) * (1.0 - 0.2);
+        return 1 - Math.pow(AbstractElevatorSubsystem.getInstance().getCurrentProportion(), 1.5) * (1.0 - 0.2);
     }
 
     public abstract void resetPose(Pose2d pose);
