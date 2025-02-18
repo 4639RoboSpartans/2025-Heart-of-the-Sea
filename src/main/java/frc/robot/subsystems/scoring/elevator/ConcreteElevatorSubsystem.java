@@ -61,11 +61,11 @@ public class ConcreteElevatorSubsystem extends AbstractElevatorSubsystem {
         // Set left motor to follow right motor and use right elevator motor as master motor
         leftElevatorMotor.setControl(new Follower((elevatorMotor = rightElevatorMotor).getDeviceID(), true));
 
-        setTargetExtensionProportion(getCurrentProportion());
+        setTargetExtensionProportion(getCurrentExtensionFraction());
     }
 
     @Override
-    public double getCurrentProportion() {
+    public double getCurrentExtensionFraction() {
         return ElevatorConstants.ProportionToPosition.convertBackwards(
             elevatorMotor.getPosition(true).getValueAsDouble()
         );
@@ -81,10 +81,10 @@ public class ConcreteElevatorSubsystem extends AbstractElevatorSubsystem {
 
             // Prevent movement if we are too high or low
             double ELEVATOR_MANUAL_ENDPOINT_LIMIT = -0.05;
-            if (outputVoltage > 0 && getCurrentProportion() > 1 - ELEVATOR_MANUAL_ENDPOINT_LIMIT) {
+            if (outputVoltage > 0 && getCurrentExtensionFraction() > 1 - ELEVATOR_MANUAL_ENDPOINT_LIMIT) {
                 outputVoltage = 0;
             }
-            if (outputVoltage < 0 && getCurrentProportion() < ELEVATOR_MANUAL_ENDPOINT_LIMIT) {
+            if (outputVoltage < 0 && getCurrentExtensionFraction() < ELEVATOR_MANUAL_ENDPOINT_LIMIT) {
                 outputVoltage = 0;
             }
 

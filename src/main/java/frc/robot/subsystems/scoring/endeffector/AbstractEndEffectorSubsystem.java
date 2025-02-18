@@ -4,12 +4,11 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.robot.Robot;
-import frc.robot.subsystems.scoring.ScoringSuperstructureState;
+import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
 
 import java.util.Objects;
 
-import static frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConstants.PositionToRotation;
-import static frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConstants.ProportionToRotation;
+import static frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConstants.*;
 
 public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
     private static AbstractEndEffectorSubsystem instance;
@@ -31,14 +30,14 @@ public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
         }
     }
 
-    protected ScoringSuperstructureState state = ScoringSuperstructureState.IDLE;
+    protected ScoringSuperstructureAction state = ScoringSuperstructureAction.IDLE;
 
     /**
      * Gets the current state of the endeffector.
      *
      * @return state of endeffector as ScoringSuperStructureState
      */
-    public final ScoringSuperstructureState getHopperState() {
+    public final ScoringSuperstructureAction getHopperState() {
         return state;
     }
 
@@ -58,13 +57,17 @@ public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
         return PositionToRotation.convertBackwards(getCurrentRotation());
     }
 
+    public double getCurrentRotationFraction() {
+        return ProportionToRotation.convertBackwards(getCurrentRotation());
+    }
+
     /**
      * Gets the target rotation of the wrist.
      *
      * @return target rotation of wrist as Rotation2d
      */
     public final Rotation2d getTargetRotation() {
-        return ProportionToRotation.convert(state.targetWristRotationFraction);
+        return ProportionToRotation.convert(getTargetRotationFraction());
     }
 
     /**
@@ -73,7 +76,11 @@ public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
      * @return target position of wrist as double
      */
     public final double getTargetPosition() {
-        return PositionToRotation.convertBackwards(getTargetRotation());
+        return ProportionToPosition.convert(getTargetRotationFraction());
+    }
+
+    public final double getTargetRotationFraction() {
+        return state.targetWristRotationFraction;
     }
 
     /**
@@ -111,7 +118,7 @@ public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
      *
      * @param state state that endeffector is being set to as ScoringSuperstructureState.
      */
-    public abstract void setHopper(ScoringSuperstructureState state);
+    public abstract void setHopper(ScoringSuperstructureAction state);
 
     /**
      * Runs the wrist.

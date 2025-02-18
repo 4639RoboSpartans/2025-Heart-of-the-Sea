@@ -9,7 +9,7 @@ public class DummyElevatorSubsystem extends AbstractElevatorSubsystem {
     }
 
     @Override
-    public double getCurrentProportion() {
+    public double getCurrentExtensionFraction() {
         return getTargetProportion();
     }
 

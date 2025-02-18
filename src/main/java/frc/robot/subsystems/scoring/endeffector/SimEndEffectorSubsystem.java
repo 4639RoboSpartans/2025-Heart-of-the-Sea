@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.lib.oi.OI;
 import frc.lib.tunable.TunableNumber;
 import frc.robot.subsystems.SubsystemManager;
-import frc.robot.subsystems.scoring.ScoringSuperstructureState;
+import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
 import frc.robot.subsystems.scoring.constants.ScoringPIDs;
 
@@ -69,15 +69,15 @@ public class SimEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
     @Override
     public boolean isAtTarget() {
         return MathUtil.isNear(
-            ScoringSuperstructureState.getWristSimPosition(getTargetRotation()),
-            ScoringSuperstructureState.getWristSimPosition(getCurrentRotation()),
+            ScoringSuperstructureAction.getWristSimPosition(getTargetRotation()),
+            ScoringSuperstructureAction.getWristSimPosition(getCurrentRotation()),
             ScoringConstants.EndEffectorConstants.WRIST_TOLERANCE
         ) && pivotPID.getVelocityError() < 0.01;
     }
 
     @Override
     public boolean isHopperStateFinished() {
-        if (state == ScoringSuperstructureState.IDLE) return isAtTarget();
+        if (state == ScoringSuperstructureAction.IDLE) return isAtTarget();
         return isStateFinished;
     }
 
@@ -87,7 +87,7 @@ public class SimEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
     }
 
     @Override
-    public void setHopper(ScoringSuperstructureState state) {
+    public void setHopper(ScoringSuperstructureAction state) {
         this.state = state;
         intakeSpeed = 0;
         isStateFinished = false;

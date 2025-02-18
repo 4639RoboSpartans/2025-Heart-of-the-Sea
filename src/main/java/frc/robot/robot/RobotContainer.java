@@ -25,7 +25,7 @@ import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
 import frc.robot.subsystems.drive.DriveCommands;
 import frc.robot.subsystems.drive.SwerveAutoRoutinesCreator;
 import frc.robot.subsystems.scoring.ScoringSuperstructure;
-import frc.robot.subsystems.scoring.ScoringSuperstructureState;
+import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
 
 import java.util.Arrays;
@@ -79,42 +79,42 @@ public class RobotContainer {
 
             Controls.Operator.BargeScoringTrigger.onTrue(
                 scoringSuperstructure.setScoringState(
-                    ScoringSuperstructureState.BARGE_SCORING
+                    ScoringSuperstructureAction.SCORE_BARGE
                 )
             );
             Controls.Operator.HPLoadingTrigger.onTrue(
                 scoringSuperstructure.setScoringState(
-                    ScoringSuperstructureState.HP_LOADING
+                    ScoringSuperstructureAction.INTAKE_FROM_HP
                 )
             );
             Controls.Operator.L1Trigger.onTrue(
                 scoringSuperstructure.setScoringState(
-                    ScoringSuperstructureState.L1
+                    ScoringSuperstructureAction.SCORE_L1_CORAL
                 )
             );
             Controls.Operator.L2Trigger.onTrue(
                 scoringSuperstructure.setScoringState(
-                    ScoringSuperstructureState.L2
+                    ScoringSuperstructureAction.SCORE_L2_CORAL
                 )
             );
             Controls.Operator.L3Trigger.onTrue(
                 scoringSuperstructure.setScoringState(
-                    ScoringSuperstructureState.L3
+                    ScoringSuperstructureAction.SCORE_L3_CORAL
                 )
             );
             Controls.Operator.L4Trigger.onTrue(
                 scoringSuperstructure.setScoringState(
-                    ScoringSuperstructureState.L4
+                    ScoringSuperstructureAction.SCORE_L4_CORAL
                 )
             );
             Controls.Operator.L2AlgaeTrigger.onTrue(
                 scoringSuperstructure.setScoringState(
-                    ScoringSuperstructureState.L2_ALGAE
+                    ScoringSuperstructureAction.INTAKE_L2_ALGAE
                 )
             );
             Controls.Operator.L3AlgaeTrigger.onTrue(
                 scoringSuperstructure.setScoringState(
-                    ScoringSuperstructureState.L3_ALGAE
+                    ScoringSuperstructureAction.INTAKE_L3_ALGAE
                 )
             );
             Controls.Operator.HoldTrigger.onTrue(

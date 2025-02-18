@@ -5,7 +5,7 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.robot.Robot;
-import frc.robot.subsystems.scoring.ScoringSuperstructureState;
+import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
 
 import java.util.Objects;
 
@@ -26,7 +26,7 @@ public abstract class AbstractElevatorSubsystem extends SubsystemBase {
         }
     }
 
-    private double targetExtensionProportion = ScoringSuperstructureState.IDLE.targetElevatorExtensionFraction;
+    private double targetExtensionProportion = ScoringSuperstructureAction.IDLE.targetElevatorExtensionFraction;
 
     protected boolean isManualControlEnabled = false;
 
@@ -38,20 +38,20 @@ public abstract class AbstractElevatorSubsystem extends SubsystemBase {
      * Get the current extension proportion of the elevator, where 0 means
      * fully retracted and 1 means fully extended
      */
-    public abstract double getCurrentProportion();
+    public abstract double getCurrentExtensionFraction();
 
     /**
      * Get the current position of the elevator. This is used by PID.
      */
     public double getCurrentPosition() {
-        return ProportionToPosition.convert(getCurrentProportion());
+        return ProportionToPosition.convert(getCurrentExtensionFraction());
     }
 
     /**
      * Get the current height of the elevator. This is used by simulation.
      */
     public Distance getCurrentHeight() {
-        return ProportionToHeight.convert(getCurrentProportion());
+        return ProportionToHeight.convert(getCurrentExtensionFraction());
     }
 
     /**

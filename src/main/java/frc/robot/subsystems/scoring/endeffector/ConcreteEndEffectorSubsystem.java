@@ -19,7 +19,7 @@ import frc.lib.oi.OI;
 import frc.lib.tunable.TunableNumber;
 import frc.robot.constants.Controls;
 import frc.robot.subsystems.SubsystemManager;
-import frc.robot.subsystems.scoring.ScoringSuperstructureState;
+import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
 import frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConstants;
 import frc.robot.subsystems.scoring.constants.ScoringPIDs;
@@ -154,7 +154,7 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
     }
 
     @Override
-    public void setHopper(ScoringSuperstructureState state) {
+    public void setHopper(ScoringSuperstructureAction state) {
         this.state = state;
         isStateFinished = false;
         if (!manualControlEnabled) {

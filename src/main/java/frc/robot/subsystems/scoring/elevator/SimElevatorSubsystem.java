@@ -9,7 +9,7 @@ import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.constants.Controls;
-import frc.robot.subsystems.scoring.ScoringSuperstructureState;
+import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
 import frc.robot.subsystems.scoring.constants.ScoringPIDs;
 
 import static edu.wpi.first.units.Units.Meters;
@@ -46,15 +46,15 @@ public class SimElevatorSubsystem extends AbstractElevatorSubsystem {
                 10
             ),
             DCMotor.getKrakenX60(2),
-            ScoringSuperstructureState.IDLE.getElevatorHeight().in(Meters),
-            ScoringSuperstructureState.BARGE_SCORING.getElevatorHeight().in(Meters),
+            ScoringSuperstructureAction.IDLE.getElevatorHeight().in(Meters),
+            ScoringSuperstructureAction.SCORE_BARGE.getElevatorHeight().in(Meters),
             true,
-            ScoringSuperstructureState.IDLE.getElevatorHeight().in(Meters)
+            ScoringSuperstructureAction.IDLE.getElevatorHeight().in(Meters)
         );
     }
 
     @Override
-    public double getCurrentProportion() {
+    public double getCurrentExtensionFraction() {
         return ProportionToHeight.inverted().convert(Meters.of(
             elevatorSim.getPositionMeters()
         ));
