@@ -2,7 +2,10 @@ package frc.lib;
 
 import com.google.errorprone.annotations.Immutable;
 
+import frc.robot.subsystems.scoring.constants.ScoringConstants;
+
 import java.util.Arrays;
+import java.util.function.UnaryOperator;
 
 /**
  * Wraps a double as a proportion
@@ -73,6 +76,16 @@ public final class Proportion {
 
     public Proportion exponentiatedBy(Proportion p){
         return exponentiatedBy(p.value);
+    }
+
+    /**
+     * Converts the Proportion to a unit and returns the double value in the provided unit.
+     * 
+     * @param unitConvertor how we convert the units. <p> Ex: <em>exampleProportion.toUnit(ScoringConstants.ElevatorConstants.ProportionToPosition::convert);<em>
+     * @return
+     */
+    public double toUnit(UnaryOperator<Double> unitConvertor){
+        return unitConvertor.apply(this.value);
     }
 
     public static class InvalidProportionException extends RuntimeException {
