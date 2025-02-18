@@ -202,12 +202,12 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
             }
             LaserCan.Measurement measurement = laserCAN.getMeasurement();
             if (measurement != null && measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
-                if (state.intakeUntilGamePieceSeen) {
+                if (state.shouldStopIntakeOnGamePieceSeen) {
                     if (hasCoral()) {
                         intakeMotor.set(0);
                         isStateFinished = true;
                     }
-                } else if (state.outtakeUntilGamePieceNotSeen) {
+                } else if (state.shouldStopIntakeOnGamePieceNotSeen) {
                     if (!hasCoral()) {
                         intakeMotor.set(0);
                         isStateFinished = true;

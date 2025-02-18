@@ -26,7 +26,7 @@ public abstract class AbstractElevatorSubsystem extends SubsystemBase {
         }
     }
 
-    private double targetExtensionProportion = ScoringSuperstructureState.IDLE.elevatorExtensionProportion;
+    private double targetExtensionProportion = ScoringSuperstructureState.IDLE.targetElevatorExtensionFraction;
 
     protected boolean isManualControlEnabled = false;
 

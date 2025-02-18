@@ -130,12 +130,12 @@ public class SimEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
             intakeSpeed = state.intakeSpeed;
             secondsFromIntakeOuttakeStart += 0.020;
         }
-        if (state.intakeUntilGamePieceSeen) {
+        if (state.shouldStopIntakeOnGamePieceSeen) {
             if (hasCoral()) {
                 intakeSpeed = 0;
                 isStateFinished = true;
             }
-        } else if (state.outtakeUntilGamePieceNotSeen) {
+        } else if (state.shouldStopIntakeOnGamePieceNotSeen) {
             if (hasCoral()) {
                 intakeSpeed = 0;
                 isStateFinished = true;

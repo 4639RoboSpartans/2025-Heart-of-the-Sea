@@ -5,9 +5,11 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.robot.Robot;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
-import frc.robot.subsystems.scoring.constants.ScoringConstants;
 
 import java.util.Objects;
+
+import static frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConstants.PositionToRotation;
+import static frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConstants.ProportionToRotation;
 
 public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
     private static AbstractEndEffectorSubsystem instance;
@@ -15,7 +17,7 @@ public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
     public static AbstractEndEffectorSubsystem getInstance() {
         boolean dummy = false;
         // dummy = true
-        if(dummy) return new DummyEndEffectorSubsystem();
+        if (dummy) return new DummyEndEffectorSubsystem();
         if (Robot.isReal()) {
             return instance = Objects.requireNonNullElseGet(
                 instance,
@@ -33,7 +35,7 @@ public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
 
     /**
      * Gets the current state of the endeffector.
-     * 
+     *
      * @return state of endeffector as ScoringSuperStructureState
      */
     public final ScoringSuperstructureState getHopperState() {
@@ -42,62 +44,62 @@ public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
 
     /**
      * Gets the current rotation of the wrist.
-     * 
+     *
      * @return the current rotation of the wrist as Rotation2d
      */
     public abstract Rotation2d getCurrentRotation();
 
     /**
      * Gets the current rotation of the wrist by converting rotations to position.
-     * 
+     *
      * @return position of wrist as double
      */
     public final double getCurrentPosition() {
-        return ScoringConstants.EndEffectorConstants.PositionToRotation.convertBackwards(getCurrentRotation());
+        return PositionToRotation.convertBackwards(getCurrentRotation());
     }
 
     /**
      * Gets the target rotation of the wrist.
-     * 
+     *
      * @return target rotation of wrist as Rotation2d
      */
     public final Rotation2d getTargetRotation() {
-        return state.getRotation();
+        return ProportionToRotation.convert(state.targetWristRotationFraction);
     }
 
     /**
      * Gets the target rotation of the wrist by converting rotations to position.
-     * 
+     *
      * @return target position of wrist as double
      */
     public final double getTargetPosition() {
-        return ScoringConstants.EndEffectorConstants.PositionToRotation.convertBackwards(getTargetRotation());
+        return PositionToRotation.convertBackwards(getTargetRotation());
     }
 
     /**
      * Gets the speed of the rollers on the scoring mechanism.
-     * 
+     *
      * @return speed of rollers as double
      */
     public abstract double getIntakeSpeed();
 
     /**
      * Checks if the wrist is at the target position.
-     * 
+     *
      * @return if wrist at target position as boolean
      */
     public abstract boolean isAtTarget();
 
     /**
      * Checks if the wrist is at its desired state.
-     * 
+     *
      * @return if wrist is at desired state as boolean
      */
     public abstract boolean isHopperStateFinished();
 
     /**
      * Checks if the scoring mechanism contains a coral.
-     * 
+     *
      * @return if the scoring mechanism has a coral as boolean
      */
     public abstract boolean hasCoral();
@@ -106,7 +108,7 @@ public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
 
     /**
      * Sets the state of the endeffector
-     * 
+     *
      * @param state state that endeffector is being set to as ScoringSuperstructureState.
      */
     public abstract void setHopper(ScoringSuperstructureState state);

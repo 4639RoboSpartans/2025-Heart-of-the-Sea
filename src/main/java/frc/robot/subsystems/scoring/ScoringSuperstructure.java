@@ -41,12 +41,11 @@ public class ScoringSuperstructure extends SubsystemBase {
         SmartDashboard.putBoolean("isManualControlEnabled", isManualControlEnabled);
     }
 
-    private void setCurrentState(ScoringSuperstructureState currentState) {
-        if (this.currentState != currentState) {
+    private void setState(ScoringSuperstructureState newState) {
+        if (newState != this.currentState) {
             prevState = this.currentState;
+            this.currentState = newState;
         }
-        this.currentState = currentState;
-        hopper.setHopper(currentState);
     }
 
     /**
@@ -65,7 +64,7 @@ public class ScoringSuperstructure extends SubsystemBase {
      */
     public Command setScoringState(Supplier<ScoringSuperstructureState> state) {
         return Commands.runOnce(
-            () -> setCurrentState(state.get())
+            () -> setState(state.get())
         );
     }
 
@@ -83,12 +82,12 @@ public class ScoringSuperstructure extends SubsystemBase {
         return Commands.run(
             () -> {
                 if (!currentState.useTransitionState || !prevState.useTransitionState) {
-                    // If neither current nor last state requires transition, just do the elevator thing
-                    elevator.setTargetExtensionProportion(currentState.elevatorExtensionProportion);
+                    // If neither current nor last state requires transition, just move the elevator and hopper
+                    elevator.setTargetExtensionProportion(currentState.targetElevatorExtensionFraction);
                 } else {
                     if (hopper.getHopperState() != ScoringSuperstructureState.TRANSITION_STATE) {
                         if (elevator.isAtTarget()) {
-                            elevator.setTargetExtensionProportion(currentState.elevatorExtensionProportion);
+                            elevator.setTargetExtensionProportion(currentState.targetElevatorExtensionFraction);
                         } else {
                             hopper.setHopper(ScoringSuperstructureState.TRANSITION_STATE);
                         }
@@ -97,7 +96,7 @@ public class ScoringSuperstructure extends SubsystemBase {
                             if (elevator.isAtTarget()) {
                                 hopper.setHopper(currentState);
                             }
-                            elevator.setTargetExtensionProportion(currentState.elevatorExtensionProportion);
+                            elevator.setTargetExtensionProportion(currentState.targetElevatorExtensionFraction);
                         }
                     }
                 }
@@ -129,7 +128,7 @@ public class ScoringSuperstructure extends SubsystemBase {
      * {@link ScoringSuperstructure#isAtPosition()} returns true.
      */
     public boolean isStateFinished() {
-        return elevator.isElevatorStateFinished() && hopper.isHopperStateFinished();
+        return elevator.isAtTarget() && hopper.isHopperStateFinished();
     }
 
     public Trigger isStateFinished = new Trigger(this::isStateFinished);
@@ -141,15 +140,17 @@ public class ScoringSuperstructure extends SubsystemBase {
     @Override
     public void periodic() {
         if (isStateFinished()) {
-            setCurrentState(currentState.getStateAfter());
-        } else if (RobotState.isTeleop() && !currentState.control.getAsBoolean()) {
-            setCurrentState(ScoringSuperstructureState.IDLE);
+            setState(currentState.getStateAfter());
+        }
+        // In teleop, stop the current state if the control is no longer active
+        else if (RobotState.isTeleop() && !currentState.trigger.getAsBoolean()) {
+            setState(ScoringSuperstructureState.IDLE);
+        }
+        // Sets scoring mechanisms to IDLE in case robot acceleration is high.
+        if (SubsystemManager.getInstance().getDrivetrain().getAccelerationInGs() >= .4) {
+            setState(ScoringSuperstructureState.IDLE);
         }
 
-        //Sets scoring mechanisms to IDLE in case robot acceleration is high.
-        if (SubsystemManager.getInstance().getDrivetrain().getAccelerationInGs() >= .4) {
-            setCurrentState(ScoringSuperstructureState.IDLE);
-        }
         SmartDashboard.putBoolean("isManualControlEnabled", isManualControlEnabled);
     }
 

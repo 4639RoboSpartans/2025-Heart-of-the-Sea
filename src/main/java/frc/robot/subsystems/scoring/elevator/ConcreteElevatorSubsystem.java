@@ -43,8 +43,7 @@ public class ConcreteElevatorSubsystem extends AbstractElevatorSubsystem {
                     .withKV(elevatorKv.get())
                     .withKG(elevatorKg.get())
                     .withGravityType(GravityTypeValue.Elevator_Static)
-            )
-            .withCurrentLimits(
+            ).withCurrentLimits(
                 new CurrentLimitsConfigs()
                     .withStatorCurrentLimit(
                         30
@@ -77,7 +76,7 @@ public class ConcreteElevatorSubsystem extends AbstractElevatorSubsystem {
         if (isManualControlEnabled) {
             double outputVoltage = Controls.Operator.ManualControlElevator.getAsDouble() * 4;
 
-            // Go down at a slower speed, for safety reasons
+            // If we are moving downwards, go slower for safety
             if (outputVoltage < 0) outputVoltage /= 2.;
 
             // Prevent movement if we are too high or low

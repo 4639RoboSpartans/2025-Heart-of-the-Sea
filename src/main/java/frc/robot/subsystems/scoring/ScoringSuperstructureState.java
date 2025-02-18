@@ -1,40 +1,44 @@
 package frc.robot.subsystems.scoring;
 
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.Controls;
-import frc.robot.subsystems.scoring.constants.ScoringConstants.ElevatorConstants;
-import frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConstants;
+import frc.robot.subsystems.scoring.constants.ScoringConstants.ElevatorConstants.ElevatorSetpoints;
+import frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConstants.WristSetpoints;
+
+import java.util.OptionalDouble;
 
 public class ScoringSuperstructureState {
-    public double elevatorExtensionProportion; //proportion of the distance between lower and upper limit
-    private double wristProportion; // proportion of the distance between lower and upper limit
-    public double intakeSpeed; // speed of intake wheels
-    public boolean intakeUntilGamePieceSeen; // whether to stop spinning intake wheels when game piece is seen
-    public boolean outtakeUntilGamePieceNotSeen; // whether to stop spinning intake wheels after game piece isn't detected
-    public boolean useTransitionState; // whether to move the endeffector to a transition state until the elevator is in position
-    public Trigger control; // the trigger used to set this state
-    public ScoringSuperstructureState stateAfter; // the state to set after this state finishes
+    public double targetElevatorExtensionFraction = 0;
+    public double targetWristRotationFraction = 0;
+    public double intakeSpeed = 0;
+    public boolean shouldStopIntakeOnGamePieceSeen = false;
+    public boolean shouldStopIntakeOnGamePieceNotSeen = false;
 
-    private ScoringSuperstructureState() {
-        this.elevatorExtensionProportion = 0;
-        this.wristProportion = 0;
-        this.intakeSpeed = 0;
-        this.intakeUntilGamePieceSeen = false;
-        this.outtakeUntilGamePieceNotSeen = false;
-        this.useTransitionState = false;
-        this.control = new Trigger(() -> true);
-        this.stateAfter = this;
-    }
+    /**
+     * Some states will require the wrist to rotate outward while the
+     * elevator moves in order to prevent the end effector from
+     * colliding with the elevator. In these cases, this rotation
+     * fraction is used before the elevator starts extending and after
+     * the elevator has reached its target position
+     */
+    public OptionalDouble transitionWristRotationFraction = OptionalDouble.empty();
+    /** The trigger used to activate the state */
+    public Trigger trigger = new Trigger(() -> true);
+    /**
+     * The state to use after this state has finished. Usually, this will
+     * be the idle state
+     */
+    public ScoringSuperstructureState stateAfter = this;
 
-    private ScoringSuperstructureState withElevatorProportion(double percent) {
-        this.elevatorExtensionProportion = percent;
+    private ScoringSuperstructureState() {}
+
+    private ScoringSuperstructureState withTargetElevatorExtensionFraction(double fraction) {
+        this.targetElevatorExtensionFraction = fraction;
         return this;
     }
 
-    private ScoringSuperstructureState withWristProportion(double percent) {
-        this.wristProportion = percent;
+    private ScoringSuperstructureState withTargetWristRotationFraction(double fraction) {
+        this.targetWristRotationFraction = fraction;
         return this;
     }
 
@@ -43,23 +47,23 @@ public class ScoringSuperstructureState {
         return this;
     }
 
-    private ScoringSuperstructureState withIntakeUntilSeen(boolean untilSeen) {
-        this.intakeUntilGamePieceSeen = untilSeen;
+    private ScoringSuperstructureState stopIntakeOnGamePieceSeen() {
+        this.shouldStopIntakeOnGamePieceSeen = true;
         return this;
     }
 
-    private ScoringSuperstructureState withOuttakeUntilNotSeen(boolean untilSeen) {
-        this.outtakeUntilGamePieceNotSeen = untilSeen;
+    private ScoringSuperstructureState stopIntakeOnGamePieceNotSeen() {
+        this.shouldStopIntakeOnGamePieceNotSeen = true;
         return this;
     }
 
-    private ScoringSuperstructureState withControl(Trigger control) {
-        this.control = control;
+    private ScoringSuperstructureState withTrigger(Trigger trigger) {
+        this.trigger = trigger;
         return this;
     }
 
-    private ScoringSuperstructureState withUseTransitionState(boolean useTransitionState) {
-        this.useTransitionState = useTransitionState;
+    private ScoringSuperstructureState withTransitionWristRotationFraction(double transitionWristRotationFraction) {
+        this.transitionWristRotationFraction = OptionalDouble.of(transitionWristRotationFraction);
         return this;
     }
 
@@ -70,116 +74,74 @@ public class ScoringSuperstructureState {
 
     public static ScoringSuperstructureState HOLD(double elevatorProportion, double wristProportion) {
         return new ScoringSuperstructureState()
-            .withElevatorProportion(elevatorProportion)
-            .withWristProportion(wristProportion)
-            .withUseTransitionState(false);
+            .withTargetElevatorExtensionFraction(elevatorProportion)
+            .withTargetWristRotationFraction(wristProportion);
     }
 
     public static final ScoringSuperstructureState
         IDLE = new ScoringSuperstructureState()
-        .withElevatorProportion(ElevatorConstants.Proportions.IDLE_Proportion)
-        .withWristProportion(EndEffectorConstants.Proportions.Wrist_IDLE_Proportion)
-        .withOuttakeUntilNotSeen(true)
-        .withUseTransitionState(true),
-
-    HP_LOADING = new ScoringSuperstructureState()
-        .withElevatorProportion(ElevatorConstants.Proportions.HP_Proportion)
-        .withWristProportion(EndEffectorConstants.Proportions.Wrist_HP_Proportion)
-        .withIntakeSpeed(0.5)
-        .withIntakeUntilSeen(true)
-        .withUseTransitionState(false)
-        .withControl(Controls.Operator.HPLoadingTrigger)
-        .withStateAfter(IDLE),
-
-    L1 = new ScoringSuperstructureState()
-        .withElevatorProportion(ElevatorConstants.Proportions.L1_Proportion)
-        .withWristProportion(EndEffectorConstants.Proportions.Wrist_L1_Proportion)
-        .withIntakeSpeed(0.5)
-        .withOuttakeUntilNotSeen(true)
-        .withUseTransitionState(true)
-        .withControl(Controls.Operator.L1Trigger)
-        .withStateAfter(IDLE),
-
-    L2 = new ScoringSuperstructureState()
-        .withElevatorProportion(ElevatorConstants.Proportions.L2_Proportion)
-        .withWristProportion(EndEffectorConstants.Proportions.Wrist_L2_Proportion)
-        .withIntakeSpeed(0.5)
-        .withOuttakeUntilNotSeen(true)
-        .withUseTransitionState(true)
-        .withControl(Controls.Operator.L2Trigger)
-        .withStateAfter(IDLE),
-
-    L3 = new ScoringSuperstructureState()
-        .withElevatorProportion(ElevatorConstants.Proportions.L3_Proportion)
-        .withWristProportion(EndEffectorConstants.Proportions.Wrist_L3_Proportion)
-        .withIntakeSpeed(0.5)
-        .withOuttakeUntilNotSeen(true)
-        .withUseTransitionState(true)
-        .withControl(Controls.Operator.L3Trigger)
-        .withStateAfter(IDLE),
-
-    L4 = new ScoringSuperstructureState()
-        .withElevatorProportion(ElevatorConstants.Proportions.L4_Proportion)
-        .withWristProportion(EndEffectorConstants.Proportions.Wrist_L4_Proportion)
-        .withIntakeSpeed(0.5)
-        .withOuttakeUntilNotSeen(true)
-        .withUseTransitionState(true)
-        .withControl(Controls.Operator.L4Trigger)
-        .withStateAfter(IDLE),
-
-    L2_ALGAE = new ScoringSuperstructureState()
-        .withElevatorProportion(ElevatorConstants.Proportions.L2_ALGAE_Proportion)
-        .withWristProportion(EndEffectorConstants.Proportions.Wrist_L2_ALGAE_Proportion)
-        .withIntakeSpeed(-0.5)
-        .withUseTransitionState(true)
-        .withControl(Controls.Operator.L2AlgaeTrigger)
-        .withStateAfter(IDLE),
-
-    L3_ALGAE = new ScoringSuperstructureState()
-        .withElevatorProportion(ElevatorConstants.Proportions.L3_ALGAE_Proportion)
-        .withWristProportion(EndEffectorConstants.Proportions.Wrist_L3_ALGAE_Proportion)
-        .withIntakeSpeed(-0.5)
-        .withUseTransitionState(true)
-        .withControl(Controls.Operator.L3AlgaeTrigger)
-        .withStateAfter(IDLE),
-
-    BARGE_SCORING = new ScoringSuperstructureState()
-        .withElevatorProportion(ElevatorConstants.Proportions.Barge_Proportion)
-        .withWristProportion(EndEffectorConstants.Proportions.Wrist_Barge_Proportion)
-        .withIntakeSpeed(1)
-        .withUseTransitionState(true)
-        .withControl(Controls.Operator.BargeScoringTrigger)
-        .withStateAfter(IDLE),
-
-    TRANSITION_STATE = new ScoringSuperstructureState()
-        .withElevatorProportion(0)
-        .withWristProportion(0.4);
-
-    public double getElevatorAbsolutePosition() {
-        return ElevatorConstants.ProportionToPosition.convert(elevatorExtensionProportion);
-    }
-
-    public double getWristAbsolutePosition() {
-        return EndEffectorConstants.ProportionToPosition.convert(wristProportion);
-    }
-
-    public Distance getElevatorHeight() {
-        return ElevatorConstants.ProportionToHeight.convert(elevatorExtensionProportion);
-    }
-
-    public Rotation2d getRotation() {
-        return EndEffectorConstants.ProportionToRotation.convert(wristProportion);
-    }
-
-    public static double getWristSimPosition(Rotation2d rotation) {
-        return EndEffectorConstants.PositionToRotation.convertBackwards(rotation);
-    }
-
-    public static Rotation2d getRotation(double position) {
-        return EndEffectorConstants.PositionToRotation.convert(position);
-    }
-
-    public ScoringSuperstructureState getStateAfter() {
-        return stateAfter;
-    }
+        .withTargetElevatorExtensionFraction(ElevatorSetpoints.IDLE_Proportion)
+        .withTargetWristRotationFraction(WristSetpoints.Wrist_IDLE_Proportion)
+        .stopIntakeOnGamePieceNotSeen()
+        .withTransitionWristRotationFraction(WristSetpoints.Wrist_Transition_Proportion),
+        HP_LOADING = new ScoringSuperstructureState()
+            .withTargetElevatorExtensionFraction(ElevatorSetpoints.HP_Proportion)
+            .withTargetWristRotationFraction(WristSetpoints.Wrist_HP_Proportion)
+            .withIntakeSpeed(0.5)
+            .stopIntakeOnGamePieceSeen()
+            .withTrigger(Controls.Operator.HPLoadingTrigger)
+            .withStateAfter(IDLE),
+        L1 = new ScoringSuperstructureState()
+            .withTargetElevatorExtensionFraction(ElevatorSetpoints.L1_Proportion)
+            .withTargetWristRotationFraction(WristSetpoints.Wrist_L1_Proportion)
+            .withIntakeSpeed(0.5)
+            .stopIntakeOnGamePieceNotSeen()
+            .withTransitionWristRotationFraction(WristSetpoints.Wrist_Transition_Proportion)
+            .withTrigger(Controls.Operator.L1Trigger)
+            .withStateAfter(IDLE),
+        L2 = new ScoringSuperstructureState()
+            .withTargetElevatorExtensionFraction(ElevatorSetpoints.L2_Proportion)
+            .withTargetWristRotationFraction(WristSetpoints.Wrist_L2_Proportion)
+            .withIntakeSpeed(0.5)
+            .stopIntakeOnGamePieceNotSeen()
+            .withTransitionWristRotationFraction(WristSetpoints.Wrist_Transition_Proportion)
+            .withTrigger(Controls.Operator.L2Trigger)
+            .withStateAfter(IDLE),
+        L3 = new ScoringSuperstructureState()
+            .withTargetElevatorExtensionFraction(ElevatorSetpoints.L3_Proportion)
+            .withTargetWristRotationFraction(WristSetpoints.Wrist_L3_Proportion)
+            .withIntakeSpeed(0.5)
+            .stopIntakeOnGamePieceNotSeen()
+            .withTransitionWristRotationFraction(WristSetpoints.Wrist_Transition_Proportion)
+            .withTrigger(Controls.Operator.L3Trigger)
+            .withStateAfter(IDLE),
+        L4 = new ScoringSuperstructureState()
+            .withTargetElevatorExtensionFraction(ElevatorSetpoints.L4_Proportion)
+            .withTargetWristRotationFraction(WristSetpoints.Wrist_L4_Proportion)
+            .withIntakeSpeed(0.5)
+            .stopIntakeOnGamePieceNotSeen()
+            .withTransitionWristRotationFraction(WristSetpoints.Wrist_Transition_Proportion)
+            .withTrigger(Controls.Operator.L4Trigger)
+            .withStateAfter(IDLE),
+        L2_ALGAE = new ScoringSuperstructureState()
+            .withTargetElevatorExtensionFraction(ElevatorSetpoints.L2_ALGAE_Proportion)
+            .withTargetWristRotationFraction(WristSetpoints.Wrist_L2_ALGAE_Proportion)
+            .withIntakeSpeed(-0.5)
+            .withTransitionWristRotationFraction(WristSetpoints.Wrist_Transition_Proportion)
+            .withTrigger(Controls.Operator.L2AlgaeTrigger)
+            .withStateAfter(IDLE),
+        L3_ALGAE = new ScoringSuperstructureState()
+            .withTargetElevatorExtensionFraction(ElevatorSetpoints.L3_ALGAE_Proportion)
+            .withTargetWristRotationFraction(WristSetpoints.Wrist_L3_ALGAE_Proportion)
+            .withIntakeSpeed(-0.5)
+            .withTransitionWristRotationFraction(WristSetpoints.Wrist_Transition_Proportion)
+            .withTrigger(Controls.Operator.L3AlgaeTrigger)
+            .withStateAfter(IDLE),
+        BARGE_SCORING = new ScoringSuperstructureState()
+            .withTargetElevatorExtensionFraction(ElevatorSetpoints.Barge_Proportion)
+            .withTargetWristRotationFraction(WristSetpoints.Wrist_Barge_Proportion)
+            .withIntakeSpeed(1)
+            .withTransitionWristRotationFraction(WristSetpoints.Wrist_Transition_Proportion)
+            .withTrigger(Controls.Operator.BargeScoringTrigger)
+            .withStateAfter(IDLE);
 }
