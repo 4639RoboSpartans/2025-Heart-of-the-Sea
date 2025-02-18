@@ -71,7 +71,7 @@ public final class Proportion {
     }
 
     public Proportion exponentiatedBy(double d){
-        return of(Math.exp(d));
+        return of(Math.pow(value, d));
     }
 
     public Proportion exponentiatedBy(Proportion p){
