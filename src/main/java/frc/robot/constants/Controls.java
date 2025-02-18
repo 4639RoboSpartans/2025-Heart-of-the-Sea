@@ -75,6 +75,11 @@ public class Controls {
             .and(driverController.X_BUTTON);
         public static final Trigger PathfindReef_5 = reefRightPoses.and(reefLeft.or(reefRight))
             .and(driverController.A_BUTTON);
+
+        public static final Trigger L2AlgaeTrigger = operatorController.X_BUTTON;
+        public static final Trigger L3AlgaeTrigger = operatorController.Y_BUTTON;
+        public static final Trigger ProcessorTrigger = operatorController.POV_RIGHT;
+        public static final Trigger BargeScoringTrigger = operatorController.A_BUTTON;
     }
 
     public static class Operator {
@@ -82,12 +87,6 @@ public class Controls {
         public static final Trigger L2Trigger = operatorController.RIGHT_TRIGGER;
         public static final Trigger L3Trigger = operatorController.LEFT_BUMPER;
         public static final Trigger L4Trigger = operatorController.RIGHT_BUMPER;
-
-
-        public static final Trigger L2AlgaeTrigger = operatorController.X_BUTTON;
-        public static final Trigger L3AlgaeTrigger = operatorController.Y_BUTTON;
-
-        public static final Trigger BargeScoringTrigger = operatorController.A_BUTTON;
 
         public static final Trigger HPLoadingTrigger = operatorController.B_BUTTON;
 

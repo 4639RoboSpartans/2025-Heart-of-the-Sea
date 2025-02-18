@@ -77,7 +77,7 @@ public class RobotContainer {
                 swerve.resetPigeon()
             );
 
-            Controls.Operator.BargeScoringTrigger.onTrue(
+            Controls.Driver.BargeScoringTrigger.onTrue(
                 scoringSuperstructure.setScoringState(
                     ScoringSuperstructureState.BARGE_SCORING
                 )
@@ -85,6 +85,11 @@ public class RobotContainer {
             Controls.Operator.HPLoadingTrigger.onTrue(
                 scoringSuperstructure.setScoringState(
                     ScoringSuperstructureState.HP_LOADING
+                )
+            );
+            Controls.Driver.ProcessorTrigger.onTrue(
+                scoringSuperstructure.setScoringState(
+                    ScoringSuperstructureState.PROCESSOR_SCORING
                 )
             );
             Controls.Operator.L1Trigger.onTrue(
@@ -107,12 +112,12 @@ public class RobotContainer {
                     ScoringSuperstructureState.L4
                 )
             );
-            Controls.Operator.L2AlgaeTrigger.onTrue(
+            Controls.Driver.L2AlgaeTrigger.onTrue(
                 scoringSuperstructure.setScoringState(
                     ScoringSuperstructureState.L2_ALGAE
                 )
             );
-            Controls.Operator.L3AlgaeTrigger.onTrue(
+            Controls.Driver.L3AlgaeTrigger.onTrue(
                 scoringSuperstructure.setScoringState(
                     ScoringSuperstructureState.L3_ALGAE
                 )
