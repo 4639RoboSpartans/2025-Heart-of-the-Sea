@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.SubsystemManager;
 import frc.lib.oi.OI;
-import frc.robot.subsystems.scoring.ScoringSuperstructure;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
 import frc.robot.subsystems.scoring.constants.ScoringPIDs;
@@ -47,10 +46,10 @@ public class SimEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
             DCMotor.getNEO(1),
             25.6,
             0.419,
-            ScoringConstants.HopperConstants.ProportionToRotation.convert(1.).getRadians(),
-            ScoringConstants.HopperConstants.ProportionToRotation.convert(0.).getRadians(),
+            ScoringConstants.EndEffectorConstants.ProportionToRotation.convert(1.).getRadians(),
+            ScoringConstants.EndEffectorConstants.ProportionToRotation.convert(0.).getRadians(),
             false,
-            ScoringConstants.HopperConstants.ProportionToRotation.convert(0.).getRadians()
+            ScoringConstants.EndEffectorConstants.ProportionToRotation.convert(0.).getRadians()
         );
     }
 
@@ -69,7 +68,7 @@ public class SimEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
         return MathUtil.isNear(
             ScoringSuperstructureState.getWristSimPosition(getTargetRotation()),
             ScoringSuperstructureState.getWristSimPosition(getCurrentRotation()),
-            ScoringConstants.HopperConstants.WRIST_TOLERANCE
+            ScoringConstants.EndEffectorConstants.WRIST_TOLERANCE
         ) && pivotPID.getVelocityError() < 0.01;
     }
 
@@ -112,8 +111,7 @@ public class SimEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
             double setpointProportion = OI.getInstance().operatorController().rightStickY() * 0.5 + 0.5;
             output = -pivotPID.calculate(
                 getCurrentPosition(),
-                ScoringConstants
-                    .HopperConstants
+                ScoringConstants.EndEffectorConstants
                     .ProportionToPosition
                     .convert(setpointProportion)
             );

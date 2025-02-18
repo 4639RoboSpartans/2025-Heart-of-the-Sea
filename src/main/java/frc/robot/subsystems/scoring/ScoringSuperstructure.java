@@ -78,7 +78,7 @@ public class ScoringSuperstructure extends SubsystemBase {
     public Command hold() {
         return setScoringState(() -> ScoringSuperstructureState.HOLD(
             elevator.getCurrentProportion(),
-            ScoringConstants.HopperConstants.ProportionToPosition.convertBackwards(hopper.getCurrentPosition())
+            ScoringConstants.EndEffectorConstants.ProportionToPosition.convertBackwards(hopper.getCurrentPosition())
         ));
     }
 

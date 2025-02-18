@@ -2,6 +2,7 @@ package frc.lib.tunable;
 
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.Constants;
 
 import java.util.ArrayList;
@@ -97,16 +98,21 @@ public class TunableNumber {
         }
         // Periodically check if the value of the tunableNumber has changed
         // and if so, call the listener.
-        listeners.add(new Runnable() {
-            private double oldValue = get();
+        synchronized (listeners) {
+            listeners.add(new Runnable() {
+                private double oldValue = get();
 
-            @Override
-            public void run() {
-                double newValue = get();
-                if (newValue != oldValue) onChange.accept(newValue);
-                oldValue = newValue;
-            }
-        });
+                @Override
+                public void run() {
+                    double newValue = get();
+                    if (newValue != oldValue){
+                        System.out.println(key + ":" + newValue + "<-" + oldValue);
+                        onChange.accept(newValue);
+                    }
+                    oldValue = newValue;
+                }
+            });
+        }
 
         return this;
     }
@@ -148,8 +154,19 @@ public class TunableNumber {
     // in Robot.java or other places.
     static {
         //noinspection resource
-        new Notifier(
-            () -> listeners.forEach(Runnable::run)
-        ).startPeriodic(0.02);
+//        new Notifier(
+//            () -> {
+//                listeners.forEach(Runnable::run);
+//                System.out.println("Run");
+//            }
+//        ).startPeriodic(0.02);
+        new SubsystemBase() {
+            @Override
+            public void periodic() {
+                synchronized (listeners) {
+                    listeners.forEach(Runnable::run);
+                }
+            }
+        };
     }
 }

@@ -13,6 +13,9 @@ public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
     private static AbstractEndEffectorSubsystem instance;
 
     public static AbstractEndEffectorSubsystem getInstance() {
+        boolean dummy = false;
+        // dummy = true
+        if(dummy) return new DummyEndEffectorSubsystem();
         if (Robot.isReal()) {
             return instance = Objects.requireNonNullElseGet(
                 instance,
@@ -50,7 +53,7 @@ public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
      * @return position of wrist as double
      */
     public final double getCurrentPosition() {
-        return ScoringConstants.HopperConstants.PositionToRotation.convertBackwards(getCurrentRotation());
+        return ScoringConstants.EndEffectorConstants.PositionToRotation.convertBackwards(getCurrentRotation());
     }
 
     /**
@@ -68,7 +71,7 @@ public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
      * @return target position of wrist as double
      */
     public final double getTargetPosition() {
-        return ScoringConstants.HopperConstants.PositionToRotation.convertBackwards(getTargetRotation());
+        return ScoringConstants.EndEffectorConstants.PositionToRotation.convertBackwards(getTargetRotation());
     }
 
     /**
