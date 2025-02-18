@@ -7,6 +7,12 @@ import frc.lib.UnitConvertor;
 
 import static edu.wpi.first.units.Units.Inches;
 
+// L2 Coral = E 29.5 W -36.9
+// L3 Coral = E 40.9 W -36.9
+// L4 Coral = E 67.7 W -40.5 (max proportion)
+// L2 Algae = E 30.54 W -30
+// L3 Algae = E 41.3 W -23
+
 public final class ScoringConstants {
     public static final class ElevatorConstants {
         // The range of the elevator
@@ -37,11 +43,13 @@ public final class ScoringConstants {
             public static final double IDLE_Proportion = 0.0;
             public static final double HP_Proportion = 0.1;
             public static final double L1_Proportion = 0.15;
-            public static final double L2_Proportion = 0.25;
-            public static final double L3_Proportion = 0.4;
-            public static final double L4_Proportion = 0.85;
-            public static final double L2_ALGAE_Proportion = 0.55;
-            public static final double L3_ALGAE_Proportion = 0.65;
+
+            public static final double L2_Proportion = ProportionToPosition.convertBackwards(29.5);
+            public static final double L3_Proportion = ProportionToPosition.convertBackwards(40.9);
+            public static final double L4_Proportion = ProportionToPosition.convertBackwards(67.7);
+            public static final double L2_ALGAE_Proportion = ProportionToPosition.convertBackwards(30.5);
+            public static final double L3_ALGAE_Proportion = ProportionToPosition.convertBackwards(41.3);
+
             public static final double Barge_Proportion = 1;
         }
     }
@@ -83,13 +91,12 @@ public final class ScoringConstants {
             public static final double Wrist_IDLE_Proportion = 0.0;
             public static final double Wrist_HP_Proportion = 0.0;
             public static final double Wrist_L1_Proportion = 1.0;
-            public static final double Wrist_L2_Proportion = 0.5;
-            public static final double Wrist_L3_Proportion = 0.5;
-            public static final double Wrist_L4_Proportion = 1.0;
-            public static final double Wrist_L2_ALGAE_Proportion = 1.0;
-            public static final double Wrist_L3_ALGAE_Proportion = 1.0;
-            public static final double Wrist_Barge_Proportion = 0.5;
-
+            public static final double Wrist_L2_Proportion = ProportionToPosition.convertBackwards(-36.9);
+            public static final double Wrist_L3_Proportion = ProportionToPosition.convertBackwards(-36.9);
+            public static final double Wrist_L4_Proportion = ProportionToPosition.convertBackwards(-40.5);
+            public static final double Wrist_L2_ALGAE_Proportion = ProportionToPosition.convertBackwards(-30.);
+            public static final double Wrist_L3_ALGAE_Proportion = ProportionToPosition.convertBackwards(-23.);
+            public static final double Wrist_Barge_Proportion = ProportionToPosition.convertBackwards(-16.3);
         }
 
         public static final Translation3d Hopper3DSimOffset = new Translation3d(
