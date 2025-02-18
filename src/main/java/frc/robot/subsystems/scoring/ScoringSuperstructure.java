@@ -9,7 +9,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.lib.annotation.ForSubsystemManagerUseOnly;
 import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
 import frc.robot.subsystems.scoring.elevator.AbstractElevatorSubsystem;
@@ -22,12 +21,8 @@ import java.util.function.Supplier;
 public class ScoringSuperstructure extends SubsystemBase {
     private static ScoringSuperstructure instance;
 
-    /**
-     * This method should only be accessed from the SubsystemManager class. In other places, use
-     * {@link SubsystemManager#getScoringSuperstructure()} instead.
-     */
-    @ForSubsystemManagerUseOnly
-    public static ScoringSuperstructure getInstance() {
+    public static ScoringSuperstructure getInstance(SubsystemManager.GetInstanceAccess access) {
+        Objects.requireNonNull(access);
         return instance = Objects.requireNonNullElseGet(instance,
             ScoringSuperstructure::new
         );
@@ -36,7 +31,7 @@ public class ScoringSuperstructure extends SubsystemBase {
     private final AbstractElevatorSubsystem elevator;
     private final AbstractEndEffectorSubsystem hopper;
 
-    private ScoringSuperstructureState state = ScoringSuperstructureState.IDLE;
+    private ScoringSuperstructureState currentState = ScoringSuperstructureState.IDLE;
     private ScoringSuperstructureState prevState = ScoringSuperstructureState.IDLE;
     private boolean isManualControlEnabled = false;
 
@@ -46,13 +41,13 @@ public class ScoringSuperstructure extends SubsystemBase {
         SmartDashboard.putBoolean("isManualControlEnabled", isManualControlEnabled);
     }
 
-    private void setState(ScoringSuperstructureState state) {
-        if (this.state != state) {
-            prevState = this.state;
+    private void setCurrentState(ScoringSuperstructureState currentState) {
+        if (this.currentState != currentState) {
+            prevState = this.currentState;
         }
-        this.state = state;
-        elevator.updateElevatorState(state);
-        hopper.setHopper(state);
+        this.currentState = currentState;
+        elevator.setTargetExtensionProportion(currentState);
+        hopper.setHopper(currentState);
     }
 
     /**
@@ -71,7 +66,7 @@ public class ScoringSuperstructure extends SubsystemBase {
      */
     public Command setScoringState(Supplier<ScoringSuperstructureState> state) {
         return Commands.runOnce(
-            () -> setState(state.get())
+            () -> setCurrentState(state.get())
         );
     }
 
@@ -88,7 +83,7 @@ public class ScoringSuperstructure extends SubsystemBase {
     public Command runScoringState() {
         return Commands.run(
             () -> {
-                if (!state.useTransitionState || !prevState.useTransitionState) {
+                if (!currentState.useTransitionState || !prevState.useTransitionState) {
                     elevator.runElevator();
                 } else {
                     if (hopper.getHopperState() != ScoringSuperstructureState.TRANSITION_STATE) {
@@ -100,7 +95,7 @@ public class ScoringSuperstructure extends SubsystemBase {
                     } else {
                         if (hopper.isAtTarget()) {
                             if (elevator.isAtTarget()) {
-                                hopper.setHopper(state);
+                                hopper.setHopper(currentState);
                             }
                             elevator.runElevator();
                         }
@@ -150,14 +145,14 @@ public class ScoringSuperstructure extends SubsystemBase {
     @Override
     public void periodic() {
         if (isStateFinished()) {
-            setState(state.getStateAfter());
-        } else if (RobotState.isTeleop() && !state.control.getAsBoolean()) {
-            setState(ScoringSuperstructureState.IDLE);
+            setCurrentState(currentState.getStateAfter());
+        } else if (RobotState.isTeleop() && !currentState.control.getAsBoolean()) {
+            setCurrentState(ScoringSuperstructureState.IDLE);
         }
 
         //Sets scoring mechanisms to IDLE in case robot acceleration is high.
         if (SubsystemManager.getInstance().getDrivetrain().getAccelerationInGs() >= .4) {
-            setState(ScoringSuperstructureState.IDLE);
+            setCurrentState(ScoringSuperstructureState.IDLE);
         }
         SmartDashboard.putBoolean("isManualControlEnabled", isManualControlEnabled);
     }

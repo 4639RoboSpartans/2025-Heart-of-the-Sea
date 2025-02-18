@@ -171,15 +171,15 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
             else runHopperPosition();
         } else {
             wristMotor.set(wristPID.calculate(
-                    wristMotor.getEncoder().getPosition(),
-                    EndEffectorConstants.ProportionToPosition.convert(OI.getInstance().operatorController().rightStickY() * 0.5 + 0.5)
+                wristMotor.getEncoder().getPosition(),
+                EndEffectorConstants.ProportionToPosition.convert(OI.getInstance().operatorController().rightStickY() * 0.5 + 0.5)
             ));
             intakeMotor.set(Controls.Operator.ManualControlIntake.getAsDouble() * 0.7);
         }
         System.out.println(wristPID.getP() + ", " + wristPID.getI() + ", " + wristPID.getD());
 
         SmartDashboard.putNumber("Wrist Position", wristMotor.getEncoder().getPosition());
-        SmartDashboard.putNumber("Wrist Setpoint", EndEffectorConstants.EXTENDED_POSITION/2);
+        SmartDashboard.putNumber("Wrist Setpoint", EndEffectorConstants.EXTENDED_POSITION / 2);
     }
 
     @Override
@@ -189,9 +189,8 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
                 wristEncoder.get(),
                 wristPID.getGoal().position
             );
+            wristMotor.setVoltage(wristPIDOutput);
         }
-//        TODO: uncomment when down and up positions are set
-//        wristMotor.set(wristPIDOutput);
     }
 
     @Override

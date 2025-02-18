@@ -8,8 +8,9 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.subsystems.SubsystemManager;
 import frc.lib.oi.OI;
+import frc.lib.tunable.TunableNumber;
+import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
 import frc.robot.subsystems.scoring.constants.ScoringPIDs;
@@ -28,15 +29,17 @@ public class SimEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
 
     public SimEndEffectorSubsystem() {
         intakeSpeed = 0;
-        pivotPID = new ProfiledPIDController(
-            ScoringPIDs.wristKp.get(),
-            ScoringPIDs.wristKi.get(),
-            ScoringPIDs.wristKd.get(),
-            new TrapezoidProfile.Constraints(
-                ScoringPIDs.wristVelocity.get(),
-                ScoringPIDs.wristAcceleration.get()
-            )
+
+        pivotPID = new ProfiledPIDController(0, 0, 0, null);
+        ScoringPIDs.wristKp.onChange(pivotPID::setP);
+        ScoringPIDs.wristKi.onChange(pivotPID::setI);
+        ScoringPIDs.wristKd.onChange(pivotPID::setD);
+        TunableNumber.onAnyChange(
+            (values) -> pivotPID.setConstraints(new TrapezoidProfile.Constraints(values[0], values[1])),
+            ScoringPIDs.wristVelocity,
+            ScoringPIDs.wristAcceleration
         );
+
         pivotSim = new SingleJointedArmSim(
             LinearSystemId.createSingleJointedArmSystem(
                 DCMotor.getNEO(1),
@@ -93,11 +96,6 @@ public class SimEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
     }
 
     @Override
-    public void periodic() {
-        updatePIDs();
-    }
-
-    @Override
     protected void runHopperPosition() {
         pivotSim.update(0.020);
         double output;
@@ -143,19 +141,5 @@ public class SimEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
                 isStateFinished = true;
             }
         }
-    }
-
-    private void updatePIDs() {
-        pivotPID.setPID(
-            ScoringPIDs.wristKp.get(),
-            ScoringPIDs.wristKi.get(),
-            ScoringPIDs.wristKd.get()
-        );
-        pivotPID.setConstraints(
-            new TrapezoidProfile.Constraints(
-                ScoringPIDs.wristVelocity.get(),
-                ScoringPIDs.wristAcceleration.get()
-            )
-        );
     }
 }

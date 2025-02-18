@@ -24,7 +24,8 @@ public class VisionSubsystem extends SubsystemBase {
      * {@link SubsystemManager#getVisionSubsystem()} instead.
      */
     @ForSubsystemManagerUseOnly
-    public static synchronized VisionSubsystem getInstance() {
+    public static synchronized VisionSubsystem getInstance(SubsystemManager.GetInstanceAccess access) {
+        Objects.requireNonNull(access);
         return instance = Objects.requireNonNullElseGet(instance, VisionSubsystem::new);
     }
 
@@ -47,7 +48,7 @@ public class VisionSubsystem extends SubsystemBase {
         return run(() -> {
             visionResults.clear();
             cameras.stream().parallel().map(
-                    camera -> camera.getBotPoseAsVisionResult(true)
+                camera -> camera.getBotPoseAsVisionResult(true)
             ).filter(Optional::isPresent).map(Optional::get).forEach(visionResults::add);
         });
     }
@@ -63,8 +64,8 @@ public class VisionSubsystem extends SubsystemBase {
         return run(() -> {
             visionResults.clear();
             cameras.stream().parallel().filter(camera -> camera.targets().contains(idToTarget))
-                    .map(camera -> camera.getBotPoseAsVisionResult(true))
-                    .filter(Optional::isPresent).map(Optional::get).forEach(visionResults::add);
+                .map(camera -> camera.getBotPoseAsVisionResult(true))
+                .filter(Optional::isPresent).map(Optional::get).forEach(visionResults::add);
         });
     }
 

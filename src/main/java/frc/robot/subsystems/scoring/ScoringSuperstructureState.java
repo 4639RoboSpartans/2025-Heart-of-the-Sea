@@ -8,7 +8,7 @@ import frc.robot.subsystems.scoring.constants.ScoringConstants.ElevatorConstants
 import frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConstants;
 
 public class ScoringSuperstructureState {
-    public double elevatorProportion; //proportion of the distance between lower and upper limit
+    public double elevatorExtensionProportion; //proportion of the distance between lower and upper limit
     private double wristProportion; // proportion of the distance between lower and upper limit
     public double intakeSpeed; // speed of intake wheels
     public boolean intakeUntilGamePieceSeen; // whether to stop spinning intake wheels when game piece is seen
@@ -18,7 +18,7 @@ public class ScoringSuperstructureState {
     public ScoringSuperstructureState stateAfter; // the state to set after this state finishes
 
     private ScoringSuperstructureState() {
-        this.elevatorProportion = 0;
+        this.elevatorExtensionProportion = 0;
         this.wristProportion = 0;
         this.intakeSpeed = 0;
         this.intakeUntilGamePieceSeen = false;
@@ -29,7 +29,7 @@ public class ScoringSuperstructureState {
     }
 
     private ScoringSuperstructureState withElevatorProportion(double percent) {
-        this.elevatorProportion = percent;
+        this.elevatorExtensionProportion = percent;
         return this;
     }
 
@@ -175,7 +175,7 @@ public class ScoringSuperstructureState {
         .withOuttakeUntilNotSeen(false);
 
     public double getElevatorAbsolutePosition() {
-        return ElevatorConstants.ProportionToPosition.convert(elevatorProportion);
+        return ElevatorConstants.ProportionToPosition.convert(elevatorExtensionProportion);
     }
 
     public double getWristAbsolutePosition() {
@@ -183,7 +183,7 @@ public class ScoringSuperstructureState {
     }
 
     public Distance getElevatorHeight() {
-        return ElevatorConstants.ProportionToHeight.convert(elevatorProportion);
+        return ElevatorConstants.ProportionToHeight.convert(elevatorExtensionProportion);
     }
 
     public Rotation2d getRotation() {

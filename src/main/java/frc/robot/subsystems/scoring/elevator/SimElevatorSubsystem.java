@@ -1,6 +1,5 @@
 package frc.robot.subsystems.scoring.elevator;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -15,7 +14,6 @@ import frc.robot.subsystems.scoring.constants.ScoringPIDs;
 
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Volts;
-import static frc.robot.subsystems.scoring.constants.ScoringConstants.ElevatorConstants.ELEVATOR_TOLERANCE;
 import static frc.robot.subsystems.scoring.constants.ScoringConstants.ElevatorConstants.ProportionToHeight;
 import static frc.robot.subsystems.scoring.constants.ScoringPIDs.elevatorKg;
 
@@ -63,23 +61,9 @@ public class SimElevatorSubsystem extends AbstractElevatorSubsystem {
     }
 
     @Override
-    public boolean isElevatorStateFinished() {
-        return isAtTarget();
-    }
-
-    @Override
-    public boolean isAtTarget() {
-        return MathUtil.isNear(
-            getCurrentPosition(),
-            getTargetPosition(),
-            ELEVATOR_TOLERANCE
-        );
-    }
-
-    @Override
-    public void updateElevatorState(ScoringSuperstructureState state) {
-        this.state = state;
-        elevatorPID.setGoal(state.getElevatorAbsolutePosition());
+    public void setTargetExtensionProportion(double targetExtensionProportion) {
+        this.state = targetExtensionProportion;
+        elevatorPID.setGoal(targetExtensionProportion.getElevatorAbsolutePosition());
     }
 
     @Override
