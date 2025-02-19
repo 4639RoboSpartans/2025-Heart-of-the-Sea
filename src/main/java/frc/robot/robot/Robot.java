@@ -7,6 +7,7 @@ package frc.robot.robot;
 
 import com.ctre.phoenix6.SignalLogger;
 
+import com.revrobotics.spark.config.SparkBaseConfig;
 import edu.wpi.first.epilogue.logging.EpilogueBackend;
 import edu.wpi.first.epilogue.logging.NTEpilogueBackend;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -50,6 +51,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void disabledInit() {
         SubsystemManager.getInstance().getScoringSuperstructure().setScoringState(ScoringSuperstructureState.IDLE);
+        SubsystemManager.getInstance().getScoringSuperstructure().getEndEffectorSubsystem().setWristMotorIdleMode(SparkBaseConfig.IdleMode.kCoast);
     }
 
 
@@ -60,6 +62,7 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void disabledExit() {
+        SubsystemManager.getInstance().getScoringSuperstructure().getEndEffectorSubsystem().setWristMotorIdleMode(SparkBaseConfig.IdleMode.kBrake);
     }
 
 

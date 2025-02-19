@@ -11,6 +11,7 @@ import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.wpilibj.event.EventLoop;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
@@ -167,6 +168,145 @@ public class FunctionalTrigger implements BooleanSupplier {
                 (previous, current) -> {
                     if (previous && !current) {
                         commandSupplier.get().onlyWhile(this.negate()).schedule();
+                    }
+                });
+        return this;
+    }
+
+    /**
+     * Starts the command when the condition changes.
+     *
+     * @param command the command to start
+     * @return this trigger, so calls can be chained
+     */
+    public FunctionalTrigger onChange(Command command) {
+        requireNonNullParam(command, "command", "onChange");
+        addBinding(
+                (previous, current) -> {
+                    if (previous != current) {
+                        command.schedule();
+                    }
+                });
+        return this;
+    }
+
+    /**
+     * Starts the given command whenever the condition changes from `false` to `true`.
+     *
+     * @param command the command to start
+     * @return this trigger, so calls can be chained
+     */
+    public FunctionalTrigger onTrue(Command command) {
+        requireNonNullParam(command, "command", "onTrue");
+        addBinding(
+                (previous, current) -> {
+                    if (!previous && current) {
+                        command.schedule();
+                    }
+                });
+        return this;
+    }
+
+    /**
+     * Starts the given command whenever the condition changes from `true` to `false`.
+     *
+     * @param command the command to start
+     * @return this trigger, so calls can be chained
+     */
+    public FunctionalTrigger onFalse(Command command) {
+        requireNonNullParam(command, "command", "onFalse");
+        addBinding(
+                (previous, current) -> {
+                    if (previous && !current) {
+                        command.schedule();
+                    }
+                });
+        return this;
+    }
+
+    /**
+     * Starts the given command when the condition changes to `true` and cancels it when the condition
+     * changes to `false`.
+     *
+     * <p>Doesn't re-start the command if it ends while the condition is still `true`. If the command
+     * should restart, see {@link edu.wpi.first.wpilibj2.command.RepeatCommand}.
+     *
+     * @param command the command to start
+     * @return this trigger, so calls can be chained
+     */
+    public FunctionalTrigger whileTrue(Command command) {
+        requireNonNullParam(command, "command", "whileTrue");
+        addBinding(
+                (previous, current) -> {
+                    if (!previous && current) {
+                        command.schedule();
+                    } else if (previous && !current) {
+                        command.cancel();
+                    }
+                });
+        return this;
+    }
+
+    /**
+     * Starts the given command when the condition changes to `false` and cancels it when the
+     * condition changes to `true`.
+     *
+     * <p>Doesn't re-start the command if it ends while the condition is still `false`. If the command
+     * should restart, see {@link edu.wpi.first.wpilibj2.command.RepeatCommand}.
+     *
+     * @param command the command to start
+     * @return this trigger, so calls can be chained
+     */
+    public FunctionalTrigger whileFalse(Command command) {
+        requireNonNullParam(command, "command", "whileFalse");
+        addBinding(
+                (previous, current) -> {
+                    if (previous && !current) {
+                        command.schedule();
+                    } else if (!previous && current) {
+                        command.cancel();
+                    }
+                });
+        return this;
+    }
+
+    /**
+     * Toggles a command when the condition changes from `false` to `true`.
+     *
+     * @param command the command to toggle
+     * @return this trigger, so calls can be chained
+     */
+    public FunctionalTrigger toggleOnTrue(Command command) {
+        requireNonNullParam(command, "command", "toggleOnTrue");
+        addBinding(
+                (previous, current) -> {
+                    if (!previous && current) {
+                        if (command.isScheduled()) {
+                            command.cancel();
+                        } else {
+                            command.schedule();
+                        }
+                    }
+                });
+        return this;
+    }
+
+    /**
+     * Toggles a command when the condition changes from `true` to `false`.
+     *
+     * @param command the command to toggle
+     * @return this trigger, so calls can be chained
+     */
+    public FunctionalTrigger toggleOnFalse(Command command) {
+        requireNonNullParam(command, "command", "toggleOnFalse");
+        addBinding(
+                (previous, current) -> {
+                    if (previous && !current) {
+                        if (command.isScheduled()) {
+                            command.cancel();
+                        } else {
+                            command.schedule();
+                        }
                     }
                 });
         return this;

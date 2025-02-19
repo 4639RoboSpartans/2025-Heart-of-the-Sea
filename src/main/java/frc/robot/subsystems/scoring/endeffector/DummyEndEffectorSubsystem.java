@@ -1,5 +1,6 @@
 package frc.robot.subsystems.scoring.endeffector;
 
+import com.revrobotics.spark.config.SparkBaseConfig;
 import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 
@@ -39,4 +40,9 @@ public class DummyEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
 
     @Override
     public void runHopper() {}
+
+    @Override
+    public void setWristMotorIdleMode(SparkBaseConfig.IdleMode mode) {
+
+    }
 }

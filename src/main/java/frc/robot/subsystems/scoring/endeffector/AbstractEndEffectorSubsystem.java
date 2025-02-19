@@ -1,5 +1,6 @@
 package frc.robot.subsystems.scoring.endeffector;
 
+import com.revrobotics.spark.config.SparkBaseConfig;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -126,4 +127,6 @@ public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
     public void setManualControlEnabled(boolean enabled) {
         manualControlEnabled = enabled;
     }
+
+    public abstract void setWristMotorIdleMode(SparkBaseConfig.IdleMode mode);
 }

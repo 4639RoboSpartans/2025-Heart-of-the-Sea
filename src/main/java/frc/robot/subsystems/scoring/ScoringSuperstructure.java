@@ -34,7 +34,7 @@ public class ScoringSuperstructure extends SubsystemBase {
     }
 
     private final AbstractElevatorSubsystem elevator;
-    private final AbstractEndEffectorSubsystem hopper;
+    private final AbstractEndEffectorSubsystem endeffector;
 
     private ScoringSuperstructureState state = ScoringSuperstructureState.IDLE;
     private ScoringSuperstructureState prevState = ScoringSuperstructureState.IDLE;
@@ -42,7 +42,7 @@ public class ScoringSuperstructure extends SubsystemBase {
 
     public ScoringSuperstructure() {
         this.elevator = AbstractElevatorSubsystem.getInstance();
-        this.hopper = AbstractEndEffectorSubsystem.getInstance();
+        this.endeffector = AbstractEndEffectorSubsystem.getInstance();
         SmartDashboard.putBoolean("isManualControlEnabled", isManualControlEnabled);
     }
 
@@ -52,7 +52,7 @@ public class ScoringSuperstructure extends SubsystemBase {
         }
         this.state = state;
         elevator.updateElevatorState(state);
-        hopper.setHopper(state);
+        endeffector.setHopper(state);
     }
 
     /**
@@ -78,7 +78,7 @@ public class ScoringSuperstructure extends SubsystemBase {
     public Command hold() {
         return setScoringState(() -> ScoringSuperstructureState.HOLD(
             elevator.getCurrentProportion(),
-            ScoringConstants.EndEffectorConstants.ProportionToPosition.convertBackwards(hopper.getCurrentPosition())
+            ScoringConstants.EndEffectorConstants.ProportionToPosition.convertBackwards(endeffector.getCurrentPosition())
         ));
     }
 
@@ -91,16 +91,16 @@ public class ScoringSuperstructure extends SubsystemBase {
                 if (!state.useTransitionState || !prevState.useTransitionState) {
                     elevator.runElevator();
                 } else {
-                    if (hopper.getHopperState() != ScoringSuperstructureState.TRANSITION_STATE) {
+                    if (endeffector.getHopperState() != ScoringSuperstructureState.TRANSITION_STATE) {
                         if (elevator.isAtTarget()) {
                             elevator.runElevator();
                         } else {
-                            hopper.setHopper(ScoringSuperstructureState.TRANSITION_STATE);
+                            endeffector.setHopper(ScoringSuperstructureState.TRANSITION_STATE);
                         }
                     } else {
-                        if (hopper.isAtTarget()) {
+                        if (endeffector.isAtTarget()) {
                             if (elevator.isAtTarget()) {
-                                hopper.setHopper(state);
+                                endeffector.setHopper(state);
                             }
                             elevator.runElevator();
                         }
@@ -109,7 +109,7 @@ public class ScoringSuperstructure extends SubsystemBase {
 
                 // TODO: choose one place to call runHopper
                 //  either in endeffector periodic or in here but right now it runs in both
-                hopper.runHopper();
+                endeffector.runHopper();
             },
             this
         );
@@ -119,7 +119,7 @@ public class ScoringSuperstructure extends SubsystemBase {
         return runOnce(() -> {
             this.isManualControlEnabled = !this.isManualControlEnabled;
             this.elevator.setManualControlEnabled(isManualControlEnabled);
-            this.hopper.setManualControlEnabled(isManualControlEnabled);
+            this.endeffector.setManualControlEnabled(isManualControlEnabled);
         });
     }
 
@@ -127,7 +127,7 @@ public class ScoringSuperstructure extends SubsystemBase {
      * @return whether both "sub-subsystems" at the specified position
      */
     public boolean isAtPosition() {
-        return elevator.isAtTarget() && hopper.isAtTarget();
+        return elevator.isAtTarget() && endeffector.isAtTarget();
     }
 
     public Trigger isAtPosition = new Trigger(this::isAtPosition);
@@ -138,7 +138,7 @@ public class ScoringSuperstructure extends SubsystemBase {
      * {@link ScoringSuperstructure#isAtPosition()} returns true.
      */
     public boolean isStateFinished() {
-        return elevator.isElevatorStateFinished() && hopper.isHopperStateFinished();
+        return elevator.isElevatorStateFinished() && endeffector.isHopperStateFinished();
     }
 
     public Trigger isStateFinished = new Trigger(this::isStateFinished);
@@ -180,14 +180,14 @@ public class ScoringSuperstructure extends SubsystemBase {
      * @return the real life rotation of the wrist, for use in simulation only.
      */
     public Rotation2d getCurrentWristRotation() {
-        return hopper.getCurrentRotation();
+        return endeffector.getCurrentRotation();
     }
 
     /**
      * @return the real life target rotation of the wrist, for use in simulation only.
      */
     public Rotation2d getTargetWristRotation() {
-        return hopper.getTargetRotation();
+        return endeffector.getTargetRotation();
     }
 
     public Command elevatorSysIDQuasistatic(SysIdRoutine.Direction direction) {
@@ -196,5 +196,13 @@ public class ScoringSuperstructure extends SubsystemBase {
 
     public Command elevatorSysIDDynamic(SysIdRoutine.Direction direction) {
         return ElevatorSysID.sysIdDynamic(direction);
+    }
+
+    public AbstractEndEffectorSubsystem getEndEffectorSubsystem() {
+        return endeffector;
+    }
+
+    public AbstractElevatorSubsystem getElevatorSubsystem() {
+        return elevator;
     }
 }
