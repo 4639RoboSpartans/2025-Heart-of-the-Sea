@@ -4,7 +4,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.robot.Robot;
-import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
 
 import java.util.Objects;
 
@@ -12,6 +11,7 @@ import static frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffecto
 
 public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
     private static AbstractEndEffectorSubsystem instance;
+    protected double intakeSpeed;
 
     public static AbstractEndEffectorSubsystem getInstance() {
         boolean dummy = false;
@@ -30,16 +30,7 @@ public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
         }
     }
 
-    protected ScoringSuperstructureAction state = ScoringSuperstructureAction.IDLE;
-
-    /**
-     * Gets the current state of the endeffector.
-     *
-     * @return state of endeffector as ScoringSuperStructureState
-     */
-    public final ScoringSuperstructureAction getHopperState() {
-        return state;
-    }
+    protected double targetRotationFraction;
 
     /**
      * Gets the current rotation of the wrist.
@@ -80,29 +71,23 @@ public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
     }
 
     public final double getTargetRotationFraction() {
-        return state.targetWristRotationFraction;
+        return targetRotationFraction;
     }
 
-    /**
-     * Gets the speed of the rollers on the scoring mechanism.
-     *
-     * @return speed of rollers as double
-     */
-    public abstract double getIntakeSpeed();
+    public final void setTargetRotationFraction(double targetRotationFraction) {
+        this.targetRotationFraction = targetRotationFraction;
+    }
+
+    public final void setIntakeSpeed(double intakeSpeed) {
+        this.intakeSpeed = intakeSpeed;
+    }
 
     /**
      * Checks if the wrist is at the target position.
      *
      * @return if wrist at target position as boolean
      */
-    public abstract boolean isAtTarget();
-
-    /**
-     * Checks if the wrist is at its desired state.
-     *
-     * @return if wrist is at desired state as boolean
-     */
-    public abstract boolean isHopperStateFinished();
+    public abstract boolean isWristAtTarget();
 
     /**
      * Checks if the scoring mechanism contains a coral.
@@ -112,23 +97,6 @@ public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
     public abstract boolean hasCoral();
 
     public Trigger hasCoral = new Trigger(this::hasCoral);
-
-    /**
-     * Sets the state of the endeffector
-     *
-     * @param state state that endeffector is being set to as ScoringSuperstructureState.
-     */
-    public abstract void setHopper(ScoringSuperstructureAction state);
-
-    /**
-     * Runs the wrist.
-     */
-    protected abstract void runHopperPosition();
-
-    /**
-     * Runs the intake/rollers.
-     */
-    public abstract void runHopper();
 
     protected boolean manualControlEnabled = false;
 

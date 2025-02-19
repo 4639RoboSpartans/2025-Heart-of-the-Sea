@@ -95,7 +95,7 @@ public class ScoringSuperstructure extends SubsystemBase {
             () -> {
                 switch (currentState) {
                     case TRANSITION_BEFORE_ELEVATOR -> {
-                        if (endEffector.isAtTarget()) {
+                        if (endEffector.isWristAtTarget()) {
                             currentState = currentState.next();
                         }
                     }
@@ -105,7 +105,7 @@ public class ScoringSuperstructure extends SubsystemBase {
                         }
                     }
                     case TRANSITION_AFTER_ELEVATOR -> {
-                        if (endEffector.isAtTarget()) {
+                        if (endEffector.isWristAtTarget()) {
                             currentState = currentState.next();
                         }
                     }
@@ -115,8 +115,6 @@ public class ScoringSuperstructure extends SubsystemBase {
                         }
                     }
                     case EXECUTING_ACTION -> {
-                        // TODO
-
                         boolean isActionComplete = currentAction.shouldStopIntakeOnGamePieceSeen && endEffector.hasCoral()
                             || currentAction.shouldStopIntakeOnGamePieceNotSeen && !endEffector.hasCoral();
                         if (isActionComplete) {
@@ -150,7 +148,7 @@ public class ScoringSuperstructure extends SubsystemBase {
      * @return whether both "sub-subsystems" at the specified position
      */
     public boolean isAtPosition() {
-        return elevator.isAtTarget() && endEffector.isAtTarget();
+        return elevator.isAtTarget() && endEffector.isWristAtTarget();
     }
 
     public Trigger isAtPosition = new Trigger(this::isAtPosition);

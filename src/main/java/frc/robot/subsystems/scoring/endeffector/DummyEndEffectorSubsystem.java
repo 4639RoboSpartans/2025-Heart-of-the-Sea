@@ -15,7 +15,7 @@ public class DummyEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
     }
 
     @Override
-    public boolean isAtTarget() {
+    public boolean isWristAtTarget() {
         return true;
     }
 

@@ -18,8 +18,6 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.oi.OI;
 import frc.lib.tunable.TunableNumber;
 import frc.robot.constants.Controls;
-import frc.robot.subsystems.SubsystemManager;
-import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
 import frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConstants;
 import frc.robot.subsystems.scoring.constants.ScoringPIDs;
@@ -34,8 +32,6 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
     private final LaserCan laserCAN;
 
     private final ProfiledPIDController wristPID;
-
-    private boolean isStateFinished = false;
 
     public ConcreteEndEffectorSubsystem() {
         intakeMotor = new SparkFlex(
@@ -108,9 +104,7 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
             System.out.println("Configuration failed! " + e);
         }
         hasCoral = new Trigger(this::hasCoral);
-        //TODO: is two seconds really necessary?
-        //having the debounce on for too long could mess with our cycle time
-        hasCoral.debounce(2);
+        hasCoral.debounce(0.5);
         wristMotor.configure(
             new SparkFlexConfig().idleMode(SparkBaseConfig.IdleMode.kBrake),
             SparkBase.ResetMode.kNoResetSafeParameters,
@@ -124,24 +118,14 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
     }
 
     @Override
-    public double getIntakeSpeed() {
-        return intakeMotor.get();
-    }
-
-    @Override
     public boolean hasCoral() {
         return Optional.ofNullable(laserCAN.getMeasurement()).map(measurement ->
-            measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT
-                && measurement.distance_mm <= 20
+            measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT && measurement.distance_mm <= 20
         ).orElse(false);
-
-        /*
-        no reason to check intake state at this point
-         */
     }
 
     @Override
-    public boolean isAtTarget() {
+    public boolean isWristAtTarget() {
         return MathUtil.isNear(
             getTargetPosition(),
             getCurrentPosition(),
@@ -149,72 +133,23 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
         );
     }
 
-    public boolean isHopperStateFinished() {
-        return isStateFinished;
-    }
-
-    @Override
-    public void setHopper(ScoringSuperstructureAction state) {
-        this.state = state;
-        isStateFinished = false;
-        if (!manualControlEnabled) {
-            intakeMotor.set(0);
-        }
-        wristPID.setGoal(state.getWristAbsolutePosition());
-    }
-
     @Override
     public void periodic() {
+        double currentWristPosition = getCurrentPosition();
+
+        double targetWristPosition, intakeSpeed;
         if (!manualControlEnabled) {
-            if (isAtTarget())
-                runHopper();
-            else runHopperPosition();
+            targetWristPosition = getTargetPosition();
+            intakeSpeed = this.intakeSpeed;
         } else {
-            wristMotor.set(wristPID.calculate(
-                wristMotor.getEncoder().getPosition(),
-                EndEffectorConstants.ProportionToPosition.convert(OI.getInstance().operatorController().rightStickY() * 0.5 + 0.5)
-            ));
-            intakeMotor.set(Controls.Operator.ManualControlIntake.getAsDouble() * 0.7);
-        }
-        System.out.println(wristPID.getP() + ", " + wristPID.getI() + ", " + wristPID.getD());
-
-        SmartDashboard.putNumber("Wrist Position", wristMotor.getEncoder().getPosition());
-        SmartDashboard.putNumber("Wrist Setpoint", EndEffectorConstants.EXTENDED_POSITION / 2);
-    }
-
-    @Override
-    protected void runHopperPosition() {
-        if (!manualControlEnabled) {
-            double wristPIDOutput = wristPID.calculate(
-                wristEncoder.get(),
-                wristPID.getGoal().position
-            );
-            wristMotor.setVoltage(wristPIDOutput);
-        }
-    }
-
-    @Override
-    public void runHopper() {
-        if (!manualControlEnabled) {
-            runHopperPosition();
-            if (SubsystemManager.getInstance().getScoringSuperstructure().isAtPosition() && !isStateFinished) {
-                intakeMotor.set(state.intakeSpeed);
-            }
-            LaserCan.Measurement measurement = laserCAN.getMeasurement();
-            if (measurement != null && measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
-                if (state.shouldStopIntakeOnGamePieceSeen) {
-                    if (hasCoral()) {
-                        intakeMotor.set(0);
-                        isStateFinished = true;
-                    }
-                } else if (state.shouldStopIntakeOnGamePieceNotSeen) {
-                    if (!hasCoral()) {
-                        intakeMotor.set(0);
-                        isStateFinished = true;
-                    }
-                }
-            }
+            double targetWristProportion = OI.getInstance().operatorController().rightStickY() * 0.5 + 0.5;
+            targetWristPosition = EndEffectorConstants.ProportionToPosition.convert(targetWristProportion);
+            intakeSpeed = Controls.Operator.ManualControlIntake.getAsDouble() * 0.7;
         }
 
+        wristMotor.set(wristPID.calculate(currentWristPosition, targetWristPosition));
+        intakeMotor.set(intakeSpeed);
+
+        SmartDashboard.putNumber("Wrist Position", currentWristPosition);
     }
 }

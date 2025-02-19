@@ -67,7 +67,7 @@ public class SimEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
     }
 
     @Override
-    public boolean isAtTarget() {
+    public boolean isWristAtTarget() {
         return MathUtil.isNear(
             ScoringSuperstructureAction.getWristSimPosition(getTargetRotation()),
             ScoringSuperstructureAction.getWristSimPosition(getCurrentRotation()),
@@ -77,7 +77,7 @@ public class SimEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
 
     @Override
     public boolean isHopperStateFinished() {
-        if (state == ScoringSuperstructureAction.IDLE) return isAtTarget();
+        if (state == ScoringSuperstructureAction.IDLE) return isWristAtTarget();
         return isStateFinished;
     }
 
