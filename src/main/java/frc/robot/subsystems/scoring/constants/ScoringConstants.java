@@ -120,6 +120,25 @@ public final class ScoringConstants {
         );
     }
 
+    public static class FunnelConstants{
+        public static final Rotation2d MAX_ROTATION = Rotation2d.fromDegrees(-200);
+        public static final Rotation2d DOWN_ROTATION = Rotation2d.fromDegrees(30);
+
+        public static final double DOWN_POSITION = 0;
+        public static final double UP_POSITION = 1;
+
+        public static final UnitConvertor<Double, Double> ProportionToPosition = UnitConvertor.linearConvertingRange(
+            0, 1, DOWN_POSITION, UP_POSITION
+        );
+        public static final UnitConvertor<Double, Rotation2d> ProportionToRotation = UnitConvertor.linear(
+            MAX_ROTATION.getRadians(), DOWN_ROTATION.getRadians(), false
+        ).then(UnitConvertor.radiansToRotation2d());
+        public static final UnitConvertor<Double, Rotation2d> PositionToRotation = UnitConvertor.compose(
+            ProportionToPosition.inverted(),
+            ProportionToRotation
+        );
+    }
+
     public static class IDs {
         public static final int ElevatorLeftID = 21;
         public static final int ElevatorRightID = 22;
