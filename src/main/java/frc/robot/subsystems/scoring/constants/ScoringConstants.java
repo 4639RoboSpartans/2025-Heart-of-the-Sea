@@ -20,8 +20,7 @@ public final class ScoringConstants {
         // The initial height of the elevator
         public static final Distance STARTING_HEIGHT = Inches.of(12);
 
-        // TODO: UP_POSITION can probably be higher. Please measure actual max height
-        public static double UP_POSITION = 63.77;
+        public static double UP_POSITION = 70;
         public static double DOWN_POSITION = 1.2;
 
         public static final double ELEVATOR_TOLERANCE = 1;
@@ -43,7 +42,7 @@ public final class ScoringConstants {
             //Elevator proportions
             public static final double IDLE_Proportion = 0.0;
             public static final double HP_Proportion = 0.1;
-            public static final double Processor_Proportion =0.1;
+            public static final double Processor_Proportion = 0.1;
             public static final double L1_Proportion = 0.15;
             public static final double L2_Proportion = ProportionToPosition.convertBackwards(29.5);
             public static final double L3_Proportion = ProportionToPosition.convertBackwards(40.9);
@@ -51,7 +50,6 @@ public final class ScoringConstants {
             public static final double L2_ALGAE_Proportion = ProportionToPosition.convertBackwards(30.5);
             public static final double L3_ALGAE_Proportion = ProportionToPosition.convertBackwards(41.3);
             public static final double Barge_Proportion = 1;
-            public static final double Transition_Proportion = 0.0;
         }
     }
 
@@ -85,18 +83,17 @@ public final class ScoringConstants {
         public static final double WristReverseSoftLimit = 30;
         public static final int WristCurrentLimit = 30;
 
-        //Intake Speeds
-        public static final double Intake_IDLE_Speed = 0.0;
-        public static final double Intake_HP_Speed = 0.5;
-        public static final double Intake_Processor_Speed = 0.5;
-        public static final double Intake_L1_Speed = 0.5;
-        public static final double Intake_L2_Speed = 0.5;
-        public static final double Intake_L3_Speed = 0.5;
-        public static final double Intake_L4_Speed = 0.5;
-        public static final double Intake_L2_ALGAE_Speed = -0.5;
-        public static final double Intake_L3_ALGAE_Speed = -0.5;
-        public static final double Intake_Barge_Speed = 1.0;
-        public static final double Intake_Transition_Speed = 0.0;
+        public static final class IntakeSpeeds {
+            public static final double Intake_HP_Speed = 0.5;
+            public static final double Intake_Processor_Speed = 0.5;
+            public static final double Intake_L1_Speed = 0.5;
+            public static final double Intake_L2_Speed = 0.5;
+            public static final double Intake_L3_Speed = 0.5;
+            public static final double Intake_L4_Speed = 0.5;
+            public static final double Intake_L2_ALGAE_Speed = -0.5;
+            public static final double Intake_L3_ALGAE_Speed = -0.5;
+            public static final double Intake_Barge_Speed = 1.0;
+        }
 
         public static final class WristSetpoints {
             //Wrist Proportions
@@ -104,12 +101,12 @@ public final class ScoringConstants {
             public static final double Wrist_HP_Proportion = 0.0;
             public static final double Wrist_Processor_Proportion = 0.0;
             public static final double Wrist_L1_Proportion = 1.0;
-            public static final double Wrist_L2_Proportion = ProportionToPosition.convertBackwards(-36.9);
-            public static final double Wrist_L3_Proportion = ProportionToPosition.convertBackwards(-36.9);
-            public static final double Wrist_L4_Proportion = ProportionToPosition.convertBackwards(-40.5);
-            public static final double Wrist_L2_ALGAE_Proportion = ProportionToPosition.convertBackwards(-30.);
-            public static final double Wrist_L3_ALGAE_Proportion = ProportionToPosition.convertBackwards(-23.);
-            public static final double Wrist_Barge_Proportion = ProportionToPosition.convertBackwards(-16.3);
+            public static final double Wrist_L2_Proportion = ProportionToPosition.convertBackwards(36.9);
+            public static final double Wrist_L3_Proportion = ProportionToPosition.convertBackwards(36.9);
+            public static final double Wrist_L4_Proportion = ProportionToPosition.convertBackwards(40.5);
+            public static final double Wrist_L2_ALGAE_Proportion = ProportionToPosition.convertBackwards(30.);
+            public static final double Wrist_L3_ALGAE_Proportion = ProportionToPosition.convertBackwards(23.);
+            public static final double Wrist_Barge_Proportion = ProportionToPosition.convertBackwards(16.3);
             public static final double Wrist_Transition_Proportion = 0.4;
         }
 

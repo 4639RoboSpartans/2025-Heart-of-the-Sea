@@ -39,7 +39,7 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void disabledInit() {
-        SubsystemManager.getInstance().getScoringSuperstructure().setScoringState(ScoringSuperstructureAction.IDLE);
+        SubsystemManager.getInstance().getScoringSuperstructure().setAction(ScoringSuperstructureAction.IDLE);
     }
 
 

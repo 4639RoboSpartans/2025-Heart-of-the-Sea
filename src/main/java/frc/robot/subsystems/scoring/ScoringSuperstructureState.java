@@ -44,4 +44,11 @@ public enum ScoringSuperstructureState {
             case DONE -> DONE;
         };
     }
+
+    public double getIntakeSpeed(ScoringSuperstructureAction action) {
+        return switch (this) {
+            case EXECUTING_ACTION -> action.intakeSpeed;
+            default -> 0;
+        };
+    }
 }

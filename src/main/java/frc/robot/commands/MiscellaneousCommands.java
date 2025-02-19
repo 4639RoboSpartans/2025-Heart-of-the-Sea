@@ -12,9 +12,9 @@ public class MiscellaneousCommands {
      */
     public static Command ElevatorUpDownTest(){
         Command c = Commands.repeatingSequence(
-                SubsystemManager.getInstance().getScoringSuperstructure().setScoringState(ScoringSuperstructureAction.SCORE_BARGE),
+                SubsystemManager.getInstance().getScoringSuperstructure().setAction(ScoringSuperstructureAction.SCORE_BARGE),
                 SubsystemManager.getInstance().getScoringSuperstructure().runScoringState().until(SubsystemManager.getInstance().getScoringSuperstructure().isAtPosition),
-                SubsystemManager.getInstance().getScoringSuperstructure().setScoringState(ScoringSuperstructureAction.IDLE),
+                SubsystemManager.getInstance().getScoringSuperstructure().setAction(ScoringSuperstructureAction.IDLE),
                 SubsystemManager.getInstance().getScoringSuperstructure().runScoringState().until(SubsystemManager.getInstance().getScoringSuperstructure().isAtPosition)
         )
             // .onlyWhile(() -> OI.getInstance().driverController().A_BUTTON.getAsBoolean())

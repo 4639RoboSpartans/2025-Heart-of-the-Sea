@@ -3,6 +3,7 @@ package frc.robot.subsystems.scoring;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.Controls;
 import frc.robot.subsystems.scoring.constants.ScoringConstants.ElevatorConstants.ElevatorSetpoints;
+import frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConstants.IntakeSpeeds;
 import frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConstants.WristSetpoints;
 
 public class ScoringSuperstructureAction {
@@ -77,14 +78,14 @@ public class ScoringSuperstructureAction {
         INTAKE_FROM_HP = new ScoringSuperstructureAction()
             .withTargetElevatorExtensionFraction(ElevatorSetpoints.HP_Proportion)
             .withTargetWristRotationFraction(WristSetpoints.Wrist_HP_Proportion)
-            .withIntakeSpeed(0.5)
+            .withIntakeSpeed(IntakeSpeeds.Intake_HP_Speed)
             .stopIntakeOnGamePieceSeen()
             .withTrigger(Controls.Operator.HPLoadingTrigger)
             .withStateAfter(IDLE),
         SCORE_L1_CORAL = new ScoringSuperstructureAction()
             .withTargetElevatorExtensionFraction(ElevatorSetpoints.L1_Proportion)
             .withTargetWristRotationFraction(WristSetpoints.Wrist_L1_Proportion)
-            .withIntakeSpeed(0.5)
+            .withIntakeSpeed(IntakeSpeeds.Intake_L1_Speed)
             .stopIntakeOnGamePieceNotSeen()
             .requireWristTransition()
             .withTrigger(Controls.Operator.L1Trigger)
@@ -92,7 +93,7 @@ public class ScoringSuperstructureAction {
         SCORE_L2_CORAL = new ScoringSuperstructureAction()
             .withTargetElevatorExtensionFraction(ElevatorSetpoints.L2_Proportion)
             .withTargetWristRotationFraction(WristSetpoints.Wrist_L2_Proportion)
-            .withIntakeSpeed(0.5)
+            .withIntakeSpeed(IntakeSpeeds.Intake_L2_Speed)
             .stopIntakeOnGamePieceNotSeen()
             .requireWristTransition()
             .withTrigger(Controls.Operator.L2Trigger)
@@ -100,7 +101,7 @@ public class ScoringSuperstructureAction {
         SCORE_L3_CORAL = new ScoringSuperstructureAction()
             .withTargetElevatorExtensionFraction(ElevatorSetpoints.L3_Proportion)
             .withTargetWristRotationFraction(WristSetpoints.Wrist_L3_Proportion)
-            .withIntakeSpeed(0.5)
+            .withIntakeSpeed(IntakeSpeeds.Intake_L3_Speed)
             .stopIntakeOnGamePieceNotSeen()
             .requireWristTransition()
             .withTrigger(Controls.Operator.L3Trigger)
@@ -108,7 +109,7 @@ public class ScoringSuperstructureAction {
         SCORE_L4_CORAL = new ScoringSuperstructureAction()
             .withTargetElevatorExtensionFraction(ElevatorSetpoints.L4_Proportion)
             .withTargetWristRotationFraction(WristSetpoints.Wrist_L4_Proportion)
-            .withIntakeSpeed(0.5)
+            .withIntakeSpeed(IntakeSpeeds.Intake_L4_Speed)
             .stopIntakeOnGamePieceNotSeen()
             .requireWristTransition()
             .withTrigger(Controls.Operator.L4Trigger)
@@ -116,22 +117,29 @@ public class ScoringSuperstructureAction {
         INTAKE_L2_ALGAE = new ScoringSuperstructureAction()
             .withTargetElevatorExtensionFraction(ElevatorSetpoints.L2_ALGAE_Proportion)
             .withTargetWristRotationFraction(WristSetpoints.Wrist_L2_ALGAE_Proportion)
-            .withIntakeSpeed(-0.5)
+            .withIntakeSpeed(IntakeSpeeds.Intake_L2_ALGAE_Speed)
             .requireWristTransition()
-            .withTrigger(Controls.Operator.L2AlgaeTrigger)
+            .withTrigger(Controls.Driver.L2AlgaeTrigger)
             .withStateAfter(IDLE),
         INTAKE_L3_ALGAE = new ScoringSuperstructureAction()
             .withTargetElevatorExtensionFraction(ElevatorSetpoints.L3_ALGAE_Proportion)
             .withTargetWristRotationFraction(WristSetpoints.Wrist_L3_ALGAE_Proportion)
-            .withIntakeSpeed(-0.5)
+            .withIntakeSpeed(IntakeSpeeds.Intake_L3_ALGAE_Speed)
             .requireWristTransition()
-            .withTrigger(Controls.Operator.L3AlgaeTrigger)
+            .withTrigger(Controls.Driver.L3AlgaeTrigger)
             .withStateAfter(IDLE),
         SCORE_BARGE = new ScoringSuperstructureAction()
             .withTargetElevatorExtensionFraction(ElevatorSetpoints.Barge_Proportion)
             .withTargetWristRotationFraction(WristSetpoints.Wrist_Barge_Proportion)
-            .withIntakeSpeed(1)
+            .withIntakeSpeed(IntakeSpeeds.Intake_Barge_Speed)
             .requireWristTransition()
-            .withTrigger(Controls.Operator.BargeScoringTrigger)
+            .withTrigger(Controls.Driver.BargeScoringTrigger)
+            .withStateAfter(IDLE),
+        SCORE_PROCESSOR = new ScoringSuperstructureAction()
+            .withTargetElevatorExtensionFraction(ElevatorSetpoints.Processor_Proportion)
+            .withTargetWristRotationFraction(WristSetpoints.Wrist_Processor_Proportion)
+            .withIntakeSpeed(IntakeSpeeds.Intake_Processor_Speed)
+            .requireWristTransition()
+            .withTrigger(Controls.Driver.ProcessorTrigger)
             .withStateAfter(IDLE);
 }

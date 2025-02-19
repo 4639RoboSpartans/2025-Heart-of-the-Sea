@@ -1,9 +1,11 @@
 package frc.robot.subsystems.scoring.endeffector;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.robot.Robot;
+import frc.robot.subsystems.scoring.constants.ScoringConstants;
 
 import java.util.Objects;
 
@@ -82,12 +84,13 @@ public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
         this.intakeSpeed = intakeSpeed;
     }
 
-    /**
-     * Checks if the wrist is at the target position.
-     *
-     * @return if wrist at target position as boolean
-     */
-    public abstract boolean isWristAtTarget();
+    public final boolean isWristAtTarget() {
+        return MathUtil.isNear(
+            getTargetPosition(),
+            getCurrentPosition(),
+            ScoringConstants.EndEffectorConstants.WRIST_TOLERANCE
+        );
+    }
 
     /**
      * Checks if the scoring mechanism contains a coral.

@@ -78,47 +78,47 @@ public class RobotContainer {
             );
 
             Controls.Driver.BargeScoringTrigger.onTrue(
-                scoringSuperstructure.setScoringState(
+                scoringSuperstructure.setAction(
                     ScoringSuperstructureAction.SCORE_BARGE
                 )
             );
             Controls.Operator.HPLoadingTrigger.onTrue(
-                scoringSuperstructure.setScoringState(
+                scoringSuperstructure.setAction(
                     ScoringSuperstructureAction.INTAKE_FROM_HP
                 )
             );
             Controls.Driver.ProcessorTrigger.onTrue(
-                scoringSuperstructure.setScoringState(
-                    ScoringSuperstructureState.PROCESSOR_SCORING
+                scoringSuperstructure.setAction(
+                    ScoringSuperstructureAction.SCORE_PROCESSOR
                 )
             );
             Controls.Operator.L1Trigger.onTrue(
-                scoringSuperstructure.setScoringState(
+                scoringSuperstructure.setAction(
                     ScoringSuperstructureAction.SCORE_L1_CORAL
                 )
             );
             Controls.Operator.L2Trigger.onTrue(
-                scoringSuperstructure.setScoringState(
+                scoringSuperstructure.setAction(
                     ScoringSuperstructureAction.SCORE_L2_CORAL
                 )
             );
             Controls.Operator.L3Trigger.onTrue(
-                scoringSuperstructure.setScoringState(
+                scoringSuperstructure.setAction(
                     ScoringSuperstructureAction.SCORE_L3_CORAL
                 )
             );
             Controls.Operator.L4Trigger.onTrue(
-                scoringSuperstructure.setScoringState(
+                scoringSuperstructure.setAction(
                     ScoringSuperstructureAction.SCORE_L4_CORAL
                 )
             );
             Controls.Driver.L2AlgaeTrigger.onTrue(
-                scoringSuperstructure.setScoringState(
+                scoringSuperstructure.setAction(
                     ScoringSuperstructureAction.INTAKE_L2_ALGAE
                 )
             );
             Controls.Driver.L3AlgaeTrigger.onTrue(
-                scoringSuperstructure.setScoringState(
+                scoringSuperstructure.setAction(
                     ScoringSuperstructureAction.INTAKE_L3_ALGAE
                 )
             );

@@ -1,6 +1,5 @@
 package frc.robot.subsystems.scoring.endeffector;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -10,32 +9,22 @@ import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.lib.oi.OI;
 import frc.lib.tunable.TunableNumber;
-import frc.robot.subsystems.SubsystemManager;
-import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
-import frc.robot.subsystems.scoring.constants.ScoringConstants;
+import frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConstants;
 import frc.robot.subsystems.scoring.constants.ScoringPIDs;
 
 public class SimEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
-    private static final double secondsUntilIntakeOuttakeEnd = 0.25;
-
-    private final ProfiledPIDController pivotPID;
+    private final ProfiledPIDController wristPID;
     private final SingleJointedArmSim pivotSim;
-
-    private double intakeSpeed;
-
-    private double secondsFromIntakeOuttakeStart = 0;
-
-    private boolean isStateFinished = false;
 
     public SimEndEffectorSubsystem() {
         intakeSpeed = 0;
 
-        pivotPID = new ProfiledPIDController(0, 0, 0, null);
-        ScoringPIDs.wristKp.onChange(pivotPID::setP);
-        ScoringPIDs.wristKi.onChange(pivotPID::setI);
-        ScoringPIDs.wristKd.onChange(pivotPID::setD);
+        wristPID = new ProfiledPIDController(0, 0, 0, null);
+        ScoringPIDs.wristKp.onChange(wristPID::setP);
+        ScoringPIDs.wristKi.onChange(wristPID::setI);
+        ScoringPIDs.wristKd.onChange(wristPID::setD);
         TunableNumber.onAnyChange(
-            (values) -> pivotPID.setConstraints(new TrapezoidProfile.Constraints(values[0], values[1])),
+            (values) -> wristPID.setConstraints(new TrapezoidProfile.Constraints(values[0], values[1])),
             ScoringPIDs.wristVelocity,
             ScoringPIDs.wristAcceleration
         );
@@ -49,10 +38,10 @@ public class SimEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
             DCMotor.getNEO(1),
             25.6,
             0.419,
-            ScoringConstants.EndEffectorConstants.ProportionToRotation.convert(1.).getRadians(),
-            ScoringConstants.EndEffectorConstants.ProportionToRotation.convert(0.).getRadians(),
+            EndEffectorConstants.ProportionToRotation.convert(1.).getRadians(),
+            EndEffectorConstants.ProportionToRotation.convert(0.).getRadians(),
             false,
-            ScoringConstants.EndEffectorConstants.ProportionToRotation.convert(0.).getRadians()
+            EndEffectorConstants.ProportionToRotation.convert(0.).getRadians()
         );
     }
 
@@ -62,84 +51,30 @@ public class SimEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
     }
 
     @Override
-    public double getIntakeSpeed() {
-        return intakeSpeed;
-    }
-
-    @Override
-    public boolean isWristAtTarget() {
-        return MathUtil.isNear(
-            ScoringSuperstructureAction.getWristSimPosition(getTargetRotation()),
-            ScoringSuperstructureAction.getWristSimPosition(getCurrentRotation()),
-            ScoringConstants.EndEffectorConstants.WRIST_TOLERANCE
-        ) && pivotPID.getVelocityError() < 0.01;
-    }
-
-    @Override
-    public boolean isHopperStateFinished() {
-        if (state == ScoringSuperstructureAction.IDLE) return isWristAtTarget();
-        return isStateFinished;
-    }
-
-    @Override
     public boolean hasCoral() {
-        return secondsFromIntakeOuttakeStart >= secondsUntilIntakeOuttakeEnd;
+        return true;
     }
 
     @Override
-    public void setHopper(ScoringSuperstructureAction state) {
-        this.state = state;
-        intakeSpeed = 0;
-        isStateFinished = false;
-        secondsFromIntakeOuttakeStart = 0;
-        pivotPID.setGoal(state.getWristAbsolutePosition());
-    }
-
-    @Override
-    protected void runHopperPosition() {
+    public void periodic() {
         pivotSim.update(0.020);
-        double output;
-        double SIM_VOLTAGE_FUDGE_FACTOR = 0.5;  // Fudge factor to stabilize the simulated hopper
-        if (!manualControlEnabled) {
-            output = -pivotPID.calculate(getCurrentPosition());
-            pivotSim.setInputVoltage(
-                output * SIM_VOLTAGE_FUDGE_FACTOR
-            );
-        } else {
-            double setpointProportion = OI.getInstance().operatorController().rightStickY() * 0.5 + 0.5;
-            output = -pivotPID.calculate(
-                getCurrentPosition(),
-                ScoringConstants.EndEffectorConstants
-                    .ProportionToPosition
-                    .convert(setpointProportion)
-            );
-            pivotSim.setInputVoltage(output * SIM_VOLTAGE_FUDGE_FACTOR);
-        }
-        SmartDashboard.putNumber("Wrist Output", output);
-        SmartDashboard.putNumber("Wrist Current Position", getCurrentPosition());
-        SmartDashboard.putNumber("Wrist Sim Angle", Rotation2d.fromRadians(pivotSim.getAngleRads()).getDegrees());
-        SmartDashboard.putNumber("Wrist Target Position", getTargetPosition());
-        SmartDashboard.putNumber("Wrist Setpoint Position", pivotPID.getSetpoint().position);
-        SmartDashboard.putNumber("Wrist Setpoint Velocity", pivotPID.getSetpoint().velocity);
-    }
 
-    @Override
-    public void runHopper() {
-        runHopperPosition();
-        if (SubsystemManager.getInstance().getScoringSuperstructure().isAtPosition() && !isStateFinished) {
-            intakeSpeed = state.intakeSpeed;
-            secondsFromIntakeOuttakeStart += 0.020;
+        double currentWristPosition = getCurrentPosition();
+
+        double targetWristPosition;
+        if (!manualControlEnabled) {
+            targetWristPosition = getTargetPosition();
+        } else {
+            double targetWristProportion = OI.getInstance().operatorController().rightStickY() * 0.5 + 0.5;
+            targetWristPosition = EndEffectorConstants.ProportionToPosition.convert(targetWristProportion);
         }
-        if (state.shouldStopIntakeOnGamePieceSeen) {
-            if (hasCoral()) {
-                intakeSpeed = 0;
-                isStateFinished = true;
-            }
-        } else if (state.shouldStopIntakeOnGamePieceNotSeen) {
-            if (hasCoral()) {
-                intakeSpeed = 0;
-                isStateFinished = true;
-            }
-        }
+
+        double wristPIDOutput = -wristPID.calculate(currentWristPosition, targetWristPosition);
+
+        SmartDashboard.putString("Wrist low level info: ",
+            "p = " + currentWristPosition + " t = " + targetWristPosition + "o = " + wristPIDOutput
+        );
+
+        pivotSim.setInputVoltage(wristPIDOutput);
     }
 }

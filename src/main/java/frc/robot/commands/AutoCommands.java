@@ -22,9 +22,9 @@ public class AutoCommands {
     private static Command getScoringSuperstructureCommand(ScoringSuperstructureAction state) {
         return Commands.deadline(
             Commands.sequence(
-                superstructure.setScoringState(state),
+                superstructure.setAction(state),
                 superstructure.runScoringState().until(superstructure.isStateFinished),
-                superstructure.setScoringState(ScoringSuperstructureAction.IDLE),
+                superstructure.setAction(ScoringSuperstructureAction.IDLE),
                 superstructure.runScoringState().until(superstructure.isStateFinished)
             ),
             swerve.stop()

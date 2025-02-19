@@ -44,7 +44,7 @@ public class ScoringSuperstructure extends SubsystemBase {
         SmartDashboard.putBoolean("isManualControlEnabled", isManualControlEnabled);
     }
 
-    private void setState(ScoringSuperstructureAction action) {
+    private void setCurrentAction(ScoringSuperstructureAction action) {
         if (action != this.currentAction) {
             prevAction = this.currentAction;
             this.currentAction = action;
@@ -64,8 +64,8 @@ public class ScoringSuperstructure extends SubsystemBase {
      * @return an instantaneous command that sets the state to {@param state}. It does not run the scoring
      * superstructure, only sets the state.
      */
-    public Command setScoringState(ScoringSuperstructureAction state) {
-        return setScoringState(() -> state);
+    public Command setAction(ScoringSuperstructureAction state) {
+        return setAction(() -> state);
     }
 
     /**
@@ -74,14 +74,14 @@ public class ScoringSuperstructure extends SubsystemBase {
      * @return an instantaneous command that sets the state to {@param state}. It does not run the scoring
      * superstructure, only sets the state.
      */
-    public Command setScoringState(Supplier<ScoringSuperstructureAction> state) {
+    public Command setAction(Supplier<ScoringSuperstructureAction> state) {
         return Commands.runOnce(
-            () -> setState(state.get())
+            () -> setCurrentAction(state.get())
         );
     }
 
     public Command hold() {
-        return setScoringState(() -> ScoringSuperstructureAction.HOLD(
+        return setAction(() -> ScoringSuperstructureAction.HOLD(
             elevator.getCurrentExtensionFraction(),
             ScoringConstants.EndEffectorConstants.ProportionToPosition.convertBackwards(endEffector.getCurrentPosition())
         ));
@@ -93,6 +93,24 @@ public class ScoringSuperstructure extends SubsystemBase {
     public Command runScoringState() {
         return Commands.run(
             () -> {
+                if (!currentAction.trigger.getAsBoolean()) {
+                    setCurrentAction(ScoringSuperstructureAction.IDLE);
+                }
+
+                OptionalDouble optTargetElevator = currentState.getTargetElevatorExtensionFraction(currentAction);
+                OptionalDouble optTargetWrist = currentState.getTargetWristRotationFraction(currentAction);
+                double intakeSpeed = currentState.getIntakeSpeed(currentAction);
+
+                double targetElevator = optTargetElevator.orElse(elevator.getCurrentExtensionFraction());
+                double targetWrist = optTargetWrist.orElse(endEffector.getCurrentRotationFraction());
+
+                elevator.setTargetExtensionProportion(targetElevator);
+                endEffector.setTargetRotationFraction(targetWrist);
+                endEffector.setIntakeSpeed(intakeSpeed);
+
+                SmartDashboard.putString("Scoring superstructure state info", currentState + ": tgt ele = " + targetElevator + "; tgt wst = " + targetWrist + "; itk spd = " + intakeSpeed);
+                SmartDashboard.putString("Scoring superstructure info", "curr ele = " + elevator.getCurrentExtensionFraction() + "; curr wst = " + endEffector.getCurrentRotationFraction());
+
                 switch (currentState) {
                     case TRANSITION_BEFORE_ELEVATOR -> {
                         if (endEffector.isWristAtTarget()) {
@@ -118,19 +136,11 @@ public class ScoringSuperstructure extends SubsystemBase {
                         boolean isActionComplete = currentAction.shouldStopIntakeOnGamePieceSeen && endEffector.hasCoral()
                             || currentAction.shouldStopIntakeOnGamePieceNotSeen && !endEffector.hasCoral();
                         if (isActionComplete) {
-                            currentAction = currentAction.nextAction;
+                            setCurrentAction(currentAction.nextAction);
                         }
                     }
-                    case DONE -> {
-                        currentAction = currentAction.nextAction;
-                    }
+                    case DONE -> setCurrentAction(currentAction.nextAction);
                 }
-
-                OptionalDouble targetElevator = currentState.getTargetElevatorExtensionFraction(currentAction);
-                OptionalDouble targetWrist = currentState.getTargetWristRotationFraction(currentAction);
-
-                elevator.setTargetExtensionProportion(targetElevator.orElse(elevator.getCurrentExtensionFraction()));
-                endEffector.setTargetRotationFraction(targetWrist.orElse(endEffector.getCurrentRotationFraction()));
             },
             this
         );
@@ -159,7 +169,7 @@ public class ScoringSuperstructure extends SubsystemBase {
      * {@link ScoringSuperstructure#isAtPosition()} returns true.
      */
     public boolean isStateFinished() {
-        return elevator.isAtTarget() && endEffector.isHopperStateFinished();
+        return elevator.isAtTarget() && endEffector.isWristAtTarget();
     }
 
     public Trigger isStateFinished = new Trigger(this::isStateFinished);
@@ -170,16 +180,13 @@ public class ScoringSuperstructure extends SubsystemBase {
      */
     @Override
     public void periodic() {
-        if (isStateFinished()) {
-            setState(currentAction.nextAction);
-        }
         // In teleop, stop the current state if the control is no longer active
-        else if (RobotState.isTeleop() && !currentAction.trigger.getAsBoolean()) {
-            setState(ScoringSuperstructureAction.IDLE);
+        if (RobotState.isTeleop() && !currentAction.trigger.getAsBoolean()) {
+            setCurrentAction(ScoringSuperstructureAction.IDLE);
         }
         // Sets scoring mechanisms to IDLE in case robot acceleration is high.
         if (SubsystemManager.getInstance().getDrivetrain().getAccelerationInGs() >= .4) {
-            setState(ScoringSuperstructureAction.IDLE);
+            setCurrentAction(ScoringSuperstructureAction.IDLE);
         }
 
         SmartDashboard.putBoolean("isManualControlEnabled", isManualControlEnabled);

@@ -8,7 +8,6 @@ import com.revrobotics.spark.SparkLowLevel;
 import com.revrobotics.spark.config.SoftLimitConfig;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkFlexConfig;
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -125,15 +124,6 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
     }
 
     @Override
-    public boolean isWristAtTarget() {
-        return MathUtil.isNear(
-            getTargetPosition(),
-            getCurrentPosition(),
-            EndEffectorConstants.WRIST_TOLERANCE
-        );
-    }
-
-    @Override
     public void periodic() {
         double currentWristPosition = getCurrentPosition();
 
@@ -145,11 +135,19 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
             double targetWristProportion = OI.getInstance().operatorController().rightStickY() * 0.5 + 0.5;
             targetWristPosition = EndEffectorConstants.ProportionToPosition.convert(targetWristProportion);
             intakeSpeed = Controls.Operator.ManualControlIntake.getAsDouble() * 0.7;
+
+            wristMotor.setVoltage(OI.getInstance().operatorController().rightStickY() * 6);
+            SmartDashboard.putString("Wrist low level info: ",
+                "pos = " + getCurrentPosition() + "; frac = " + getCurrentRotationFraction()
+            );
+            return;
         }
 
-        wristMotor.set(wristPID.calculate(currentWristPosition, targetWristPosition));
+        wristMotor.setVoltage(wristPID.calculate(currentWristPosition, targetWristPosition));
         intakeMotor.set(intakeSpeed);
 
-        SmartDashboard.putNumber("Wrist Position", currentWristPosition);
+        SmartDashboard.putString("Wrist low level info: ",
+            "p = " + currentWristPosition + " t = " + targetWristPosition
+        );
     }
 }
