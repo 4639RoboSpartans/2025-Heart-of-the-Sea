@@ -125,7 +125,7 @@ public final class ScoringConstants {
         public static final Rotation2d DOWN_ROTATION = Rotation2d.fromDegrees(30);
 
         public static final double DOWN_POSITION = 0;
-        public static final double UP_POSITION = 1;
+        public static final double UP_POSITION = 10.;
 
         public static final UnitConvertor<Double, Double> ProportionToPosition = UnitConvertor.linearConvertingRange(
             0, 1, DOWN_POSITION, UP_POSITION
@@ -137,6 +137,12 @@ public final class ScoringConstants {
             ProportionToPosition.inverted(),
             ProportionToRotation
         );
+
+        public static final double Pivot_Speed = .2;
+
+        public static final double PivotForwardSoftLimit = 30;
+        public static final double PivotReverseSoftLimit = 30;
+        public static final int PivotCurrentLimit = 30;
     }
 
     public static class IDs {
@@ -150,6 +156,8 @@ public final class ScoringConstants {
         public static final int WristMotorID = 24;
 
         public static final int WristEncoderID = 25;
+
+        public static final int FunnelPivotMotorID = 27;
 
         public static final int LaserCANID = 26;
     }
