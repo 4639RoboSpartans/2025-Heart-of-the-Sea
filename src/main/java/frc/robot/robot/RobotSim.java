@@ -27,57 +27,57 @@ public class RobotSim extends SubsystemBase {
     public static final Distance hopperLength = Inches.of(14);
 
     public static final Translation2d origin =
-            new Translation2d(Units.inchesToMeters(width / 2 + 6.25), 0.0);
+        new Translation2d(Units.inchesToMeters(width / 2 + 6.25), 0.0);
 
     public static final Mechanism2d mechanismView =
-            new Mechanism2d(Units.inchesToMeters(width), Units.inchesToMeters(height));
+        new Mechanism2d(Units.inchesToMeters(width), Units.inchesToMeters(height));
 
     public static final MechanismRoot2d elevatorRoot =
-            mechanismView.getRoot("Current Elevator Root", origin.getX(), origin.getY());
+        mechanismView.getRoot("Current Elevator Root", origin.getX(), origin.getY());
 
     public static final MechanismLigament2d currentElevatorLigament =
-            elevatorRoot.append(
-                    new MechanismLigament2d(
-                            "Current Elevator Ligament",
-                            SubsystemManager.getInstance().getScoringSuperstructure().getCurrentElevatorLength().in(Meters),
-                            90,
-                            4,
-                            new Color8Bit(currentColor.getRed(), currentColor.getGreen(), currentColor.getBlue())
-                    )
-            );
+        elevatorRoot.append(
+            new MechanismLigament2d(
+                "Current Elevator Ligament",
+                SubsystemManager.getInstance().getScoringSuperstructure().getCurrentElevatorLength().in(Meters),
+                90,
+                4,
+                new Color8Bit(currentColor.getRed(), currentColor.getGreen(), currentColor.getBlue())
+            )
+        );
 
     public static final MechanismLigament2d currentHopperLigament =
-            currentElevatorLigament.append(
-                    new MechanismLigament2d(
-                            "Current Hopper Ligament",
-                            hopperLength.in(Meters),
-                            0,
-                            4,
-                            new Color8Bit(currentColor.getRed(), currentColor.getGreen(), currentColor.getBlue())
-                    )
-            );
+        currentElevatorLigament.append(
+            new MechanismLigament2d(
+                "Current Hopper Ligament",
+                hopperLength.in(Meters),
+                0,
+                4,
+                new Color8Bit(currentColor.getRed(), currentColor.getGreen(), currentColor.getBlue())
+            )
+        );
 
     public static final MechanismLigament2d targetElevatorLigament =
-            elevatorRoot.append(
-                    new MechanismLigament2d(
-                            "Target Elevator Ligament",
-                            SubsystemManager.getInstance().getScoringSuperstructure().getTargetElevatorLength().in(Meters),
-                            90,
-                            2,
-                            new Color8Bit(targetColor.getRed(), targetColor.getGreen(), targetColor.getBlue())
-                    )
-            );
+        elevatorRoot.append(
+            new MechanismLigament2d(
+                "Target Elevator Ligament",
+                SubsystemManager.getInstance().getScoringSuperstructure().getTargetElevatorLength().in(Meters),
+                90,
+                2,
+                new Color8Bit(targetColor.getRed(), targetColor.getGreen(), targetColor.getBlue())
+            )
+        );
 
     public static final MechanismLigament2d targetHopperLigament =
-            targetElevatorLigament.append(
-                    new MechanismLigament2d(
-                            "Target Hopper Ligament",
-                            hopperLength.in(Meters),
-                            0,
-                            2,
-                            new Color8Bit(targetColor.getRed(), targetColor.getGreen(), targetColor.getBlue())
-                    )
-            );
+        targetElevatorLigament.append(
+            new MechanismLigament2d(
+                "Target Hopper Ligament",
+                hopperLength.in(Meters),
+                0,
+                2,
+                new Color8Bit(targetColor.getRed(), targetColor.getGreen(), targetColor.getBlue())
+            )
+        );
 
 
     public RobotSim() {
@@ -87,18 +87,19 @@ public class RobotSim extends SubsystemBase {
 
     @Override
     public void periodic() {
+        ScoringSuperstructure scoringSuperstructure = SubsystemManager.getInstance().getScoringSuperstructure();
         currentElevatorLigament.setLength(
-                ScoringSuperstructure.getInstance().getCurrentElevatorLength().in(Meters)
+            scoringSuperstructure.getCurrentElevatorLength().in(Meters)
         );
         currentHopperLigament.setAngle(
-                ScoringSuperstructure.getInstance().getCurrentWristRotation()
+            scoringSuperstructure.getCurrentWristRotation()
         );
 
         targetElevatorLigament.setLength(
-                ScoringSuperstructure.getInstance().getTargetElevatorLength().in(Meters)
+            scoringSuperstructure.getTargetElevatorLength().in(Meters)
         );
         targetHopperLigament.setAngle(
-                ScoringSuperstructure.getInstance().getTargetWristRotation()
+            scoringSuperstructure.getTargetWristRotation()
         );
         SmartDashboard.putData("Mechanism View", RobotSim.mechanismView);
     }

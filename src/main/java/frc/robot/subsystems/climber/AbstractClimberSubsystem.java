@@ -16,7 +16,8 @@ public abstract class AbstractClimberSubsystem extends SubsystemBase {
      * {@link SubsystemManager#getClimberSubsystem()} instead.
      */
     @ForSubsystemManagerUseOnly
-    public static AbstractClimberSubsystem getInstance() {
+    public static AbstractClimberSubsystem getInstance(SubsystemManager.GetInstanceAccess access) {
+        Objects.requireNonNull(access);
         return instance = Objects.requireNonNullElseGet(instance, ConcreteClimberSubsystem::new);
     }
 

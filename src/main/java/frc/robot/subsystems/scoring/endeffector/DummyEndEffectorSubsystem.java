@@ -1,7 +1,7 @@
 package frc.robot.subsystems.scoring.endeffector;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import frc.robot.subsystems.scoring.ScoringSuperstructureState;
+import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
 
 public class DummyEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
     @Override
@@ -15,7 +15,7 @@ public class DummyEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
     }
 
     @Override
-    public boolean isAtTarget() {
+    public boolean isWristAtTarget() {
         return true;
     }
 
@@ -30,7 +30,7 @@ public class DummyEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
     }
 
     @Override
-    public void setHopper(ScoringSuperstructureState state) {
+    public void setHopper(ScoringSuperstructureAction state) {
         this.state = state;
     }
 

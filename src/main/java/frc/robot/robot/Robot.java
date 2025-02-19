@@ -7,21 +7,11 @@ package frc.robot.robot;
 
 import com.ctre.phoenix6.SignalLogger;
 
-import edu.wpi.first.epilogue.logging.EpilogueBackend;
-import edu.wpi.first.epilogue.logging.NTEpilogueBackend;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.StructArrayPublisher;
-import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.SubsystemManager;
-import frc.robot.subsystems.scoring.ScoringSuperstructure;
-import frc.robot.subsystems.scoring.ScoringSuperstructureState;
+import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
 import org.littletonrobotics.junction.LoggedRobot;
-import org.littletonrobotics.junction.Logger;
 
 
 public class Robot extends LoggedRobot {
@@ -49,7 +39,7 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void disabledInit() {
-        SubsystemManager.getInstance().getScoringSuperstructure().setScoringState(ScoringSuperstructureState.IDLE);
+        SubsystemManager.getInstance().getScoringSuperstructure().setScoringState(ScoringSuperstructureAction.IDLE);
     }
 
 

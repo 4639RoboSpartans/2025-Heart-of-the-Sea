@@ -2,10 +2,8 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.lib.oi.OI;
 import frc.robot.subsystems.SubsystemManager;
-import frc.robot.subsystems.scoring.ScoringSuperstructure;
-import frc.robot.subsystems.scoring.ScoringSuperstructureState;
+import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
 
 public class MiscellaneousCommands {
 
@@ -14,9 +12,9 @@ public class MiscellaneousCommands {
      */
     public static Command ElevatorUpDownTest(){
         Command c = Commands.repeatingSequence(
-                SubsystemManager.getInstance().getScoringSuperstructure().setScoringState(ScoringSuperstructureState.BARGE_SCORING),
+                SubsystemManager.getInstance().getScoringSuperstructure().setScoringState(ScoringSuperstructureAction.SCORE_BARGE),
                 SubsystemManager.getInstance().getScoringSuperstructure().runScoringState().until(SubsystemManager.getInstance().getScoringSuperstructure().isAtPosition),
-                SubsystemManager.getInstance().getScoringSuperstructure().setScoringState(ScoringSuperstructureState.IDLE),
+                SubsystemManager.getInstance().getScoringSuperstructure().setScoringState(ScoringSuperstructureAction.IDLE),
                 SubsystemManager.getInstance().getScoringSuperstructure().runScoringState().until(SubsystemManager.getInstance().getScoringSuperstructure().isAtPosition)
         )
             // .onlyWhile(() -> OI.getInstance().driverController().A_BUTTON.getAsBoolean())

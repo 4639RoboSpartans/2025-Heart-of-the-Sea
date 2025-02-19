@@ -1,6 +1,5 @@
 package frc.robot.subsystems.scoring.elevator;
 
-import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
@@ -11,11 +10,9 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.constants.Controls;
-import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 
 import static frc.robot.subsystems.scoring.constants.ScoringConstants.ElevatorConstants;
 import static frc.robot.subsystems.scoring.constants.ScoringConstants.IDs;
@@ -23,25 +20,20 @@ import static frc.robot.subsystems.scoring.constants.ScoringPIDs.*;
 
 public class ConcreteElevatorSubsystem extends AbstractElevatorSubsystem {
     private final TalonFX elevatorMotor;
-    private final MotionMagicVoltage controlRequest;
-
-    private boolean isStateFinished = false;
 
     @SuppressWarnings("resource")
     public ConcreteElevatorSubsystem() {
+        // Instantiate motors
         TalonFX leftElevatorMotor = new TalonFX(IDs.ElevatorLeftID, IDs.ElevatorCANBusName);
         TalonFX rightElevatorMotor = new TalonFX(IDs.ElevatorRightID, IDs.ElevatorCANBusName);
-        leftElevatorMotor.setNeutralMode(NeutralModeValue.Brake);
-        rightElevatorMotor.setNeutralMode(NeutralModeValue.Brake);
-        var leftConfigurator = leftElevatorMotor.getConfigurator();
-        var rightConfigurator = rightElevatorMotor.getConfigurator();
+
+        // Set up motor configuration
         TalonFXConfiguration configuration = new TalonFXConfiguration()
             .withMotionMagic(
                 new MotionMagicConfigs()
                     .withMotionMagicAcceleration(elevatorAcceleration.get())
                     .withMotionMagicCruiseVelocity(elevatorVelocity.get())
-            )
-            .withSlot0(
+            ).withSlot0(
                 new Slot0Configs()
                     .withKP(elevatorKp.get())
                     .withKI(elevatorKi.get())
@@ -51,94 +43,62 @@ public class ConcreteElevatorSubsystem extends AbstractElevatorSubsystem {
                     .withKV(elevatorKv.get())
                     .withKG(elevatorKg.get())
                     .withGravityType(GravityTypeValue.Elevator_Static)
-            )
-            .withCurrentLimits(
+            ).withCurrentLimits(
                 new CurrentLimitsConfigs()
                     .withStatorCurrentLimit(
                         30
                     )
             );
 
-        leftConfigurator.apply(configuration);
-        rightConfigurator.apply(configuration);
+        // Apply configuration
+        leftElevatorMotor.getConfigurator().apply(configuration);
+        rightElevatorMotor.getConfigurator().apply(configuration);
+
+        // Set neutral mode to brake
         leftElevatorMotor.setNeutralMode(NeutralModeValue.Brake);
         rightElevatorMotor.setNeutralMode(NeutralModeValue.Brake);
-        leftElevatorMotor.setControl(new Follower(IDs.ElevatorRightID, true));
 
-        elevatorMotor = rightElevatorMotor;
+        // Set left motor to follow right motor and use right elevator motor as master motor
+        leftElevatorMotor.setControl(new Follower((elevatorMotor = rightElevatorMotor).getDeviceID(), true));
 
-        controlRequest = new MotionMagicVoltage(leftElevatorMotor.getPosition().getValueAsDouble());
+        setTargetExtensionProportion(getCurrentExtensionFraction());
     }
 
     @Override
-    public double getCurrentProportion() {
+    public double getCurrentExtensionFraction() {
         return ElevatorConstants.ProportionToPosition.convertBackwards(
             elevatorMotor.getPosition(true).getValueAsDouble()
         );
     }
 
     @Override
-    public boolean isElevatorStateFinished() {
-        return isStateFinished;
-    }
-
-    @Override
-    public boolean isAtTarget() {
-        return MathUtil.isNear(
-            controlRequest.Position,
-            getCurrentPosition(),
-            ElevatorConstants.ELEVATOR_TOLERANCE
-        );
-    }
-
-    @Override
-    public void updateElevatorState(ScoringSuperstructureState state) {
-        this.state = state;
-        isStateFinished = false;
-        controlRequest.Position = getTargetPosition();
-    }
-
-    @Override
-    public void runElevator() {
-        if (!isManualControlEnabled) {
-            elevatorMotor.setControl(controlRequest);
-        }
-        SmartDashboard.putNumber("output", elevatorMotor.getMotorVoltage().getValueAsDouble());
-    }
-
-
-    @Override
     public void periodic() {
         if (isManualControlEnabled) {
             double outputVoltage = Controls.Operator.ManualControlElevator.getAsDouble() * 4;
+
+            // If we are moving downwards, go slower for safety
             if (outputVoltage < 0) outputVoltage /= 2.;
 
             // Prevent movement if we are too high or low
-            // double ELEVATOR_MANUAL_ENDPOINT_LIMIT = -0.05;
-            // if (outputVoltage > 0 && getCurrentProportion() > 1 - ELEVATOR_MANUAL_ENDPOINT_LIMIT) {
-            //     outputVoltage = 0;
-            // }
-            // if (outputVoltage < 0 && getCurrentProportion() < ELEVATOR_MANUAL_ENDPOINT_LIMIT) {
-            //     outputVoltage = 0;
-            // }
+            double ELEVATOR_MANUAL_ENDPOINT_LIMIT = -0.05;
+            if (outputVoltage > 0 && getCurrentExtensionFraction() > 1 - ELEVATOR_MANUAL_ENDPOINT_LIMIT) {
+                outputVoltage = 0;
+            }
+            if (outputVoltage < 0 && getCurrentExtensionFraction() < ELEVATOR_MANUAL_ENDPOINT_LIMIT) {
+                outputVoltage = 0;
+            }
 
-           outputVoltage += elevatorKg.get() * 1.2;
+            // Add the kG term times a fudge factor to keep the elevator stationary when no input is given
+            outputVoltage += elevatorKg.get() * 1.2;
 
-            elevatorMotor.setControl(new VoltageOut(
-                outputVoltage
-            ));
+            elevatorMotor.setControl(new VoltageOut(outputVoltage));
+        } else {
+            elevatorMotor.setControl(new MotionMagicVoltage(getTargetPosition()));
         }
 
-        if (isAtTarget()) {
-            isStateFinished = true;
-        }
         SmartDashboard.putNumber("Elevator Proportion", ElevatorConstants.ProportionToPosition.convertBackwards(getCurrentPosition()));
         SmartDashboard.putNumber("Elevator Position", getCurrentPosition());
-        SmartDashboard.putBoolean("Elevator is at Target", isAtTarget());
-        SignalLogger.writeDouble("Elevator Position", elevatorMotor.getPosition().getValueAsDouble());
-        SignalLogger.writeDouble("Elevator Velocity", elevatorMotor.getVelocity().getValueAsDouble());
-        SignalLogger.writeDouble("Elevator Acceleration", elevatorMotor.getAcceleration().getValueAsDouble());
-        SignalLogger.writeDouble("Elevator Voltage", elevatorMotor.getMotorVoltage().getValueAsDouble());
+        SmartDashboard.putBoolean("Elevator at Target", isAtTarget());
     }
 
     @Override

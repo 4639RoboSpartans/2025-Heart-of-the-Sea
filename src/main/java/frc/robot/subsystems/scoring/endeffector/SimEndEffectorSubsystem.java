@@ -8,9 +8,10 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.subsystems.SubsystemManager;
 import frc.lib.oi.OI;
-import frc.robot.subsystems.scoring.ScoringSuperstructureState;
+import frc.lib.tunable.TunableNumber;
+import frc.robot.subsystems.SubsystemManager;
+import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
 import frc.robot.subsystems.scoring.constants.ScoringPIDs;
 
@@ -28,15 +29,17 @@ public class SimEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
 
     public SimEndEffectorSubsystem() {
         intakeSpeed = 0;
-        pivotPID = new ProfiledPIDController(
-            ScoringPIDs.wristKp.get(),
-            ScoringPIDs.wristKi.get(),
-            ScoringPIDs.wristKd.get(),
-            new TrapezoidProfile.Constraints(
-                ScoringPIDs.wristVelocity.get(),
-                ScoringPIDs.wristAcceleration.get()
-            )
+
+        pivotPID = new ProfiledPIDController(0, 0, 0, null);
+        ScoringPIDs.wristKp.onChange(pivotPID::setP);
+        ScoringPIDs.wristKi.onChange(pivotPID::setI);
+        ScoringPIDs.wristKd.onChange(pivotPID::setD);
+        TunableNumber.onAnyChange(
+            (values) -> pivotPID.setConstraints(new TrapezoidProfile.Constraints(values[0], values[1])),
+            ScoringPIDs.wristVelocity,
+            ScoringPIDs.wristAcceleration
         );
+
         pivotSim = new SingleJointedArmSim(
             LinearSystemId.createSingleJointedArmSystem(
                 DCMotor.getNEO(1),
@@ -64,17 +67,17 @@ public class SimEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
     }
 
     @Override
-    public boolean isAtTarget() {
+    public boolean isWristAtTarget() {
         return MathUtil.isNear(
-            ScoringSuperstructureState.getWristSimPosition(getTargetRotation()),
-            ScoringSuperstructureState.getWristSimPosition(getCurrentRotation()),
+            ScoringSuperstructureAction.getWristSimPosition(getTargetRotation()),
+            ScoringSuperstructureAction.getWristSimPosition(getCurrentRotation()),
             ScoringConstants.EndEffectorConstants.WRIST_TOLERANCE
         ) && pivotPID.getVelocityError() < 0.01;
     }
 
     @Override
     public boolean isHopperStateFinished() {
-        if (state == ScoringSuperstructureState.IDLE) return isAtTarget();
+        if (state == ScoringSuperstructureAction.IDLE) return isWristAtTarget();
         return isStateFinished;
     }
 
@@ -84,17 +87,12 @@ public class SimEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
     }
 
     @Override
-    public void setHopper(ScoringSuperstructureState state) {
+    public void setHopper(ScoringSuperstructureAction state) {
         this.state = state;
         intakeSpeed = 0;
         isStateFinished = false;
         secondsFromIntakeOuttakeStart = 0;
         pivotPID.setGoal(state.getWristAbsolutePosition());
-    }
-
-    @Override
-    public void periodic() {
-        updatePIDs();
     }
 
     @Override
@@ -132,30 +130,16 @@ public class SimEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
             intakeSpeed = state.intakeSpeed;
             secondsFromIntakeOuttakeStart += 0.020;
         }
-        if (state.intakeUntilGamePieceSeen) {
+        if (state.shouldStopIntakeOnGamePieceSeen) {
             if (hasCoral()) {
                 intakeSpeed = 0;
                 isStateFinished = true;
             }
-        } else if (state.outtakeUntilGamePieceNotSeen) {
+        } else if (state.shouldStopIntakeOnGamePieceNotSeen) {
             if (hasCoral()) {
                 intakeSpeed = 0;
                 isStateFinished = true;
             }
         }
-    }
-
-    private void updatePIDs() {
-        pivotPID.setPID(
-            ScoringPIDs.wristKp.get(),
-            ScoringPIDs.wristKi.get(),
-            ScoringPIDs.wristKd.get()
-        );
-        pivotPID.setConstraints(
-            new TrapezoidProfile.Constraints(
-                ScoringPIDs.wristVelocity.get(),
-                ScoringPIDs.wristAcceleration.get()
-            )
-        );
     }
 }

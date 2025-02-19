@@ -20,6 +20,7 @@ public final class ScoringConstants {
         // The initial height of the elevator
         public static final Distance STARTING_HEIGHT = Inches.of(12);
 
+        // TODO: UP_POSITION can probably be higher. Please measure actual max height
         public static double UP_POSITION = 63.77;
         public static double DOWN_POSITION = 1.2;
 
@@ -38,7 +39,7 @@ public final class ScoringConstants {
             ProportionToHeight
         );
 
-        public static final class Proportions {
+        public static final class ElevatorSetpoints {
             //Elevator proportions
             public static final double IDLE_Proportion = 0.0;
             public static final double HP_Proportion = 0.1;
@@ -97,8 +98,7 @@ public final class ScoringConstants {
         public static final double Intake_Barge_Speed = 1.0;
         public static final double Intake_Transition_Speed = 0.0;
 
-        public static final class Proportions {
-
+        public static final class WristSetpoints {
             //Wrist Proportions
             public static final double Wrist_IDLE_Proportion = 0.0;
             public static final double Wrist_HP_Proportion = 0.0;
@@ -123,14 +123,13 @@ public final class ScoringConstants {
     public static class IDs {
         public static final int ElevatorLeftID = 21;
         public static final int ElevatorRightID = 22;
-
         public static final String ElevatorCANBusName = "MainCANivore";
-        public static final String WristCANBusName = "MainCANivore";
 
         public static final int IntakeMotorID = 23;
-        public static final int WristMotorID = 24;
 
         public static final int WristEncoderID = 25;
+        public static final int WristMotorID = 24;
+        public static final String WristCANBusName = "MainCANivore";
 
         public static final int LaserCANID = 26;
     }

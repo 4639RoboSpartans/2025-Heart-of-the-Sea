@@ -9,7 +9,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.robot.Robot;
 import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.scoring.elevator.AbstractElevatorSubsystem;
-import frc.robot.subsystems.scoring.elevator.DummyElevatorSubsystem;
 
 import java.util.Objects;
 
@@ -105,7 +104,7 @@ public abstract class AbstractSwerveDrivetrain extends SubsystemBase {
      * @return multiplier as double
      */
     public double getSwerveSpeedMultiplier() {
-        return 1 - Math.pow(AbstractElevatorSubsystem.getInstance().getCurrentProportion(), 2) * (1.0 - 0.2);
+        return 1 - Math.pow(AbstractElevatorSubsystem.getInstance().getCurrentExtensionFraction(), 2) * (1.0 - 0.2);
     }
 
     public abstract void resetPose(Pose2d pose);

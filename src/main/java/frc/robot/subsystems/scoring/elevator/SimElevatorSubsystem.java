@@ -1,6 +1,5 @@
 package frc.robot.subsystems.scoring.elevator;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -10,13 +9,11 @@ import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.constants.Controls;
-import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 import frc.robot.subsystems.scoring.constants.ScoringPIDs;
 
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Volts;
-import static frc.robot.subsystems.scoring.constants.ScoringConstants.ElevatorConstants.ELEVATOR_TOLERANCE;
-import static frc.robot.subsystems.scoring.constants.ScoringConstants.ElevatorConstants.ProportionToHeight;
+import static frc.robot.subsystems.scoring.constants.ScoringConstants.ElevatorConstants.*;
 import static frc.robot.subsystems.scoring.constants.ScoringPIDs.elevatorKg;
 
 public class SimElevatorSubsystem extends AbstractElevatorSubsystem {
@@ -48,38 +45,18 @@ public class SimElevatorSubsystem extends AbstractElevatorSubsystem {
                 10
             ),
             DCMotor.getKrakenX60(2),
-            ScoringSuperstructureState.IDLE.getElevatorHeight().in(Meters),
-            ScoringSuperstructureState.BARGE_SCORING.getElevatorHeight().in(Meters),
+            STARTING_HEIGHT.in(Meters),
+            MAX_EXTENSION.in(Meters),
             true,
-            ScoringSuperstructureState.IDLE.getElevatorHeight().in(Meters)
+            STARTING_HEIGHT.in(Meters)
         );
     }
 
     @Override
-    public double getCurrentProportion() {
+    public double getCurrentExtensionFraction() {
         return ProportionToHeight.inverted().convert(Meters.of(
             elevatorSim.getPositionMeters()
         ));
-    }
-
-    @Override
-    public boolean isElevatorStateFinished() {
-        return isAtTarget();
-    }
-
-    @Override
-    public boolean isAtTarget() {
-        return MathUtil.isNear(
-            getCurrentPosition(),
-            getTargetPosition(),
-            ELEVATOR_TOLERANCE
-        );
-    }
-
-    @Override
-    public void updateElevatorState(ScoringSuperstructureState state) {
-        this.state = state;
-        elevatorPID.setGoal(state.getElevatorAbsolutePosition());
     }
 
     @Override
@@ -88,39 +65,17 @@ public class SimElevatorSubsystem extends AbstractElevatorSubsystem {
             double outputVoltage = Controls.Operator.ManualControlElevator.getAsDouble() * 0.3;
             if (outputVoltage < 0) outputVoltage /= 2.;
             elevatorSim.setInputVoltage(outputVoltage * 12 + elevatorKg.get() * 3.8);
+        } else {
+            elevatorPID.setGoal(getTargetPosition());
+            double output = elevatorPID.calculate(getCurrentPosition())
+                + elevatorFeedforward.calculate(elevatorPID.getSetpoint().velocity);
+
+            elevatorSim.setInputVoltage(output);
         }
         SmartDashboard.putBoolean("Is manual", isManualControlEnabled);
 
-        updatePIDs();
         elevatorSim.update(0.020);
         elevatorSim.setState(elevatorSim.getPositionMeters(), elevatorSim.getVelocityMetersPerSecond());
-    }
-
-    @Override
-    public void runElevator() {
-        elevatorPID.setGoal(state.getElevatorAbsolutePosition());
-        double output = elevatorPID.calculate(getCurrentPosition())
-            + elevatorFeedforward.calculate(elevatorPID.getSetpoint().velocity);
-
-        if (!isManualControlEnabled) {
-            elevatorSim.setInputVoltage(output);
-        }
-        SmartDashboard.putNumber("Elevator PID output", output);
-        SmartDashboard.putNumber("Elevator Sim Position", getCurrentPosition());
-    }
-
-    private void updatePIDs() {
-        elevatorPID.setPID(
-            ScoringPIDs.simElevatorKp.get(),
-            ScoringPIDs.simElevatorKi.get(),
-            ScoringPIDs.simElevatorKd.get()
-        );
-        elevatorPID.setConstraints(
-            new TrapezoidProfile.Constraints(
-                ScoringPIDs.simElevatorVelocity.get(),
-                ScoringPIDs.simElevatorAcceleration.get()
-            )
-        );
     }
 
     @Override
