@@ -71,8 +71,6 @@ public class RobotContainer {
         swerve.setDefaultCommand(swerve.manualControl());
         scoringSuperstructure.setDefaultCommand(scoringSuperstructure.runScoringState());
 
-        //TODO: make a button for the elevator test
-
         //Scoring Controls
         {
             Controls.Driver.rotationResetTrigger.onTrue(
@@ -133,42 +131,21 @@ public class RobotContainer {
             );
         }
 
-        //Driving Controls
-        /*{
-            Controls.Driver.PathfindReef_0.whileTrue(
-                DriveCommands.pathfindToReefCommand(
-                    FieldConstants.TargetPositions.REEF_AB
-                )
-            );
-            Controls.Driver.PathfindReef_1.whileTrue(
-                DriveCommands.pathfindToReefCommand(
-                    FieldConstants.TargetPositions.REEF_KL
-                )
-            );
-            Controls.Driver.PathfindReef_2.whileTrue(
-                DriveCommands.pathfindToReefCommand(
-                    FieldConstants.TargetPositions.REEF_IJ
-                )
-            );
-            Controls.Driver.PathfindReef_3.whileTrue(
-                DriveCommands.pathfindToReefCommand(
-                    FieldConstants.TargetPositions.REEF_GH
-                )
-            );
-            Controls.Driver.PathfindReef_4.whileTrue(
-                DriveCommands.pathfindToReefCommand(
-                    FieldConstants.TargetPositions.REEF_EF
-                )
-            );
-            Controls.Driver.PathfindReef_5.whileTrue(
-                DriveCommands.pathfindToReefCommand(
-                    FieldConstants.TargetPositions.REEF_CD
-                )
-            );
-        }*/
+        FunctionalTrigger.of(Controls.Driver.reefAlign)
+                .and(Controls.Driver.targetLeft)
+                .whileTrue(() -> DriveCommands.moveToClosestReefPosition((byte) 0));
+        FunctionalTrigger.of(Controls.Driver.reefAlign)
+                .and(Controls.Driver.targetRight)
+                .whileTrue(() -> DriveCommands.moveToClosestReefPosition((byte) 1));
+        FunctionalTrigger.of(Controls.Driver.reefAlign)
+                .and(Controls.Driver.targetLeft.negate())
+                .and(Controls.Driver.targetRight.negate())
+                .whileTrue(() -> DriveCommands.moveToClosestReefPosition((byte) 2));
 
-        FunctionalTrigger.of(OI.getInstance().driverController().A_BUTTON).whileTrue(() -> DriveCommands.moveToClosestReefPosition(SubsystemManager.getInstance().getDrivetrain()::getPose));
-        FunctionalTrigger.of(OI.getInstance().driverController().B_BUTTON).whileTrue(() -> DriveCommands.moveToDesiredCoralStationPosition(SubsystemManager.getInstance().getDrivetrain()::getPose));
+        FunctionalTrigger.of(Controls.Driver.coralStationAlign)
+                .and(Controls.Driver.targetLeft).whileTrue(() -> DriveCommands.moveToDesiredCoralStationPosition(true));
+        FunctionalTrigger.of(Controls.Driver.coralStationAlign)
+                .and(Controls.Driver.targetRight).whileTrue(() -> DriveCommands.moveToDesiredCoralStationPosition(false));
 
         // OI.getInstance().operatorController().Y_BUTTON.whileTrue(
         //         ElevatorSysID.sysIdQuasistatic(SysIdRoutine.Direction.kForward)

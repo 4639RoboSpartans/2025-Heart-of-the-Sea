@@ -2,6 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
+
 package frc.lib;
 
 import static edu.wpi.first.util.ErrorMessages.requireNonNullParam;
@@ -11,18 +12,16 @@ import edu.wpi.first.wpilibj.event.EventLoop;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
-import java.util.HashMap;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 /**
  * This class adds the functionality of Suppliers to the wpilib {@link edu.wpi.first.wpilibj2.command.button.Trigger} logic.
- * When a Supplier is passed in to the FunctionalTrigger, the get() method is called right before the Command is scheduled.
+ * When a {@link Supplier} is passed in to the FunctionalTrigger, the {@link Supplier#get()} method is called right before the Command is scheduled.
+ * @author adity
  */
 public class FunctionalTrigger implements BooleanSupplier {
     /** Functional interface for the body of a trigger binding. */
-
-
     @FunctionalInterface
     private interface BindingBody {
         /**
