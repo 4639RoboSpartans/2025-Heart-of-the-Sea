@@ -15,8 +15,6 @@ import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.FunctionalTrigger;
 import frc.lib.led.LEDStrip;
 import frc.lib.led.PhysicalLEDStrip;
@@ -33,7 +31,6 @@ import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
 
 import java.util.Arrays;
-import java.util.function.BooleanSupplier;
 
 import static edu.wpi.first.units.Units.Meters;
 
@@ -170,7 +167,8 @@ public class RobotContainer {
             );
         }*/
 
-        FunctionalTrigger.of(OI.getInstance().driverController().A_BUTTON).whileTrue(() -> DriveCommands.pathFindToClosestReefCommand(SubsystemManager.getInstance().getDrivetrain()::getPose));
+        FunctionalTrigger.of(OI.getInstance().driverController().A_BUTTON).whileTrue(() -> DriveCommands.moveToClosestReefPosition(SubsystemManager.getInstance().getDrivetrain()::getPose));
+        FunctionalTrigger.of(OI.getInstance().driverController().B_BUTTON).whileTrue(() -> DriveCommands.moveToDesiredCoralStationPosition(SubsystemManager.getInstance().getDrivetrain()::getPose));
 
         // OI.getInstance().operatorController().Y_BUTTON.whileTrue(
         //         ElevatorSysID.sysIdQuasistatic(SysIdRoutine.Direction.kForward)
