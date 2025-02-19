@@ -113,7 +113,7 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
 
     @Override
     public Rotation2d getCurrentRotation() {
-        return EndEffectorConstants.PositionToRotation.convert(wristEncoder.get());
+        return EndEffectorConstants.PositionToRotation.convert(wristMotor.getEncoder().getPosition());
     }
 
     @Override
@@ -136,18 +136,20 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
             targetWristPosition = EndEffectorConstants.ProportionToPosition.convert(targetWristProportion);
             intakeSpeed = Controls.Operator.ManualControlIntake.getAsDouble() * 0.7;
 
-            wristMotor.setVoltage(OI.getInstance().operatorController().rightStickY() * 6);
-            SmartDashboard.putString("Wrist low level info: ",
-                "pos = " + getCurrentPosition() + "; frac = " + getCurrentRotationFraction()
-            );
-            return;
+//            wristMotor.setVoltage(OI.getInstance().operatorController().rightStickY() * 6);
+//            SmartDashboard.putString("Wrist info: ",
+//                "; pos = " + getCurrentPosition() + "; frac = " + getCurrentRotationFraction()
+//            );
+//            return;
         }
 
-        wristMotor.setVoltage(wristPID.calculate(currentWristPosition, targetWristPosition));
+        double voltage = wristPID.calculate(currentWristPosition, targetWristPosition);
+        wristMotor.setVoltage(voltage);
         intakeMotor.set(intakeSpeed);
 
         SmartDashboard.putString("Wrist low level info: ",
-            "p = " + currentWristPosition + " t = " + targetWristPosition
+            "p = " + currentWristPosition + " t = " + targetWristPosition + " v = " + voltage
+            + "get applied output = " + wristMotor.getAppliedOutput()
         );
     }
 }

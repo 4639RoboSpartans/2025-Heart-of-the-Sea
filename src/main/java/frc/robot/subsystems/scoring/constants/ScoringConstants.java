@@ -20,8 +20,8 @@ public final class ScoringConstants {
         // The initial height of the elevator
         public static final Distance STARTING_HEIGHT = Inches.of(12);
 
-        public static double UP_POSITION = 70;
-        public static double DOWN_POSITION = 1.2;
+        public static double UP_POSITION = 64;  // These
+        public static double DOWN_POSITION = 2; // are correct for sure
 
         public static final double ELEVATOR_TOLERANCE = 1;
 
@@ -46,7 +46,7 @@ public final class ScoringConstants {
             public static final double L1_Proportion = 0.15;
             public static final double L2_Proportion = ProportionToPosition.convertBackwards(29.5);
             public static final double L3_Proportion = ProportionToPosition.convertBackwards(40.9);
-            public static final double L4_Proportion = ProportionToPosition.convertBackwards(67.7);
+            public static final double L4_Proportion = ProportionToPosition.convertBackwards(57.7); // should be 67 but for testing, no
             public static final double L2_ALGAE_Proportion = ProportionToPosition.convertBackwards(30.5);
             public static final double L3_ALGAE_Proportion = ProportionToPosition.convertBackwards(41.3);
             public static final double Barge_Proportion = 1;
@@ -58,7 +58,7 @@ public final class ScoringConstants {
         public static final Rotation2d IDLE_ROTATION = Rotation2d.fromDegrees(30);
 
         public static final double IDLE_POSITION = 0;
-        public static final double EXTENDED_POSITION = 40.5;
+        public static final double EXTENDED_POSITION = -40.5;
 
         public static final UnitConvertor<Double, Double> ProportionToPosition = UnitConvertor.linearConvertingRange(
             0, 1, IDLE_POSITION, EXTENDED_POSITION

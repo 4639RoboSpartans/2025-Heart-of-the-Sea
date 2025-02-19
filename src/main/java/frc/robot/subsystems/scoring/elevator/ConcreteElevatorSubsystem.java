@@ -35,7 +35,7 @@ public class ConcreteElevatorSubsystem extends AbstractElevatorSubsystem {
                     .withMotionMagicCruiseVelocity(elevatorVelocity.get())
             ).withSlot0(
                 new Slot0Configs()
-                    .withKP(elevatorKp.get())
+                    .withKP(elevatorKp.get() / 2.)
                     .withKI(elevatorKi.get())
                     .withKD(elevatorKd.get())
                     .withKA(elevatorKa.get())

@@ -101,7 +101,7 @@ public class ScoringSuperstructure extends SubsystemBase {
                 OptionalDouble optTargetWrist = currentState.getTargetWristRotationFraction(currentAction);
                 double intakeSpeed = currentState.getIntakeSpeed(currentAction);
 
-                double targetElevator = optTargetElevator.orElse(elevator.getCurrentExtensionFraction());
+                double targetElevator = optTargetElevator.orElse(elevator.getTargetProportion());
                 double targetWrist = optTargetWrist.orElse(endEffector.getCurrentRotationFraction());
 
                 elevator.setTargetExtensionProportion(targetElevator);
