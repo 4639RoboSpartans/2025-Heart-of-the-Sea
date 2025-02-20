@@ -3,7 +3,6 @@ package frc.robot.subsystems.scoring;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -27,7 +26,7 @@ public final class ScoringSuperstructure extends SubsystemBase {
     public static ScoringSuperstructure getInstance(SubsystemManager.GetInstanceAccess access) {
         Objects.requireNonNull(access);
         return instance = Objects.requireNonNullElseGet(instance,
-            ScoringSuperstructure::new
+            () -> new ScoringSuperstructure(access)
         );
     }
 
@@ -39,9 +38,9 @@ public final class ScoringSuperstructure extends SubsystemBase {
 
     private boolean isManualControlEnabled = false;
 
-    public ScoringSuperstructure() {
-        this.elevator = AbstractElevatorSubsystem.getInstance();
-        this.endEffector = AbstractEndEffectorSubsystem.getInstance();
+    public ScoringSuperstructure(SubsystemManager.GetInstanceAccess access) {
+        this.elevator = AbstractElevatorSubsystem.getInstance(access);
+        this.endEffector = AbstractEndEffectorSubsystem.getInstance(access);
         SmartDashboard.putBoolean("isManualControlEnabled", isManualControlEnabled);
     }
 
@@ -228,5 +227,9 @@ public final class ScoringSuperstructure extends SubsystemBase {
 
     public AbstractElevatorSubsystem getElevatorSubsystem() {
         return elevator;
+    }
+
+    public ScoringSuperstructureAction getCurrentAction() {
+        return currentAction;
     }
 }

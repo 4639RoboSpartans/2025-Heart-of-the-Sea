@@ -5,6 +5,7 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.robot.Robot;
+import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
 
 import java.util.Objects;
@@ -14,7 +15,9 @@ import static frc.robot.subsystems.scoring.constants.ScoringConstants.ElevatorCo
 public abstract class AbstractElevatorSubsystem extends SubsystemBase {
     private static AbstractElevatorSubsystem instance;
 
-    public static AbstractElevatorSubsystem getInstance() {
+    public static AbstractElevatorSubsystem getInstance(SubsystemManager.GetInstanceAccess access) {
+        Objects.requireNonNull(access);
+
         boolean dummy = false;
         // dummy = true;
         if (dummy) return new DummyElevatorSubsystem();

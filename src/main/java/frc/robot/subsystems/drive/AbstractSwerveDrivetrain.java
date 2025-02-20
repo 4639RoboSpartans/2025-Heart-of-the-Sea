@@ -19,8 +19,8 @@ public abstract class AbstractSwerveDrivetrain extends SubsystemBase {
      * This method should only be accessed from the SubsystemManager class. In other places, use
      * {@link SubsystemManager#getDrivetrain()} instead.
      */
-    public static AbstractSwerveDrivetrain getInstance(SubsystemManager.GetInstanceAccess getInstanceAccess) {
-        Objects.requireNonNull(getInstanceAccess);
+    public static AbstractSwerveDrivetrain getInstance(SubsystemManager.GetInstanceAccess access) {
+        Objects.requireNonNull(access);
 
         boolean dummy = false;
         //dummy = true;
@@ -104,7 +104,7 @@ public abstract class AbstractSwerveDrivetrain extends SubsystemBase {
      * @return multiplier as double
      */
     public double getSwerveSpeedMultiplier() {
-        return 1 - Math.pow(AbstractElevatorSubsystem.getInstance().getCurrentExtensionFraction(), 2) * (1.0 - 0.2);
+        return 1 - Math.pow(SubsystemManager.getInstance().getScoringSuperstructure().getElevatorSubsystem().getCurrentExtensionFraction(), 2) * (1.0 - 0.2);
     }
 
     public abstract void resetPose(Pose2d pose);

@@ -18,7 +18,9 @@ import static frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffecto
 public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
     private static AbstractEndEffectorSubsystem instance;
 
-    public static AbstractEndEffectorSubsystem getInstance() {
+    public static AbstractEndEffectorSubsystem getInstance(SubsystemManager.GetInstanceAccess access) {
+        Objects.requireNonNull(access);
+
         boolean dummy = false;
         // dummy = true
         if (dummy) return new DummyEndEffectorSubsystem();
