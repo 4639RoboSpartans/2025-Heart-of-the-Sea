@@ -76,6 +76,7 @@ public class Controls {
     }
 
     public static class Operator {
+        //Setpoints +Operator Controls
         public static final Trigger L1Trigger = operatorController.LEFT_TRIGGER;
         public static final Trigger L2Trigger = operatorController.RIGHT_TRIGGER;
         public static final Trigger L3Trigger = operatorController.LEFT_BUMPER;
@@ -85,6 +86,7 @@ public class Controls {
 
         public static final Trigger HoldTrigger = operatorController.POV_UP;
 
+        //Manual Override Controls
         public static Trigger ToggleManualControlTrigger = operatorController.LEFT_STICK;
 
         public static final DoubleSupplier ManualControlWrist = () -> operatorController.rightStickY() * 0.5 + 0.5;

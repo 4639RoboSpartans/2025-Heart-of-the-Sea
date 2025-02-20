@@ -2,9 +2,7 @@ package frc.lib;
 
 import com.google.errorprone.annotations.Immutable;
 
-import edu.wpi.first.math.MathUtil;
-import frc.robot.subsystems.scoring.constants.ScoringConstants;
-
+import frc.lib.util.MathUtil;
 import java.util.Arrays;
 import java.util.function.UnaryOperator;
 

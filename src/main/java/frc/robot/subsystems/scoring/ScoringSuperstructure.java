@@ -221,4 +221,12 @@ public final class ScoringSuperstructure extends SubsystemBase {
     public boolean isManualControlEnabled() {
         return isManualControlEnabled;
     }
+
+    public AbstractEndEffectorSubsystem getEndEffectorSubsystem() {
+        return endEffector;
+    }
+
+    public AbstractElevatorSubsystem getElevatorSubsystem() {
+        return elevator;
+    }
 }

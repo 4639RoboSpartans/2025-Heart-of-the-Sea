@@ -1,6 +1,7 @@
 package frc.robot.subsystems.scoring.endeffector;
 
 import edu.wpi.first.math.MathUtil;
+import com.revrobotics.spark.config.SparkBaseConfig;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -127,4 +128,6 @@ public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
                 + " target fraction = " + targetWristRotationFraction
         );
     }
+
+    public abstract void setWristMotorIdleMode(SparkBaseConfig.IdleMode mode);
 }

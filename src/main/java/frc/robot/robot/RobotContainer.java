@@ -22,7 +22,6 @@ import frc.robot.constants.Controls;
 import frc.robot.constants.FieldConstants;
 import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
-import frc.robot.subsystems.drive.DriveCommands;
 import frc.robot.subsystems.drive.SwerveAutoRoutinesCreator;
 import frc.robot.subsystems.scoring.ScoringSuperstructure;
 import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
@@ -68,8 +67,6 @@ public class RobotContainer {
     private void configureBindings() {
         swerve.setDefaultCommand(swerve.manualControl());
         scoringSuperstructure.setDefaultCommand(scoringSuperstructure.runScoringState());
-
-        //TODO: make a button for the elevator test
 
         //Scoring Controls
         {
@@ -131,40 +128,6 @@ public class RobotContainer {
             );
         }
 
-        //Driving Controls
-        {
-            Controls.Driver.PathfindReef_0.whileTrue(
-                DriveCommands.pathfindToReefCommand(
-                    FieldConstants.TargetPositions.REEF_AB
-                )
-            );
-            Controls.Driver.PathfindReef_1.whileTrue(
-                DriveCommands.pathfindToReefCommand(
-                    FieldConstants.TargetPositions.REEF_KL
-                )
-            );
-            Controls.Driver.PathfindReef_2.whileTrue(
-                DriveCommands.pathfindToReefCommand(
-                    FieldConstants.TargetPositions.REEF_IJ
-                )
-            );
-            Controls.Driver.PathfindReef_3.whileTrue(
-                DriveCommands.pathfindToReefCommand(
-                    FieldConstants.TargetPositions.REEF_GH
-                )
-            );
-            Controls.Driver.PathfindReef_4.whileTrue(
-                DriveCommands.pathfindToReefCommand(
-                    FieldConstants.TargetPositions.REEF_EF
-                )
-            );
-            Controls.Driver.PathfindReef_5.whileTrue(
-                DriveCommands.pathfindToReefCommand(
-                    FieldConstants.TargetPositions.REEF_CD
-                )
-            );
-        }
-
         // OI.getInstance().operatorController().Y_BUTTON.whileTrue(
         //         ElevatorSysID.sysIdQuasistatic(SysIdRoutine.Direction.kForward)
         // );
@@ -179,7 +142,6 @@ public class RobotContainer {
         // );
 
         // OI.getInstance().driverController().A_BUTTON.onTrue(MiscellaneousCommands.ElevatorUpDownTest());
-
     }
 
     private void addAllCompAutons(SendableChooser<Command> autoChooser, AutoRoutines swerveAutoRoutines) {

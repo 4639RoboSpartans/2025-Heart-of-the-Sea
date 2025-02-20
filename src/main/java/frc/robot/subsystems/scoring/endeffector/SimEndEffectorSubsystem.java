@@ -1,5 +1,7 @@
 package frc.robot.subsystems.scoring.endeffector;
 
+import com.revrobotics.spark.config.SparkBaseConfig;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -61,5 +63,10 @@ public class SimEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
         double wristPIDOutput = -wristPID.calculate(currentWristPosition, targetWristPosition);
 
         pivotSim.setInputVoltage(wristPIDOutput);
+    }
+
+    @Override
+    public void setWristMotorIdleMode(SparkBaseConfig.IdleMode mode) {
+
     }
 }

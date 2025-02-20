@@ -2,6 +2,7 @@ package frc.lib.util;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.constants.FieldConstants;
 
@@ -10,18 +11,16 @@ public class PoseUtil {
         return translation.rotateBy(angle);
     }
 
-    public static Pose2d ReefRelativeLeftOf(Pose2d pose, Rotation2d angle) {
-        return new Pose2d(
-                pose.getTranslation().plus(new Translation2d(FieldConstants.reefForwardsDistance, FieldConstants.reefSidewaysDistance)),
-                pose.getRotation()
-        );
+    public static Pose2d ReefRelativeRightOf(Pose2d pose) {
+        return
+                pose.transformBy(new Transform2d(FieldConstants.reefForwardsDistance, -FieldConstants.reefSidewaysDistance, Rotation2d.kZero));
+        
     }
 
-    public static Pose2d ReefRelativeRightOf(Pose2d pose, Rotation2d angle) {
-        return new Pose2d(
-                pose.getTranslation().plus(new Translation2d(FieldConstants.reefForwardsDistance, -FieldConstants.reefSidewaysDistance)),
-                pose.getRotation()
-        );
+    public static Pose2d ReefRelativeLeftOf(Pose2d pose) {
+        return
+                pose.transformBy(new Transform2d(FieldConstants.reefForwardsDistance, FieldConstants.reefSidewaysDistance, Rotation2d.kZero));
+        
     }
 
     public static Rotation2d getReefAngle(FieldConstants.TargetPositions targetPosition) {
@@ -38,15 +37,22 @@ public class PoseUtil {
 
     public static Pose2d ReefRelativeLeftOf(FieldConstants.TargetPositions targetPosition) {
         return ReefRelativeLeftOf(
-                targetPosition.Pose,
-                getReefAngle(targetPosition)
+                targetPosition.Pose
         );
     }
 
     public static Pose2d ReefRelativeRightOf(FieldConstants.TargetPositions targetPosition) {
         return ReefRelativeRightOf(
-                targetPosition.Pose,
-                getReefAngle(targetPosition)
+                targetPosition.Pose
         );
+    }
+
+    public static double distanceBetween(Pose2d one, Pose2d other){
+        Transform2d transform = one.minus(other);
+        return Math.hypot(transform.getX(), transform.getY());
+    }
+
+    public static boolean withinTolerance(Pose2d one, Pose2d other, double tolerance){
+        return Math.abs(distanceBetween( one, other)) <= tolerance;
     }
 }

@@ -55,16 +55,7 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
             SparkBase.PersistMode.kPersistParameters
         );
         wristMotor.configure(
-            new SparkFlexConfig()
-                .apply(
-                    new SoftLimitConfig()
-                        .forwardSoftLimit(
-                            EndEffectorConstants.WristForwardSoftLimit
-                        )
-                        .reverseSoftLimit(
-                            EndEffectorConstants.WristReverseSoftLimit
-                        )
-                ).smartCurrentLimit(EndEffectorConstants.WristCurrentLimit),
+                getWristMotorConfig(),
             SparkBase.ResetMode.kResetSafeParameters,
             SparkBase.PersistMode.kPersistParameters
         );
@@ -113,6 +104,19 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
         );
     }
 
+    private static SparkBaseConfig getWristMotorConfig() {
+        return new SparkFlexConfig()
+                .apply(
+                        new SoftLimitConfig()
+                                .forwardSoftLimit(
+                                        EndEffectorConstants.WristForwardSoftLimit
+                                )
+                                .reverseSoftLimit(
+                                        EndEffectorConstants.WristReverseSoftLimit
+                                )
+                ).smartCurrentLimit(EndEffectorConstants.WristCurrentLimit);
+    }
+
     @Override
     public Rotation2d getCurrentRotation() {
         return EndEffectorConstants.PositionToRotation.convert((-(wristEncoder.get() - encoderOffset) + 2) % 1);
@@ -134,5 +138,10 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
 
         wristMotor.setVoltage(wristPIDOutput);
         intakeMotor.set(intakeSpeed);
+    }
+
+    @Override
+    public void setWristMotorIdleMode(SparkBaseConfig.IdleMode mode) {
+        wristMotor.configure(getWristMotorConfig().idleMode(mode), SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
     }
 }
