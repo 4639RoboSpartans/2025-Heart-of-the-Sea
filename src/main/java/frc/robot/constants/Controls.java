@@ -78,9 +78,9 @@ public class Controls {
     public static class Operator {
         //Setpoints +Operator Controls
         public static final Trigger L1Trigger = operatorController.LEFT_TRIGGER;
-        public static final Trigger L2Trigger = operatorController.RIGHT_TRIGGER;
-        public static final Trigger L3Trigger = operatorController.LEFT_BUMPER;
-        public static final Trigger L4Trigger = operatorController.RIGHT_BUMPER;
+        public static final Trigger L2Trigger = operatorController.LEFT_BUMPER;
+        public static final Trigger L3Trigger = operatorController.RIGHT_BUMPER;
+        public static final Trigger L4Trigger = operatorController.RIGHT_TRIGGER;
 
         public static final Trigger HPLoadingTrigger = operatorController.POV_DOWN;
 
