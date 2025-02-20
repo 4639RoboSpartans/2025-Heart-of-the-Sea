@@ -6,18 +6,19 @@ import com.revrobotics.spark.SparkLowLevel;
 import com.revrobotics.spark.config.SoftLimitConfig;
 import com.revrobotics.spark.config.SparkFlexConfig;
 
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.wpilibj.DutyCycleEncoder;
-import frc.robot.subsystems.scoring.ScoringSuperstructureState;
+import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.LinearFilter;
+import frc.robot.constants.Controls;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
-import frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConstants;
 import frc.robot.subsystems.scoring.constants.ScoringConstants.FunnelConstants;
 
 public class ConcreteFunnelSubsystem extends AbstractFunnelSubsystem{
     public final SparkFlex pivotMotor;
 
-    private boolean isStateFinished = false;
+    LinearFilter currents = LinearFilter.movingAverage(10);
+    private double avgCurrent;
 
+    private Debouncer debouncer = new Debouncer(1, Debouncer.DebounceType.kBoth);
     public ConcreteFunnelSubsystem(){
         pivotMotor = new SparkFlex(
             ScoringConstants.IDs.FunnelPivotMotorID,
@@ -40,20 +41,28 @@ public class ConcreteFunnelSubsystem extends AbstractFunnelSubsystem{
     }
 
     @Override
+    public double getCurrent(){
+        return pivotMotor.getOutputCurrent();
+    }
+
+    @Override
     public void periodic(){
-        
-    }
-    
-    @Override
-    public boolean isFunnelStateFinished() {
-        return true;
-    }
+        avgCurrent = currents.calculate(getCurrent());
 
-    @Override
-    public void setFunnel(ScoringSuperstructureState state) {
-        this.state = state;
+        if (!isManualControlEnabled && isFunnelStateFinished()) {
+            double voltage = 10;
+            if(!isTargetPositionDown){
+                voltage *= -1;
+            }
+            pivotMotor.setVoltage(voltage);
+            if(debouncer.calculate(avgCurrent > 20)){
+                pivotMotor.setVoltage(0);
+                isDown = isTargetPositionDown;
+            }
+        }
+        else{
+            double outputVoltage = Controls.Operator.ManualControlElevator.getAsDouble();
+            pivotMotor.setVoltage(outputVoltage);
+        }
     }
-
-    @Override
-    protected void runFunnelPosition() {}
 }

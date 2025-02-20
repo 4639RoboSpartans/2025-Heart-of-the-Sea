@@ -1,42 +1,38 @@
 package frc.robot.subsystems.scoring.funnel;
 
+import java.util.Objects;
+
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.scoring.ScoringSuperstructureState;
+import frc.robot.robot.Robot;
 
 public abstract class AbstractFunnelSubsystem extends SubsystemBase{
     private static AbstractFunnelSubsystem instance;
 
-    protected ScoringSuperstructureState state = ScoringSuperstructureState.IDLE;
-
-    /**
-     * Gets the current state of the funnel.
-     * 
-     * @return state of funnel as ScoringSuperStructureState
-     */
-    public final ScoringSuperstructureState getFunnelState() {
-        return state;
+    public static AbstractFunnelSubsystem getInstance() {
+        boolean dummy = false;
+        // dummy = true;
+        if(dummy) return new DummyFunnelSubsystem();
+        
+        if (Robot.isReal()) {
+            return instance = Objects.requireNonNullElseGet(instance, ConcreteFunnelSubsystem::new);
+        } else {
+            return instance = Objects.requireNonNullElseGet(instance, DummyFunnelSubsystem::new);
+        }
     }
+
+    protected boolean isDown = true;
+    protected boolean isTargetPositionDown = true;
 
     /**
      * Checks if the funnel is at its desired state.
      * 
      * @return if funnel is at desired state as boolean
      */
-    public abstract boolean isFunnelStateFinished();
+    public boolean isFunnelStateFinished(){
+        return isDown != isTargetPositionDown;
+    }
 
-    /**
-     * Sets the state of the funnel
-     * 
-     * @param state state that funnel is being set to as ScoringSuperstructureState.
-     */
-    public abstract void setFunnel(ScoringSuperstructureState state);
-
-    /**
-     * Runs the funnel.
-     */
-    protected abstract void runFunnelPosition();
-
-    protected boolean manualControlEnabled = false;
+    protected boolean isManualControlEnabled = false;
 
     /**
      * Sets the funnel to manual control
@@ -44,6 +40,12 @@ public abstract class AbstractFunnelSubsystem extends SubsystemBase{
      * @Param if manual control is enabled
      */
     public void setManualControlEnabled(boolean enabled) {
-        manualControlEnabled = enabled;
+        isManualControlEnabled = enabled;
     }
+
+    public void setDown(boolean toSetDown){
+        isTargetPositionDown = toSetDown;
+    }
+
+    public abstract double getCurrent();
 }
