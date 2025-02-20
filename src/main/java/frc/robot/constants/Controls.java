@@ -57,12 +57,6 @@ public class Controls {
         public static final Trigger rotationResetTrigger = driverController.A_BUTTON
             .and(driverController.B_BUTTON);
 
-        public static final Trigger targetRight = driverController.RIGHT_BUMPER;
-        public static final Trigger targetLeft = driverController.LEFT_BUMPER;
-
-        public static final Trigger reefAlign = driverController.POV_UP;
-        public static final Trigger coralStationAlign = driverController.POV_DOWN;
-
         public static final Trigger L2AlgaeTrigger = driverController.X_BUTTON;
         public static final Trigger L3AlgaeTrigger = driverController.Y_BUTTON;
         public static final Trigger ProcessorTrigger = driverController.POV_RIGHT;

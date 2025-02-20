@@ -27,7 +27,7 @@ public class DummyEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
 
     @Override
     public boolean hasCoral() {
-        return false;
+        return state.intakeUntilGamePieceSeen;
     }
 
     @Override
