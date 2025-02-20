@@ -1,6 +1,8 @@
 package frc.robot.subsystems.scoring;
 
 import frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConstants.WristSetpoints;
+import frc.robot.subsystems.scoring.elevator.AbstractElevatorSubsystem;
+import frc.robot.subsystems.scoring.endeffector.AbstractEndEffectorSubsystem;
 
 import java.util.OptionalDouble;
 
@@ -11,6 +13,24 @@ public enum ScoringSuperstructureState {
     ELEVATOR_MOVE_NO_TRANSITION,
     EXECUTING_ACTION,
     DONE;
+
+    public boolean shouldAdvanceState(
+        ScoringSuperstructureAction action,
+        AbstractEndEffectorSubsystem endEffector,
+        AbstractElevatorSubsystem elevator
+    ) {
+        return switch (this) {
+            case TRANSITION_BEFORE_ELEVATOR -> endEffector.isWristAtTarget();
+            case ELEVATOR_MOVE_WITH_TRANSITION -> elevator.isAtTarget();
+            case TRANSITION_AFTER_ELEVATOR -> endEffector.isWristAtTarget();
+            case ELEVATOR_MOVE_NO_TRANSITION -> elevator.isAtTarget();
+            case EXECUTING_ACTION -> (
+                action.endOnGamePieceSeen && endEffector.hasCoral() ||
+                    action.endOnGamePieceNotSeen && !endEffector.hasCoral()
+            );
+            case DONE -> true;
+        };
+    }
 
     public OptionalDouble getTargetWristRotationFraction(ScoringSuperstructureAction action) {
         return switch (this) {

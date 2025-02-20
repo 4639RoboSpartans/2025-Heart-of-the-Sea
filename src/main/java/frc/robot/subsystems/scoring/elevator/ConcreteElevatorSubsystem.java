@@ -61,7 +61,7 @@ public class ConcreteElevatorSubsystem extends AbstractElevatorSubsystem {
         // Set left motor to follow right motor and use right elevator motor as master motor
         leftElevatorMotor.setControl(new Follower((elevatorMotor = rightElevatorMotor).getDeviceID(), true));
 
-        setTargetExtensionProportion(getCurrentExtensionFraction());
+        setTargetExtensionFraction(getCurrentExtensionFraction());
     }
 
     @Override

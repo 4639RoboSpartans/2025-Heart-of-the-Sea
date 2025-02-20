@@ -90,7 +90,7 @@ public abstract class AbstractElevatorSubsystem extends SubsystemBase {
      * Set the target extension proportion of the elevator in the current state,
      * where 0 means fully retracted and 1 means fully extended
      */
-    public final void setTargetExtensionProportion(double targetExtensionProportion) {
+    public final void setTargetExtensionFraction(double targetExtensionProportion) {
         this.targetExtensionProportion = targetExtensionProportion;
     }
 

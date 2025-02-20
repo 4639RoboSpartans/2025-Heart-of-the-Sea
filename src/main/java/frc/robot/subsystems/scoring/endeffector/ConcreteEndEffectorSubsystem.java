@@ -14,9 +14,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.lib.oi.OI;
 import frc.lib.tunable.TunableNumber;
-import frc.robot.constants.Controls;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
 import frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConstants;
 import frc.robot.subsystems.scoring.constants.ScoringPIDs;
@@ -31,6 +29,7 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
     private final LaserCan laserCAN;
 
     private final ProfiledPIDController wristPID;
+    private final double encoderOffset;
 
     public ConcreteEndEffectorSubsystem() {
         intakeMotor = new SparkFlex(
@@ -70,10 +69,11 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
             SparkBase.PersistMode.kPersistParameters
         );
         wristEncoder = new DutyCycleEncoder(
-            ScoringConstants.IDs.WristEncoderID,
+            ScoringConstants.IDs.WristEncoderDIOPort,
             1,
             0
         );
+        encoderOffset = 0.077;
 
         wristPID = new ProfiledPIDController(
             ScoringPIDs.wristKp.get(),
@@ -94,6 +94,8 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
             ScoringPIDs.wristAcceleration
         );
 
+        // DOWN = 0.18 UP = 0.07
+
         laserCAN = new LaserCan(ScoringConstants.IDs.LaserCANID);
         try {
             laserCAN.setRangingMode(LaserCan.RangingMode.SHORT);
@@ -105,7 +107,7 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
         hasCoral = new Trigger(this::hasCoral);
         hasCoral.debounce(0.5);
         wristMotor.configure(
-            new SparkFlexConfig().idleMode(SparkBaseConfig.IdleMode.kBrake),
+            new SparkFlexConfig().idleMode(SparkBaseConfig.IdleMode.kCoast),
             SparkBase.ResetMode.kNoResetSafeParameters,
             SparkBase.PersistMode.kPersistParameters
         );
@@ -113,7 +115,7 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
 
     @Override
     public Rotation2d getCurrentRotation() {
-        return EndEffectorConstants.PositionToRotation.convert(wristMotor.getEncoder().getPosition());
+        return EndEffectorConstants.PositionToRotation.convert((-(wristEncoder.get() - encoderOffset) + 2) % 1);
     }
 
     @Override
@@ -124,32 +126,13 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
     }
 
     @Override
-    public void periodic() {
-        double currentWristPosition = getCurrentPosition();
+    protected void periodic(double targetWristRotationFraction, double intakeSpeed) {
+        double currentWristPosition = getCurrentMotorPosition();
+        double targetWristPosition = EndEffectorConstants.RotationFractionToMotorPosition.convert(targetWristRotationFraction);
 
-        double targetWristPosition, intakeSpeed;
-        if (!manualControlEnabled) {
-            targetWristPosition = getTargetPosition();
-            intakeSpeed = this.intakeSpeed;
-        } else {
-            double targetWristProportion = OI.getInstance().operatorController().rightStickY() * 0.5 + 0.5;
-            targetWristPosition = EndEffectorConstants.ProportionToPosition.convert(targetWristProportion);
-            intakeSpeed = Controls.Operator.ManualControlIntake.getAsDouble() * 0.7;
+        double wristPIDOutput = -wristPID.calculate(currentWristPosition, targetWristPosition);
 
-//            wristMotor.setVoltage(OI.getInstance().operatorController().rightStickY() * 6);
-//            SmartDashboard.putString("Wrist info: ",
-//                "; pos = " + getCurrentPosition() + "; frac = " + getCurrentRotationFraction()
-//            );
-//            return;
-        }
-
-        double voltage = wristPID.calculate(currentWristPosition, targetWristPosition);
-        wristMotor.setVoltage(voltage);
+        wristMotor.setVoltage(wristPIDOutput);
         intakeMotor.set(intakeSpeed);
-
-        SmartDashboard.putString("Wrist low level info: ",
-            "p = " + currentWristPosition + " t = " + targetWristPosition + " v = " + voltage
-            + "get applied output = " + wristMotor.getAppliedOutput()
-        );
     }
 }

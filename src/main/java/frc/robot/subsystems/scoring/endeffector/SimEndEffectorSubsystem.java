@@ -6,8 +6,6 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.lib.oi.OI;
 import frc.lib.tunable.TunableNumber;
 import frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConstants;
 import frc.robot.subsystems.scoring.constants.ScoringPIDs;
@@ -17,8 +15,6 @@ public class SimEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
     private final SingleJointedArmSim pivotSim;
 
     public SimEndEffectorSubsystem() {
-        intakeSpeed = 0;
-
         wristPID = new ProfiledPIDController(0, 0, 0, null);
         ScoringPIDs.wristKp.onChange(wristPID::setP);
         ScoringPIDs.wristKi.onChange(wristPID::setI);
@@ -56,24 +52,13 @@ public class SimEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
     }
 
     @Override
-    public void periodic() {
+    protected void periodic(double targetWristRotationFraction, double intakeSpeed) {
         pivotSim.update(0.020);
 
-        double currentWristPosition = getCurrentPosition();
-
-        double targetWristPosition;
-        if (!manualControlEnabled) {
-            targetWristPosition = getTargetPosition();
-        } else {
-            double targetWristProportion = OI.getInstance().operatorController().rightStickY() * 0.5 + 0.5;
-            targetWristPosition = EndEffectorConstants.ProportionToPosition.convert(targetWristProportion);
-        }
+        double currentWristPosition = getCurrentMotorPosition();
+        double targetWristPosition = EndEffectorConstants.RotationFractionToMotorPosition.convert(targetWristRotationFraction);
 
         double wristPIDOutput = -wristPID.calculate(currentWristPosition, targetWristPosition);
-
-        SmartDashboard.putString("Wrist low level info: ",
-            "p = " + currentWristPosition + " t = " + targetWristPosition + "o = " + wristPIDOutput
-        );
 
         pivotSim.setInputVoltage(wristPIDOutput);
     }

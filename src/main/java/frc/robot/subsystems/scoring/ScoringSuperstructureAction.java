@@ -10,8 +10,8 @@ public class ScoringSuperstructureAction {
     public double targetElevatorExtensionFraction = 0;
     public double targetWristRotationFraction = 0;
     public double intakeSpeed = 0;
-    public boolean shouldStopIntakeOnGamePieceSeen = false;
-    public boolean shouldStopIntakeOnGamePieceNotSeen = false;
+    public boolean endOnGamePieceSeen = false;
+    public boolean endOnGamePieceNotSeen = false;
     public boolean requiresWristTransition = false;
     /** The trigger used to activate the state */
     public Trigger trigger = new Trigger(() -> true);
@@ -39,12 +39,12 @@ public class ScoringSuperstructureAction {
     }
 
     private ScoringSuperstructureAction stopIntakeOnGamePieceSeen() {
-        this.shouldStopIntakeOnGamePieceSeen = true;
+        this.endOnGamePieceSeen = true;
         return this;
     }
 
     private ScoringSuperstructureAction stopIntakeOnGamePieceNotSeen() {
-        this.shouldStopIntakeOnGamePieceNotSeen = true;
+        this.endOnGamePieceNotSeen = true;
         return this;
     }
 

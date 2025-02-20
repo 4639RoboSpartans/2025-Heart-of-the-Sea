@@ -2,9 +2,12 @@ package frc.robot.subsystems.scoring.endeffector;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.constants.Controls;
 import frc.robot.robot.Robot;
+import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
 
 import java.util.Objects;
@@ -13,7 +16,6 @@ import static frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffecto
 
 public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
     private static AbstractEndEffectorSubsystem instance;
-    protected double intakeSpeed;
 
     public static AbstractEndEffectorSubsystem getInstance() {
         boolean dummy = false;
@@ -32,7 +34,8 @@ public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
         }
     }
 
-    protected double targetRotationFraction;
+    private double intakeSpeed = 0;
+    private double targetRotationFraction = 0;
 
     /**
      * Gets the current rotation of the wrist.
@@ -46,7 +49,7 @@ public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
      *
      * @return position of wrist as double
      */
-    public final double getCurrentPosition() {
+    public final double getCurrentMotorPosition() {
         return PositionToRotation.convertBackwards(getCurrentRotation());
     }
 
@@ -69,14 +72,14 @@ public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
      * @return target position of wrist as double
      */
     public final double getTargetPosition() {
-        return ProportionToPosition.convert(getTargetRotationFraction());
+        return RotationFractionToMotorPosition.convert(getTargetRotationFraction());
     }
 
     public final double getTargetRotationFraction() {
         return targetRotationFraction;
     }
 
-    public final void setTargetRotationFraction(double targetRotationFraction) {
+    public final void setTargetWristRotationFraction(double targetRotationFraction) {
         this.targetRotationFraction = targetRotationFraction;
     }
 
@@ -87,7 +90,7 @@ public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
     public final boolean isWristAtTarget() {
         return MathUtil.isNear(
             getTargetPosition(),
-            getCurrentPosition(),
+            getCurrentMotorPosition(),
             ScoringConstants.EndEffectorConstants.WRIST_TOLERANCE
         );
     }
@@ -101,9 +104,27 @@ public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
 
     public Trigger hasCoral = new Trigger(this::hasCoral);
 
-    protected boolean manualControlEnabled = false;
+    protected abstract void periodic(double targetWristRotationFraction, double intakeSpeed);
 
-    public void setManualControlEnabled(boolean enabled) {
-        manualControlEnabled = enabled;
+    @Override
+    public final void periodic() {
+        double currentWristRotationFraction = getCurrentRotationFraction();
+        double targetWristRotationFraction;
+        double intakeSpeed;
+
+        if (SubsystemManager.getInstance().getScoringSuperstructure().isManualControlEnabled()) {
+            targetWristRotationFraction = Controls.Operator.ManualControlWrist.getAsDouble();
+            intakeSpeed = Controls.Operator.ManualControlIntake.getAsDouble();
+        } else {
+            targetWristRotationFraction = getTargetRotationFraction();
+            intakeSpeed = this.intakeSpeed;
+        }
+
+        periodic(targetWristRotationFraction, intakeSpeed);
+
+        SmartDashboard.putString("Wrist info: ",
+            "current fraction = " + currentWristRotationFraction
+                + " target fraction = " + targetWristRotationFraction
+        );
     }
 }

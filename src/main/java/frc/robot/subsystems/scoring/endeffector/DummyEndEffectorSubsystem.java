@@ -13,4 +13,7 @@ public class DummyEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
     public boolean hasCoral() {
         return false;
     }
+
+    @Override
+    protected void periodic(double targetWristRotationFraction, double intakeSpeed) {}
 }

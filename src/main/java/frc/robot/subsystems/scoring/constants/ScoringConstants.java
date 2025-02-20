@@ -57,17 +57,17 @@ public final class ScoringConstants {
         public static final Rotation2d MAX_ROTATION = Rotation2d.fromDegrees(-200);
         public static final Rotation2d IDLE_ROTATION = Rotation2d.fromDegrees(30);
 
-        public static final double IDLE_POSITION = 0;
-        public static final double EXTENDED_POSITION = -40.5;
+        public static final double IDLE_POSITION = 0.0;
+        public static final double EXTENDED_POSITION = 0.89;
 
-        public static final UnitConvertor<Double, Double> ProportionToPosition = UnitConvertor.linearConvertingRange(
+        public static final UnitConvertor<Double, Double> RotationFractionToMotorPosition = UnitConvertor.linearConvertingRange(
             0, 1, IDLE_POSITION, EXTENDED_POSITION
         );
         public static final UnitConvertor<Double, Rotation2d> ProportionToRotation = UnitConvertor.linear(
             MAX_ROTATION.getRadians(), IDLE_ROTATION.getRadians(), false
         ).then(UnitConvertor.radiansToRotation2d());
         public static final UnitConvertor<Double, Rotation2d> PositionToRotation = UnitConvertor.compose(
-            ProportionToPosition.inverted(),
+            RotationFractionToMotorPosition.inverted(),
             ProportionToRotation
         );
 
@@ -101,12 +101,12 @@ public final class ScoringConstants {
             public static final double Wrist_HP_Proportion = 0.0;
             public static final double Wrist_Processor_Proportion = 0.0;
             public static final double Wrist_L1_Proportion = 1.0;
-            public static final double Wrist_L2_Proportion = ProportionToPosition.convertBackwards(36.9);
-            public static final double Wrist_L3_Proportion = ProportionToPosition.convertBackwards(36.9);
-            public static final double Wrist_L4_Proportion = ProportionToPosition.convertBackwards(40.5);
-            public static final double Wrist_L2_ALGAE_Proportion = ProportionToPosition.convertBackwards(30.);
-            public static final double Wrist_L3_ALGAE_Proportion = ProportionToPosition.convertBackwards(23.);
-            public static final double Wrist_Barge_Proportion = ProportionToPosition.convertBackwards(16.3);
+            public static final double Wrist_L2_Proportion = 0.911;
+            public static final double Wrist_L3_Proportion = 0.911;
+            public static final double Wrist_L4_Proportion = 1.0;
+            public static final double Wrist_L2_ALGAE_Proportion = 0.741;
+            public static final double Wrist_L3_ALGAE_Proportion = 0.568;
+            public static final double Wrist_Barge_Proportion = 0.402;
             public static final double Wrist_Transition_Proportion = 0.4;
         }
 
@@ -124,7 +124,7 @@ public final class ScoringConstants {
 
         public static final int IntakeMotorID = 23;
 
-        public static final int WristEncoderID = 25;
+        public static final int WristEncoderDIOPort = 9;
         public static final int WristMotorID = 24;
         public static final String WristCANBusName = "MainCANivore";
 

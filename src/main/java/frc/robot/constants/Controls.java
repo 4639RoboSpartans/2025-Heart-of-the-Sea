@@ -54,8 +54,7 @@ public class Controls {
 
         public static final Trigger precisionTrigger = driverController.LEFT_TRIGGER;
 
-        public static final Trigger rotationResetTrigger = driverController.A_BUTTON
-            .and(driverController.B_BUTTON);
+        public static final Trigger rotationResetTrigger = driverController.A_BUTTON.and(driverController.B_BUTTON);
 
         public static final Trigger reefLeftPoses = driverController.RIGHT_BUMPER;
         public static final Trigger reefRightPoses = driverController.LEFT_BUMPER;
@@ -63,18 +62,12 @@ public class Controls {
         public static final Trigger reefRight = driverController.LEFT_TRIGGER;
         public static final Trigger reefLeft = driverController.RIGHT_TRIGGER;
 
-        public static final Trigger PathfindReef_0 = reefLeftPoses.and(reefLeft.or(reefRight))
-            .and(driverController.Y_BUTTON);
-        public static final Trigger PathfindReef_1 = reefLeftPoses.and(reefLeft.or(reefRight))
-            .and(driverController.B_BUTTON);
-        public static final Trigger PathfindReef_2 = reefLeftPoses.and(reefLeft.or(reefRight))
-            .and(driverController.A_BUTTON);
-        public static final Trigger PathfindReef_3 = reefRightPoses.and(reefLeft.or(reefRight))
-            .and(driverController.Y_BUTTON);
-        public static final Trigger PathfindReef_4 = reefRightPoses.and(reefLeft.or(reefRight))
-            .and(driverController.X_BUTTON);
-        public static final Trigger PathfindReef_5 = reefRightPoses.and(reefLeft.or(reefRight))
-            .and(driverController.A_BUTTON);
+        public static final Trigger PathfindReef_0 = reefLeftPoses.and(reefLeft.or(reefRight)).and(driverController.Y_BUTTON);
+        public static final Trigger PathfindReef_1 = reefLeftPoses.and(reefLeft.or(reefRight)).and(driverController.B_BUTTON);
+        public static final Trigger PathfindReef_2 = reefLeftPoses.and(reefLeft.or(reefRight)).and(driverController.A_BUTTON);
+        public static final Trigger PathfindReef_3 = reefRightPoses.and(reefLeft.or(reefRight)).and(driverController.Y_BUTTON);
+        public static final Trigger PathfindReef_4 = reefRightPoses.and(reefLeft.or(reefRight)).and(driverController.X_BUTTON);
+        public static final Trigger PathfindReef_5 = reefRightPoses.and(reefLeft.or(reefRight)).and(driverController.A_BUTTON);
 
         public static final Trigger L2AlgaeTrigger = operatorController.X_BUTTON;
         public static final Trigger L3AlgaeTrigger = operatorController.Y_BUTTON;
@@ -94,17 +87,8 @@ public class Controls {
 
         public static Trigger ToggleManualControlTrigger = operatorController.LEFT_STICK;
 
-        public static final DoubleSupplier ManualControlHopper = () -> (
-            (operatorController.POV_RIGHT.getAsBoolean() ? 1 : 0) -
-                (operatorController.POV_LEFT.getAsBoolean() ? 1 : 0)
-        );
-        public static final DoubleSupplier ManualControlElevator = () -> (
-            (operatorController.POV_UP.getAsBoolean() ? 1 : 0) -
-                (operatorController.POV_DOWN.getAsBoolean() ? 1 : 0)
-        );
-        public static final DoubleSupplier ManualControlIntake = () -> (
-            (operatorController.A_BUTTON.getAsBoolean() ? 1 : 0) -
-                (operatorController.B_BUTTON.getAsBoolean() ? 1 : 0)
-        );
+        public static final DoubleSupplier ManualControlWrist = () -> operatorController.rightStickY() * 0.5 + 0.5;
+        public static final DoubleSupplier ManualControlElevator = operatorController::leftStickY;
+        public static final DoubleSupplier ManualControlIntake = () -> (operatorController.A_BUTTON.getAsBoolean() ? 1 : 0) - (operatorController.B_BUTTON.getAsBoolean() ? 1 : 0);
     }
 }
