@@ -139,7 +139,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
     @Override
     public Command resetPigeon() {
-        return Commands.runOnce(
+        return runOnce(
             () -> drivetrain.getPigeon2().setYaw(
                 Angle.ofBaseUnits(
                     0,

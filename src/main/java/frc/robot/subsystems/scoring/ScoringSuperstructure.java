@@ -35,7 +35,6 @@ public final class ScoringSuperstructure extends SubsystemBase {
     private final AbstractEndEffectorSubsystem endEffector;
 
     private ScoringSuperstructureAction currentAction = ScoringSuperstructureAction.IDLE;
-    private ScoringSuperstructureAction prevAction = ScoringSuperstructureAction.IDLE;
     private ScoringSuperstructureState currentState = ScoringSuperstructureState.EXECUTING_ACTION;
 
     private boolean isManualControlEnabled = false;
@@ -48,7 +47,7 @@ public final class ScoringSuperstructure extends SubsystemBase {
 
     private void setCurrentAction(ScoringSuperstructureAction action) {
         if (action != this.currentAction) {
-            prevAction = this.currentAction;
+            ScoringSuperstructureAction prevAction = this.currentAction;
             this.currentAction = action;
 
             boolean requiresWristTransition = prevAction.requiresWristTransition || action.requiresWristTransition;
@@ -112,7 +111,7 @@ public final class ScoringSuperstructure extends SubsystemBase {
     private void runManualPeriodic() {
         double currentTargetElevatorExtensionFraction = elevator.getTargetProportion();
         double targetElevatorExtensionFraction = currentTargetElevatorExtensionFraction
-            + Controls.Operator.ManualControlElevator.getAsDouble() * 0.1;
+            + Controls.Operator.ManualControlElevator.getAsDouble() * 0.03;
 
         elevator.setTargetExtensionFraction(MathUtil.clamp(targetElevatorExtensionFraction, 0, 1));
         endEffector.setTargetWristRotationFraction(Controls.Operator.ManualControlWrist.getAsDouble());
@@ -122,13 +121,14 @@ public final class ScoringSuperstructure extends SubsystemBase {
     private void runActionPeriodic() {
         // If the current action's trigger is no longer active,
         // move to the next action
-        if (!currentAction.trigger.getAsBoolean()) {
-            setCurrentAction(currentAction.nextAction);
-        }
+//        if (!currentAction.trigger.getAsBoolean()) {
+//            setCurrentAction(currentAction.nextAction);
+//        }
 
         OptionalDouble targetElevatorExtensionFraction = currentState.getTargetElevatorExtensionFraction(currentAction);
         OptionalDouble targetWristRotationFraction = currentState.getTargetWristRotationFraction(currentAction);
-        double intakeSpeed = currentState.getIntakeSpeed(currentAction);
+//        double intakeSpeed = currentState.getIntakeSpeed(currentAction);
+        double intakeSpeed = Controls.Operator.ManualControlIntake.getAsDouble();
 
         targetElevatorExtensionFraction.ifPresent(elevator::setTargetExtensionFraction);
         targetWristRotationFraction.ifPresent(endEffector::setTargetWristRotationFraction);
@@ -139,9 +139,9 @@ public final class ScoringSuperstructure extends SubsystemBase {
             currentState = currentState.next();
         }
         // If the state is finished, go to the next action
-        if (currentState == ScoringSuperstructureState.DONE) {
-            setCurrentAction(currentAction.nextAction);
-        }
+//        if (currentState == ScoringSuperstructureState.DONE) {
+//            setCurrentAction(currentAction.nextAction);
+//        }
     }
 
     public Command toggleManualControl() {
@@ -174,14 +174,10 @@ public final class ScoringSuperstructure extends SubsystemBase {
      */
     @Override
     public void periodic() {
-        // In teleop, stop the current state if the control is no longer active
-        if (RobotState.isTeleop() && !currentAction.trigger.getAsBoolean()) {
-            setCurrentAction(ScoringSuperstructureAction.IDLE);
-        }
         // Sets scoring mechanisms to IDLE in case robot acceleration is high.
-        if (SubsystemManager.getInstance().getDrivetrain().getAccelerationInGs() >= .4) {
-            setCurrentAction(ScoringSuperstructureAction.IDLE);
-        }
+//        if (SubsystemManager.getInstance().getDrivetrain().getAccelerationInGs() >= .4) {
+//            setCurrentAction(ScoringSuperstructureAction.IDLE);
+//        }
 
         SmartDashboard.putBoolean("isManualControlEnabled", isManualControlEnabled);
     }

@@ -7,12 +7,6 @@ import frc.lib.UnitConvertor;
 
 import static edu.wpi.first.units.Units.Inches;
 
-// L2 Coral = E 29.5 W -36.9
-// L3 Coral = E 40.9 W -36.9
-// L4 Coral = E 67.7 W -40.5 (max proportion)
-// L2 Algae = E 30.54 W -30
-// L3 Algae = E 41.3 W -23
-
 public final class ScoringConstants {
     public static final class ElevatorConstants {
         // The range of the elevator
@@ -41,13 +35,17 @@ public final class ScoringConstants {
         public static final class ElevatorSetpoints {
             //Elevator proportions
             public static final double IDLE_Proportion = 0.0;
-            public static final double HP_Proportion = 0.1;
+            public static final double HP_Proportion = ProportionToPosition.convertBackwards(2.130); // THIS IS DONE
             public static final double Processor_Proportion = 0.1;
             public static final double L1_Proportion = 0.15;
-            public static final double L2_Proportion = ProportionToPosition.convertBackwards(29.5);
-            public static final double L3_Proportion = ProportionToPosition.convertBackwards(40.9);
-            public static final double L4_Proportion = ProportionToPosition.convertBackwards(57.7); // should be 67 but for testing, no
-            public static final double L2_ALGAE_Proportion = ProportionToPosition.convertBackwards(30.5);
+            // TODO: above
+
+            public static final double L2_Proportion = ProportionToPosition.convertBackwards(19.);
+            public static final double L3_Proportion = ProportionToPosition.convertBackwards(30.);
+            public static final double L4_Proportion = ProportionToPosition.convertBackwards(59.5);
+
+            // TODO: below
+            public static final double L2_ALGAE_Proportion = ProportionToPosition.convertBackwards(20.98); // MAYBE
             public static final double L3_ALGAE_Proportion = ProportionToPosition.convertBackwards(41.3);
             public static final double Barge_Proportion = 1;
         }
@@ -71,7 +69,7 @@ public final class ScoringConstants {
             ProportionToRotation
         );
 
-        public static final double WRIST_TOLERANCE = 0.1;
+        public static final double WRIST_TOLERANCE = 0.03;
 
         //Limits for Intake
         public static final double IntakeForwardSoftLimit = 40;
@@ -98,13 +96,17 @@ public final class ScoringConstants {
         public static final class WristSetpoints {
             //Wrist Proportions
             public static final double Wrist_IDLE_Proportion = 0.0;
-            public static final double Wrist_HP_Proportion = 0.0;
+            public static final double Wrist_HP_Proportion = 0.16;
             public static final double Wrist_Processor_Proportion = 0.0;
             public static final double Wrist_L1_Proportion = 1.0;
-            public static final double Wrist_L2_Proportion = 0.911;
-            public static final double Wrist_L3_Proportion = 0.911;
+            // TODO: above
+
+            public static final double Wrist_L2_Proportion = 0.9;
+            public static final double Wrist_L3_Proportion = 0.9;
             public static final double Wrist_L4_Proportion = 1.0;
-            public static final double Wrist_L2_ALGAE_Proportion = 0.741;
+
+            // TODO: below
+            public static final double Wrist_L2_ALGAE_Proportion = 0.535;
             public static final double Wrist_L3_ALGAE_Proportion = 0.568;
             public static final double Wrist_Barge_Proportion = 0.402;
             public static final double Wrist_Transition_Proportion = 0.4;

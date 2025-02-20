@@ -27,7 +27,7 @@ public enum ScoringSuperstructureState {
             case EXECUTING_ACTION -> (
                 action.endOnGamePieceSeen && endEffector.hasCoral() ||
                     action.endOnGamePieceNotSeen && !endEffector.hasCoral()
-            );
+            ) && false;
             case DONE -> true;
         };
     }

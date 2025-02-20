@@ -73,7 +73,7 @@ public class RobotContainer {
 
         //Scoring Controls
         {
-            Controls.Driver.rotationResetTrigger.onTrue(
+            Controls.Driver.rotationResetTrigger.whileTrue(
                 swerve.resetPigeon()
             );
 
