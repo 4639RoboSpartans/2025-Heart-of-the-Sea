@@ -35,9 +35,10 @@ public class SubsystemManager {
     private SubsystemManager() {}
 
     public void instantiateSubsystems() {
-        climberSubsystem = AbstractClimberSubsystem.getInstance();
+        //TODO: the climber doesnt exist so i will probably dummy it out
+        //climberSubsystem = AbstractClimberSubsystem.getInstance();
         drivetrain = AbstractSwerveDrivetrain.getInstance(getInstanceAccess);
-        scoringSuperstructure = ScoringSuperstructure.getInstance();
+        scoringSuperstructure = ScoringSuperstructure.getInstance(getInstanceAccess);
         visionSubsystem = VisionSubsystem.getInstance();
     }
 

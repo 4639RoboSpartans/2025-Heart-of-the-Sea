@@ -24,6 +24,7 @@ import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
 import frc.robot.subsystems.drive.SwerveAutoRoutinesCreator;
 import frc.robot.subsystems.scoring.ScoringSuperstructure;
+import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
 
@@ -75,48 +76,48 @@ public class RobotContainer {
             );
 
             Controls.Driver.BargeScoringTrigger.onTrue(
-                scoringSuperstructure.setScoringState(
-                    ScoringSuperstructureState.BARGE_SCORING
+                scoringSuperstructure.setAction(
+                    ScoringSuperstructureAction.SCORE_BARGE
                 )
             );
             Controls.Operator.HPLoadingTrigger.onTrue(
-                scoringSuperstructure.setScoringState(
-                    ScoringSuperstructureState.HP_LOADING
+                scoringSuperstructure.setAction(
+                    ScoringSuperstructureAction.INTAKE_FROM_HP
                 )
             );
             Controls.Driver.ProcessorTrigger.onTrue(
-                scoringSuperstructure.setScoringState(
-                    ScoringSuperstructureState.PROCESSOR_SCORING
+                scoringSuperstructure.setAction(
+                    ScoringSuperstructureAction.SCORE_PROCESSOR
                 )
             );
             Controls.Operator.L1Trigger.onTrue(
-                scoringSuperstructure.setScoringState(
-                    ScoringSuperstructureState.L1
+                scoringSuperstructure.setAction(
+                    ScoringSuperstructureAction.SCORE_L1_CORAL
                 )
             );
             Controls.Operator.L2Trigger.onTrue(
-                scoringSuperstructure.setScoringState(
-                    ScoringSuperstructureState.L2
+                scoringSuperstructure.setAction(
+                    ScoringSuperstructureAction.SCORE_L2_CORAL
                 )
             );
             Controls.Operator.L3Trigger.onTrue(
-                scoringSuperstructure.setScoringState(
-                    ScoringSuperstructureState.L3
+                scoringSuperstructure.setAction(
+                    ScoringSuperstructureAction.SCORE_L3_CORAL
                 )
             );
             Controls.Operator.L4Trigger.onTrue(
-                scoringSuperstructure.setScoringState(
-                    ScoringSuperstructureState.L4
+                scoringSuperstructure.setAction(
+                    ScoringSuperstructureAction.SCORE_L4_CORAL
                 )
             );
             Controls.Driver.L2AlgaeTrigger.onTrue(
-                scoringSuperstructure.setScoringState(
-                    ScoringSuperstructureState.L2_ALGAE
+                scoringSuperstructure.setAction(
+                    ScoringSuperstructureAction.INTAKE_L2_ALGAE
                 )
             );
             Controls.Driver.L3AlgaeTrigger.onTrue(
-                scoringSuperstructure.setScoringState(
-                    ScoringSuperstructureState.L3_ALGAE
+                scoringSuperstructure.setAction(
+                    ScoringSuperstructureAction.INTAKE_L3_ALGAE
                 )
             );
             Controls.Operator.HoldTrigger.onTrue(

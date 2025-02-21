@@ -1,15 +1,15 @@
 package frc.robot.subsystems.scoring;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.lib.annotation.ForSubsystemManagerUseOnly;
+import frc.robot.constants.Controls;
 import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
 import frc.robot.subsystems.scoring.elevator.AbstractElevatorSubsystem;
@@ -17,68 +17,73 @@ import frc.robot.subsystems.scoring.elevator.ElevatorSysID;
 import frc.robot.subsystems.scoring.endeffector.AbstractEndEffectorSubsystem;
 
 import java.util.Objects;
+import java.util.OptionalDouble;
 import java.util.function.Supplier;
 
-public class ScoringSuperstructure extends SubsystemBase {
+public final class ScoringSuperstructure extends SubsystemBase {
     private static ScoringSuperstructure instance;
 
-    /**
-     * This method should only be accessed from the SubsystemManager class. In other places, use
-     * {@link SubsystemManager#getScoringSuperstructure()} instead.
-     */
-    @ForSubsystemManagerUseOnly
-    public static ScoringSuperstructure getInstance() {
+    public static ScoringSuperstructure getInstance(SubsystemManager.GetInstanceAccess access) {
+        Objects.requireNonNull(access);
         return instance = Objects.requireNonNullElseGet(instance,
-            ScoringSuperstructure::new
+            () -> new ScoringSuperstructure(access)
         );
     }
 
     private final AbstractElevatorSubsystem elevator;
-    private final AbstractEndEffectorSubsystem endeffector;
+    private final AbstractEndEffectorSubsystem endEffector;
 
-    private ScoringSuperstructureState state = ScoringSuperstructureState.IDLE;
-    private ScoringSuperstructureState prevState = ScoringSuperstructureState.IDLE;
+    private ScoringSuperstructureAction currentAction = ScoringSuperstructureAction.IDLE;
+    private ScoringSuperstructureState currentState = ScoringSuperstructureState.EXECUTING_ACTION;
+
     private boolean isManualControlEnabled = false;
 
-    public ScoringSuperstructure() {
-        this.elevator = AbstractElevatorSubsystem.getInstance();
-        this.endeffector = AbstractEndEffectorSubsystem.getInstance();
+    public ScoringSuperstructure(SubsystemManager.GetInstanceAccess access) {
+        this.elevator = AbstractElevatorSubsystem.getInstance(access);
+        this.endEffector = AbstractEndEffectorSubsystem.getInstance(access);
         SmartDashboard.putBoolean("isManualControlEnabled", isManualControlEnabled);
     }
 
-    private void setState(ScoringSuperstructureState state) {
-        if (this.state != state) {
-            prevState = this.state;
+    private void setCurrentAction(ScoringSuperstructureAction action) {
+        if (action != this.currentAction) {
+            ScoringSuperstructureAction prevAction = this.currentAction;
+            this.currentAction = action;
+
+            boolean requiresWristTransition = prevAction.requiresWristTransition || action.requiresWristTransition;
+            if (requiresWristTransition) {
+                currentState = ScoringSuperstructureState.TRANSITION_BEFORE_ELEVATOR;
+            } else {
+                currentState = ScoringSuperstructureState.ELEVATOR_MOVE_NO_TRANSITION;
+            }
         }
-        this.state = state;
-        elevator.updateElevatorState(state);
-        endeffector.setHopper(state);
     }
 
     /**
      * @param state the new state to set the scoring superstructure to.
+     *
      * @return an instantaneous command that sets the state to {@param state}. It does not run the scoring
      * superstructure, only sets the state.
      */
-    public Command setScoringState(ScoringSuperstructureState state) {
-        return setScoringState(() -> state);
+    public Command setAction(ScoringSuperstructureAction state) {
+        return setAction(() -> state);
     }
 
     /**
      * @param state the new state to set the scoring superstructure to.
+     *
      * @return an instantaneous command that sets the state to {@param state}. It does not run the scoring
      * superstructure, only sets the state.
      */
-    public Command setScoringState(Supplier<ScoringSuperstructureState> state) {
+    public Command setAction(Supplier<ScoringSuperstructureAction> state) {
         return Commands.runOnce(
-            () -> setState(state.get())
+            () -> setCurrentAction(state.get())
         );
     }
 
     public Command hold() {
-        return setScoringState(() -> ScoringSuperstructureState.HOLD(
-            elevator.getCurrentProportion(),
-            ScoringConstants.EndEffectorConstants.ProportionToPosition.convertBackwards(endeffector.getCurrentPosition())
+        return setAction(() -> ScoringSuperstructureAction.HOLD(
+            elevator.getCurrentExtensionFraction(),
+            ScoringConstants.EndEffectorConstants.RotationFractionToMotorPosition.convertBackwards(endEffector.getCurrentMotorPosition())
         ));
     }
 
@@ -86,48 +91,67 @@ public class ScoringSuperstructure extends SubsystemBase {
      * @return command to run the scoring subsystem. It takes into account which "sub-subsystem" is the last to move.
      */
     public Command runScoringState() {
-        return Commands.run(
-            () -> {
-                if (!state.useTransitionState || !prevState.useTransitionState) {
-                    elevator.runElevator();
-                } else {
-                    if (endeffector.getHopperState() != ScoringSuperstructureState.TRANSITION_STATE) {
-                        if (elevator.isAtTarget()) {
-                            elevator.runElevator();
-                        } else {
-                            endeffector.setHopper(ScoringSuperstructureState.TRANSITION_STATE);
-                        }
-                    } else {
-                        if (endeffector.isAtTarget()) {
-                            if (elevator.isAtTarget()) {
-                                endeffector.setHopper(state);
-                            }
-                            elevator.runElevator();
-                        }
-                    }
-                }
+        return run(() -> {
+            if (isManualControlEnabled) runManualPeriodic();
+            else runActionPeriodic();
 
-                // TODO: choose one place to call runHopper
-                //  either in endeffector periodic or in here but right now it runs in both
-                endeffector.runHopper();
-            },
-            this
-        );
+            SmartDashboard.putString("Scoring superstructure info",
+                "%s: ele = [curr %.3f; tgt %.3f]; wst = [curr %.3f; tgt %.3f]".formatted(
+                    currentState,
+                    elevator.getCurrentPosition(),
+                    elevator.getTargetPosition(),
+                    endEffector.getCurrentMotorPosition(),
+                    endEffector.getTargetPosition()
+                )
+            );
+        });
+    }
+
+    private void runManualPeriodic() {
+        double currentTargetElevatorExtensionFraction = elevator.getTargetProportion();
+        double targetElevatorExtensionFraction = currentTargetElevatorExtensionFraction
+            + Controls.Operator.ManualControlElevator.getAsDouble() * 0.03;
+
+        elevator.setTargetExtensionFraction(MathUtil.clamp(targetElevatorExtensionFraction, 0, 1));
+        endEffector.setTargetWristRotationFraction(Controls.Operator.ManualControlWrist.getAsDouble());
+        endEffector.setIntakeSpeed(Controls.Operator.ManualControlIntake.getAsDouble());
+    }
+
+    private void runActionPeriodic() {
+        // If the current action's trigger is no longer active,
+        // move to the next action
+//        if (!currentAction.trigger.getAsBoolean()) {
+//            setCurrentAction(currentAction.nextAction);
+//        }
+
+        OptionalDouble targetElevatorExtensionFraction = currentState.getTargetElevatorExtensionFraction(currentAction);
+        OptionalDouble targetWristRotationFraction = currentState.getTargetWristRotationFraction(currentAction);
+//        double intakeSpeed = currentState.getIntakeSpeed(currentAction);
+        double intakeSpeed = Controls.Operator.ManualControlIntake.getAsDouble();
+
+        targetElevatorExtensionFraction.ifPresent(elevator::setTargetExtensionFraction);
+        targetWristRotationFraction.ifPresent(endEffector::setTargetWristRotationFraction);
+        endEffector.setIntakeSpeed(intakeSpeed);
+
+        // Advance the state if necessary
+        if (currentState.shouldAdvanceState(currentAction, endEffector, elevator)) {
+            currentState = currentState.next();
+        }
+        // If the state is finished, go to the next action
+//        if (currentState == ScoringSuperstructureState.DONE) {
+//            setCurrentAction(currentAction.nextAction);
+//        }
     }
 
     public Command toggleManualControl() {
-        return runOnce(() -> {
-            this.isManualControlEnabled = !this.isManualControlEnabled;
-            this.elevator.setManualControlEnabled(isManualControlEnabled);
-            this.endeffector.setManualControlEnabled(isManualControlEnabled);
-        });
+        return runOnce(() -> this.isManualControlEnabled = !this.isManualControlEnabled);
     }
 
     /**
      * @return whether both "sub-subsystems" at the specified position
      */
     public boolean isAtPosition() {
-        return elevator.isAtTarget() && endeffector.isAtTarget();
+        return elevator.isAtTarget() && endEffector.isWristAtTarget();
     }
 
     public Trigger isAtPosition = new Trigger(this::isAtPosition);
@@ -138,7 +162,7 @@ public class ScoringSuperstructure extends SubsystemBase {
      * {@link ScoringSuperstructure#isAtPosition()} returns true.
      */
     public boolean isStateFinished() {
-        return elevator.isElevatorStateFinished() && endeffector.isHopperStateFinished();
+        return elevator.isAtTarget() && endEffector.isWristAtTarget();
     }
 
     public Trigger isStateFinished = new Trigger(this::isStateFinished);
@@ -149,16 +173,11 @@ public class ScoringSuperstructure extends SubsystemBase {
      */
     @Override
     public void periodic() {
-        if (isStateFinished()) {
-            setState(state.getStateAfter());
-        } else if (RobotState.isTeleop() && !state.control.getAsBoolean()) {
-            setState(ScoringSuperstructureState.IDLE);
-        }
+        // Sets scoring mechanisms to IDLE in case robot acceleration is high.
+//        if (SubsystemManager.getInstance().getDrivetrain().getAccelerationInGs() >= .4) {
+//            setCurrentAction(ScoringSuperstructureAction.IDLE);
+//        }
 
-        //Sets scoring mechanisms to IDLE in case robot acceleration is high.
-        if (SubsystemManager.getInstance().getDrivetrain().getAccelerationInGs() >= .4) {
-            setState(ScoringSuperstructureState.IDLE);
-        }
         SmartDashboard.putBoolean("isManualControlEnabled", isManualControlEnabled);
     }
 
@@ -180,14 +199,14 @@ public class ScoringSuperstructure extends SubsystemBase {
      * @return the real life rotation of the wrist, for use in simulation only.
      */
     public Rotation2d getCurrentWristRotation() {
-        return endeffector.getCurrentRotation();
+        return endEffector.getCurrentRotation();
     }
 
     /**
      * @return the real life target rotation of the wrist, for use in simulation only.
      */
     public Rotation2d getTargetWristRotation() {
-        return endeffector.getTargetRotation();
+        return endEffector.getTargetRotation();
     }
 
     public Command elevatorSysIDQuasistatic(SysIdRoutine.Direction direction) {
@@ -198,11 +217,19 @@ public class ScoringSuperstructure extends SubsystemBase {
         return ElevatorSysID.sysIdDynamic(direction);
     }
 
+    public boolean isManualControlEnabled() {
+        return isManualControlEnabled;
+    }
+
     public AbstractEndEffectorSubsystem getEndEffectorSubsystem() {
-        return endeffector;
+        return endEffector;
     }
 
     public AbstractElevatorSubsystem getElevatorSubsystem() {
         return elevator;
+    }
+
+    public ScoringSuperstructureAction getCurrentAction() {
+        return currentAction;
     }
 }

@@ -8,18 +8,13 @@ import com.revrobotics.spark.SparkLowLevel;
 import com.revrobotics.spark.config.SoftLimitConfig;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkFlexConfig;
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.lib.oi.OI;
 import frc.lib.tunable.TunableNumber;
-import frc.robot.constants.Controls;
-import frc.robot.subsystems.SubsystemManager;
-import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
 import frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConstants;
 import frc.robot.subsystems.scoring.constants.ScoringPIDs;
@@ -34,8 +29,7 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
     private final LaserCan laserCAN;
 
     private final ProfiledPIDController wristPID;
-
-    private boolean isStateFinished = false;
+    private final double encoderOffset;
 
     public ConcreteEndEffectorSubsystem() {
         intakeMotor = new SparkFlex(
@@ -66,10 +60,11 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
             SparkBase.PersistMode.kPersistParameters
         );
         wristEncoder = new DutyCycleEncoder(
-            ScoringConstants.IDs.WristEncoderID,
+            ScoringConstants.IDs.WristEncoderDIOPort,
             1,
             0
         );
+        encoderOffset = 0.077;
 
         wristPID = new ProfiledPIDController(
             ScoringPIDs.wristKp.get(),
@@ -90,6 +85,8 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
             ScoringPIDs.wristAcceleration
         );
 
+        // DOWN = 0.18 UP = 0.07
+
         laserCAN = new LaserCan(ScoringConstants.IDs.LaserCANID);
         try {
             laserCAN.setRangingMode(LaserCan.RangingMode.SHORT);
@@ -99,11 +96,9 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
             System.out.println("Configuration failed! " + e);
         }
         hasCoral = new Trigger(this::hasCoral);
-        //TODO: is two seconds really necessary?
-        //having the debounce on for too long could mess with our cycle time
-        hasCoral.debounce(2);
+        hasCoral.debounce(0.5);
         wristMotor.configure(
-            new SparkFlexConfig().idleMode(SparkBaseConfig.IdleMode.kBrake),
+            new SparkFlexConfig().idleMode(SparkBaseConfig.IdleMode.kCoast),
             SparkBase.ResetMode.kNoResetSafeParameters,
             SparkBase.PersistMode.kPersistParameters
         );
@@ -124,103 +119,25 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
 
     @Override
     public Rotation2d getCurrentRotation() {
-        return EndEffectorConstants.PositionToRotation.convert(wristEncoder.get());
-    }
-
-    @Override
-    public double getIntakeSpeed() {
-        return intakeMotor.get();
+        return EndEffectorConstants.PositionToRotation.convert((-(wristEncoder.get() - encoderOffset) + 2) % 1);
     }
 
     @Override
     public boolean hasCoral() {
         return Optional.ofNullable(laserCAN.getMeasurement()).map(measurement ->
-            measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT
-                && measurement.distance_mm <= 20
+            measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT && measurement.distance_mm <= 20
         ).orElse(false);
-
-        /*
-        no reason to check intake state at this point
-         */
     }
 
     @Override
-    public boolean isAtTarget() {
-        return MathUtil.isNear(
-            getTargetPosition(),
-            getCurrentPosition(),
-            EndEffectorConstants.WRIST_TOLERANCE
-        );
-    }
+    protected void periodic(double targetWristRotationFraction, double intakeSpeed) {
+        double currentWristPosition = getCurrentMotorPosition();
+        double targetWristPosition = EndEffectorConstants.RotationFractionToMotorPosition.convert(targetWristRotationFraction);
 
-    public boolean isHopperStateFinished() {
-        return isStateFinished;
-    }
+        double wristPIDOutput = -wristPID.calculate(currentWristPosition, targetWristPosition);
 
-    @Override
-    public void setHopper(ScoringSuperstructureState state) {
-        this.state = state;
-        isStateFinished = false;
-        if (!manualControlEnabled) {
-            intakeMotor.set(0);
-        }
-        wristPID.setGoal(state.getWristAbsolutePosition());
-    }
-
-    @Override
-    public void periodic() {
-        if (!manualControlEnabled) {
-            if (isAtTarget())
-                runHopper();
-            else runHopperPosition();
-        } else {
-            wristMotor.set(wristPID.calculate(
-                    wristMotor.getEncoder().getPosition(),
-                    EndEffectorConstants.ProportionToPosition.convert(OI.getInstance().operatorController().rightStickY() * 0.5 + 0.5)
-            ));
-            intakeMotor.set(Controls.Operator.ManualControlIntake.getAsDouble() * 0.7);
-        }
-        System.out.println(wristPID.getP() + ", " + wristPID.getI() + ", " + wristPID.getD());
-
-        SmartDashboard.putNumber("Wrist Position", wristMotor.getEncoder().getPosition());
-        SmartDashboard.putNumber("Wrist Setpoint", EndEffectorConstants.EXTENDED_POSITION/2);
-    }
-
-    @Override
-    protected void runHopperPosition() {
-        if (!manualControlEnabled) {
-            double wristPIDOutput = wristPID.calculate(
-                wristEncoder.get(),
-                wristPID.getGoal().position
-            );
-        }
-//        TODO: uncomment when down and up positions are set
-//        wristMotor.set(wristPIDOutput);
-    }
-
-    @Override
-    public void runHopper() {
-        if (!manualControlEnabled) {
-            runHopperPosition();
-            if (SubsystemManager.getInstance().getScoringSuperstructure().isAtPosition() && !isStateFinished) {
-                intakeMotor.set(state.intakeSpeed);
-            }
-            LaserCan.Measurement measurement = laserCAN.getMeasurement();
-            if (measurement != null && measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
-                if (state.intakeUntilGamePieceSeen) {
-                    if (hasCoral()) {
-                        intakeMotor.set(0);
-                        isStateFinished = true;
-                    }
-                } else if (state.outtakeUntilGamePieceNotSeen) {
-                    if (!hasCoral()) {
-                        intakeMotor.set(0);
-                        isStateFinished = true;
-                    }
-                }
-            }
-        }
-
+        wristMotor.setVoltage(wristPIDOutput);
+        intakeMotor.set(intakeSpeed);
     }
 
     @Override

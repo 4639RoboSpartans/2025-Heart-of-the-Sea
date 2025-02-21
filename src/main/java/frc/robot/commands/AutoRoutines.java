@@ -129,17 +129,4 @@ public class AutoRoutines {
         );
     }
 
-    public Command startScoringCommandWhenNearReef(Command scoringCommand, Command driveCommand, Predicate<Pose2d> withinDistanceThreshold) {
-        return Commands.deadline(
-                Commands.parallel(
-                        SubsystemManager.getInstance().getScoringSuperstructure().setScoringState(ScoringSuperstructureState.IDLE),
-                        SubsystemManager.getInstance().getScoringSuperstructure().runScoringState().until(() -> withinDistanceThreshold.test(SubsystemManager.getInstance().getDrivetrain().getPose())),
-                        scoringCommand
-                ),
-                Commands.parallel(
-                        driveCommand,
-                        SubsystemManager.getInstance().getDrivetrain().stop()
-                )
-        );
-    }
 }

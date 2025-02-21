@@ -88,17 +88,17 @@ public class RobotSim extends SubsystemBase {
     @Override
     public void periodic() {
         currentElevatorLigament.setLength(
-                ScoringSuperstructure.getInstance().getCurrentElevatorLength().in(Meters)
+                SubsystemManager.getInstance().getScoringSuperstructure().getCurrentElevatorLength().in(Meters)
         );
         currentHopperLigament.setAngle(
-                ScoringSuperstructure.getInstance().getCurrentWristRotation()
+                SubsystemManager.getInstance().getScoringSuperstructure().getCurrentWristRotation()
         );
 
         targetElevatorLigament.setLength(
-                ScoringSuperstructure.getInstance().getTargetElevatorLength().in(Meters)
+                SubsystemManager.getInstance().getScoringSuperstructure().getTargetElevatorLength().in(Meters)
         );
         targetHopperLigament.setAngle(
-                ScoringSuperstructure.getInstance().getTargetWristRotation()
+                SubsystemManager.getInstance().getScoringSuperstructure().getTargetWristRotation()
         );
         SmartDashboard.putData("Mechanism View", RobotSim.mechanismView);
     }

@@ -1,22 +1,29 @@
 package frc.robot.subsystems.scoring.endeffector;
 
+import edu.wpi.first.math.MathUtil;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.constants.Controls;
 import frc.robot.robot.Robot;
-import frc.robot.subsystems.scoring.ScoringSuperstructureState;
+import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
 
 import java.util.Objects;
 
+import static frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConstants.*;
+
 public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
     private static AbstractEndEffectorSubsystem instance;
 
-    public static AbstractEndEffectorSubsystem getInstance() {
+    public static AbstractEndEffectorSubsystem getInstance(SubsystemManager.GetInstanceAccess access) {
+        Objects.requireNonNull(access);
+
         boolean dummy = false;
-         dummy = true;
-        if(dummy) return new DummyEndEffectorSubsystem();
+        // dummy = true
+        if (dummy) return new DummyEndEffectorSubsystem();
         if (Robot.isReal()) {
             return instance = Objects.requireNonNullElseGet(
                 instance,
@@ -30,102 +37,98 @@ public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
         }
     }
 
-    protected ScoringSuperstructureState state = ScoringSuperstructureState.IDLE;
-
-    /**
-     * Gets the current state of the endeffector.
-     * 
-     * @return state of endeffector as ScoringSuperStructureState
-     */
-    public final ScoringSuperstructureState getHopperState() {
-        return state;
-    }
+    private double intakeSpeed = 0;
+    private double targetRotationFraction = 0;
 
     /**
      * Gets the current rotation of the wrist.
-     * 
+     *
      * @return the current rotation of the wrist as Rotation2d
      */
     public abstract Rotation2d getCurrentRotation();
 
     /**
      * Gets the current rotation of the wrist by converting rotations to position.
-     * 
+     *
      * @return position of wrist as double
      */
-    public final double getCurrentPosition() {
-        return ScoringConstants.EndEffectorConstants.PositionToRotation.convertBackwards(getCurrentRotation());
+    public final double getCurrentMotorPosition() {
+        return PositionToRotation.convertBackwards(getCurrentRotation());
+    }
+
+    public double getCurrentRotationFraction() {
+        return ProportionToRotation.convertBackwards(getCurrentRotation());
     }
 
     /**
      * Gets the target rotation of the wrist.
-     * 
+     *
      * @return target rotation of wrist as Rotation2d
      */
     public final Rotation2d getTargetRotation() {
-        return state.getRotation();
+        return ProportionToRotation.convert(getTargetRotationFraction());
     }
 
     /**
      * Gets the target rotation of the wrist by converting rotations to position.
-     * 
+     *
      * @return target position of wrist as double
      */
     public final double getTargetPosition() {
-        return ScoringConstants.EndEffectorConstants.PositionToRotation.convertBackwards(getTargetRotation());
+        return RotationFractionToMotorPosition.convert(getTargetRotationFraction());
+    }
+
+    public final double getTargetRotationFraction() {
+        return targetRotationFraction;
+    }
+
+    public final void setTargetWristRotationFraction(double targetRotationFraction) {
+        this.targetRotationFraction = targetRotationFraction;
+    }
+
+    public final void setIntakeSpeed(double intakeSpeed) {
+        this.intakeSpeed = intakeSpeed;
+    }
+
+    public final boolean isWristAtTarget() {
+        return MathUtil.isNear(
+            getTargetPosition(),
+            getCurrentMotorPosition(),
+            ScoringConstants.EndEffectorConstants.WRIST_TOLERANCE
+        );
     }
 
     /**
-     * Gets the speed of the rollers on the scoring mechanism.
-     * 
-     * @return speed of rollers as double
-     */
-    public abstract double getIntakeSpeed();
-
-    /**
-     * Checks if the wrist is at the target position.
-     * 
-     * @return if wrist at target position as boolean
-     */
-    public abstract boolean isAtTarget();
-
-    /**
-     * Checks if the wrist is at its desired state.
-     * 
-     * @return if wrist is at desired state as boolean
-     */
-    public abstract boolean isHopperStateFinished();
-
-    /**
      * Checks if the scoring mechanism contains a coral.
-     * 
+     *
      * @return if the scoring mechanism has a coral as boolean
      */
     public abstract boolean hasCoral();
 
     public Trigger hasCoral = new Trigger(this::hasCoral);
 
-    /**
-     * Sets the state of the endeffector
-     * 
-     * @param state state that endeffector is being set to as ScoringSuperstructureState.
-     */
-    public abstract void setHopper(ScoringSuperstructureState state);
+    protected abstract void periodic(double targetWristRotationFraction, double intakeSpeed);
 
-    /**
-     * Runs the wrist.
-     */
-    protected abstract void runHopperPosition();
+    @Override
+    public final void periodic() {
+        double currentWristRotationFraction = getCurrentRotationFraction();
+        double targetWristRotationFraction;
+        double intakeSpeed;
 
-    /**
-     * Runs the intake/rollers.
-     */
-    public abstract void runHopper();
+        if (SubsystemManager.getInstance().getScoringSuperstructure().isManualControlEnabled()) {
+            targetWristRotationFraction = Controls.Operator.ManualControlWrist.getAsDouble();
+            intakeSpeed = Controls.Operator.ManualControlIntake.getAsDouble();
+        } else {
+            targetWristRotationFraction = getTargetRotationFraction();
+            intakeSpeed = this.intakeSpeed;
+        }
 
-    protected boolean manualControlEnabled = false;
+        periodic(targetWristRotationFraction, intakeSpeed);
 
-    public void setManualControlEnabled(boolean enabled) {
-        manualControlEnabled = enabled;
+        SmartDashboard.putString("Wrist info: ",
+            "current fraction = " + currentWristRotationFraction
+                + " target fraction = " + targetWristRotationFraction
+        );
     }
 
     public abstract void setWristMotorIdleMode(SparkBaseConfig.IdleMode mode);

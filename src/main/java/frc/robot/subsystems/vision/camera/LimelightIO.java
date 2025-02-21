@@ -7,10 +7,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.lib.util.DriverStationUtil;
 import frc.lib.network.LimelightHelpers;
 import frc.lib.network.LimelightHelpers.PoseEstimate;
+import frc.lib.util.PoseUtil;
 import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.vision.VisionResult;
 
@@ -36,11 +39,11 @@ public class LimelightIO implements CameraIO {
 
     @Override
     public Optional<VisionResult> getBotPoseAsVisionResult(boolean allianceFlipped) {
-        LimelightHelpers.SetRobotOrientation(name, SubsystemManager.getInstance().getDrivetrain().getPose().getRotation().getDegrees(), 0, 0, 0, 0, 0);
+        //LimelightHelpers.SetRobotOrientation(name, SubsystemManager.getInstance().getDrivetrain().getPose().getRotation().getDegrees(), 0, 0, 0, 0, 0);
         PoseEstimate poseEstimate = DriverStationUtil.getAlliance() == Alliance.Blue || !allianceFlipped
-                                        ? LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(name)
-                                        : LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2(name);
-        if(SubsystemManager.getInstance().getDrivetrain().getPose().equals(new Pose2d()) || verifyPose(poseEstimate.pose, allianceFlipped).isPresent()){
+                                        ? LimelightHelpers.getBotPoseEstimate_wpiBlue(name)
+                                        : LimelightHelpers.getBotPoseEstimate_wpiRed(name);
+        if(true){
             lastPoseEstimate = poseEstimate;
             return Optional.of(new VisionResult(poseEstimate.pose, poseEstimate.timestampSeconds));    
         } 

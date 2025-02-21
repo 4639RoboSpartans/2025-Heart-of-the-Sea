@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.scoring.ScoringSuperstructure;
+import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -50,7 +51,7 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void disabledInit() {
-        SubsystemManager.getInstance().getScoringSuperstructure().setScoringState(ScoringSuperstructureState.IDLE);
+        SubsystemManager.getInstance().getScoringSuperstructure().setAction(ScoringSuperstructureAction.IDLE);
         SubsystemManager.getInstance().getScoringSuperstructure().getEndEffectorSubsystem().setWristMotorIdleMode(SparkBaseConfig.IdleMode.kCoast);
     }
 

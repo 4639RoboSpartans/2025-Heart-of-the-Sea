@@ -3,7 +3,7 @@ package frc.robot.subsystems.scoring.constants;
 import frc.lib.tunable.TunableNumber;
 
 public class ScoringPIDs {
-    public static TunableNumber elevatorKp = new TunableNumber("Scoring PIDs/Elevator kP").withDefaultValue(3.596);
+    public static TunableNumber elevatorKp = new TunableNumber("Scoring PIDs/Elevator kP").withDefaultValue(3.796);
     public static TunableNumber elevatorKi = new TunableNumber("Scoring PIDs/Elevator kI").withDefaultValue(0.0);
     public static TunableNumber elevatorKd = new TunableNumber("Scoring PIDs/Elevator kD").withDefaultValue(0.0);
     public static TunableNumber elevatorVelocity = new TunableNumber("Scoring PIDs/Elevator Velocity").withDefaultValue(280.0);
@@ -13,7 +13,7 @@ public class ScoringPIDs {
     public static TunableNumber elevatorKv = new TunableNumber("Scoring PIDs/Elevator Kv").withDefaultValue(0.11568);
     public static TunableNumber elevatorKa = new TunableNumber("Scoring PIDs/Elevator Ka").withDefaultValue(0.0);
 
-    public static TunableNumber wristKp = new TunableNumber("Scoring PIDs/Wrist kP").withDefaultValue(0.2);
+    public static TunableNumber wristKp = new TunableNumber("Scoring PIDs/Wrist kP").withDefaultValue(11.0);
     public static TunableNumber wristKi = new TunableNumber("Scoring PIDs/Wrist kI").withDefaultValue(0.0);
     public static TunableNumber wristKd = new TunableNumber("Scoring PIDs/Wrist kD").withDefaultValue(0);
     public static TunableNumber wristVelocity = new TunableNumber("Scoring PIDs/Wrist Velocity").withDefaultValue(20);
