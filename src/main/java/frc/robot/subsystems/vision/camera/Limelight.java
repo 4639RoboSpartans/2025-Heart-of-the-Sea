@@ -1,6 +1,7 @@
 package frc.robot.subsystems.vision.camera;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -56,7 +57,7 @@ public class Limelight implements Camera {
     }
 
     @Override
-    public Set<Integer> targets() {
+    public Collection<Integer> targets() {
         return Arrays.stream(lastPoseEstimate.rawFiducials).parallel().map(rawFiducial -> rawFiducial.id).collect(Collectors.toSet());
     }
     

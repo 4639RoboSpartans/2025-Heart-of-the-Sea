@@ -1,38 +1,35 @@
 package frc.robot.subsystems.vision;
 
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.lib.annotation.ForSubsystemManagerUseOnly;
-import frc.robot.constants.FieldConstants;
-import frc.robot.subsystems.SubsystemManager;
-import frc.robot.subsystems.vision.camera.Camera;
-import frc.robot.subsystems.vision.camera.Limelight;
-import frc.robot.subsystems.vision.camera.PhotonVision;
-import frc.robot.subsystems.vision.constants.Limelights;
-import frc.robot.subsystems.vision.constants.PhotonCameras;
+import frc.robot.constants.IDs;
+import frc.robot.subsystems.vision.camera.CameraIO;
+import frc.robot.subsystems.vision.camera.LimelightIO;
+import frc.robot.subsystems.vision.camera.PhotonVisionIO;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class VisionSubsystem extends SubsystemBase {
     private static volatile VisionSubsystem instance;
 
-    private final Set<Camera> cameras;
-    private HashSet<VisionResult> visionResults;
+    private final Collection<CameraIO> cameras;
+    private Collection<VisionResult> visionResults;
 
-    /**
-     * This method should only be accessed from the SubsystemManager class. In other places, use
-     * {@link SubsystemManager#getVisionSubsystem()} instead.
-     */
-    @ForSubsystemManagerUseOnly
     public static synchronized VisionSubsystem getInstance() {
-        return instance = Objects.requireNonNullElseGet(instance, VisionSubsystem::new);
+        return Objects.requireNonNullElseGet(instance, () -> instance = new VisionSubsystem());
     }
 
     public VisionSubsystem() {
         cameras = new HashSet<>();
-        visionResults = new HashSet<>();
-        cameras.addAll(Arrays.stream(Limelights.values()).map(limelightID -> new Limelight(limelightID.getName())).toList());
-        cameras.addAll(Arrays.stream(PhotonCameras.values()).map(photonCameraID -> new PhotonVision(photonCameraID.getName(), photonCameraID.getTranformFromRobotCenter())).toList());
+        cameras.addAll(Arrays.stream(IDs.Limelights.values()).map(limelightID -> new LimelightIO(limelightID.getName())).toList());
+        cameras.addAll(Arrays.stream(IDs.PhotonCameras.values()).map(photonCameraID -> new PhotonVisionIO(photonCameraID.getName(), photonCameraID.getTransformFromRobotCenter())).toList());
     }
 
     @Override
@@ -44,11 +41,12 @@ public class VisionSubsystem extends SubsystemBase {
      * Pushes valid vision measurements from all cameras and all april tags.
      */
     public Command globalVision() {
+        if(!RobotBase.isReal()) return Commands.none();
         return run(() -> {
-            visionResults.clear();
-            cameras.stream().parallel().map(
-                    camera -> camera.getBotPoseAsVisionResult(true)
-            ).filter(Optional::isPresent).map(Optional::get).forEach(visionResults::add);
+            visionResults = cameras.parallelStream()
+                                .map(camera -> camera.getBotPoseAsVisionResult(true))
+                                .filter(Optional::isPresent).map(Optional::get)
+                                .collect(Collectors.toSet());
         });
     }
 
@@ -60,23 +58,17 @@ public class VisionSubsystem extends SubsystemBase {
      * @param idToTarget april tag ID to target
      */
     public Command targetedVision(int idToTarget) {
+        if(!RobotBase.isReal()) return Commands.none();
         return run(() -> {
-            visionResults.clear();
-            cameras.stream().parallel().filter(camera -> camera.targets().contains(idToTarget))
-                    .map(camera -> camera.getBotPoseAsVisionResult(true))
-                    .filter(Optional::isPresent).map(Optional::get).forEach(visionResults::add);
+            visionResults = cameras.parallelStream()
+                                .filter(camera -> camera.targets().contains(idToTarget))
+                                .map(camera -> camera.getBotPoseAsVisionResult(true))
+                                .filter(Optional::isPresent).map(Optional::get)
+                                .collect(Collectors.toSet());
         });
     }
 
-    /**
-     * @param idToTarget AprilTagIDHolder representing a position on the field irrespective of alliance
-     * @return {@link VisionSubsystem#targetedVision(int)} using the AprilTag ID consistent with the current alliance
-     */
-    public Command targetedVision(FieldConstants.AprilTagIDHolder idToTarget) {
-        return targetedVision(idToTarget.getAllianceRespectiveID());
-    }
-
-    public Set<VisionResult> getVisionResults() {
+    public Collection<VisionResult> getVisionResults() {
         return visionResults;
     }
 }

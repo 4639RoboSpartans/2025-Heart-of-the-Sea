@@ -1,11 +1,12 @@
 package frc.robot.subsystems.vision.camera;
 
+import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 
 import frc.robot.subsystems.vision.VisionResult;
 
-public interface Camera {
+public interface CameraIO {
     String getName();
 
     /**
@@ -17,7 +18,7 @@ public interface Camera {
     Optional<VisionResult> getBotPoseAsVisionResult(boolean allianceFlipped);
 
     /**
-     * @return a Set of all the targets found in the last measurement from this camera
+     * @return a Collection of all the targets found in the last measurement from this camera.
      */
-    Set<Integer> targets();
+    Collection<Integer> targets();
 }
