@@ -15,6 +15,8 @@ import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.tunable.TunableNumber;
+import frc.robot.subsystems.SubsystemManager;
+import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
 import frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConstants;
 import frc.robot.subsystems.scoring.constants.ScoringPIDs;
@@ -129,6 +131,14 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
         ).orElse(false);
     }
 
+    private double coralDistance() {
+        var measurement = laserCAN.getMeasurement();
+        if (measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
+            return measurement.distance_mm;
+        }
+        return 0;
+    }
+
     @Override
     protected void periodic(double targetWristRotationFraction, double intakeSpeed) {
         double currentWristPosition = getCurrentMotorPosition();
@@ -137,7 +147,21 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
         double wristPIDOutput = -wristPID.calculate(currentWristPosition, targetWristPosition);
 
         wristMotor.setVoltage(wristPIDOutput);
-        intakeMotor.set(intakeSpeed);
+        ScoringSuperstructureAction action = SubsystemManager.getInstance().getScoringSuperstructure().getAction();
+        SmartDashboard.putNumber("Coral Distance", coralDistance());
+        if (action.endOnGamePieceSeen) {
+            if (!hasCoral.getAsBoolean()) {
+                intakeMotor.set(action.intakeSpeed);
+            } else {
+                intakeMotor.set(0);
+            }
+        } else if (action.endOnGamePieceNotSeen) {
+            if (hasCoral()) {
+                intakeMotor.set(action.intakeSpeed);
+            } else {
+                intakeMotor.set(0);
+            }
+        }
     }
 
     @Override
