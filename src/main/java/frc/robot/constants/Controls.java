@@ -68,7 +68,8 @@ public class Controls {
         public static final Trigger PathfindReef_3 = reefRightPoses.and(reefLeft.or(reefRight)).and(driverController.Y_BUTTON);
         public static final Trigger PathfindReef_4 = reefRightPoses.and(reefLeft.or(reefRight)).and(driverController.X_BUTTON);
         public static final Trigger PathfindReef_5 = reefRightPoses.and(reefLeft.or(reefRight)).and(driverController.A_BUTTON);
-
+        
+        //these need to be changed over to driver controller
         public static final Trigger L2AlgaeTrigger = operatorController.X_BUTTON;
         public static final Trigger L3AlgaeTrigger = operatorController.Y_BUTTON;
         public static final Trigger ProcessorTrigger = operatorController.POV_RIGHT;
@@ -82,9 +83,15 @@ public class Controls {
         public static final Trigger L3Trigger = operatorController.RIGHT_BUMPER;
         public static final Trigger L4Trigger = operatorController.RIGHT_TRIGGER;
 
-        public static final Trigger HPLoadingTrigger = operatorController.POV_DOWN;
+        public static final Trigger HPLoadingTrigger = operatorController.X_BUTTON;
 
-        public static final Trigger HoldTrigger = operatorController.POV_UP;
+        public static final Trigger HoldTrigger = operatorController.Y_BUTTON;
+        //@aditya-khambekar Please add functionality
+        public static final Trigger microElevatorUp = operatorController.POV_UP;// micro adjustments up or down for the elevator
+        public static final Trigger microElevatorDown = operatorController.POV_DOWN;
+        public static final Trigger microPivotUp = operatorController.POV_LEFT;//micro adjustments
+        public static final Trigger microPivotDown = operatorController.POV_RIGHT;
+        
 
         //Manual Override Controls
         public static Trigger ToggleManualControlTrigger = operatorController.LEFT_STICK;
