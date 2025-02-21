@@ -4,10 +4,8 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.constants.IDs;
 import frc.robot.subsystems.vision.camera.CameraIO;
 import frc.robot.subsystems.vision.camera.LimelightIO;
-import frc.robot.subsystems.vision.camera.PhotonVisionIO;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -29,7 +27,6 @@ public class VisionSubsystem extends SubsystemBase {
     public VisionSubsystem() {
         cameras = new HashSet<>();
         cameras.addAll(Arrays.stream(IDs.Limelights.values()).map(limelightID -> new LimelightIO(limelightID.getName())).toList());
-        cameras.addAll(Arrays.stream(IDs.PhotonCameras.values()).map(photonCameraID -> new PhotonVisionIO(photonCameraID.getName(), photonCameraID.getTransformFromRobotCenter())).toList());
     }
 
     @Override

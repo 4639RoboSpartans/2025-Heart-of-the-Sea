@@ -17,7 +17,7 @@ import frc.robot.subsystems.vision.VisionResult;
 /**
  * Wraps a Limelight in the shape of a CameraIO interface, to be used in the Vision subsystem.
  */
-public class Limelight implements Camera {
+public class LimelightIO implements CameraIO {
     private final String name;
     PoseEstimate lastPoseEstimate;
 
@@ -25,7 +25,7 @@ public class Limelight implements Camera {
      * Constructs a new LimelightIO object.
      * @param name the nickname of the camera. This will be the same as the NetworkTable the camera broadcasts to.
      */
-    public Limelight(String name){
+    public LimelightIO(String name){
         this.name = name;
     }
 
@@ -40,7 +40,7 @@ public class Limelight implements Camera {
         PoseEstimate poseEstimate = DriverStationUtil.getAlliance() == Alliance.Blue || !allianceFlipped
                                         ? LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(name)
                                         : LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2(name);
-        if(verifyPose(poseEstimate.pose, allianceFlipped).isPresent()){
+        if(SubsystemManager.getInstance().getDrivetrain().getPose().equals(new Pose2d()) || verifyPose(poseEstimate.pose, allianceFlipped).isPresent()){
             lastPoseEstimate = poseEstimate;
             return Optional.of(new VisionResult(poseEstimate.pose, poseEstimate.timestampSeconds));    
         } 

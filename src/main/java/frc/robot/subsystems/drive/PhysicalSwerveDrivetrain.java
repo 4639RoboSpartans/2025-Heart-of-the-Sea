@@ -244,8 +244,8 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         // Update vision
         SubsystemManager.getInstance().getVisionSubsystem().getVisionResults().forEach(
             visionResult -> drivetrain.addVisionMeasurement(
-                visionResult.getVisionPose(),
-                visionResult.getTimestamp()
+                visionResult.estimatedRobotPose(),
+                visionResult.timestamp()
             )
         );
         // Update robot pose
