@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.vision.camera.CameraIO;
 import frc.robot.subsystems.vision.camera.LimelightIO;
 
@@ -20,7 +21,8 @@ public class VisionSubsystem extends SubsystemBase {
     private final Collection<CameraIO> cameras;
     private Collection<VisionResult> visionResults;
 
-    public static synchronized VisionSubsystem getInstance() {
+    public static synchronized VisionSubsystem getInstance(SubsystemManager.GetInstanceAccess access) {
+        Objects.requireNonNull(access);
         return Objects.requireNonNullElseGet(instance, () -> instance = new VisionSubsystem());
     }
 

@@ -39,7 +39,7 @@ public class SubsystemManager {
         //climberSubsystem = AbstractClimberSubsystem.getInstance();
         drivetrain = AbstractSwerveDrivetrain.getInstance(getInstanceAccess);
         scoringSuperstructure = ScoringSuperstructure.getInstance(getInstanceAccess);
-        visionSubsystem = VisionSubsystem.getInstance();
+        visionSubsystem = VisionSubsystem.getInstance(getInstanceAccess);
     }
 
     public AbstractClimberSubsystem getClimberSubsystem() {
