@@ -5,43 +5,6 @@ import frc.lib.oi.Controller;
 import frc.lib.oi.OI;
 
 import java.util.function.DoubleSupplier;
-/*
- * Driver Controls:
- * - Left Stick Y->
- * - Left Stick X->
- * - Right Stick Y->
- * - Right Stick X->
- * - D Pad Left ->
- * - D Pad Right ->
- * - D Pad Up
- * - D Pad Down
- * - X Button
- * - Y Button
- * - A Button
- * - B Button
- * - RB Button
- * - LB Button
- * - R Trigger
- * - L Trigger
- *
- * Operator Controls:
- * - Left Stick Y->
- * - Left Stick X->
- * - Right Stick Y->
- * - Right Stick X->
- * - D Pad Left ->
- * - D Pad Right ->
- * - D Pad Up
- * - D Pad Down
- * - X Button
- * - Y Button
- * - A Button
- * - B Button
- * - RB Button
- * - LB Button
- * - R Trigger
- * - L Trigger
- */
 
 public class Controls {
     private static final Controller driverController = OI.getInstance().driverController();
@@ -53,7 +16,7 @@ public class Controls {
         public static final DoubleSupplier SwerveRotationAxis = driverController::rightStickX;
 
         public static final Trigger precisionTrigger = driverController.LEFT_TRIGGER;
-
+        //why this no workie???
         public static final Trigger rotationResetTrigger = driverController.A_BUTTON
             .and(driverController.B_BUTTON);
 
@@ -69,7 +32,8 @@ public class Controls {
         public static final Trigger L2Trigger = operatorController.LEFT_BUMPER;
         public static final Trigger L3Trigger = operatorController.RIGHT_BUMPER;
         public static final Trigger L4Trigger = operatorController.RIGHT_TRIGGER;
-        //till need to add 
+        //still need to add some of controls - these need to be implemented
+        //implement some sort of adjustment for elevator and 
 
         public static final Trigger HPLoadingTrigger = operatorController.B_BUTTON;
 
