@@ -68,12 +68,12 @@ public class Controls {
         public static final Trigger PathfindReef_3 = reefRightPoses.and(reefLeft.or(reefRight)).and(driverController.Y_BUTTON);
         public static final Trigger PathfindReef_4 = reefRightPoses.and(reefLeft.or(reefRight)).and(driverController.X_BUTTON);
         public static final Trigger PathfindReef_5 = reefRightPoses.and(reefLeft.or(reefRight)).and(driverController.A_BUTTON);
-        
+
         //these need to be changed over to driver controller
-        public static final Trigger L2AlgaeTrigger = operatorController.X_BUTTON;
-        public static final Trigger L3AlgaeTrigger = operatorController.Y_BUTTON;
-        public static final Trigger ProcessorTrigger = operatorController.POV_RIGHT;
-        public static final Trigger BargeScoringTrigger = operatorController.Y_BUTTON;
+        public static final Trigger L2AlgaeTrigger = driverController.POV_LEFT;
+        public static final Trigger L3AlgaeTrigger = driverController.POV_RIGHT;
+        public static final Trigger ProcessorTrigger = driverController.POV_DOWN;
+        public static final Trigger BargeScoringTrigger = driverController.POV_UP;
     }
 
     public static class Operator {
@@ -86,18 +86,16 @@ public class Controls {
         public static final Trigger HPLoadingTrigger = operatorController.X_BUTTON;
 
         public static final Trigger HoldTrigger = operatorController.Y_BUTTON;
-        //@aditya-khambekar Please add functionality
-        public static final Trigger microElevatorUp = operatorController.POV_UP;// micro adjustments up or down for the elevator
-        public static final Trigger microElevatorDown = operatorController.POV_DOWN;
-        public static final Trigger microPivotUp = operatorController.POV_LEFT;//micro adjustments
-        public static final Trigger microPivotDown = operatorController.POV_RIGHT;
-        
 
-        //Manual Override Controls
+        // Micro adjustment controls
+        public static final DoubleSupplier MicroElevatorAdjustment = () -> operatorController.POV_UP() - operatorController.POV_DOWN();
+        public static final DoubleSupplier MicroWristAdjustment = () -> operatorController.POV_RIGHT() - operatorController.POV_LEFT();
+
+        //Manual override controls
         public static Trigger ToggleManualControlTrigger = operatorController.LEFT_STICK;
 
         public static final DoubleSupplier ManualControlWrist = () -> operatorController.rightStickY() * 0.5 + 0.5;
         public static final DoubleSupplier ManualControlElevator = operatorController::leftStickY;
-        public static final DoubleSupplier ManualControlIntake = () -> (operatorController.A_BUTTON.getAsBoolean() ? 1 : 0) - (operatorController.B_BUTTON.getAsBoolean() ? 1 : 0);
+        public static final DoubleSupplier ManualControlIntake = () -> operatorController.A_BUTTON() - operatorController.B_BUTTON();
     }
 }

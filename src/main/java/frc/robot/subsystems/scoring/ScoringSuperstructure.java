@@ -35,6 +35,8 @@ public final class ScoringSuperstructure extends SubsystemBase {
 
     private ScoringSuperstructureAction currentAction = ScoringSuperstructureAction.IDLE;
     private ScoringSuperstructureState currentState = ScoringSuperstructureState.EXECUTING_ACTION;
+    private double elevatorAdjustment = 0;
+    private double wristAdjustment = 0;
 
     private boolean isManualControlEnabled = false;
 
@@ -55,7 +57,13 @@ public final class ScoringSuperstructure extends SubsystemBase {
             } else {
                 currentState = ScoringSuperstructureState.ELEVATOR_MOVE_NO_TRANSITION;
             }
+            resetAdjustments();
         }
+    }
+
+    private void resetAdjustments() {
+        elevatorAdjustment = 0;
+        wristAdjustment = 0;
     }
 
     /**
@@ -120,22 +128,35 @@ public final class ScoringSuperstructure extends SubsystemBase {
     private void runActionPeriodic() {
         // If the current action's trigger is no longer active,
         // move to the next action
-//        if (!currentAction.trigger.getAsBoolean()) {
-//            setCurrentAction(currentAction.nextAction);
-//        }
+        if (!currentAction.trigger.getAsBoolean()) {
+            setCurrentAction(currentAction.nextAction);
+        }
+
+        // Update fine-tuning offsets
+        elevatorAdjustment += 0.002 * Controls.Operator.MicroElevatorAdjustment.getAsDouble();
+        wristAdjustment += 0.002 * Controls.Operator.MicroWristAdjustment.getAsDouble();
 
         OptionalDouble targetElevatorExtensionFraction = currentState.getTargetElevatorExtensionFraction(currentAction);
         OptionalDouble targetWristRotationFraction = currentState.getTargetWristRotationFraction(currentAction);
 //        double intakeSpeed = currentState.getIntakeSpeed(currentAction);
         double intakeSpeed = Controls.Operator.ManualControlIntake.getAsDouble();
 
-        targetElevatorExtensionFraction.ifPresent(elevator::setTargetExtensionFraction);
-        targetWristRotationFraction.ifPresent(endEffector::setTargetWristRotationFraction);
+        targetElevatorExtensionFraction.ifPresent(
+            targetExtensionProportion -> elevator.setTargetExtensionFraction(
+                MathUtil.clamp(targetExtensionProportion + elevatorAdjustment, 0, 1)
+            )
+        );
+        targetWristRotationFraction.ifPresent(
+            targetRotationFraction -> endEffector.setTargetWristRotationFraction(
+                MathUtil.clamp(targetRotationFraction + wristAdjustment, 0, 1)
+            )
+        );
         endEffector.setIntakeSpeed(intakeSpeed);
 
         // Advance the state if necessary
         if (currentState.shouldAdvanceState(currentAction, endEffector, elevator)) {
             currentState = currentState.next();
+            resetAdjustments();
         }
         // If the state is finished, go to the next action
 //        if (currentState == ScoringSuperstructureState.DONE) {
