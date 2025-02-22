@@ -3,7 +3,6 @@ package frc.robot.subsystems;
 import frc.robot.subsystems.climber.AbstractClimberSubsystem;
 import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
 import frc.robot.subsystems.scoring.ScoringSuperstructure;
-import frc.robot.subsystems.vision.VisionSubsystem;
 
 import java.util.Objects;
 
@@ -21,7 +20,6 @@ public class SubsystemManager {
     private AbstractClimberSubsystem climberSubsystem;
     private AbstractSwerveDrivetrain drivetrain;
     private ScoringSuperstructure scoringSuperstructure;
-    private VisionSubsystem visionSubsystem;
 
     public static synchronized SubsystemManager getInstance() {
         return instance = Objects.requireNonNullElseGet(instance, SubsystemManager::new);
@@ -39,7 +37,6 @@ public class SubsystemManager {
         //climberSubsystem = AbstractClimberSubsystem.getInstance();
         drivetrain = AbstractSwerveDrivetrain.getInstance(getInstanceAccess);
         scoringSuperstructure = ScoringSuperstructure.getInstance(getInstanceAccess);
-        visionSubsystem = VisionSubsystem.getInstance(getInstanceAccess);
     }
 
     public AbstractClimberSubsystem getClimberSubsystem() {
@@ -54,7 +51,4 @@ public class SubsystemManager {
         return scoringSuperstructure;
     }
 
-    public VisionSubsystem getVisionSubsystem() {
-        return visionSubsystem;
-    }
 }

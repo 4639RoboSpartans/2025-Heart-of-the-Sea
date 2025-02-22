@@ -14,10 +14,14 @@ import com.pathplanner.lib.util.PathPlannerLogging;
 import com.pathplanner.lib.util.swerve.SwerveSetpoint;
 import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -30,13 +34,14 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.lib.network.LimelightHelpers;
 import frc.lib.util.DriverStationUtil;
 import frc.robot.constants.Controls;
+import frc.robot.constants.Limelights;
 import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.drive.constants.DriveConstants;
 import frc.robot.subsystems.drive.constants.DrivePIDs;
 import frc.robot.subsystems.drive.constants.TunerConstants;
 import frc.robot.subsystems.drive.constants.TunerConstants.TunerSwerveDrivetrain;
-import frc.robot.subsystems.vision.IDs;
-import frc.robot.subsystems.vision.VisionResult;
+import frc.robot.subsystems.scoring.Vision;
+import org.ejml.simple.SimpleMatrix;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -100,6 +105,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         PathPlannerLogging.setLogActivePathCallback((poses) -> {
             field.getObject("Pathplanner Path").setPoses(poses);
         });
+        drivetrain.setVisionMeasurementStdDevs(new Matrix<N3, N1>(Nat.N3(), Nat.N1(), new double[]{1.0, 1.0, 1000.0}));
     }
 
     @Override
@@ -250,24 +256,9 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                 didApplyOperatorPerspective = true;
             });
         }
-        if ((RobotBase.isReal())) Arrays.stream(IDs.Limelights.values()).parallel().forEach(
-                limelight -> {
-                    Optional<Pose2d> measurement = Optional.of(
-                            DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
-                                    ? LimelightHelpers.getBotPose2d_wpiBlue(limelight.getName())
-                                    : LimelightHelpers.getBotPose2d_wpiRed(limelight.getName())
-                    );
-                    measurement = measurement.isPresent()
-                            ? (measurement.get().getX() == 0 || measurement.get().getY() == 0
-                            ? Optional.empty()
-                            : (measurement.get().getTranslation().getDistance(drivetrain.getState().Pose.getTranslation()) <= (1)
-                            ? measurement
-                            : Optional.empty())
-                    )
-                            : Optional.empty();
-                    measurement.ifPresent(pose -> drivetrain.addVisionMeasurement(pose, Utils.getCurrentTimeSeconds()));
-                }
-        );
+
+        Vision.addGlobalVisionMeasurements(this);
+
         // Update robot pose
         field.setRobotPose(getPose());
         // Update field on dashboard
@@ -295,5 +286,10 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     @Override
     public void resetPose(Pose2d pose) {
         drivetrain.resetPose(pose);
+    }
+
+    @Override
+    public void addVisionMeasurement(Pose2d pose, double timestamp) {
+        drivetrain.addVisionMeasurement(pose, timestamp);
     }
 }

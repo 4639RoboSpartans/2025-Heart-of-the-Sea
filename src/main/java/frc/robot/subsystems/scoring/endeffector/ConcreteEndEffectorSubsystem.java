@@ -30,6 +30,7 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
 
     private final ProfiledPIDController wristPID;
     private final double encoderOffset;
+    private final static double DEFAULT_ENCODER_OFFSET = 0.645;
 
     public ConcreteEndEffectorSubsystem() {
         intakeMotor = new SparkFlex(
@@ -64,7 +65,7 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
             1,
             0
         );
-        encoderOffset = 0.077;
+        encoderOffset = DEFAULT_ENCODER_OFFSET;
 
         wristPID = new ProfiledPIDController(
             ScoringPIDs.wristKp.get(),
@@ -135,6 +136,8 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
         double targetWristPosition = EndEffectorConstants.RotationFractionToMotorPosition.convert(targetWristRotationFraction);
 
         double wristPIDOutput = -wristPID.calculate(currentWristPosition, targetWristPosition);
+
+        SmartDashboard.putNumber("Wrist raw position", wristEncoder.get());
 
         wristMotor.setVoltage(wristPIDOutput);
         intakeMotor.set(intakeSpeed);
