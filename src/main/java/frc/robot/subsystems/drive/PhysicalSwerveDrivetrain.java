@@ -64,9 +64,17 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
             pathXController = new PIDController(12, 0, 0),
             pathYController = new PIDController(12, 0, 0),
             pathHeadingController = new PIDController(7, 0, 0);
-    protected final ProfiledPIDController
-            pidXController = new ProfiledPIDController(1, 0, 0, new TrapezoidProfile.Constraints(2, 2)),
-            pidYController = new ProfiledPIDController(1, 0, 0, new TrapezoidProfile.Constraints(2, 2));
+    protected ProfiledPIDController
+            pidXController = constructPIDXController();
+    protected ProfiledPIDController pidYController = constructPIDYController();
+
+    public static ProfiledPIDController constructPIDYController() {
+        return new ProfiledPIDController(2, 0, 0, new TrapezoidProfile.Constraints(2, 4));
+    }
+
+    public static ProfiledPIDController constructPIDXController() {
+        return new ProfiledPIDController(2, 0, 0, new TrapezoidProfile.Constraints(2, 4));
+    }
 
     {
         pathHeadingController.enableContinuousInput(-Math.PI, Math.PI);
@@ -190,26 +198,29 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     @Override
     public Command directlyMoveTo(Pose2d targetPose) {
         return new InstantCommand(() -> {
+            pidXController.reset(getPose().getX());
+            pidYController.reset(getPose().getY());
             pidXController.setGoal(targetPose.getX());
             pidYController.setGoal(targetPose.getY());
-            field.getObject("Target Pose").setPose(targetPose);
         }).andThen(applyRequest(
-            () -> {
-                double pidXOutput = pidXController.calculate(getPose().getX());
-                double pidYOutput = pidYController.calculate(getPose().getY());
+                () -> {
+                    field.getObject("Target Pose").setPose(pidXController.getSetpoint().position, pidYController.getSetpoint().position, targetPose.getRotation());
+                    double pidXOutput = pidXController.calculate(getPose().getX());
+                    double pidYOutput = pidYController.calculate(getPose().getY());
 
-                var request = new SwerveRequest.FieldCentricFacingAngle();
-                request.HeadingController = headingController;
+                    var request = new SwerveRequest.FieldCentricFacingAngle();
+                    request.HeadingController = new PhoenixPIDController(8, 0, 0);
+                    request.HeadingController.enableContinuousInput(-Math.PI, Math.PI);
 
-                return request
-                    .withVelocityX(pidXOutput)
-                    .withVelocityY(pidYOutput)
-                    // Michael says not sure why the 180-degree rotation is needed, but it just works
-                    .withTargetDirection(targetPose.getRotation().plus(Rotation2d.kZero));
-            }
+                    return request
+                            .withVelocityX(pidXOutput)
+                            .withVelocityY(pidYOutput)
+                            .withTargetDirection(targetPose.getRotation());
+                }
         ).until(
-            () -> MathUtil.isNear(targetPose.getX(), getPose().getX(), 0.025)
-                && MathUtil.isNear(targetPose.getY(), getPose().getY(), 0.025)
+                () -> MathUtil.isNear(targetPose.getX(), getPose().getX(), 0.01)
+                        && MathUtil.isNear(targetPose.getY(), getPose().getY(), 0.01)
+                        && MathUtil.isNear(targetPose.getRotation().getDegrees(), getPose().getRotation().getDegrees(), 2)
         ));
     }
 

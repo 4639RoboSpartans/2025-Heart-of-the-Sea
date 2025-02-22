@@ -25,13 +25,15 @@ public class SimSwerveDrivetrain extends PhysicalSwerveDrivetrain {
     @Override
     public Command directlyMoveTo(Pose2d targetPose) {
         return new InstantCommand(() -> {
+            pidXController.reset(getPose().getX());
+            pidYController.reset(getPose().getY());
             pidXController.setGoal(targetPose.getX());
             pidYController.setGoal(targetPose.getY());
-            field.getObject("Target Pose").setPose(new Pose2d(targetPose.getTranslation(), targetPose.getRotation().plus(Rotation2d.k180deg)));
         }).andThen(applyRequest(
                 () -> {
-                    double pidXOutput = -pidXController.calculate(getPose().getX());
-                    double pidYOutput = -pidYController.calculate(getPose().getY());
+                    field.getObject("Target Pose").setPose(pidXController.getSetpoint().position, pidYController.getSetpoint().position, targetPose.getRotation());
+                    double pidXOutput = pidXController.calculate(getPose().getX());
+                    double pidYOutput = pidYController.calculate(getPose().getY());
 
                     var request = new SwerveRequest.FieldCentricFacingAngle();
                     request.HeadingController = new PhoenixPIDController(8, 0, 0);
