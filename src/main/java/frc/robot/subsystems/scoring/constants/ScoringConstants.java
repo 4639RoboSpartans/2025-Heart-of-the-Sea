@@ -82,14 +82,14 @@ public final class ScoringConstants {
         public static final int WristCurrentLimit = 30;
 
         public static final class IntakeSpeeds {
-            public static final double Intake_HP_Speed = 0.5;
+            public static final double Intake_HP_Speed = 0.8;
             public static final double Intake_Processor_Speed = 0.5;
             public static final double Intake_L1_Speed = 0.5;
             public static final double Intake_L2_Speed = 0.5;
             public static final double Intake_L3_Speed = 0.5;
             public static final double Intake_L4_Speed = 0.5;
-            public static final double Intake_L2_ALGAE_Speed = -0.5;
-            public static final double Intake_L3_ALGAE_Speed = -0.5;
+            public static final double Intake_L2_ALGAE_Speed = 1.0;
+            public static final double Intake_L3_ALGAE_Speed = 1.0;
             public static final double Intake_Barge_Speed = 1.0;
         }
 

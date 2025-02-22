@@ -149,8 +149,7 @@ public final class ScoringSuperstructure extends SubsystemBase {
             .getTargetWristRotationFraction(currentAction)
             .orElseGet(endEffector::getTargetRotationFraction);
 
-//        double intakeSpeed = currentState.getIntakeSpeed(currentAction);
-        double intakeSpeed = Controls.Operator.ManualControlIntake.getAsDouble();
+        double intakeSpeed = currentState.getIntakeSpeed(currentAction);
 
         // Update fine-tuning offsets
         elevatorAdjustment += 0.002 * Controls.Operator.MicroElevatorAdjustment.getAsDouble();
