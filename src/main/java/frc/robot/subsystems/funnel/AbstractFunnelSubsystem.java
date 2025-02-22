@@ -49,8 +49,8 @@ public abstract class AbstractFunnelSubsystem extends SubsystemBase {
      *
      * @param active Whether the funnel is in intaking position
      */
-    public final void setFunnelActive(boolean active) {
-        this.active = active;
+    public final void setFunnelActive(boolean isTargetPositionDown) {
+        this.isTargetPositionDown = isTargetPositionDown;
     }
 
     /**
