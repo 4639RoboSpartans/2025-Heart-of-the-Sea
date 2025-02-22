@@ -17,7 +17,6 @@ import frc.robot.subsystems.scoring.elevator.ElevatorSysID;
 import frc.robot.subsystems.scoring.endeffector.AbstractEndEffectorSubsystem;
 
 import java.util.Objects;
-import java.util.OptionalDouble;
 import java.util.function.Supplier;
 
 public final class ScoringSuperstructure extends SubsystemBase {
@@ -116,7 +115,7 @@ public final class ScoringSuperstructure extends SubsystemBase {
     }
 
     private void runManualPeriodic() {
-        double currentTargetElevatorExtensionFraction = elevator.getTargetProportion();
+        double currentTargetElevatorExtensionFraction = elevator.getTargetExtensionFraction();
         double targetElevatorExtensionFraction = currentTargetElevatorExtensionFraction
             + Controls.Operator.ManualControlElevator.getAsDouble() * 0.03;
 
@@ -132,25 +131,32 @@ public final class ScoringSuperstructure extends SubsystemBase {
             setCurrentAction(currentAction.nextAction);
         }
 
-        // Update fine-tuning offsets
-        elevatorAdjustment += 0.002 * Controls.Operator.MicroElevatorAdjustment.getAsDouble();
-        wristAdjustment += 0.002 * Controls.Operator.MicroWristAdjustment.getAsDouble();
+        // Get new setpoints
+        double targetElevatorExtensionFraction = currentState
+            .getTargetElevatorExtensionFraction(currentAction)
+            .orElseGet(elevator::getTargetExtensionFraction);
+        double targetWristRotationFraction = currentState
+            .getTargetWristRotationFraction(currentAction)
+            .orElseGet(endEffector::getTargetRotationFraction);
 
-        OptionalDouble targetElevatorExtensionFraction = currentState.getTargetElevatorExtensionFraction(currentAction);
-        OptionalDouble targetWristRotationFraction = currentState.getTargetWristRotationFraction(currentAction);
 //        double intakeSpeed = currentState.getIntakeSpeed(currentAction);
         double intakeSpeed = Controls.Operator.ManualControlIntake.getAsDouble();
 
-        targetElevatorExtensionFraction.ifPresent(
-            targetExtensionProportion -> elevator.setTargetExtensionFraction(
-                MathUtil.clamp(targetExtensionProportion + elevatorAdjustment, 0, 1)
-            )
-        );
-        targetWristRotationFraction.ifPresent(
-            targetRotationFraction -> endEffector.setTargetWristRotationFraction(
-                MathUtil.clamp(targetRotationFraction + wristAdjustment, 0, 1)
-            )
-        );
+        // Update fine-tuning offsets
+        elevatorAdjustment += 0.002 * Controls.Operator.MicroElevatorAdjustment.getAsDouble();
+        wristAdjustment += 0.002 * Controls.Operator.MicroWristAdjustment.getAsDouble();
+        elevatorAdjustment = MathUtil.clamp(
+            targetElevatorExtensionFraction + elevatorAdjustment,
+            0, 1
+        ) - targetElevatorExtensionFraction;
+        wristAdjustment = MathUtil.clamp(
+            targetWristRotationFraction + wristAdjustment,
+            0, 1
+        ) - targetWristRotationFraction;
+
+
+        elevator.setTargetExtensionFraction(targetElevatorExtensionFraction + elevatorAdjustment);
+        endEffector.setTargetWristRotationFraction(targetWristRotationFraction + wristAdjustment);
         endEffector.setIntakeSpeed(intakeSpeed);
 
         // Advance the state if necessary

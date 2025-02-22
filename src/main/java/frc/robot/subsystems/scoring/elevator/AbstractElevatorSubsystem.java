@@ -61,7 +61,7 @@ public abstract class AbstractElevatorSubsystem extends SubsystemBase {
      * Get the target extension proportion of the elevator in the current state,
      * where 0 means fully retracted and 1 means fully extended
      */
-    public final double getTargetProportion() {
+    public final double getTargetExtensionFraction() {
         return targetExtensionProportion;
     }
 
@@ -70,7 +70,7 @@ public abstract class AbstractElevatorSubsystem extends SubsystemBase {
      * used by PID
      */
     public final double getTargetPosition() {
-        return ProportionToPosition.convert(getTargetProportion());
+        return ProportionToPosition.convert(getTargetExtensionFraction());
     }
 
     /**
@@ -78,7 +78,7 @@ public abstract class AbstractElevatorSubsystem extends SubsystemBase {
      * used by simulation.
      */
     public final Distance getTargetHeight() {
-        return ProportionToHeight.convert(getTargetProportion());
+        return ProportionToHeight.convert(getTargetExtensionFraction());
     }
 
     public boolean isAtTarget() {
