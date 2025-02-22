@@ -205,17 +205,19 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         }).andThen(applyRequest(
                 () -> {
                     field.getObject("Target Pose").setPose(pidXController.getSetpoint().position, pidYController.getSetpoint().position, targetPose.getRotation());
-                    double pidXOutput = pidXController.calculate(getPose().getX());
-                    double pidYOutput = pidYController.calculate(getPose().getY());
+                    double directionMultiplier = DriverStationUtil.getAlliance() == DriverStation.Alliance.Red? -1 : 1;
+                    double pidXOutput = pidXController.calculate(getPose().getX()) * directionMultiplier;
+                    double pidYOutput = pidYController.calculate(getPose().getY()) * directionMultiplier;
 
                     var request = new SwerveRequest.FieldCentricFacingAngle();
                     request.HeadingController = new PhoenixPIDController(8, 0, 0);
                     request.HeadingController.enableContinuousInput(-Math.PI, Math.PI);
+                    Rotation2d headingOffset = DriverStationUtil.getAlliance() == Alliance.Red? Rotation2d.k180deg : new Rotation2d();
 
                     return request
                             .withVelocityX(pidXOutput)
                             .withVelocityY(pidYOutput)
-                            .withTargetDirection(targetPose.getRotation());
+                            .withTargetDirection(targetPose.getRotation().plus(headingOffset));
                 }
         ).until(
                 () -> MathUtil.isNear(targetPose.getX(), getPose().getX(), 0.01)
