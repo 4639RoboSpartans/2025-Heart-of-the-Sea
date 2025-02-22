@@ -17,11 +17,13 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -57,14 +59,14 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
     private boolean didApplyOperatorPerspective = false;
 
-    //TODO: tune this
-    private final PhoenixPIDController headingController = new PhoenixPIDController(28.48 * 1.5, 0, 1.1466);
-    private final PIDController
-        pathXController = new PIDController(12, 0, 0),
-        pathYController = new PIDController(12, 0, 0),
-        pathHeadingController = new PIDController(7, 0, 0),
-        pidXController = new PIDController(3, 0, 0.1),
-        pidYController = new PIDController(3, 0, 0.1);
+    private final PhoenixPIDController headingController = new PhoenixPIDController(28.48, 0, 1.1466);
+    protected final PIDController
+            pathXController = new PIDController(12, 0, 0),
+            pathYController = new PIDController(12, 0, 0),
+            pathHeadingController = new PIDController(7, 0, 0);
+    protected final ProfiledPIDController
+            pidXController = new ProfiledPIDController(1, 0, 0, new TrapezoidProfile.Constraints(2, 2)),
+            pidYController = new ProfiledPIDController(1, 0, 0, new TrapezoidProfile.Constraints(2, 2));
 
     {
         pathHeadingController.enableContinuousInput(-Math.PI, Math.PI);
@@ -73,7 +75,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         DrivePIDs.pidToPoseYkP.onChange(pidYController::setP);
     }
 
-    private final Field2d field = new Field2d();
+    protected final Field2d field = new Field2d();
 
     private final SwerveSetpointGenerator swerveSetpointGenerator;
     private SwerveSetpoint prevSwerveSetpoint;
@@ -106,6 +108,8 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         PathPlannerLogging.setLogActivePathCallback((poses) -> {
             field.getObject("Pathplanner Path").setPoses(poses);
         });
+
+        headingController.enableContinuousInput(-Math.PI, Math.PI);
         drivetrain.setVisionMeasurementStdDevs(new Matrix<N3, N1>(Nat.N3(), Nat.N1(), new double[]{10.0, 10.0, 999999.0}));
     }
 
@@ -186,8 +190,9 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     @Override
     public Command directlyMoveTo(Pose2d targetPose) {
         return new InstantCommand(() -> {
-            pidXController.setSetpoint(targetPose.getX());
-            pidYController.setSetpoint(targetPose.getY());
+            pidXController.setGoal(targetPose.getX());
+            pidYController.setGoal(targetPose.getY());
+            field.getObject("Target Pose").setPose(targetPose);
         }).andThen(applyRequest(
             () -> {
                 double pidXOutput = pidXController.calculate(getPose().getX());
@@ -243,6 +248,10 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
     @Override
     public void periodic() {
+        //update profiled pid controllers
+        pidXController.calculate(getPose().getX());
+        pidYController.calculate(getPose().getY());
+
         // Update the operator perspective if needed
         if (!didApplyOperatorPerspective || DriverStation.isDisabled()) {
             DriverStation.getAlliance().ifPresent(allianceColor -> {
@@ -259,6 +268,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
         // Update robot pose
         field.setRobotPose(getPose());
+
         // Update field on dashboard
         SmartDashboard.putData("Field2D", field);
     }
@@ -289,5 +299,22 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     @Override
     public void addVisionMeasurement(Pose2d pose, double timestamp) {
         drivetrain.addVisionMeasurement(pose, timestamp);
+    }
+
+    @Override
+    public boolean atTargetPose(Pose2d targetPose) {
+        return MathUtil.isNear(
+                targetPose.getX(),
+                getPose().getX(),
+                0.025
+        ) && MathUtil.isNear(
+                targetPose.getY(),
+                getPose().getY(),
+                0.025
+        ) && MathUtil.isNear(
+                targetPose.getRotation().getDegrees(),
+                getPose().getRotation().getDegrees(),
+                2
+        );
     }
 }
