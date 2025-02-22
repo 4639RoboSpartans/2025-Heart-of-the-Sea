@@ -210,7 +210,7 @@ public final class ScoringSuperstructure extends SubsystemBase {
     @Override
     public void periodic() {
         // Sets scoring mechanisms to IDLE in case robot acceleration is high.
-        if (SubsystemManager.getInstance().getDrivetrain().getAccelerationInGs() >= .4) {
+        if (SubsystemManager.getInstance().getDrivetrain().getAccelerationInGs() >= 1) {
             setCurrentAction(ScoringSuperstructureAction.IDLE);
         }
 
