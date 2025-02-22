@@ -221,7 +221,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                 () -> MathUtil.isNear(targetPose.getX(), getPose().getX(), 0.01)
                         && MathUtil.isNear(targetPose.getY(), getPose().getY(), 0.01)
                         && MathUtil.isNear(targetPose.getRotation().getDegrees(), getPose().getRotation().getDegrees(), 2)
-        ));
+        )).andThen(stop().withTimeout(0.1));
     }
 
     /**

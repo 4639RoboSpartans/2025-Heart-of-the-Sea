@@ -8,10 +8,12 @@ import edu.wpi.first.math.controller.BangBangController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import frc.lib.util.PoseUtil;
 
 public class SimSwerveDrivetrain extends PhysicalSwerveDrivetrain {
     private static final double SIM_LOOP_PERIOD = 0.005; // 5 ms
@@ -45,10 +47,9 @@ public class SimSwerveDrivetrain extends PhysicalSwerveDrivetrain {
                             .withTargetDirection(targetPose.getRotation());
                 }
         ).until(
-                () -> MathUtil.isNear(targetPose.getX(), getPose().getX(), 0.01)
-                        && MathUtil.isNear(targetPose.getY(), getPose().getY(), 0.01)
+                () -> PoseUtil.withinTolerance(targetPose, getPose(), Units.inchesToMeters(2))
                         && MathUtil.isNear(targetPose.getRotation().getDegrees(), getPose().getRotation().getDegrees(), 2)
-        ));
+        )).andThen(stop().withTimeout(0.1));
     }
 
     /**
