@@ -11,8 +11,7 @@ public abstract class AbstractFunnelSubsystem extends SubsystemBase {
 
     public static AbstractFunnelSubsystem getInstance(SubsystemManager.GetInstanceAccess access) {
         Objects.requireNonNull(access);
-        return instance = Objects.requireNonNullElseGet(instance, Robot.isReal() ?
-            ConcreteFunnelSubsystem::new :
+        return instance = Objects.requireNonNullElseGet(instance,
             DummyFunnelSubsystem::new // TODO: add sim funnel
         );
     }
