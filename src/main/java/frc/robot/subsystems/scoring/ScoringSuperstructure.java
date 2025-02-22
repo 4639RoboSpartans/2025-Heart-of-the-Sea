@@ -1,8 +1,12 @@
 package frc.robot.subsystems.scoring;
 
+import com.ctre.phoenix6.controls.VoltageOut;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.*;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.Velocity;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -17,6 +21,9 @@ import frc.robot.subsystems.scoring.elevator.ElevatorSysID;
 import frc.robot.subsystems.scoring.endeffector.AbstractEndEffectorSubsystem;
 
 import java.util.Objects;
+import java.util.function.BiConsumer;
+import java.util.function.BiPredicate;
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 public final class ScoringSuperstructure extends SubsystemBase {
@@ -112,6 +119,14 @@ public final class ScoringSuperstructure extends SubsystemBase {
                 )
             );
         });
+    }
+
+    public Command elevatorHoningCommand() {
+        return run(() ->
+                elevator.setRawMotorVoltage(Voltage.ofBaseUnits(-0.8, Units.Volt))
+                )
+                .until(elevator::shouldStopRunningHoningCommand)
+                .onlyIf(this::isManualControlEnabled);
     }
 
     private void runManualPeriodic() {
