@@ -101,4 +101,6 @@ public abstract class AbstractElevatorSubsystem extends SubsystemBase {
      * Set the raw output voltage of the motor. Used by SysID.
      */
     public abstract void setRawMotorVoltage(Voltage voltage);
+
+    public abstract boolean shouldStopRunningHoningCommand();
 }

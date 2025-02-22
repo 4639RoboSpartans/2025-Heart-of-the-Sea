@@ -105,4 +105,12 @@ public class ConcreteElevatorSubsystem extends AbstractElevatorSubsystem {
     public void setRawMotorVoltage(Voltage voltage) {
         elevatorMotor.setControl(new VoltageOut(voltage));
     }
+
+    @Override
+    public boolean shouldStopRunningHoningCommand() {
+        //TODO: evaluate numbers and figure out the conditions for stopping the command
+        SmartDashboard.putNumber("Elevator Current", elevatorMotor.getTorqueCurrent().getValueAsDouble());
+        SmartDashboard.putNumber("Elevator Motor RPS", elevatorMotor.getVelocity().getValueAsDouble());
+        return false;
+    }
 }

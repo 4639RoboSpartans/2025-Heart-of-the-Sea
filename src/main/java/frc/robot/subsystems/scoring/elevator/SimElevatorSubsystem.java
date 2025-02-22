@@ -46,7 +46,7 @@ public class SimElevatorSubsystem extends AbstractElevatorSubsystem {
             ),
             DCMotor.getKrakenX60(2),
             STARTING_HEIGHT.in(Meters),
-            MAX_EXTENSION.in(Meters),
+            MAX_EXTENSION.in(Meters) + STARTING_HEIGHT.in(Meters),
             true,
             STARTING_HEIGHT.in(Meters)
         );
@@ -81,5 +81,10 @@ public class SimElevatorSubsystem extends AbstractElevatorSubsystem {
     @Override
     public void setRawMotorVoltage(Voltage voltage) {
         elevatorSim.setInputVoltage(voltage.in(Volts));
+    }
+
+    @Override
+    public boolean shouldStopRunningHoningCommand() {
+        return true;
     }
 }

@@ -16,8 +16,8 @@ public class ScoringPIDs {
     public static TunableNumber wristKp = new TunableNumber("Scoring PIDs/Wrist kP").withDefaultValue(11.0);
     public static TunableNumber wristKi = new TunableNumber("Scoring PIDs/Wrist kI").withDefaultValue(0.0);
     public static TunableNumber wristKd = new TunableNumber("Scoring PIDs/Wrist kD").withDefaultValue(0);
-    public static TunableNumber wristVelocity = new TunableNumber("Scoring PIDs/Wrist Velocity").withDefaultValue(40);
-    public static TunableNumber wristAcceleration = new TunableNumber("Scoring PIDs/Wrist Acceleration").withDefaultValue(80);
+    public static TunableNumber wristVelocity = new TunableNumber("Scoring PIDs/Wrist Velocity").withDefaultValue(80);
+    public static TunableNumber wristAcceleration = new TunableNumber("Scoring PIDs/Wrist Acceleration").withDefaultValue(120);
 
     public static TunableNumber simElevatorKp = new TunableNumber("Sim/Elevator kP").withDefaultValue(1);
     public static TunableNumber simElevatorKi = new TunableNumber("Sim/Elevator kI").withDefaultValue(0.0);

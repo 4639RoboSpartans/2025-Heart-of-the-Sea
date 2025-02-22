@@ -2,7 +2,9 @@ package frc.robot.subsystems.scoring;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -112,6 +114,14 @@ public final class ScoringSuperstructure extends SubsystemBase {
                 )
             );
         });
+    }
+
+    public Command elevatorHoningCommand() {
+        return run(() ->
+            elevator.setRawMotorVoltage(Voltage.ofBaseUnits(-0.8, Units.Volt))
+        )
+            .until(elevator::shouldStopRunningHoningCommand)
+            .onlyIf(this::isManualControlEnabled);
     }
 
     private void runManualPeriodic() {
