@@ -195,9 +195,9 @@ public final class ScoringSuperstructure extends SubsystemBase {
     @Override
     public void periodic() {
         // Sets scoring mechanisms to IDLE in case robot acceleration is high.
-//        if (SubsystemManager.getInstance().getDrivetrain().getAccelerationInGs() >= .4) {
-//            setCurrentAction(ScoringSuperstructureAction.IDLE);
-//        }
+        if (SubsystemManager.getInstance().getDrivetrain().getAccelerationInGs() >= .4) {
+            setCurrentAction(ScoringSuperstructureAction.IDLE);
+        }
 
         SmartDashboard.putBoolean("isManualControlEnabled", isManualControlEnabled);
     }
