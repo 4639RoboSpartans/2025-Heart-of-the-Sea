@@ -45,9 +45,9 @@ public final class ScoringConstants {
             public static final double L4_Proportion = ProportionToPosition.convertBackwards(59.5);
 
             // TODO: below
-            public static final double L2_ALGAE_Proportion = ProportionToPosition.convertBackwards(20.98); // MAYBE
-            public static final double L3_ALGAE_Proportion = ProportionToPosition.convertBackwards(41.3);
-            public static final double Barge_Proportion = 1;
+            public static final double L2_ALGAE_Proportion = 0.39; // MAYBE
+            public static final double L3_ALGAE_Proportion = 0.52;
+            public static final double Barge_Proportion = 0.99;
         }
     }
 
@@ -106,8 +106,8 @@ public final class ScoringConstants {
             public static final double Wrist_L4_Proportion = 1.0;
 
             // TODO: below
-            public static final double Wrist_L2_ALGAE_Proportion = 0.535;
-            public static final double Wrist_L3_ALGAE_Proportion = 0.568;
+            public static final double Wrist_L2_ALGAE_Proportion = 0.82;
+            public static final double Wrist_L3_ALGAE_Proportion = 0.65;
             public static final double Wrist_Barge_Proportion = 0.402;
             public static final double Wrist_Transition_Proportion = 0.4;
         }
