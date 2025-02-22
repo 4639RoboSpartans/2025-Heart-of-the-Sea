@@ -57,13 +57,14 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
     private boolean didApplyOperatorPerspective = false;
 
-    private final PhoenixPIDController headingController = new PhoenixPIDController(28.48, 0, 1.1466);
+    //TODO: tune this
+    private final PhoenixPIDController headingController = new PhoenixPIDController(28.48 * 1.5, 0, 1.1466);
     private final PIDController
         pathXController = new PIDController(12, 0, 0),
         pathYController = new PIDController(12, 0, 0),
         pathHeadingController = new PIDController(7, 0, 0),
-        pidXController = new PIDController(1, 0, 0),
-        pidYController = new PIDController(1, 0, 0);
+        pidXController = new PIDController(3, 0, 0.1),
+        pidYController = new PIDController(3, 0, 0.1);
 
     {
         pathHeadingController.enableContinuousInput(-Math.PI, Math.PI);

@@ -243,12 +243,13 @@ public class FieldConstants {
         public final Pose2d Pose;
     }
 
-    static Transform2d fromReef = new Transform2d(Units.inchesToMeters(35), 0, Rotation2d.k180deg);
-    static Transform2d fromProcessor = new Transform2d(Units.inchesToMeters(35), 0, Rotation2d.k180deg);
-    static Transform2d fromCoralStation = new Transform2d(Units.inchesToMeters(35), 0, Rotation2d.kZero);
+    static Transform2d fromReef = new Transform2d(Units.inchesToMeters(25), 0, Rotation2d.k180deg);
+    static Transform2d fromProcessor = new Transform2d(Units.inchesToMeters(25), 0, Rotation2d.k180deg);
+    static Transform2d fromCoralStation = new Transform2d(Units.inchesToMeters(25), 0, Rotation2d.kZero);
     static Transform2d fromBarge = new Transform2d(Units.inchesToMeters(-15), 0, Rotation2d.kZero);
 
     public enum TargetPositions {
+        //TODO: hop on gui and make sure these work
         REEF_AB(FieldConstants.Reef.centerFaces[0].transformBy((FieldConstants.fromReef))),
         REEF_KL(FieldConstants.Reef.centerFaces[1].transformBy((FieldConstants.fromReef))),
         REEF_IJ(FieldConstants.Reef.centerFaces[2].transformBy((FieldConstants.fromReef))),

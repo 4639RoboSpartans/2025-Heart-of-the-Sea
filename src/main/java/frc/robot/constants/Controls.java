@@ -70,16 +70,16 @@ public class Controls {
         public static final Trigger PathfindReef_5 = reefRightPoses.and(reefLeft.or(reefRight)).and(driverController.A_BUTTON);*/
 
         //these need to be changed over to driver controller
-        public static final Trigger L2AlgaeTrigger = driverController.POV_LEFT;
-        public static final Trigger L3AlgaeTrigger = driverController.POV_RIGHT;
-        public static final Trigger ProcessorTrigger = driverController.POV_DOWN;
-        public static final Trigger BargeScoringTrigger = driverController.POV_UP;
+        public static final Trigger L2AlgaeTrigger = driverController.POV_DOWN;
+        public static final Trigger L3AlgaeTrigger = driverController.POV_UP;
+        public static final Trigger ProcessorTrigger = driverController.Y_BUTTON;
+        public static final Trigger BargeScoringTrigger = driverController.X_BUTTON;
 
         public static final Trigger targetRight = driverController.RIGHT_BUMPER;
         public static final Trigger targetLeft = driverController.LEFT_BUMPER;
 
-        public static final Trigger reefAlign = driverController.POV_UP;
-        public static final Trigger coralStationAlign = driverController.POV_DOWN;
+        public static final Trigger reefAlign = driverController.RIGHT_TRIGGER;
+        public static final Trigger coralStationAlign = driverController.B_BUTTON;
     }
 
     public static class Operator {

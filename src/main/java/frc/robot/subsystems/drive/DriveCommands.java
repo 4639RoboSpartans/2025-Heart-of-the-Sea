@@ -65,14 +65,14 @@ public class DriveCommands {
                         .collect(Collectors.toList()));
 
         var desiredPose =
-                direction == 0
+                (direction == 0
                         ? PoseUtil.ReefRelativeLeftOf(nearestReefPose)
-                        : direction == 1
-                        ? PoseUtil.ReefRelativeRightOf(nearestReefPose)
-                        : nearestReefPose;
+                        : (direction == 1
+                            ? PoseUtil.ReefRelativeRightOf(nearestReefPose)
+                            : nearestReefPose));
 
         return swerve.directlyMoveTo(desiredPose)
-                .until(new Trigger(() -> PoseUtil.withinTolerance(desiredPose, currentRobotPose.get(), Units.inchesToMeters(1))).debounce(0.1));
+                .until(new Trigger(() -> PoseUtil.withinTolerance(desiredPose, currentRobotPose.get(), Units.inchesToMeters(2))).debounce(0.1));
     }
 
     public static Command moveToDesiredCoralStationPosition(boolean left){
@@ -81,8 +81,8 @@ public class DriveCommands {
 
         return PoseUtil.distanceBetween(desiredPose.Pose, currentRobotPose.get()) > 1
                 ? swerve.pathfindTo(desiredPose.Pose)
-                .until(new Trigger(() -> PoseUtil.withinTolerance(desiredPose.Pose, currentRobotPose.get(), Units.inchesToMeters(1))).debounce(0.1))
+                .until(new Trigger(() -> PoseUtil.withinTolerance(desiredPose.Pose, currentRobotPose.get(), Units.inchesToMeters(2))).debounce(0.1))
                 : swerve.directlyMoveTo(desiredPose.Pose)
-                .until(new Trigger(() -> PoseUtil.withinTolerance(desiredPose.Pose, currentRobotPose.get(), Units.inchesToMeters(1))).debounce(0.1));
+                .until(new Trigger(() -> PoseUtil.withinTolerance(desiredPose.Pose, currentRobotPose.get(), Units.inchesToMeters(2))).debounce(0.1));
     }
 }
