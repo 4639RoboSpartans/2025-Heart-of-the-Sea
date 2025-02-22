@@ -144,7 +144,7 @@ public final class ScoringSuperstructure extends SubsystemBase {
 
         // Update fine-tuning offsets
         elevatorAdjustment += 0.002 * Controls.Operator.MicroElevatorAdjustment.getAsDouble();
-        wristAdjustment += 0.002 * Controls.Operator.MicroWristAdjustment.getAsDouble();
+        wristAdjustment += 0.006 * Controls.Operator.MicroWristAdjustment.getAsDouble();
         elevatorAdjustment = MathUtil.clamp(
             targetElevatorExtensionFraction + elevatorAdjustment,
             0, 1
@@ -153,7 +153,6 @@ public final class ScoringSuperstructure extends SubsystemBase {
             targetWristRotationFraction + wristAdjustment,
             0, 1
         ) - targetWristRotationFraction;
-
 
         elevator.setTargetExtensionFraction(targetElevatorExtensionFraction + elevatorAdjustment);
         endEffector.setTargetWristRotationFraction(targetWristRotationFraction + wristAdjustment);
@@ -165,9 +164,9 @@ public final class ScoringSuperstructure extends SubsystemBase {
             resetAdjustments();
         }
         // If the state is finished, go to the next action
-//        if (currentState == ScoringSuperstructureState.DONE) {
-//            setCurrentAction(currentAction.nextAction);
-//        }
+        if (currentState == ScoringSuperstructureState.DONE) {
+            setCurrentAction(currentAction.nextAction);
+        }
     }
 
     public Command toggleManualControl() {
