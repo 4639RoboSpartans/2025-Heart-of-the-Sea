@@ -17,11 +17,13 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -58,12 +60,21 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     private boolean didApplyOperatorPerspective = false;
 
     private final PhoenixPIDController headingController = new PhoenixPIDController(28.48, 0, 1.1466);
-    private final PIDController
-        pathXController = new PIDController(12, 0, 0),
-        pathYController = new PIDController(12, 0, 0),
-        pathHeadingController = new PIDController(7, 0, 0),
-        pidXController = new PIDController(1, 0, 0),
-        pidYController = new PIDController(1, 0, 0);
+    protected final PIDController
+            pathXController = new PIDController(12, 0, 0),
+            pathYController = new PIDController(12, 0, 0),
+            pathHeadingController = new PIDController(7, 0, 0);
+    protected ProfiledPIDController
+            pidXController = constructPIDXController();
+    protected ProfiledPIDController pidYController = constructPIDYController();
+
+    public static ProfiledPIDController constructPIDYController() {
+        return new ProfiledPIDController(2, 0, 0, new TrapezoidProfile.Constraints(2, 4));
+    }
+
+    public static ProfiledPIDController constructPIDXController() {
+        return new ProfiledPIDController(2, 0, 0, new TrapezoidProfile.Constraints(2, 4));
+    }
 
     {
         pathHeadingController.enableContinuousInput(-Math.PI, Math.PI);
@@ -72,7 +83,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         DrivePIDs.pidToPoseYkP.onChange(pidYController::setP);
     }
 
-    private final Field2d field = new Field2d();
+    protected final Field2d field = new Field2d();
 
     private final SwerveSetpointGenerator swerveSetpointGenerator;
     private SwerveSetpoint prevSwerveSetpoint;
@@ -105,7 +116,9 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         PathPlannerLogging.setLogActivePathCallback((poses) -> {
             field.getObject("Pathplanner Path").setPoses(poses);
         });
-        drivetrain.setVisionMeasurementStdDevs(new Matrix<N3, N1>(Nat.N3(), Nat.N1(), new double[]{10.0, 10.0, 1000.0}));
+
+        headingController.enableContinuousInput(-Math.PI, Math.PI);
+        drivetrain.setVisionMeasurementStdDevs(new Matrix<N3, N1>(Nat.N3(), Nat.N1(), new double[]{10.0, 10.0, 999999.0}));
     }
 
     @Override
@@ -154,14 +167,11 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
     @Override
     public Command resetPigeon() {
-        return Commands.runOnce(
+        return runOnce(
             () -> drivetrain.getPigeon2().setYaw(
-                Angle.ofBaseUnits(
-                    0,
-                    Degrees
-                )
+                -85
             )
-        );
+        ).andThen(() -> field.setRobotPose(getPose()));
     }
 
     @Override
@@ -176,7 +186,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
             driveBaseRadius = Math.max(driveBaseRadius, moduleLocation.getNorm());
         }
         PathConstraints constraints = new PathConstraints(
-            10, 5,
+            1, 2,
             2 * Math.PI, 2 * Math.PI
         );
         return AutoBuilder.pathfindToPoseFlipped(
@@ -188,26 +198,32 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     @Override
     public Command directlyMoveTo(Pose2d targetPose) {
         return new InstantCommand(() -> {
-            pidXController.setSetpoint(targetPose.getX());
-            pidYController.setSetpoint(targetPose.getY());
+            pidXController.reset(getPose().getX());
+            pidYController.reset(getPose().getY());
+            pidXController.setGoal(targetPose.getX());
+            pidYController.setGoal(targetPose.getY());
         }).andThen(applyRequest(
-            () -> {
-                double pidXOutput = -pidXController.calculate(getPose().getX());
-                double pidYOutput = -pidYController.calculate(getPose().getY());
+                () -> {
+                    field.getObject("Target Pose").setPose(pidXController.getSetpoint().position, pidYController.getSetpoint().position, targetPose.getRotation());
+                    double directionMultiplier = DriverStationUtil.getAlliance() == DriverStation.Alliance.Red? -1 : 1;
+                    double pidXOutput = pidXController.calculate(getPose().getX()) * directionMultiplier;
+                    double pidYOutput = pidYController.calculate(getPose().getY()) * directionMultiplier;
 
-                var request = new SwerveRequest.FieldCentricFacingAngle();
-                request.HeadingController = headingController;
+                    var request = new SwerveRequest.FieldCentricFacingAngle();
+                    request.HeadingController = new PhoenixPIDController(8, 0, 0);
+                    request.HeadingController.enableContinuousInput(-Math.PI, Math.PI);
+                    Rotation2d headingOffset = DriverStationUtil.getAlliance() == Alliance.Red? Rotation2d.k180deg : new Rotation2d();
 
-                return request
-                    .withVelocityX(pidXOutput)
-                    .withVelocityY(pidYOutput)
-                    // Michael says not sure why the 180-degree rotation is needed, but it just works
-                    .withTargetDirection(targetPose.getRotation().plus(Rotation2d.k180deg));
-            }
+                    return request
+                            .withVelocityX(pidXOutput)
+                            .withVelocityY(pidYOutput)
+                            .withTargetDirection(targetPose.getRotation().plus(headingOffset));
+                }
         ).until(
-            () -> MathUtil.isNear(targetPose.getX(), getPose().getX(), 0.025)
-                && MathUtil.isNear(targetPose.getY(), getPose().getY(), 0.025)
-        ));
+                () -> MathUtil.isNear(targetPose.getX(), getPose().getX(), 0.01)
+                        && MathUtil.isNear(targetPose.getY(), getPose().getY(), 0.01)
+                        && MathUtil.isNear(targetPose.getRotation().getDegrees(), getPose().getRotation().getDegrees(), 2)
+        )).andThen(stop().withTimeout(0.1));
     }
 
     /**
@@ -245,6 +261,10 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
     @Override
     public void periodic() {
+        //update profiled pid controllers
+        pidXController.calculate(getPose().getX());
+        pidYController.calculate(getPose().getY());
+
         // Update the operator perspective if needed
         if (!didApplyOperatorPerspective || DriverStation.isDisabled()) {
             DriverStation.getAlliance().ifPresent(allianceColor -> {
@@ -261,6 +281,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
         // Update robot pose
         field.setRobotPose(getPose());
+
         // Update field on dashboard
         SmartDashboard.putData("Field2D", field);
     }
@@ -291,5 +312,22 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     @Override
     public void addVisionMeasurement(Pose2d pose, double timestamp) {
         drivetrain.addVisionMeasurement(pose, timestamp);
+    }
+
+    @Override
+    public boolean atTargetPose(Pose2d targetPose) {
+        return MathUtil.isNear(
+                targetPose.getX(),
+                getPose().getX(),
+                0.025
+        ) && MathUtil.isNear(
+                targetPose.getY(),
+                getPose().getY(),
+                0.025
+        ) && MathUtil.isNear(
+                targetPose.getRotation().getDegrees(),
+                getPose().getRotation().getDegrees(),
+                2
+        );
     }
 }

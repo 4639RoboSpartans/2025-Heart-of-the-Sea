@@ -9,7 +9,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.robot.Robot;
 import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.scoring.elevator.AbstractElevatorSubsystem;
-import frc.robot.subsystems.scoring.elevator.DummyElevatorSubsystem;
 
 import java.util.Objects;
 
@@ -20,8 +19,8 @@ public abstract class AbstractSwerveDrivetrain extends SubsystemBase {
      * This method should only be accessed from the SubsystemManager class. In other places, use
      * {@link SubsystemManager#getDrivetrain()} instead.
      */
-    public static AbstractSwerveDrivetrain getInstance(SubsystemManager.GetInstanceAccess getInstanceAccess) {
-        Objects.requireNonNull(getInstanceAccess);
+    public static AbstractSwerveDrivetrain getInstance(SubsystemManager.GetInstanceAccess access) {
+        Objects.requireNonNull(access);
 
         boolean dummy = false;
         //dummy = true;
@@ -109,6 +108,8 @@ public abstract class AbstractSwerveDrivetrain extends SubsystemBase {
     }
 
     public abstract void resetPose(Pose2d pose);
+
+    public abstract boolean atTargetPose(Pose2d targetPose);
 
     public abstract void addVisionMeasurement(Pose2d pose, double timestamp);
 }

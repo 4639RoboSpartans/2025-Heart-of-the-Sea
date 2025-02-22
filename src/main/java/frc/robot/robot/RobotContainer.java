@@ -6,15 +6,13 @@
 package frc.robot.robot;
 
 import choreo.auto.AutoRoutine;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.lib.FunctionalTrigger;
 import frc.lib.led.LEDStrip;
 import frc.lib.led.PhysicalLEDStrip;
 import frc.robot.commands.AutoRoutines;
@@ -22,10 +20,10 @@ import frc.robot.constants.Controls;
 import frc.robot.constants.FieldConstants;
 import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
+import frc.robot.subsystems.drive.DriveCommands;
 import frc.robot.subsystems.drive.SwerveAutoRoutinesCreator;
 import frc.robot.subsystems.scoring.ScoringSuperstructure;
 import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
-import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
 
 import java.util.Arrays;
@@ -128,6 +126,23 @@ public class RobotContainer {
                 scoringSuperstructure.toggleManualControl()
             );
         }
+
+        FunctionalTrigger.of(Controls.Driver.reefAlign)
+                .and(Controls.Driver.targetLeft)
+                .whileTrue(() -> DriveCommands.moveToClosestReefPositionHardcoded((byte) 0));
+        FunctionalTrigger.of(Controls.Driver.reefAlign)
+                .and(Controls.Driver.targetRight)
+                .whileTrue(() -> DriveCommands.moveToClosestReefPositionHardcoded((byte) 1));
+        FunctionalTrigger.of(Controls.Driver.reefAlign)
+                .and(Controls.Driver.targetLeft.negate())
+                .and(Controls.Driver.targetRight.negate())
+                .whileTrue(() -> DriveCommands.moveToClosestReefPositionHardcoded((byte) 2));
+
+        FunctionalTrigger.of(Controls.Driver.coralStationAlign)
+                .and(Controls.Driver.targetLeft).whileTrue(() -> DriveCommands.moveToDesiredCoralStationPosition(true));
+        FunctionalTrigger.of(Controls.Driver.coralStationAlign)
+                .and(Controls.Driver.targetRight).whileTrue(() -> DriveCommands.moveToDesiredCoralStationPosition(false));
+
 
         // OI.getInstance().operatorController().Y_BUTTON.whileTrue(
         //         ElevatorSysID.sysIdQuasistatic(SysIdRoutine.Direction.kForward)

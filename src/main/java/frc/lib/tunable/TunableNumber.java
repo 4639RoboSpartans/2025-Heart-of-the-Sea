@@ -1,6 +1,5 @@
 package frc.lib.tunable;
 
-import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.Constants;
@@ -105,7 +104,7 @@ public class TunableNumber {
                 @Override
                 public void run() {
                     double newValue = get();
-                    if (newValue != oldValue){
+                    if (newValue != oldValue) {
                         System.out.println(key + ":" + newValue + "<-" + oldValue);
                         onChange.accept(newValue);
                     }
@@ -126,7 +125,7 @@ public class TunableNumber {
      *                 any of the given TunableNumbers' values changes
      */
     public static void onAnyChange(Consumer<double[]> onChange, TunableNumber... tunableNumbers) {
-        onAnyChange(onChange, false, tunableNumbers);
+        onAnyChange(onChange, true, tunableNumbers);
     }
 
     /**

@@ -2,7 +2,9 @@ package frc.robot.subsystems.scoring;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -17,7 +19,6 @@ import frc.robot.subsystems.scoring.elevator.ElevatorSysID;
 import frc.robot.subsystems.scoring.endeffector.AbstractEndEffectorSubsystem;
 
 import java.util.Objects;
-import java.util.OptionalDouble;
 import java.util.function.Supplier;
 
 public final class ScoringSuperstructure extends SubsystemBase {
@@ -35,6 +36,8 @@ public final class ScoringSuperstructure extends SubsystemBase {
 
     private ScoringSuperstructureAction currentAction = ScoringSuperstructureAction.IDLE;
     private ScoringSuperstructureState currentState = ScoringSuperstructureState.EXECUTING_ACTION;
+    private double elevatorAdjustment = 0;
+    private double wristAdjustment = 0;
 
     private boolean isManualControlEnabled = false;
 
@@ -55,7 +58,13 @@ public final class ScoringSuperstructure extends SubsystemBase {
             } else {
                 currentState = ScoringSuperstructureState.ELEVATOR_MOVE_NO_TRANSITION;
             }
+            resetAdjustments();
         }
+    }
+
+    private void resetAdjustments() {
+        elevatorAdjustment = 0;
+        wristAdjustment = 0;
     }
 
     /**
@@ -107,8 +116,16 @@ public final class ScoringSuperstructure extends SubsystemBase {
         });
     }
 
+    public Command elevatorHoningCommand() {
+        return run(() ->
+            elevator.setRawMotorVoltage(Voltage.ofBaseUnits(-0.8, Units.Volt))
+        )
+            .until(elevator::shouldStopRunningHoningCommand)
+            .onlyIf(this::isManualControlEnabled);
+    }
+
     private void runManualPeriodic() {
-        double currentTargetElevatorExtensionFraction = elevator.getTargetProportion();
+        double currentTargetElevatorExtensionFraction = elevator.getTargetExtensionFraction();
         double targetElevatorExtensionFraction = currentTargetElevatorExtensionFraction
             + Controls.Operator.ManualControlElevator.getAsDouble() * 0.03;
 
@@ -120,27 +137,46 @@ public final class ScoringSuperstructure extends SubsystemBase {
     private void runActionPeriodic() {
         // If the current action's trigger is no longer active,
         // move to the next action
-//        if (!currentAction.trigger.getAsBoolean()) {
-//            setCurrentAction(currentAction.nextAction);
-//        }
+        if (!currentAction.trigger.getAsBoolean()) {
+            setCurrentAction(currentAction.nextAction);
+        }
 
-        OptionalDouble targetElevatorExtensionFraction = currentState.getTargetElevatorExtensionFraction(currentAction);
-        OptionalDouble targetWristRotationFraction = currentState.getTargetWristRotationFraction(currentAction);
+        // Get new setpoints
+        double targetElevatorExtensionFraction = currentState
+            .getTargetElevatorExtensionFraction(currentAction)
+            .orElseGet(elevator::getTargetExtensionFraction);
+        double targetWristRotationFraction = currentState
+            .getTargetWristRotationFraction(currentAction)
+            .orElseGet(endEffector::getTargetRotationFraction);
+
 //        double intakeSpeed = currentState.getIntakeSpeed(currentAction);
         double intakeSpeed = Controls.Operator.ManualControlIntake.getAsDouble();
 
-        targetElevatorExtensionFraction.ifPresent(elevator::setTargetExtensionFraction);
-        targetWristRotationFraction.ifPresent(endEffector::setTargetWristRotationFraction);
+        // Update fine-tuning offsets
+        elevatorAdjustment += 0.002 * Controls.Operator.MicroElevatorAdjustment.getAsDouble();
+        wristAdjustment += 0.006 * Controls.Operator.MicroWristAdjustment.getAsDouble();
+        elevatorAdjustment = MathUtil.clamp(
+            targetElevatorExtensionFraction + elevatorAdjustment,
+            0, 1
+        ) - targetElevatorExtensionFraction;
+        wristAdjustment = MathUtil.clamp(
+            targetWristRotationFraction + wristAdjustment,
+            0, 1
+        ) - targetWristRotationFraction;
+
+        elevator.setTargetExtensionFraction(targetElevatorExtensionFraction + elevatorAdjustment);
+        endEffector.setTargetWristRotationFraction(targetWristRotationFraction + wristAdjustment);
         endEffector.setIntakeSpeed(intakeSpeed);
 
         // Advance the state if necessary
         if (currentState.shouldAdvanceState(currentAction, endEffector, elevator)) {
             currentState = currentState.next();
+            resetAdjustments();
         }
         // If the state is finished, go to the next action
-//        if (currentState == ScoringSuperstructureState.DONE) {
-//            setCurrentAction(currentAction.nextAction);
-//        }
+        if (currentState == ScoringSuperstructureState.DONE) {
+            setCurrentAction(currentAction.nextAction);
+        }
     }
 
     public Command toggleManualControl() {
@@ -174,9 +210,9 @@ public final class ScoringSuperstructure extends SubsystemBase {
     @Override
     public void periodic() {
         // Sets scoring mechanisms to IDLE in case robot acceleration is high.
-//        if (SubsystemManager.getInstance().getDrivetrain().getAccelerationInGs() >= .4) {
-//            setCurrentAction(ScoringSuperstructureAction.IDLE);
-//        }
+        if (SubsystemManager.getInstance().getDrivetrain().getAccelerationInGs() >= 1) {
+            setCurrentAction(ScoringSuperstructureAction.IDLE);
+        }
 
         SmartDashboard.putBoolean("isManualControlEnabled", isManualControlEnabled);
     }

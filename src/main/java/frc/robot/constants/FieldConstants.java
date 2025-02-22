@@ -245,16 +245,41 @@ public class FieldConstants {
 
     static Transform2d fromReef = new Transform2d(Units.inchesToMeters(25), 0, Rotation2d.k180deg);
     static Transform2d fromProcessor = new Transform2d(Units.inchesToMeters(25), 0, Rotation2d.k180deg);
-    static Transform2d fromCoralStation = new Transform2d(Units.inchesToMeters(25), 0, Rotation2d.k180deg);
+    static Transform2d fromCoralStation = new Transform2d(Units.inchesToMeters(25), 0, Rotation2d.kZero);
     static Transform2d fromBarge = new Transform2d(Units.inchesToMeters(-15), 0, Rotation2d.kZero);
 
     public enum TargetPositions {
-        REEF_AB(FieldConstants.Reef.centerFaces[0].transformBy((FieldConstants.fromReef))),
-        REEF_KL(FieldConstants.Reef.centerFaces[1].transformBy((FieldConstants.fromReef))),
-        REEF_IJ(FieldConstants.Reef.centerFaces[2].transformBy((FieldConstants.fromReef))),
-        REEF_GH(FieldConstants.Reef.centerFaces[3].transformBy((FieldConstants.fromReef))),
-        REEF_EF(FieldConstants.Reef.centerFaces[4].transformBy((FieldConstants.fromReef))),
-        REEF_CD(FieldConstants.Reef.centerFaces[5].transformBy((FieldConstants.fromReef))),
+        //TODO: hop on gui and make sure these work
+        REEF_AB(
+                FieldConstants.Reef.centerFaces[0].transformBy((FieldConstants.fromReef)),
+                new Pose2d(new Translation2d(3.113655, 4.182279), new Rotation2d()),
+                new Pose2d(new Translation2d(3.113655, 3.852749), new Rotation2d())
+        ),
+        REEF_CD(
+                FieldConstants.Reef.centerFaces[5].transformBy((FieldConstants.fromReef)),
+                new Pose2d(new Translation2d(3.658860, 2.912397), Rotation2d.fromDegrees(60)),
+                new Pose2d(new Translation2d(3.946058, 2.746946), Rotation2d.fromDegrees(60))
+        ),
+        REEF_EF(
+                FieldConstants.Reef.centerFaces[4].transformBy((FieldConstants.fromReef)),
+                new Pose2d(new Translation2d(5.037171, 2.744016), Rotation2d.fromDegrees(120)),
+                new Pose2d(new Translation2d(5.319803, 2.908083), Rotation2d.fromDegrees(120))
+        ),
+        REEF_GH(
+                FieldConstants.Reef.centerFaces[3].transformBy((FieldConstants.fromReef)),
+                new Pose2d(new Translation2d(5.870153, 3.866000), Rotation2d.fromDegrees(180)),
+                new Pose2d(new Translation2d(5.870153, 4.184414), Rotation2d.fromDegrees(180))
+        ),
+        REEF_IJ(
+                FieldConstants.Reef.centerFaces[2].transformBy((FieldConstants.fromReef)),
+                new Pose2d(new Translation2d(5.317610, 5.142781), Rotation2d.fromDegrees(240)),
+                new Pose2d(new Translation2d(5.033535, 5.308231), Rotation2d.fromDegrees(240))
+        ),
+        REEF_KL(
+                FieldConstants.Reef.centerFaces[1].transformBy((FieldConstants.fromReef)),
+                new Pose2d(new Translation2d(3.940934, 5.326961), Rotation2d.fromDegrees(300)),
+                new Pose2d(new Translation2d(3.650615, 5.158389), Rotation2d.fromDegrees(300))
+        ),
 
         PROCESSOR(FieldConstants.Processor.centerFace.transformBy(FieldConstants.fromProcessor)),
 
@@ -265,11 +290,18 @@ public class FieldConstants {
         BARGE_MIDDLECAGE(new Pose2d(FieldConstants.Barge.middleCage, Rotation2d.kZero).transformBy(fromBarge)),
         BARGE_CLOSECAGE(new Pose2d(FieldConstants.Barge.closeCage, Rotation2d.kZero).transformBy(fromBarge));
 
-        TargetPositions(Pose2d pose) {
+        TargetPositions(Pose2d pose, Pose2d leftPose, Pose2d rightPose) {
             this.Pose = pose;
+            this.leftPose = leftPose;
+            this.rightPose = rightPose;
+        }
+
+        TargetPositions(Pose2d pose) {
+            this(pose, pose, pose);
         }
 
         public final Pose2d Pose;
+        public final Pose2d leftPose, rightPose;
     }
 
     public enum AprilTagIDHolder {
@@ -288,12 +320,12 @@ public class FieldConstants {
         private final int blueAllianceID;
         private final int redAllianceID;
 
-        AprilTagIDHolder(int blueAllianceID, int redAllianceID){
+        AprilTagIDHolder(int blueAllianceID, int redAllianceID) {
             this.blueAllianceID = blueAllianceID;
             this.redAllianceID = redAllianceID;
         }
 
-        public int getAllianceRespectiveID(){
+        public int getAllianceRespectiveID() {
             return DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue ? blueAllianceID : redAllianceID;
         }
     }

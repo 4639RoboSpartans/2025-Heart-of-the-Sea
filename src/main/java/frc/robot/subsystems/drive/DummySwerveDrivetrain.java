@@ -71,4 +71,9 @@ public class DummySwerveDrivetrain extends AbstractSwerveDrivetrain {
     public void addVisionMeasurement(Pose2d pose, double timestamp) {
 
     }
+
+    @Override
+    public boolean atTargetPose(Pose2d targetPose) {
+        return true;
+    }
 }

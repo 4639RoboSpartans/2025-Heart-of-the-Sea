@@ -10,9 +10,14 @@ public class DummyElevatorSubsystem extends AbstractElevatorSubsystem {
 
     @Override
     public double getCurrentExtensionFraction() {
-        return getTargetProportion();
+        return getTargetExtensionFraction();
     }
 
     @Override
     public void setRawMotorVoltage(Voltage voltage) {}
+
+    @Override
+    public boolean shouldStopRunningHoningCommand() {
+        return true;
+    }
 }

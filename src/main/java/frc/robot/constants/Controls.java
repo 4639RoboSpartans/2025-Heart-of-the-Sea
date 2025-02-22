@@ -56,7 +56,7 @@ public class Controls {
 
         public static final Trigger rotationResetTrigger = driverController.A_BUTTON.and(driverController.B_BUTTON);
 
-        public static final Trigger reefLeftPoses = driverController.RIGHT_BUMPER;
+        /*public static final Trigger reefLeftPoses = driverController.RIGHT_BUMPER;
         public static final Trigger reefRightPoses = driverController.LEFT_BUMPER;
 
         public static final Trigger reefRight = driverController.LEFT_TRIGGER;
@@ -67,12 +67,19 @@ public class Controls {
         public static final Trigger PathfindReef_2 = reefLeftPoses.and(reefLeft.or(reefRight)).and(driverController.A_BUTTON);
         public static final Trigger PathfindReef_3 = reefRightPoses.and(reefLeft.or(reefRight)).and(driverController.Y_BUTTON);
         public static final Trigger PathfindReef_4 = reefRightPoses.and(reefLeft.or(reefRight)).and(driverController.X_BUTTON);
-        public static final Trigger PathfindReef_5 = reefRightPoses.and(reefLeft.or(reefRight)).and(driverController.A_BUTTON);
+        public static final Trigger PathfindReef_5 = reefRightPoses.and(reefLeft.or(reefRight)).and(driverController.A_BUTTON);*/
 
-        public static final Trigger L2AlgaeTrigger = operatorController.X_BUTTON;
-        public static final Trigger L3AlgaeTrigger = operatorController.Y_BUTTON;
-        public static final Trigger ProcessorTrigger = operatorController.POV_RIGHT;
-        public static final Trigger BargeScoringTrigger = operatorController.Y_BUTTON;
+        //these need to be changed over to driver controller
+        public static final Trigger L2AlgaeTrigger = driverController.POV_DOWN;
+        public static final Trigger L3AlgaeTrigger = driverController.POV_UP;
+        public static final Trigger ProcessorTrigger = driverController.Y_BUTTON;
+        public static final Trigger BargeScoringTrigger = driverController.X_BUTTON;
+
+        public static final Trigger targetRight = driverController.RIGHT_BUMPER;
+        public static final Trigger targetLeft = driverController.LEFT_BUMPER;
+
+        public static final Trigger reefAlign = driverController.RIGHT_TRIGGER;
+        public static final Trigger coralStationAlign = driverController.B_BUTTON;
     }
 
     public static class Operator {
@@ -82,15 +89,23 @@ public class Controls {
         public static final Trigger L3Trigger = operatorController.RIGHT_BUMPER;
         public static final Trigger L4Trigger = operatorController.RIGHT_TRIGGER;
 
-        public static final Trigger HPLoadingTrigger = operatorController.POV_DOWN;
+        public static final Trigger HPLoadingTrigger = operatorController.X_BUTTON;
 
-        public static final Trigger HoldTrigger = operatorController.POV_UP;
+        public static final Trigger HoldTrigger = operatorController.Y_BUTTON;
+        
+        public static final Trigger FunnelTrigger = operatorController.RIGHT_STICK;
 
-        //Manual Override Controls
+        // Micro adjustment controls
+        public static final DoubleSupplier MicroElevatorAdjustment = () -> operatorController.POV_UP() - operatorController.POV_DOWN();
+        public static final DoubleSupplier MicroWristAdjustment = () -> operatorController.POV_RIGHT() - operatorController.POV_LEFT();
+
+        //Manual override controls
         public static Trigger ToggleManualControlTrigger = operatorController.LEFT_STICK;
 
         public static final DoubleSupplier ManualControlWrist = () -> operatorController.rightStickY() * 0.5 + 0.5;
         public static final DoubleSupplier ManualControlElevator = operatorController::leftStickY;
-        public static final DoubleSupplier ManualControlIntake = () -> (operatorController.A_BUTTON.getAsBoolean() ? 1 : 0) - (operatorController.B_BUTTON.getAsBoolean() ? 1 : 0);
+        public static final DoubleSupplier ManualControlIntake = () -> operatorController.A_BUTTON() - operatorController.B_BUTTON();
+
+        public static final DoubleSupplier ManualControlFunnel = () -> operatorController.rightStickX();
     }
 }

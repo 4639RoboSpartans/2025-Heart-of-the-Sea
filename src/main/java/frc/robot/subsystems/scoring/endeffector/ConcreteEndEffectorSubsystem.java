@@ -15,6 +15,8 @@ import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.tunable.TunableNumber;
+import frc.robot.subsystems.SubsystemManager;
+import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
 import frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConstants;
 import frc.robot.subsystems.scoring.constants.ScoringPIDs;
