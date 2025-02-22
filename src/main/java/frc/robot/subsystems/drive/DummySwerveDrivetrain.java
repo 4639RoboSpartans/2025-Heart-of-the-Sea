@@ -66,4 +66,9 @@ public class DummySwerveDrivetrain extends AbstractSwerveDrivetrain {
     public void resetPose(Pose2d pose) {
         currentPose = pose;
     }
+
+    @Override
+    public boolean atTargetPose(Pose2d targetPose) {
+        return true;
+    }
 }
