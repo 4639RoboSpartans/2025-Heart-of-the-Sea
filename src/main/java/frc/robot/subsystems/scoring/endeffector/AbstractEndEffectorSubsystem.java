@@ -22,7 +22,7 @@ public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
         Objects.requireNonNull(access);
 
         boolean dummy = false;
-        // dummy = true
+        dummy = true;
         if (dummy) return new DummyEndEffectorSubsystem();
         if (Robot.isReal()) {
             return instance = Objects.requireNonNullElseGet(

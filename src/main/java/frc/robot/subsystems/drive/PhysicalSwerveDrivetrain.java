@@ -105,7 +105,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         PathPlannerLogging.setLogActivePathCallback((poses) -> {
             field.getObject("Pathplanner Path").setPoses(poses);
         });
-        drivetrain.setVisionMeasurementStdDevs(new Matrix<N3, N1>(Nat.N3(), Nat.N1(), new double[]{10.0, 10.0, 1000.0}));
+        drivetrain.setVisionMeasurementStdDevs(new Matrix<N3, N1>(Nat.N3(), Nat.N1(), new double[]{10.0, 10.0, 999999.0}));
     }
 
     @Override
@@ -156,12 +156,9 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     public Command resetPigeon() {
         return runOnce(
             () -> drivetrain.getPigeon2().setYaw(
-                Angle.ofBaseUnits(
-                    0,
-                    Degrees
-                )
+                -85
             )
-        );
+        ).andThen(() -> field.setRobotPose(getPose()));
     }
 
     @Override
@@ -176,7 +173,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
             driveBaseRadius = Math.max(driveBaseRadius, moduleLocation.getNorm());
         }
         PathConstraints constraints = new PathConstraints(
-            10, 5,
+            1, 2,
             2 * Math.PI, 2 * Math.PI
         );
         return AutoBuilder.pathfindToPoseFlipped(
@@ -192,8 +189,8 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
             pidYController.setSetpoint(targetPose.getY());
         }).andThen(applyRequest(
             () -> {
-                double pidXOutput = -pidXController.calculate(getPose().getX());
-                double pidYOutput = -pidYController.calculate(getPose().getY());
+                double pidXOutput = pidXController.calculate(getPose().getX());
+                double pidYOutput = pidYController.calculate(getPose().getY());
 
                 var request = new SwerveRequest.FieldCentricFacingAngle();
                 request.HeadingController = headingController;
@@ -202,7 +199,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                     .withVelocityX(pidXOutput)
                     .withVelocityY(pidYOutput)
                     // Michael says not sure why the 180-degree rotation is needed, but it just works
-                    .withTargetDirection(targetPose.getRotation().plus(Rotation2d.k180deg));
+                    .withTargetDirection(targetPose.getRotation().plus(Rotation2d.kZero));
             }
         ).until(
             () -> MathUtil.isNear(targetPose.getX(), getPose().getX(), 0.025)
