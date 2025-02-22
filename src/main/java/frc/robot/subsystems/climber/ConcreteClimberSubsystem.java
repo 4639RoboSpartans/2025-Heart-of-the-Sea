@@ -23,8 +23,8 @@ class ConcreteClimberSubsystem extends AbstractClimberSubsystem {
             .smartCurrentLimit(30);
         motor.configure(cfg, SparkBase.ResetMode.kNoResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
 
-//        this.motor = motor;
-        this.motor = new RatchetMotor(motor, IDs.CLIMBER_RATCHET_DIO_PORT, RatchetMotor.RatchetDirection.Forwards);
+        this.motor = motor;
+//        this.motor = new RatchetMotor(motor, IDs.CLIMBER_RATCHET_DIO_PORT, RatchetMotor.RatchetDirection.Forwards);
     }
 
     @Override
@@ -37,6 +37,6 @@ class ConcreteClimberSubsystem extends AbstractClimberSubsystem {
     }
 
     private void setMotor(double speed) {
-        mot.set(speed);
+        motor.set(speed);
     }
 }
