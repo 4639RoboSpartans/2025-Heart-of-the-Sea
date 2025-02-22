@@ -17,11 +17,14 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -62,9 +65,11 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     private final PIDController
         pathXController = new PIDController(12, 0, 0),
         pathYController = new PIDController(12, 0, 0),
-        pathHeadingController = new PIDController(7, 0, 0),
-        pidXController = new PIDController(3, 0, 0.1),
-        pidYController = new PIDController(3, 0, 0.1);
+        pathHeadingController = new PIDController(7, 0, 0);
+
+    private final ProfiledPIDController
+            pidXController = new ProfiledPIDController(20, 0, 0.1, new TrapezoidProfile.Constraints(2, 2)),
+            pidYController = new ProfiledPIDController(20, 0, 0.1, new TrapezoidProfile.Constraints(2, 2));
 
     {
         pathHeadingController.enableContinuousInput(-Math.PI, Math.PI);
@@ -107,6 +112,8 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
             field.getObject("Pathplanner Path").setPoses(poses);
         });
         drivetrain.setVisionMeasurementStdDevs(new Matrix<N3, N1>(Nat.N3(), Nat.N1(), new double[]{10.0, 10.0, 999999.0}));
+
+        headingController.enableContinuousInput(-Math.PI, Math.PI);
     }
 
     @Override
@@ -186,12 +193,23 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     @Override
     public Command directlyMoveTo(Pose2d targetPose) {
         return new InstantCommand(() -> {
-            pidXController.setSetpoint(targetPose.getX());
-            pidYController.setSetpoint(targetPose.getY());
+            pidXController.reset(getPose().getX());
+            pidYController.reset(getPose().getY());
+            pidXController.setGoal(targetPose.getX());
+            pidYController.setGoal(targetPose.getY());
         }).andThen(applyRequest(
             () -> {
-                double pidXOutput = pidXController.calculate(getPose().getX());
-                double pidYOutput = pidYController.calculate(getPose().getY());
+                field.getObject("Target Pose").setPose(
+                        new Pose2d(
+                                new Translation2d(
+                                        pidXController.getSetpoint().position,
+                                        pidYController.getSetpoint().position
+                                ),
+                                targetPose.getRotation()
+                        )
+                );
+                double pidXOutput = -pidXController.calculate(getPose().getX());
+                double pidYOutput = -pidYController.calculate(getPose().getY());
 
                 var request = new SwerveRequest.FieldCentricFacingAngle();
                 request.HeadingController = headingController;
@@ -200,12 +218,14 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                     .withVelocityX(pidXOutput)
                     .withVelocityY(pidYOutput)
                     // Michael says not sure why the 180-degree rotation is needed, but it just works
-                    .withTargetDirection(targetPose.getRotation().plus(Rotation2d.kZero));
+                    .withTargetDirection(targetPose.getRotation().plus(Rotation2d.k180deg));
             }
         ).until(
             () -> MathUtil.isNear(targetPose.getX(), getPose().getX(), 0.025)
                 && MathUtil.isNear(targetPose.getY(), getPose().getY(), 0.025)
-        ));
+        )).andThen(
+                stop()
+        );
     }
 
     /**
@@ -244,6 +264,8 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     @Override
     public void periodic() {
         // Update the operator perspective if needed
+        pidXController.calculate(getPose().getX());
+        pidYController.calculate(getPose().getY());
         if (!didApplyOperatorPerspective || DriverStation.isDisabled()) {
             DriverStation.getAlliance().ifPresent(allianceColor -> {
                 drivetrain.setOperatorPerspectiveForward(

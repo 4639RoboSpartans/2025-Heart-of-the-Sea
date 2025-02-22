@@ -22,33 +22,6 @@ public class SimSwerveDrivetrain extends PhysicalSwerveDrivetrain {
         startSimThread();
     }
 
-    @Override
-    public Command directlyMoveTo(Pose2d targetPose) {
-        PIDController pidXController = new PIDController(4, 0, 0),
-                pidYController = new PIDController(4, 0, 0);
-        return new InstantCommand(() -> {
-            pidXController.setSetpoint(targetPose.getX());
-            pidYController.setSetpoint(targetPose.getY());
-        }).andThen(applyRequest(
-                () -> {
-                    double pidXOutput = pidXController.calculate(getPose().getX());
-                    double pidYOutput = pidYController.calculate(getPose().getY());
-
-                    var request = new SwerveRequest.FieldCentricFacingAngle();
-                    request.HeadingController = new PhoenixPIDController(8, 0, 0);
-
-                    return request
-                            .withVelocityX(pidXOutput)
-                            .withVelocityY(pidYOutput)
-                            // Michael says not sure why the 180-degree rotation is needed, but it just works
-                            .withTargetDirection(targetPose.getRotation().plus(Rotation2d.kZero));
-                }
-        ).until(
-                () -> MathUtil.isNear(targetPose.getX(), getPose().getX(), 0.025)
-                        && MathUtil.isNear(targetPose.getY(), getPose().getY(), 0.025)
-        ));
-    }
-
     /**
      * Runs the thread that sets the simulation state
      */
