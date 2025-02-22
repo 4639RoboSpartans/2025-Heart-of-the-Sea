@@ -1,19 +1,19 @@
 package frc.robot.constants;
 
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.lib.oi.Controller;
 import frc.lib.oi.OI;
 
 import java.util.function.DoubleSupplier;
-
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 /*
  * Driver Controls:
- * - Left Stick Y-> 
- * - Left Stick X-> 
- * - Right Stick Y-> 
+ * - Left Stick Y->
+ * - Left Stick X->
+ * - Right Stick Y->
  * - Right Stick X->
  * - D Pad Left ->
  * - D Pad Right ->
- * - D Pad Up 
+ * - D Pad Up
  * - D Pad Down
  * - X Button
  * - Y Button
@@ -23,51 +23,85 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  * - LB Button
  * - R Trigger
  * - L Trigger
- * 
+ *
  * Operator Controls:
- * - Left Stick Y-> Manual Elevator Up/Down
- * - Left Stick X-> 
- * - Right Stick Y-> Manual Wrist
- * - Right Stick X-> Intake/Outtake Scoring
+ * - Left Stick Y->
+ * - Left Stick X->
+ * - Right Stick Y->
+ * - Right Stick X->
  * - D Pad Left ->
  * - D Pad Right ->
- * - D Pad Up ->
- * - D Pad Down -> Stow Elevator
- * - X Button -> L2 Scoring
- * - Y Button -> L1 Scoring
- * - A Button -> Processor Score
- * - B Button -> Barge Score
- * - RB Button -> L3 Scoring
+ * - D Pad Up
+ * - D Pad Down
+ * - X Button
+ * - Y Button
+ * - A Button
+ * - B Button
+ * - RB Button
  * - LB Button
- * - R Trigger -> L4 Scoring
+ * - R Trigger
  * - L Trigger
  */
 
 public class Controls {
-    public static class Driver {
-        //swerve drive
-        public static final DoubleSupplier SwerveForwardAxis = OI.getInstance().driverController()::leftStickY;
-        public static final DoubleSupplier SwerveStrafeAxis = OI.getInstance().driverController()::leftStickX;
-        public static final DoubleSupplier SwerveRotationAxis = OI.getInstance().driverController()::rightStickX;
+    private static final Controller driverController = OI.getInstance().driverController();
+    private static final Controller operatorController = OI.getInstance().operatorController();
 
-        public static final Trigger precisionTrigger = OI.getInstance().driverController().LEFT_TRIGGER;
-        // press A and B at the same to reset swerve rotation to the current heading
-        public static final Trigger rotationResetTrigger = OI.getInstance().driverController().A_BUTTON.and(OI.getInstance().driverController().B_BUTTON); 
+    public static class Driver {
+        public static final DoubleSupplier SwerveForwardAxis = driverController::leftStickY;
+        public static final DoubleSupplier SwerveStrafeAxis = driverController::leftStickX;
+        public static final DoubleSupplier SwerveRotationAxis = driverController::rightStickX;
+
+        public static final Trigger precisionTrigger = driverController.LEFT_TRIGGER;
+
+        public static final Trigger rotationResetTrigger = driverController.A_BUTTON.and(driverController.B_BUTTON);
+
+        /*public static final Trigger reefLeftPoses = driverController.RIGHT_BUMPER;
+        public static final Trigger reefRightPoses = driverController.LEFT_BUMPER;
+
+        public static final Trigger reefRight = driverController.LEFT_TRIGGER;
+        public static final Trigger reefLeft = driverController.RIGHT_TRIGGER;
+
+        public static final Trigger PathfindReef_0 = reefLeftPoses.and(reefLeft.or(reefRight)).and(driverController.Y_BUTTON);
+        public static final Trigger PathfindReef_1 = reefLeftPoses.and(reefLeft.or(reefRight)).and(driverController.B_BUTTON);
+        public static final Trigger PathfindReef_2 = reefLeftPoses.and(reefLeft.or(reefRight)).and(driverController.A_BUTTON);
+        public static final Trigger PathfindReef_3 = reefRightPoses.and(reefLeft.or(reefRight)).and(driverController.Y_BUTTON);
+        public static final Trigger PathfindReef_4 = reefRightPoses.and(reefLeft.or(reefRight)).and(driverController.X_BUTTON);
+        public static final Trigger PathfindReef_5 = reefRightPoses.and(reefLeft.or(reefRight)).and(driverController.A_BUTTON);*/
+
+        //these need to be changed over to driver controller
+        public static final Trigger L2AlgaeTrigger = driverController.POV_DOWN;
+        public static final Trigger L3AlgaeTrigger = driverController.POV_UP;
+        public static final Trigger ProcessorTrigger = driverController.Y_BUTTON;
+        public static final Trigger BargeScoringTrigger = driverController.X_BUTTON;
+
+        public static final Trigger targetRight = driverController.RIGHT_BUMPER;
+        public static final Trigger targetLeft = driverController.LEFT_BUMPER;
+
+        public static final Trigger reefAlign = driverController.RIGHT_TRIGGER;
+        public static final Trigger coralStationAlign = driverController.B_BUTTON;
     }
-    public static class Operator{
-        //manual override controls
-        public static final DoubleSupplier manualElevator = OI.getInstance().operatorController()::leftStickY;
-        public static final DoubleSupplier manualWrist = OI.getInstance().operatorController()::rightStickY;
-        public static final DoubleSupplier manualScoringOuIntake = OI.getInstance().operatorController()::rightStickX;
-        //manual operator resets
-        public static final Trigger elevatorResetSetPointTrigger = OI.getInstance().operatorController().A_BUTTON.and(OI.getInstance().driverController().B_BUTTON);
-        //normal set points and controls
-        public static final Trigger L4Trigger = OI.getInstance().operatorController().RIGHT_TRIGGER;
-        public static final Trigger L3Trigger = OI.getInstance().operatorController().RIGHT_BUMPER;
-        public static final Trigger L2Trigger = OI.getInstance().operatorController().X_BUTTON;
-        public static final Trigger L1Trigger = OI.getInstance().operatorController().Y_BUTTON;
-        public static final Trigger processorScoreTrigger = OI.getInstance().operatorController().A_BUTTON;
-        public static final Trigger bargeScoreTrigger = OI.getInstance().operatorController().B_BUTTON;
-        public static final Trigger stowElevatorTrigger = OI.getInstance().operatorController().POV_DOWN;
+
+    public static class Operator {
+        //Setpoints +Operator Controls
+        public static final Trigger L1Trigger = operatorController.LEFT_TRIGGER;
+        public static final Trigger L2Trigger = operatorController.LEFT_BUMPER;
+        public static final Trigger L3Trigger = operatorController.RIGHT_BUMPER;
+        public static final Trigger L4Trigger = operatorController.RIGHT_TRIGGER;
+
+        public static final Trigger HPLoadingTrigger = operatorController.X_BUTTON;
+
+        public static final Trigger HoldTrigger = operatorController.Y_BUTTON;
+
+        // Micro adjustment controls
+        public static final DoubleSupplier MicroElevatorAdjustment = () -> operatorController.POV_UP() - operatorController.POV_DOWN();
+        public static final DoubleSupplier MicroWristAdjustment = () -> operatorController.POV_RIGHT() - operatorController.POV_LEFT();
+
+        //Manual override controls
+        public static Trigger ToggleManualControlTrigger = operatorController.LEFT_STICK;
+
+        public static final DoubleSupplier ManualControlWrist = () -> operatorController.rightStickY() * 0.5 + 0.5;
+        public static final DoubleSupplier ManualControlElevator = operatorController::leftStickY;
+        public static final DoubleSupplier ManualControlIntake = () -> operatorController.A_BUTTON() - operatorController.B_BUTTON();
     }
 }

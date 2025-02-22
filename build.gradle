@@ -1,7 +1,7 @@
 
 plugins {
     id "java"
-    id "edu.wpi.first.GradleRIO" version "2025.2.1"
+    id "edu.wpi.first.GradleRIO" version "2025.3.1"
     id "idea"
 }
 
@@ -52,7 +52,7 @@ wpi.java.debugJni = false
 
 // Set this to true to enable desktop support.
 //noinspection GroovyUnusedAssignment
-def includeDesktopSupport = false
+def includeDesktopSupport = true
 
 dependencies {
     annotationProcessor wpi.java.deps.wpilibAnnotations()
@@ -73,11 +73,13 @@ dependencies {
     nativeRelease wpi.java.vendor.jniRelease(wpi.platforms.desktop)
     simulationRelease wpi.sim.enableRelease()
 
+    def akitJson = new groovy.json.JsonSlurper().parseText(new File(projectDir.getAbsolutePath() + "/vendordeps/AdvantageKit.json").text)
+    annotationProcessor "org.littletonrobotics.akit:akit-autolog:$akitJson.version"
 }
 
 // Simulation configuration (e.g. environment variables).
 wpi.sim.addGui().defaultEnabled = true
-wpi.sim.addDriverstation().defaultEnabled = true;
+wpi.sim.addDriverstation().defaultEnabled = true
 
 // Setting up my Jar File. In this case, adding all libraries into the main jar ('fat jar')
 // in order to make them all available at runtime. Also adding the manifest so WPILib

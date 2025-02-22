@@ -6,13 +6,12 @@ import com.revrobotics.spark.SparkLowLevel;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.lib.PackagePrivate;
-import frc.robot.constants.IDs;
+import frc.lib.annotation.PackagePrivate;
 
 import java.util.function.DoubleSupplier;
 
 @PackagePrivate
-class ConcreteClimberSubsystem extends ClimberSubsystem {
+class ConcreteClimberSubsystem extends AbstractClimberSubsystem {
     @SuppressWarnings("FieldCanBeLocal")
     private final SparkFlex leftPivot, rightPivot;
 
@@ -20,8 +19,8 @@ class ConcreteClimberSubsystem extends ClimberSubsystem {
 
     @PackagePrivate
     ConcreteClimberSubsystem() {
-
-        leftPivot = new SparkFlex(IDs.LEFT_CLIMBER_MOTOR, SparkLowLevel.MotorType.kBrushless);
+        leftPivot = new SparkFlex(ClimberConstants.IDs.LEFT_CLIMBER_MOTOR, SparkLowLevel.MotorType.kBrushless);
+        rightPivot = new SparkFlex(ClimberConstants.IDs.RIGHT_CLIMBER_MOTOR, SparkLowLevel.MotorType.kBrushless);
 
         SparkBaseConfig cfg = new SparkFlexConfig()
             .idleMode(SparkBaseConfig.IdleMode.kBrake)
@@ -29,7 +28,6 @@ class ConcreteClimberSubsystem extends ClimberSubsystem {
             //On a full size neo 40-60 should be fine -- Jasper
 
         leftPivot.configure(cfg, SparkBase.ResetMode.kNoResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
-        rightPivot = new SparkFlex(IDs.RIGHT_CLIMBER_MOTOR, SparkLowLevel.MotorType.kBrushless);
         rightPivot.configure(cfg, SparkBase.ResetMode.kNoResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
     }
 

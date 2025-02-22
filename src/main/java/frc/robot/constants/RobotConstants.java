@@ -1,6 +1,5 @@
 package frc.robot.constants;
 
-import edu.wpi.first.math.util.Units;
 
 public class RobotConstants {
     /** <b>Units: </b>inches */

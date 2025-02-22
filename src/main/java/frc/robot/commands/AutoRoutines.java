@@ -2,134 +2,131 @@ package frc.robot.commands;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
+import java.util.function.Predicate;
 import java.util.stream.IntStream;
-
-import com.pathplanner.lib.commands.PathPlannerAuto;
-import com.pathplanner.lib.path.PathPlannerPath;
 
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
+import frc.lib.util.CommandsUtil;
+import frc.robot.subsystems.SubsystemManager;
+import frc.robot.subsystems.scoring.ScoringSuperstructure;
+import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 
 public class AutoRoutines {
     private final AutoFactory factory;
-    private final Supplier<Command> oneSecondTimeout = () -> CommandSwerveDrivetrain.getInstance().stopCommand().withTimeout(1);
 
     public AutoRoutines(AutoFactory factory) {
         this.factory = factory;
     }
 
-    public AutoRoutine testPath1() {
-        AutoRoutine routine = factory.newRoutine("Test Path 1");
+    public AutoRoutine COMP_J_K() {
+        return compileAuton(
+                List.of('J', 'K'),
+                List.of(4, 4),
+                true
+        );
+    }
 
-        // This routine uses segments between pre-defined handoff points.
-        // Expand the tooltip for information about their naming convention ->
+    public AutoRoutine COMP_H_G() {
+        return compileAuton(
+                List.of('H', 'G'),
+                List.of(4, 4),
+                true
+        );
+    }
 
-        // Load the routine's trajectories
-        AutoTrajectory testPath1_0 = routine.trajectory("Test Path 1", 0);
-        AutoTrajectory testPath1_1 = routine.trajectory("Test Path 1", 1);
-        AutoTrajectory testPath1_2 = routine.trajectory("Test Path 1", 2);
-        AutoTrajectory testPath1_3 = routine.trajectory("Test Path 1", 3);
+    public AutoRoutine COMP_A_B() {
+        return compileAuton(
+                List.of('A', 'B'),
+                List.of(4, 4),
+                true
+        );
+    }
 
-        // When the routine starts, reset odometry, shoot the first gamepiece, then go to the "C2" location
+    public AutoRoutine COMP_H_A() {
+        return compileAuton(
+                List.of('H', 'A'),
+                List.of(4, 4),
+                true
+        );
+    }
+
+    public AutoRoutine COMP_G_C_D_B() {
+        return compileAuton(
+                List.of('G', 'C', 'D', 'B'),
+                List.of(4, 4, 4, 4),
+                true
+        );
+    }
+
+    public AutoRoutine TEST_A_B() {
+        return compileAuton(
+                List.of('A', 'B'),
+                List.of(1, 2),
+                false
+        );
+    }
+
+
+    /**
+     * @param scoringLocations all locations as designated in path naming
+     * @param scoringHeights   all heights, each corresponding to a location,
+     *                         must be the same size as {@param scoringLocations}
+     * @param comp             is the auton for competition
+     * @return a new routine with the specified characteristics
+     */
+    private AutoRoutine compileAuton(List<Character> scoringLocations, List<Integer> scoringHeights, boolean comp) {
+        StringBuilder pathName = new StringBuilder(comp ? "COMP-" : "TEST-");
+        StringBuilder name = new StringBuilder(pathName.toString());
+        int numPaths = scoringHeights.size() * 2 - 1;
+        int numScores = scoringLocations.size();
+        for (int i = 0; i < numScores; i++) {
+            pathName.append(scoringLocations.get(i));
+            name.append(scoringLocations.get(i));
+            name.append(scoringHeights.get(i));
+            if (i < numScores - 1) {
+                pathName.append("-");
+                name.append("-");
+            }
+        }
+        AutoRoutine routine = factory.newRoutine(name.toString());
+        ArrayList<AutoTrajectory> paths = new ArrayList<>();
+        for (int i : IntStream.range(0, numPaths).toArray()) {
+            paths.add(routine.trajectory(pathName.toString(), i));
+        }
+        List<Command> commands = new ArrayList<>();
+        commands.add(paths.get(0).resetOdometry());
+        for (int i = 0; i < numPaths; i++) {
+            commands.add(paths.get(i).cmd());
+            commands.add(
+                    i % 2 == 0 ?
+                            switch (scoringHeights.get(i / 2)) {
+                                case 1 -> AutoCommands.L1Score.get();
+                                case 2 -> AutoCommands.L2Score.get();
+                                case 3 -> AutoCommands.L3Score.get();
+                                case 4 -> AutoCommands.L4Score.get();
+                                default -> AutoCommands.HPLoad.get();
+                            } : AutoCommands.HPLoad.get()
+            );
+        }
         routine.active().onTrue(
-                Commands.sequence(
-                        testPath1_0.resetOdometry(),
-                        testPath1_0.cmd(),
-                        CommandSwerveDrivetrain.getInstance().stopCommand().withTimeout(1),
-                        testPath1_1.cmd(),
-                        CommandSwerveDrivetrain.getInstance().stopCommand().withTimeout(1),
-                        testPath1_2.cmd(),
-                        CommandSwerveDrivetrain.getInstance().stopCommand().withTimeout(1),
-                        testPath1_3.cmd()
-                )
+                CommandsUtil.sequence(commands)
         );
         return routine;
     }
 
-    public AutoRoutine auto1(){
-        var pathName = "Path 1";
-        var numPaths = 3;
-        var resetOdometry = true;
-        AutoRoutine routine = factory.newRoutine(pathName);
-
-        ArrayList<AutoTrajectory> paths = new ArrayList<AutoTrajectory>();
-        for(int i:IntStream.range(0, numPaths).toArray()) paths.add(routine.trajectory(pathName, i));
-
-        routine.active().onTrue(Commands.sequence(
-            resetOdometry ? paths.get(0).resetOdometry() : Commands.none(),
-            paths.get(0).cmd(),
-            oneSecondTimeout.get(),
-            paths.get(1).cmd(),
-            oneSecondTimeout.get(),
-            paths.get(2).cmd()
-        ));
-        return routine;
+    public List<AutoRoutine> getAllCompRoutines() {
+        return List.of(
+                COMP_A_B(),
+                COMP_H_A(),
+                COMP_H_G(),
+                COMP_J_K(),
+                COMP_G_C_D_B()
+        );
     }
 
-    public AutoRoutine auto2(){
-        var pathName = "Path 2";
-        var numPaths = 3;
-        var resetOdometry = true;
-        AutoRoutine routine = factory.newRoutine(pathName);
-
-        ArrayList<AutoTrajectory> paths = new ArrayList<AutoTrajectory>();
-        for(int i:IntStream.range(0, numPaths).toArray()) paths.add(routine.trajectory(pathName, i));
-
-        routine.active().onTrue(Commands.sequence(
-            resetOdometry ? paths.get(0).resetOdometry() : Commands.none(),
-            paths.get(0).cmd(),
-            oneSecondTimeout.get(),
-            paths.get(1).cmd(),
-            oneSecondTimeout.get(),
-            paths.get(2).cmd()
-        ));
-        return routine;
-    }
-
-    public AutoRoutine auto3(){
-        var pathName = "Path 3";
-        var numPaths = 3;
-        var resetOdometry = true;
-        AutoRoutine routine = factory.newRoutine(pathName);
-
-        ArrayList<AutoTrajectory> paths = new ArrayList<AutoTrajectory>();
-        for(int i:IntStream.range(0, numPaths).toArray()) paths.add(routine.trajectory(pathName, i));
-
-        routine.active().onTrue(Commands.sequence(
-            resetOdometry ? paths.get(0).resetOdometry() : Commands.none(),
-            paths.get(0).cmd(),
-            oneSecondTimeout.get(),
-            paths.get(1).cmd(),
-            oneSecondTimeout.get(),
-            paths.get(2).cmd()
-        ));
-        return routine;
-    }
-
-    public AutoRoutine auto4(){
-        var pathName = "Path 4";
-        var numPaths = 3;
-        var resetOdometry = true;
-        AutoRoutine routine = factory.newRoutine(pathName);
-
-        ArrayList<AutoTrajectory> paths = new ArrayList<AutoTrajectory>();
-        for(int i:IntStream.range(0, numPaths).toArray()) paths.add(routine.trajectory(pathName, i));
-
-        routine.active().onTrue(Commands.sequence(
-            resetOdometry ? paths.get(0).resetOdometry() : Commands.none(),
-            paths.get(0).cmd(),
-            oneSecondTimeout.get(),
-            paths.get(1).cmd(),
-            oneSecondTimeout.get(),
-            paths.get(2).cmd()
-        ));
-        return routine;
-    }
-
-    
 }

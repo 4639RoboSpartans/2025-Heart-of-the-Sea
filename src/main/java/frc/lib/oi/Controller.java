@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
-public class Controller {
+public final class Controller {
     private static final double DEADZONE_VALUE = 0.1;
 
     private final XboxController controller;
@@ -89,7 +89,7 @@ public class Controller {
     }
 
     /**
-     * Gets the distance of the right joystick from neutral. 
+     * Gets the distance of the right joystick from neutral.
      */
     public double leftHypot() {
         return Math.hypot(leftStickX(), leftStickY());
@@ -118,26 +118,75 @@ public class Controller {
     }
 
     /**
-     * Gets the distance of the right joystick from neutral. 
+     * Gets the distance of the right joystick from neutral.
      */
     public double rightHypot() {
         return Math.hypot(rightStickX(), rightStickY());
     }
 
     /**
-     * Gets the value of the left trigger axis, a number in the range 0 (not pressed) to 1 (fully pressed) 
+     * Gets the value of the left trigger axis, a number in the range 0 (not pressed) to 1 (fully pressed)
      */
     public double leftTrigger() {
         return controller.getLeftTriggerAxis();
     }
-    
+
     /**
-     * Gets the value of the right trigger axis, a number in the range 0 (not pressed) to 1 (fully pressed) 
+     * Gets the value of the right trigger axis, a number in the range 0 (not pressed) to 1 (fully pressed)
      */
     public double rightTrigger() {
         return controller.getRightTriggerAxis();
     }
-    
+
+
+    public double A_BUTTON() {
+        return A_BUTTON.getAsBoolean() ? 1 : 0;
+    }
+
+    public double B_BUTTON() {
+        return B_BUTTON.getAsBoolean() ? 1 : 0;
+    }
+
+    public double X_BUTTON() {
+        return X_BUTTON.getAsBoolean() ? 1 : 0;
+    }
+
+    public double Y_BUTTON() {
+        return Y_BUTTON.getAsBoolean() ? 1 : 0;
+    }
+
+    public double LEFT_BUMPER() {
+        return LEFT_BUMPER.getAsBoolean() ? 1 : 0;
+    }
+
+    public double RIGHT_BUMPER() {
+        return RIGHT_BUMPER.getAsBoolean() ? 1 : 0;
+    }
+
+    public double LEFT_STICK() {
+        return LEFT_STICK.getAsBoolean() ? 1 : 0;
+    }
+
+    public double RIGHT_STICK() {
+        return RIGHT_STICK.getAsBoolean() ? 1 : 0;
+    }
+
+    public double POV_UP() {
+        return POV_UP.getAsBoolean() ? 1 : 0;
+    }
+
+    public double POV_DOWN() {
+        return POV_DOWN.getAsBoolean() ? 1 : 0;
+    }
+
+    public double POV_LEFT() {
+        return POV_LEFT.getAsBoolean() ? 1 : 0;
+    }
+
+    public double POV_RIGHT() {
+        return POV_RIGHT.getAsBoolean() ? 1 : 0;
+    }
+
     /**
      * Sets the controller to rumble with the given strength (a number in the range [0, 1])
      */
@@ -153,7 +202,7 @@ public class Controller {
     }
 
     /**
-     * Returns a command that sets the controller to rumble with the {@link Controller#setRumbleStrength(double) given 
+     * Returns a command that sets the controller to rumble with the {@link Controller#setRumbleStrength(double) given
      * strength} while the command is executing and stops the controller rumble when the command ends.
      */
     public Command rumbleCommand(double rumbleStrength) {
