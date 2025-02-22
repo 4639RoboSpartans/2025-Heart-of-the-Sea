@@ -101,8 +101,8 @@ public final class ScoringConstants {
             public static final double Wrist_L1_Proportion = 1.0;
             // TODO: above
 
-            public static final double Wrist_L2_Proportion = 0.9;
-            public static final double Wrist_L3_Proportion = 0.9;
+            public static final double Wrist_L2_Proportion = 0.95;
+            public static final double Wrist_L3_Proportion = 0.95;
             public static final double Wrist_L4_Proportion = 1.0;
 
             // TODO: below
