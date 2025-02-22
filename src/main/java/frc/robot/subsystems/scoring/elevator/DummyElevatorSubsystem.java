@@ -15,4 +15,9 @@ public class DummyElevatorSubsystem extends AbstractElevatorSubsystem {
 
     @Override
     public void setRawMotorVoltage(Voltage voltage) {}
+
+    @Override
+    public boolean shouldStopRunningHoningCommand() {
+        return true;
+    }
 }

@@ -82,4 +82,9 @@ public class SimElevatorSubsystem extends AbstractElevatorSubsystem {
     public void setRawMotorVoltage(Voltage voltage) {
         elevatorSim.setInputVoltage(voltage.in(Volts));
     }
+
+    @Override
+    public boolean shouldStopRunningHoningCommand() {
+        return true;
+    }
 }
