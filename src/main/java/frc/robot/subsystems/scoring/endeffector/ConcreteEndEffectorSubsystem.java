@@ -32,6 +32,7 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
 
     private final ProfiledPIDController wristPID;
     private final double encoderOffset;
+    private final static double DEFAULT_ENCODER_OFFSET = 0.645;
 
     public ConcreteEndEffectorSubsystem() {
         intakeMotor = new SparkFlex(
@@ -66,7 +67,7 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
             1,
             0
         );
-        encoderOffset = 0.077;
+        encoderOffset = DEFAULT_ENCODER_OFFSET;
 
         wristPID = new ProfiledPIDController(
             ScoringPIDs.wristKp.get(),
@@ -131,14 +132,6 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
         ).orElse(false);
     }
 
-    private double coralDistance() {
-        var measurement = laserCAN.getMeasurement();
-        if (measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
-            return measurement.distance_mm;
-        }
-        return 0;
-    }
-
     @Override
     protected void periodic(double targetWristRotationFraction, double intakeSpeed) {
         double currentWristPosition = getCurrentMotorPosition();
@@ -146,22 +139,10 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
 
         double wristPIDOutput = -wristPID.calculate(currentWristPosition, targetWristPosition);
 
+        SmartDashboard.putNumber("Wrist raw position", wristEncoder.get());
+
         wristMotor.setVoltage(wristPIDOutput);
-        ScoringSuperstructureAction action = SubsystemManager.getInstance().getScoringSuperstructure().getAction();
-        SmartDashboard.putNumber("Coral Distance", coralDistance());
-        if (action.endOnGamePieceSeen) {
-            if (!hasCoral.getAsBoolean()) {
-                intakeMotor.set(action.intakeSpeed);
-            } else {
-                intakeMotor.set(0);
-            }
-        } else if (action.endOnGamePieceNotSeen) {
-            if (hasCoral()) {
-                intakeMotor.set(action.intakeSpeed);
-            } else {
-                intakeMotor.set(0);
-            }
-        }
+        intakeMotor.set(intakeSpeed);
     }
 
     @Override

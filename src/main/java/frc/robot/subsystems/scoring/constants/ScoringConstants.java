@@ -69,7 +69,7 @@ public final class ScoringConstants {
             ProportionToRotation
         );
 
-        public static final double WRIST_TOLERANCE = 0.1;
+        public static final double WRIST_TOLERANCE = 0.03;
 
         //Limits for Intake
         public static final double IntakeForwardSoftLimit = 40;

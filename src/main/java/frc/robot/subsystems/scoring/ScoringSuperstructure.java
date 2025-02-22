@@ -253,8 +253,4 @@ public final class ScoringSuperstructure extends SubsystemBase {
     public ScoringSuperstructureAction getCurrentAction() {
         return currentAction;
     }
-
-    public ScoringSuperstructureAction getAction() {
-        return currentAction;
-    }
 }

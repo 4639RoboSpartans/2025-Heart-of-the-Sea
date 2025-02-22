@@ -25,6 +25,7 @@ import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
 import frc.robot.subsystems.drive.SwerveAutoRoutinesCreator;
 import frc.robot.subsystems.scoring.ScoringSuperstructure;
 import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
+import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
 
 import java.util.Arrays;
@@ -70,7 +71,7 @@ public class RobotContainer {
 
         //Scoring Controls
         {
-            Controls.Driver.rotationResetTrigger.whileTrue(
+            Controls.Driver.rotationResetTrigger.onTrue(
                 swerve.resetPigeon()
             );
 

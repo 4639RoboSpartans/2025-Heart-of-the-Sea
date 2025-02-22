@@ -71,9 +71,9 @@ public class ScoringSuperstructureAction {
 
     public static final ScoringSuperstructureAction
         IDLE = new ScoringSuperstructureAction()
-        .withTargetElevatorExtensionFraction(ElevatorSetpoints.IDLE_Proportion)
-        .withTargetWristRotationFraction(WristSetpoints.Wrist_IDLE_Proportion)
-        .stopIntakeOnGamePieceNotSeen(),
+            .withTargetElevatorExtensionFraction(ElevatorSetpoints.IDLE_Proportion)
+            .withTargetWristRotationFraction(WristSetpoints.Wrist_IDLE_Proportion)
+            .stopIntakeOnGamePieceNotSeen(),
         INTAKE_FROM_HP = new ScoringSuperstructureAction()
             .withTargetElevatorExtensionFraction(ElevatorSetpoints.HP_Proportion)
             .withTargetWristRotationFraction(WristSetpoints.Wrist_HP_Proportion)

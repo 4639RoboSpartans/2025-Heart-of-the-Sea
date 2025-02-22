@@ -1,6 +1,7 @@
 package frc.robot.subsystems.drive;
 
 import choreo.trajectory.SwerveSample;
+import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
@@ -13,26 +14,39 @@ import com.pathplanner.lib.util.PathPlannerLogging;
 import com.pathplanner.lib.util.swerve.SwerveSetpoint;
 import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import frc.lib.network.LimelightHelpers;
 import frc.lib.util.DriverStationUtil;
 import frc.robot.constants.Controls;
+import frc.robot.constants.Limelights;
 import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.drive.constants.DriveConstants;
 import frc.robot.subsystems.drive.constants.DrivePIDs;
 import frc.robot.subsystems.drive.constants.TunerConstants;
 import frc.robot.subsystems.drive.constants.TunerConstants.TunerSwerveDrivetrain;
+import frc.robot.subsystems.scoring.Vision;
+import org.ejml.simple.SimpleMatrix;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import static edu.wpi.first.units.Units.Degrees;
@@ -91,6 +105,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         PathPlannerLogging.setLogActivePathCallback((poses) -> {
             field.getObject("Pathplanner Path").setPoses(poses);
         });
+        drivetrain.setVisionMeasurementStdDevs(new Matrix<N3, N1>(Nat.N3(), Nat.N1(), new double[]{10.0, 10.0, 1000.0}));
     }
 
     @Override
@@ -241,16 +256,11 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                 didApplyOperatorPerspective = true;
             });
         }
-        // Update vision
-        SubsystemManager.getInstance().getVisionSubsystem().getVisionResults().forEach(
-            visionResult -> drivetrain.addVisionMeasurement(
-                visionResult.getVisionPose(),
-                visionResult.getTimestamp()
-            )
-        );
+
+        Vision.addGlobalVisionMeasurements(this);
+
         // Update robot pose
         field.setRobotPose(getPose());
-
         // Update field on dashboard
         SmartDashboard.putData("Field2D", field);
     }
@@ -276,5 +286,10 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     @Override
     public void resetPose(Pose2d pose) {
         drivetrain.resetPose(pose);
+    }
+
+    @Override
+    public void addVisionMeasurement(Pose2d pose, double timestamp) {
+        drivetrain.addVisionMeasurement(pose, timestamp);
     }
 }

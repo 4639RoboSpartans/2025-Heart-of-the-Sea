@@ -6,16 +6,27 @@
 package frc.robot.robot;
 
 import com.ctre.phoenix6.SignalLogger;
-import com.revrobotics.spark.config.SparkBaseConfig;
 
-import au.grapplerobotics.CanBridge;
+import com.revrobotics.spark.config.SparkBaseConfig;
+import edu.wpi.first.epilogue.logging.EpilogueBackend;
+import edu.wpi.first.epilogue.logging.NTEpilogueBackend;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.SubsystemManager;
+import frc.robot.subsystems.scoring.ScoringSuperstructure;
 import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
+import frc.robot.subsystems.scoring.ScoringSuperstructureState;
+import org.littletonrobotics.junction.LoggedRobot;
+import org.littletonrobotics.junction.Logger;
 
-public class Robot extends TimedRobot {
+
+public class Robot extends LoggedRobot {
     private Command autonomousCommand;
 
     private final RobotContainer robotContainer;
@@ -24,7 +35,6 @@ public class Robot extends TimedRobot {
     public Robot() {
         SignalLogger.enableAutoLogging(true);
         robotContainer = new RobotContainer();
-        CanBridge.runTCP();
     }
 
     @Override

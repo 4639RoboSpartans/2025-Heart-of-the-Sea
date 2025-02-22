@@ -6,6 +6,7 @@ import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
 import frc.robot.subsystems.scoring.ScoringSuperstructure;
 import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
+import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 
 import java.util.function.Supplier;
 
@@ -19,10 +20,10 @@ public class AutoCommands {
     public static final Supplier<Command> L1Score = () -> getScoringSuperstructureCommand(ScoringSuperstructureAction.SCORE_L1_CORAL);
     public static final Supplier<Command> HPLoad = () -> getScoringSuperstructureCommand(ScoringSuperstructureAction.INTAKE_FROM_HP);
 
-    private static Command getScoringSuperstructureCommand(ScoringSuperstructureAction state) {
+    private static Command getScoringSuperstructureCommand(ScoringSuperstructureAction action) {
         return Commands.deadline(
             Commands.sequence(
-                superstructure.setAction(state),
+                superstructure.setAction(action),
                 superstructure.runScoringState().until(superstructure.isStateFinished),
                 superstructure.setAction(ScoringSuperstructureAction.IDLE),
                 superstructure.runScoringState().until(superstructure.isStateFinished)

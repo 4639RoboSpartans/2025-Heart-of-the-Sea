@@ -108,4 +108,6 @@ public abstract class AbstractSwerveDrivetrain extends SubsystemBase {
     }
 
     public abstract void resetPose(Pose2d pose);
+
+    public abstract void addVisionMeasurement(Pose2d pose, double timestamp);
 }

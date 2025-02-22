@@ -24,10 +24,14 @@ public enum ScoringSuperstructureState {
             case ELEVATOR_MOVE_WITH_TRANSITION -> elevator.isAtTarget();
             case TRANSITION_AFTER_ELEVATOR -> endEffector.isWristAtTarget();
             case ELEVATOR_MOVE_NO_TRANSITION -> elevator.isAtTarget();
-            case EXECUTING_ACTION -> (
-                action.endOnGamePieceSeen && endEffector.hasCoral() ||
-                    action.endOnGamePieceNotSeen && !endEffector.hasCoral()
-            ) && false;
+            case EXECUTING_ACTION -> {
+                if (!action.endOnGamePieceSeen || !endEffector.hasCoral()) {
+                    if (action.endOnGamePieceNotSeen) {
+                        endEffector.hasCoral();
+                    }
+                }
+                yield false;
+            }
             case DONE -> true;
         };
     }

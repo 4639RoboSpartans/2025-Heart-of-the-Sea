@@ -13,7 +13,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.util.CommandsUtil;
 import frc.robot.subsystems.SubsystemManager;
-import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
+import frc.robot.subsystems.scoring.ScoringSuperstructure;
+import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 
 public class AutoRoutines {
     private final AutoFactory factory;
@@ -128,17 +129,4 @@ public class AutoRoutines {
         );
     }
 
-    public Command startScoringCommandWhenNearReef(Command scoringCommand, Command driveCommand, Predicate<Pose2d> withinDistanceThreshold) {
-        return Commands.deadline(
-                Commands.parallel(
-                        SubsystemManager.getInstance().getScoringSuperstructure().setAction(ScoringSuperstructureAction.IDLE),
-                        SubsystemManager.getInstance().getScoringSuperstructure().runScoringState().until(() -> withinDistanceThreshold.test(SubsystemManager.getInstance().getDrivetrain().getPose())),
-                        scoringCommand
-                ),
-                Commands.parallel(
-                        driveCommand,
-                        SubsystemManager.getInstance().getDrivetrain().stop()
-                )
-        );
-    }
 }
