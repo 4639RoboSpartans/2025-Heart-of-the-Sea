@@ -144,7 +144,7 @@ public final class ScoringSuperstructure extends SubsystemBase {
 
         // Update fine-tuning offsets
         elevatorAdjustment += 0.002 * Controls.Operator.MicroElevatorAdjustment.getAsDouble();
-        wristAdjustment += 0.002 * Controls.Operator.MicroWristAdjustment.getAsDouble();
+        wristAdjustment += 0.006 * Controls.Operator.MicroWristAdjustment.getAsDouble();
         elevatorAdjustment = MathUtil.clamp(
             targetElevatorExtensionFraction + elevatorAdjustment,
             0, 1
