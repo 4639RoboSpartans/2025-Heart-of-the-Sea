@@ -11,12 +11,38 @@ public abstract class AbstractFunnelSubsystem extends SubsystemBase {
 
     public static AbstractFunnelSubsystem getInstance(SubsystemManager.GetInstanceAccess access) {
         Objects.requireNonNull(access);
-        return instance = Objects.requireNonNullElseGet(instance,
-            DummyFunnelSubsystem::new // TODO: add sim funnel
-        );
+
+        boolean dummy = false;
+        // dummy = true;
+        if(dummy) return new DummyFunnelSubsystem();
+        
+        if (Robot.isReal()) {
+            return instance = Objects.requireNonNullElseGet(instance, ConcreteFunnelSubsystem::new);
+        } else {
+            return instance = Objects.requireNonNullElseGet(instance, DummyFunnelSubsystem::new);
+        }
     }
 
+    /**
+     * Checks if the funnel is at its desired state.
+     * 
+     * @return if funnel is at desired state as boolean
+     */
+    public boolean isFunnelStateFinished(){
+        return active != isTargetPositionDown;
+    }
+
+    protected boolean isTargetPositionDown = true;
     protected boolean active = false;
+
+    /**
+     * Gets if the funnel is active/down 
+     * 
+     * @return boolean if funnel is active/down
+     */
+    public boolean isActive(){
+        return active;
+    }
 
     /**
      * Sets whether the funnel is active
@@ -25,5 +51,23 @@ public abstract class AbstractFunnelSubsystem extends SubsystemBase {
      */
     public final void setFunnelActive(boolean active) {
         this.active = active;
+    }
+
+    /**
+     * Gets the current of the pivot motor
+     * 
+     * @return current of pivot motor as double
+     */
+    public abstract double getCurrent();
+
+    protected boolean isManualControlEnabled = false;
+
+    /**
+     * Sets the funnel to manual control
+     * 
+     * @Param if manual control is enabled
+     */
+    public void setManualControlEnabled(boolean enabled) {
+        isManualControlEnabled = enabled;
     }
 }
