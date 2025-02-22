@@ -154,7 +154,6 @@ public final class ScoringSuperstructure extends SubsystemBase {
             0, 1
         ) - targetWristRotationFraction;
 
-
         elevator.setTargetExtensionFraction(targetElevatorExtensionFraction + elevatorAdjustment);
         endEffector.setTargetWristRotationFraction(targetWristRotationFraction + wristAdjustment);
         endEffector.setIntakeSpeed(intakeSpeed);
@@ -165,9 +164,9 @@ public final class ScoringSuperstructure extends SubsystemBase {
             resetAdjustments();
         }
         // If the state is finished, go to the next action
-//        if (currentState == ScoringSuperstructureState.DONE) {
-//            setCurrentAction(currentAction.nextAction);
-//        }
+        if (currentState == ScoringSuperstructureState.DONE) {
+            setCurrentAction(currentAction.nextAction);
+        }
     }
 
     public Command toggleManualControl() {
