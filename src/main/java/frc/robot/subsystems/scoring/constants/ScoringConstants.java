@@ -98,7 +98,7 @@ public final class ScoringConstants {
         public static final class WristSetpoints {
             //Wrist Proportions
             public static final double Wrist_IDLE_Proportion = 0.0;
-            public static final double Wrist_HP_Proportion = 0.15;
+            public static final double Wrist_HP_Proportion = 0.2;
             public static final double Wrist_Processor_Proportion = 0.61;
             public static final double Wrist_L1_Proportion = 1.0;
             // TODO: above
