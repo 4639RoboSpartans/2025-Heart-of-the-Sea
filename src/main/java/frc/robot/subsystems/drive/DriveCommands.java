@@ -116,10 +116,10 @@ public class DriveCommands {
         Supplier<Pose2d> currentRobotPose = SubsystemManager.getInstance().getDrivetrain()::getPose;
         var desiredPose = left ? FieldConstants.TargetPositions.CORALSTATION_LEFT : FieldConstants.TargetPositions.CORALSTATION_RIGHT;
 
-        return PoseUtil.distanceBetween(desiredPose.Pose, currentRobotPose.get()) > 1
+        return (PoseUtil.distanceBetween(desiredPose.Pose, currentRobotPose.get()) > 1
                 ? swerve.pathfindTo(desiredPose.Pose)
-                .until(new Trigger(() -> PoseUtil.withinTolerance(desiredPose.Pose, currentRobotPose.get(), Units.inchesToMeters(2))).debounce(0.1))
-                : swerve.directlyMoveTo(desiredPose.Pose)
-                .until(new Trigger(() -> PoseUtil.withinTolerance(desiredPose.Pose, currentRobotPose.get(), Units.inchesToMeters(2))).debounce(0.1));
+                : swerve.directlyMoveTo(desiredPose.Pose))
+                .until(() -> PoseUtil.withinTolerance(desiredPose.Pose, currentRobotPose.get(), 1))
+                .andThen(swerve.pathfindTo(desiredPose.Pose));
     }
 }

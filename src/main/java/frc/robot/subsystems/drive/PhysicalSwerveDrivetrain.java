@@ -198,8 +198,8 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     @Override
     public Command directlyMoveTo(Pose2d targetPose) {
         return new InstantCommand(() -> {
-            pidXController.reset(getPose().getX());
-            pidYController.reset(getPose().getY());
+            pidXController.reset(getPose().getX(), getChassisSpeeds().vxMetersPerSecond);
+            pidYController.reset(getPose().getY(), getChassisSpeeds().vyMetersPerSecond);
             pidXController.setGoal(targetPose.getX());
             pidYController.setGoal(targetPose.getY());
         }).andThen(applyRequest(
