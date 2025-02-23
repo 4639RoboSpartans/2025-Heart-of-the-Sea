@@ -10,6 +10,7 @@ import frc.robot.constants.Controls;
 import frc.robot.robot.Robot;
 import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
+import frc.robot.subsystems.scoring.elevator.DummyElevatorSubsystem;
 
 import java.util.Objects;
 

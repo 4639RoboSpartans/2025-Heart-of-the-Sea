@@ -22,11 +22,13 @@ import frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConsta
 import frc.robot.subsystems.scoring.constants.ScoringPIDs;
 
 import java.util.Optional;
+import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
     private final SparkFlex intakeMotor;
     private final SparkFlex wristMotor;
-    private final DutyCycleEncoder wristEncoder;
+    private final Supplier<Double> wristEncoder;
 
     private final LaserCan laserCAN;
 
@@ -43,6 +45,7 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
             ScoringConstants.IDs.WristMotorID,
             SparkLowLevel.MotorType.kBrushless
         );
+        wristEncoder = wristMotor.getAbsoluteEncoder()::getPosition;
         intakeMotor.configure(
             new SparkFlexConfig()
                 .apply(
@@ -61,11 +64,6 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
                 getWristMotorConfig(),
             SparkBase.ResetMode.kResetSafeParameters,
             SparkBase.PersistMode.kPersistParameters
-        );
-        wristEncoder = new DutyCycleEncoder(
-            ScoringConstants.IDs.WristEncoderDIOPort,
-            1,
-            0
         );
         encoderOffset = DEFAULT_ENCODER_OFFSET;
 

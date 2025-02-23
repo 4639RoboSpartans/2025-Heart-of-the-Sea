@@ -57,8 +57,17 @@ public final class ScoringConstants {
         public static final Rotation2d MAX_ROTATION = Rotation2d.fromDegrees(-200);
         public static final Rotation2d IDLE_ROTATION = Rotation2d.fromDegrees(30);
 
-        public static final double IDLE_POSITION = 0.0;
-        public static final double EXTENDED_POSITION = 0.89;
+        public static final double IDLE_POSITION = getEncoderIdlePosition();
+
+        private static double getEncoderIdlePosition() {
+            return usingRelativeEncoder ? (1/Double.NEGATIVE_INFINITY) : 0.89;
+        }
+
+        public static final double EXTENDED_POSITION = getEncoderExtendedPosition();
+
+        private static double getEncoderExtendedPosition() {
+            return usingRelativeEncoder ? -31.846 : 0.89;
+        }
 
         public static final UnitConvertor<Double, Double> RotationFractionToMotorPosition = UnitConvertor.linearConvertingRange(
             0, 1, IDLE_POSITION, EXTENDED_POSITION
@@ -70,6 +79,8 @@ public final class ScoringConstants {
             RotationFractionToMotorPosition.inverted(),
             ProportionToRotation
         );
+
+        public static boolean usingRelativeEncoder = false;
 
         public static final double WRIST_TOLERANCE = 0.03;
 
