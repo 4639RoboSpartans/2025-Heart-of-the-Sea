@@ -34,7 +34,11 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
 
     private final ProfiledPIDController wristPID;
     private final double encoderOffset;
-    private final static double DEFAULT_ENCODER_OFFSET = 0.645;
+    private final static double DEFAULT_ENCODER_OFFSET = 0.92; // 0.645; 0.92
+
+
+    // given is frac 0.82, measured frac 0.556 => need to sub frac 0.264 from measurement
+    // sub 0.29663 from measurement
 
     public ConcreteEndEffectorSubsystem() {
         intakeMotor = new SparkFlex(

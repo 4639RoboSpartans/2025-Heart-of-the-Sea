@@ -34,20 +34,20 @@ public final class ScoringConstants {
 
         public static final class ElevatorSetpoints {
             //Elevator proportions
-            public static final double IDLE_Proportion = 0.0;
-            public static final double HP_Proportion = 0.0;
-            public static final double Processor_Proportion = 0.0; // TODO: tune
+            public static final double IDLE_Proportion = 0.01; // TODO: figure out how to fix
+            public static final double HP_Proportion = ProportionToPosition.convertBackwards(6.1);
+            public static final double Processor_Proportion = ProportionToPosition.convertBackwards(2.620); // TODO: tune
             public static final double L1_Proportion = 0.15; // TODO: tune
             // TODO: above
 
-            public static final double L2_Proportion = ProportionToPosition.convertBackwards(19.);
-            public static final double L3_Proportion = ProportionToPosition.convertBackwards(30.);
-            public static final double L4_Proportion = ProportionToPosition.convertBackwards(59.5);
+            public static final double L2_Proportion = ProportionToPosition.convertBackwards(14.7);
+            public static final double L3_Proportion = ProportionToPosition.convertBackwards(28.);
+            public static final double L4_Proportion = ProportionToPosition.convertBackwards(52.224);
 
             // TODO: below
             public static final double L2_ALGAE_Proportion = 0.32; // MAYBE
-            public static final double L3_ALGAE_Proportion = 0.52-0.075;
-            public static final double Barge_Proportion = 0.8905;
+            public static final double L3_ALGAE_Proportion = ProportionToPosition.convertBackwards(32.0);
+            public static final double Barge_Proportion = ProportionToPosition.convertBackwards(62.3);
 
             public static final double Ground_Intake_Proportion = 0.0;
         }
@@ -98,9 +98,9 @@ public final class ScoringConstants {
 
         public static final class WristSetpoints {
             //Wrist Proportions
-            public static final double Wrist_IDLE_Proportion = 0.0;
+            public static final double Wrist_IDLE_Proportion = 0.2; // For now, because shaft collision
             public static final double Wrist_HP_Proportion = 0.2;
-            public static final double Wrist_Processor_Proportion = 0.61;
+            public static final double Wrist_Processor_Proportion = 0.709;
             public static final double Wrist_L1_Proportion = 1.0;
             // TODO: above
 
@@ -110,9 +110,9 @@ public final class ScoringConstants {
 
             // TODO: below
             public static final double Wrist_L2_ALGAE_Proportion = 0.82;
-            public static final double Wrist_L3_ALGAE_Proportion = 0.65;
-            public static final double Wrist_Barge_Proportion = 0.358;
-            public static final double Wrist_Transition_Proportion = 0.4;
+            public static final double Wrist_L3_ALGAE_Proportion = 0.763;
+            public static final double Wrist_Barge_Proportion = 0.534;
+            public static final double Wrist_Transition_Proportion = 0.5;
 
             public static final Double Wrist_Ground_Intake_Proportion = 0.845;
         }

@@ -26,7 +26,9 @@ public final class Controller {
         POV_DOWN,
         POV_LEFT,
         LEFT_TRIGGER,
-        RIGHT_TRIGGER;
+        RIGHT_TRIGGER,
+        XBOX_START_BUTTON,
+        XBOX_BACK_BUTTON;
 
     public Controller(int joystickID) {
         controller = new XboxController(joystickID);
@@ -45,6 +47,8 @@ public final class Controller {
         POV_LEFT = new Trigger(() -> controller.getPOV() == 270);
         LEFT_TRIGGER = new Trigger(() -> controller.getLeftTriggerAxis() > 0.5);
         RIGHT_TRIGGER = new Trigger(() -> controller.getRightTriggerAxis() > 0.5);
+        XBOX_START_BUTTON = new Trigger(controller::getStartButton);
+        XBOX_BACK_BUTTON = new Trigger(controller::getBackButton);
     }
 
     /**

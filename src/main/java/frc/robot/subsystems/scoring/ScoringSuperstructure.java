@@ -14,6 +14,8 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.constants.Controls;
 import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
+import frc.robot.subsystems.scoring.constants.ScoringConstants.ElevatorConstants.ElevatorSetpoints;
+import frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConstants.WristSetpoints;
 import frc.robot.subsystems.scoring.elevator.AbstractElevatorSubsystem;
 import frc.robot.subsystems.scoring.elevator.ElevatorSysID;
 import frc.robot.subsystems.scoring.endeffector.AbstractEndEffectorSubsystem;
@@ -152,8 +154,12 @@ public final class ScoringSuperstructure extends SubsystemBase {
         double targetElevatorExtensionFraction = currentTargetElevatorExtensionFraction
             + Controls.Operator.ManualControlElevator.getAsDouble() * 0.03;
 
-        elevator.setTargetExtensionFraction(MathUtil.clamp(targetElevatorExtensionFraction, 0, 1));
-        endEffector.setTargetWristRotationFraction(Controls.Operator.ManualControlWrist.getAsDouble());
+        elevator.setTargetExtensionFraction(MathUtil.clamp(targetElevatorExtensionFraction, ElevatorSetpoints.IDLE_Proportion, 1));
+        endEffector.setTargetWristRotationFraction(MathUtil.clamp(
+            Controls.Operator.ManualControlWrist.getAsDouble(),
+            WristSetpoints.Wrist_IDLE_Proportion,
+            1.2
+        ));
         endEffector.setIntakeSpeed(Controls.Operator.ManualControlIntake.getAsDouble());
     }
 
@@ -179,11 +185,11 @@ public final class ScoringSuperstructure extends SubsystemBase {
         wristAdjustment += 0.006 * Controls.Operator.MicroWristAdjustment.getAsDouble();
         elevatorAdjustment = MathUtil.clamp(
             targetElevatorExtensionFraction + elevatorAdjustment,
-            0, 1
+            ElevatorSetpoints.IDLE_Proportion, 1
         ) - targetElevatorExtensionFraction;
         wristAdjustment = MathUtil.clamp(
             targetWristRotationFraction + wristAdjustment,
-            0, 1
+            WristSetpoints.Wrist_IDLE_Proportion, 1
         ) - targetWristRotationFraction;
 
         elevator.setTargetExtensionFraction(targetElevatorExtensionFraction + elevatorAdjustment);
