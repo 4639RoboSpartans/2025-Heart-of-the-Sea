@@ -105,8 +105,31 @@ public final class ScoringSuperstructure extends SubsystemBase {
             else runActionPeriodic();
 
             SmartDashboard.putString("Scoring superstructure info",
-                "%s: ele = [curr %.3f; tgt %.3f]; wst = [curr %.3f; tgt %.3f]".formatted(
+                "%s in %s: ele = [curr %.3f; tgt %.3f]; wst = [curr %.3f; tgt %.3f]".formatted(
                     currentState,
+                    currentAction == ScoringSuperstructureAction.IDLE
+                        ? "Idle"
+                        : currentAction == ScoringSuperstructureAction.SCORE_BARGE
+                        ? "Barge"
+                        : currentAction == ScoringSuperstructureAction.SCORE_L1_CORAL
+                        ? "L1 C"
+                        : currentAction == ScoringSuperstructureAction.SCORE_L2_CORAL
+                        ? "L2 C"
+                        : currentAction == ScoringSuperstructureAction.SCORE_L3_CORAL
+                        ? "L3 C"
+                        : currentAction == ScoringSuperstructureAction.SCORE_L4_CORAL
+                        ? "L4 C"
+                        : currentAction == ScoringSuperstructureAction.SCORE_PROCESSOR
+                        ? "Processor"
+                        : currentAction == ScoringSuperstructureAction.INTAKE_FROM_HP
+                        ? "HP In"
+                        : currentAction == ScoringSuperstructureAction.INTAKE_L2_ALGAE
+                        ? "L2 A"
+                        : currentAction == ScoringSuperstructureAction.INTAKE_L3_ALGAE
+                        ? "L3 A"
+                        : currentAction == ScoringSuperstructureAction.GROUND_INTAKE
+                        ? "Ground"
+                        : "Unknown",
                     elevator.getCurrentPosition(),
                     elevator.getTargetPosition(),
                     endEffector.getCurrentMotorPosition(),
