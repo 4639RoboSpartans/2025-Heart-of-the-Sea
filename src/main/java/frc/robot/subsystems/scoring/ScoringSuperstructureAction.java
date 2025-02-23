@@ -140,5 +140,11 @@ public class ScoringSuperstructureAction {
             .withIntakeSpeed(IntakeSpeeds.Intake_Processor_Speed)
             .requireWristTransition()
             .withTrigger(Controls.Driver.ProcessorTrigger)
+            .withStateAfter(IDLE),
+        GROUND_INTAKE = new ScoringSuperstructureAction()
+            .withTargetElevatorExtensionFraction(ElevatorSetpoints.Ground_Intake_Proportion)
+            .withTargetWristRotationFraction(WristSetpoints.Wrist_Ground_Intake_Proportion)
+            .withIntakeSpeed(1.0)
+            .withTrigger(Controls.Operator.Ground_Intake_Trigger)
             .withStateAfter(IDLE);
 }

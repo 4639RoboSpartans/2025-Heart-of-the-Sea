@@ -118,8 +118,10 @@ public class RobotContainer {
                     ScoringSuperstructureAction.INTAKE_L3_ALGAE
                 )
             );
-            Controls.Operator.HoldTrigger.onTrue(
-                scoringSuperstructure.hold()
+            Controls.Operator.Ground_Intake_Trigger.onTrue(
+                scoringSuperstructure.setAction(
+                    ScoringSuperstructureAction.GROUND_INTAKE
+                )
             );
 
             Controls.Operator.ToggleManualControlTrigger.whileTrue(

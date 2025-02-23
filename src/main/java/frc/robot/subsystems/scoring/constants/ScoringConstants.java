@@ -36,7 +36,7 @@ public final class ScoringConstants {
             //Elevator proportions
             public static final double IDLE_Proportion = 0.0;
             public static final double HP_Proportion = 0.0;
-            public static final double Processor_Proportion = 0.1; // TODO: tune
+            public static final double Processor_Proportion = 0.0; // TODO: tune
             public static final double L1_Proportion = 0.15; // TODO: tune
             // TODO: above
 
@@ -45,9 +45,11 @@ public final class ScoringConstants {
             public static final double L4_Proportion = ProportionToPosition.convertBackwards(59.5);
 
             // TODO: below
-            public static final double L2_ALGAE_Proportion = 0.39; // MAYBE
-            public static final double L3_ALGAE_Proportion = 0.52;
-            public static final double Barge_Proportion = 0.99;
+            public static final double L2_ALGAE_Proportion = 0.32; // MAYBE
+            public static final double L3_ALGAE_Proportion = 0.52-0.075;
+            public static final double Barge_Proportion = 0.8905;
+
+            public static final double Ground_Intake_Proportion = 0.0;
         }
     }
 
@@ -97,7 +99,7 @@ public final class ScoringConstants {
             //Wrist Proportions
             public static final double Wrist_IDLE_Proportion = 0.0;
             public static final double Wrist_HP_Proportion = 0.15;
-            public static final double Wrist_Processor_Proportion = 0.0;
+            public static final double Wrist_Processor_Proportion = 0.61;
             public static final double Wrist_L1_Proportion = 1.0;
             // TODO: above
 
@@ -108,8 +110,10 @@ public final class ScoringConstants {
             // TODO: below
             public static final double Wrist_L2_ALGAE_Proportion = 0.82;
             public static final double Wrist_L3_ALGAE_Proportion = 0.65;
-            public static final double Wrist_Barge_Proportion = 0.402;
+            public static final double Wrist_Barge_Proportion = 0.358;
             public static final double Wrist_Transition_Proportion = 0.4;
+
+            public static final Double Wrist_Ground_Intake_Proportion = 0.845;
         }
 
         public static final Translation3d Hopper3DSimOffset = new Translation3d(

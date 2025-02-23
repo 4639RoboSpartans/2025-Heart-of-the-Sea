@@ -52,7 +52,7 @@ public final class ScoringSuperstructure extends SubsystemBase {
             ScoringSuperstructureAction prevAction = this.currentAction;
             this.currentAction = action;
 
-            boolean requiresWristTransition = prevAction.requiresWristTransition || action.requiresWristTransition;
+            boolean requiresWristTransition = prevAction.requiresWristTransition || currentAction.requiresWristTransition;
             if (requiresWristTransition) {
                 currentState = ScoringSuperstructureState.TRANSITION_BEFORE_ELEVATOR;
             } else {
