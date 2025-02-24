@@ -164,12 +164,6 @@ public final class ScoringSuperstructure extends SubsystemBase {
     }
 
     private void runActionPeriodic() {
-        // If the current action's trigger is no longer active,
-        // move to the next action
-        if (!currentAction.trigger.getAsBoolean()) {
-            setCurrentAction(currentAction.nextAction);
-        }
-
         // Get new setpoints
         double targetElevatorExtensionFraction = currentState
             .getTargetElevatorExtensionFraction(currentAction)
