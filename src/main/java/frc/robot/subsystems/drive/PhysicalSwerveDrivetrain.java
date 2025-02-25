@@ -61,8 +61,8 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
     private final PhoenixPIDController headingController = new PhoenixPIDController(28.48, 0, 1.1466);
     protected final PIDController
-            pathXController = new PIDController(12, 0, 0),
-            pathYController = new PIDController(12, 0, 0),
+            pathXController = new PIDController(18, 0, 0),
+            pathYController = new PIDController(18, 0, 0),
             pathHeadingController = new PIDController(7, 0, 0);
     protected ProfiledPIDController
             pidXController = constructPIDXController();
@@ -118,7 +118,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         });
 
         headingController.enableContinuousInput(-Math.PI, Math.PI);
-        drivetrain.setVisionMeasurementStdDevs(new Matrix<N3, N1>(Nat.N3(), Nat.N1(), new double[]{10.0, 10.0, 999999.0}));
+        drivetrain.setVisionMeasurementStdDevs(new Matrix<N3, N1>(Nat.N3(), Nat.N1(), new double[]{5, 5, 10}));
     }
 
     @Override
@@ -204,7 +204,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
             pidYController.setGoal(targetPose.getY());
         }).andThen(applyRequest(
                 () -> {
-                    field.getObject("Target Pose").setPose(pidXController.getSetpoint().position, pidYController.getSetpoint().position, targetPose.getRotation());
+                    //field.getObject("Target Pose").setPose(pidXController.getSetpoint().position, pidYController.getSetpoint().position, targetPose.getRotation());
                     double directionMultiplier = DriverStationUtil.getAlliance() == DriverStation.Alliance.Red? -1 : 1;
                     double pidXOutput = pidXController.calculate(getPose().getX()) * directionMultiplier;
                     double pidYOutput = pidYController.calculate(getPose().getY()) * directionMultiplier;
@@ -311,6 +311,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
     @Override
     public void addVisionMeasurement(Pose2d pose, double timestamp) {
+        field.getObject("Target Pose").setPose(pose);
         drivetrain.addVisionMeasurement(pose, timestamp);
     }
 

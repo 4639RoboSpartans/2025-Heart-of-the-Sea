@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import frc.lib.network.LimelightHelpers;
 import frc.lib.tunable.TunableNumber;
+import frc.lib.util.PoseUtil;
 import frc.robot.constants.Limelights;
 import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
 
@@ -20,17 +21,15 @@ public class Vision {
                 limelight -> {
                     Optional<Pose2d> measurement = Optional.of(
                             DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue
-                                    ? LimelightHelpers.getBotPose2d_wpiBlue(limelight.toString())
-                                    : LimelightHelpers.getBotPose2d_wpiRed(limelight.toString())
+                                    ? LimelightHelpers.getBotPose2d_wpiBlue(limelight.getName())
+                                    : LimelightHelpers.getBotPose2d_wpiRed(limelight.getName())
                     );
-                    measurement = measurement.isPresent()
-                            ? (measurement.get().getX() == 0 || measurement.get().getY() == 0
+                    measurement = measurement.get().getX() == 0 && measurement.get().getY() == 0
                             ? Optional.empty()
-                            : (measurement.get().getTranslation().getDistance(drivetrain.getPose().getTranslation()) <= (distanceThreshold.get())
-                            ? measurement
-                            : Optional.empty())
-                    )
-                            : Optional.empty();
+                            : PoseUtil.withinTolerance(measurement.get(), drivetrain.getPose(), distanceThreshold.get())
+                                ? measurement
+                                : Optional.empty();
+
                     measurement.ifPresent(pose -> drivetrain.addVisionMeasurement(pose, Utils.getCurrentTimeSeconds()));
                 }
         );
