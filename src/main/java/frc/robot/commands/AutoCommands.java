@@ -6,7 +6,6 @@ import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
 import frc.robot.subsystems.scoring.ScoringSuperstructure;
 import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
-import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 
 import java.util.function.Supplier;
 

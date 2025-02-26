@@ -1,5 +1,6 @@
 package frc.robot.subsystems.scoring.elevator;
 
+import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
@@ -95,10 +96,6 @@ public class ConcreteElevatorSubsystem extends AbstractElevatorSubsystem {
         } else {
             elevatorMotor.setControl(new MotionMagicVoltage(getTargetPosition()));
         }
-
-        SmartDashboard.putNumber("Elevator Proportion", ElevatorConstants.ProportionToPosition.convertBackwards(getCurrentPosition()));
-        SmartDashboard.putNumber("Elevator Position", getCurrentPosition());
-        SmartDashboard.putBoolean("Elevator at Target", isAtTarget());
     }
 
     @Override

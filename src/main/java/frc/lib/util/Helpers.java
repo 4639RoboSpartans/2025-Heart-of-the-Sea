@@ -6,6 +6,8 @@ import edu.wpi.first.math.geometry.Translation2d;
 /**
  * Helper class that contains static methods for common operations that don't fit anywhere else.
  */
+
+@SuppressWarnings("unused")
 public class Helpers {
 
     /**

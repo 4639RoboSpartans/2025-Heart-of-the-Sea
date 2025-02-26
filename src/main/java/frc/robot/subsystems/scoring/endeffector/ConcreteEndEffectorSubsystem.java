@@ -11,18 +11,14 @@ import com.revrobotics.spark.config.SparkFlexConfig;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.tunable.TunableNumber;
-import frc.robot.subsystems.SubsystemManager;
-import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
 import frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConstants;
 import frc.robot.subsystems.scoring.constants.ScoringPIDs;
 
 import java.util.Optional;
-import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
@@ -101,7 +97,7 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
             System.out.println("Configuration failed! " + e);
         }
         hasCoral = new Trigger(this::hasCoral);
-        hasCoral.debounce(0.5);
+        hasCoral.debounce(0.25);
         wristMotor.configure(
             new SparkFlexConfig().idleMode(SparkBaseConfig.IdleMode.kCoast),
             SparkBase.ResetMode.kNoResetSafeParameters,
@@ -130,8 +126,19 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
     @Override
     public boolean hasCoral() {
         return Optional.ofNullable(laserCAN.getMeasurement()).map(measurement ->
-            measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT && measurement.distance_mm <= 20
+            measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT && measurement.distance_mm <= 50
         ).orElse(false);
+    }
+
+    public double getMeasurement() {
+        var measurement = laserCAN.getMeasurement();
+        if (measurement == null) {
+            return Integer.MAX_VALUE;
+        } if (measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
+            return measurement.distance_mm;
+        } else {
+            return Integer.MAX_VALUE;
+        }
     }
 
     @Override
@@ -142,6 +149,8 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
         double wristPIDOutput = -wristPID.calculate(currentWristPosition, targetWristPosition);
 
         SmartDashboard.putNumber("Wrist raw position", wristEncoder.get());
+        SmartDashboard.putNumber("LC Measurement", getMeasurement());
+        SmartDashboard.putBoolean("Has Coral", hasCoral());
 
         wristMotor.setVoltage(wristPIDOutput);
         intakeMotor.set(intakeSpeed);

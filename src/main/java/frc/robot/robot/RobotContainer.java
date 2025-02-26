@@ -12,9 +12,11 @@ import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.lib.FunctionalTrigger;
 import frc.lib.led.LEDStrip;
 import frc.lib.led.PhysicalLEDStrip;
+import frc.lib.oi.OI;
 import frc.robot.commands.AutoRoutines;
 import frc.robot.constants.Controls;
 import frc.robot.constants.FieldConstants;
@@ -25,6 +27,7 @@ import frc.robot.subsystems.drive.SwerveAutoRoutinesCreator;
 import frc.robot.subsystems.scoring.ScoringSuperstructure;
 import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
+import frc.robot.subsystems.scoring.elevator.ElevatorSysID;
 
 import java.util.Arrays;
 
@@ -38,6 +41,7 @@ public class RobotContainer {
     private final RobotSim robotSim = new RobotSim();
     private final SendableChooser<Command> autoChooser;
     private final SendableChooser<Pose2d> startPositionChooser = new SendableChooser<>();
+    @SuppressWarnings("unused")
     private final LEDStrip strip = new PhysicalLEDStrip(9, 10);
 
     private final StructArrayPublisher<Pose3d> componentPoses = NetworkTableInstance.getDefault()

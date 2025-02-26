@@ -1,10 +1,7 @@
 package frc.robot.subsystems.funnel;
 
-import edu.wpi.first.math.geometry.Rotation2d;
-import frc.lib.UnitConvertor;
-
 public class FunnelConstants {
-    public static final int FunnelPivotMotorID = 27;
+    public static final int FunnelPivotMotorID = 1000;
 
     public static final double DOWN_POSITION = 0;
     public static final double UP_POSITION = 0;

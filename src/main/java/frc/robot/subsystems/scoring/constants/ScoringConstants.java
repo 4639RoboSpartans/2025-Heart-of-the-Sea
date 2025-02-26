@@ -35,7 +35,7 @@ public final class ScoringConstants {
         public static final class ElevatorSetpoints {
             //Elevator proportions
             public static final double IDLE_Proportion = 0.01; // TODO: figure out how to fix
-            public static final double HP_Proportion = ProportionToPosition.convertBackwards(6.1);
+            public static final double HP_Proportion = ProportionToPosition.convertBackwards(5.9);
             public static final double Processor_Proportion = ProportionToPosition.convertBackwards(2.620); // TODO: tune
             public static final double L1_Proportion = 0.15; // TODO: tune
             // TODO: above
@@ -85,12 +85,12 @@ public final class ScoringConstants {
         public static final int WristCurrentLimit = 30;
 
         public static final class IntakeSpeeds {
-            public static final double Intake_HP_Speed = 0.8;
+            public static final double Intake_HP_Speed = 0.5;
             public static final double Intake_Processor_Speed = 0.5;
-            public static final double Intake_L1_Speed = 0.5;
-            public static final double Intake_L2_Speed = 0.5;
-            public static final double Intake_L3_Speed = 0.5;
-            public static final double Intake_L4_Speed = 0.5;
+            public static final double Intake_L1_Speed = 0.0;
+            public static final double Intake_L2_Speed = 0.0;
+            public static final double Intake_L3_Speed = 0.0;
+            public static final double Intake_L4_Speed = 0.0;
             public static final double Intake_L2_ALGAE_Speed = 1.0;
             public static final double Intake_L3_ALGAE_Speed = 1.0;
             public static final double Intake_Barge_Speed = 0.6;
@@ -135,6 +135,6 @@ public final class ScoringConstants {
         public static final int WristMotorID = 24;
         public static final String WristCANBusName = "MainCANivore";
 
-        public static final int LaserCANID = 26;
+        public static final int LaserCANID = 56;
     }
 }

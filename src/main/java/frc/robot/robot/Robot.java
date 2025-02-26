@@ -18,6 +18,7 @@ import org.littletonrobotics.junction.LoggedRobot;
 
 public class Robot extends LoggedRobot {
     private Command autonomousCommand;
+    private static boolean isInAuton = false;;
 
     private final RobotContainer robotContainer;
 
@@ -61,7 +62,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void autonomousInit() {
         autonomousCommand = robotContainer.getAutonomousCommand();
-
+        isInAuton = true;
         if (autonomousCommand != null) {
             autonomousCommand.schedule();
         }
@@ -74,6 +75,7 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void autonomousExit() {
+        isInAuton = false;
     }
 
 
@@ -110,5 +112,9 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void testExit() {
+    }
+
+    public static boolean isInAuton() {
+        return isInAuton;
     }
 }
