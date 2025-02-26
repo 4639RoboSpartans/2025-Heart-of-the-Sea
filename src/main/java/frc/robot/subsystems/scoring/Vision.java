@@ -4,6 +4,7 @@ import com.ctre.phoenix6.Utils;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.lib.network.LimelightHelpers;
 import frc.lib.tunable.TunableNumber;
 import frc.lib.util.PoseUtil;
@@ -33,5 +34,12 @@ public class Vision {
                     measurement.ifPresent(pose -> drivetrain.addVisionMeasurement(pose, Utils.getCurrentTimeSeconds()));
                 }
         );
+        getMaximumVisionArea().ifPresent(maximumVisionArea -> SmartDashboard.putNumber("Maximum Vision Area", maximumVisionArea));
+
+    }
+
+    public static Optional<Double> getMaximumVisionArea(){
+        if (RobotBase.isReal()) return Arrays.stream(Limelights.values()).parallel().map(limelight -> LimelightHelpers.getTA(limelight.getName())).reduce(Math::max);
+        return Optional.of(Double.MIN_NORMAL);
     }
 }

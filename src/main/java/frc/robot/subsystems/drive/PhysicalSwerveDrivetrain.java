@@ -204,7 +204,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
             pidYController.setGoal(targetPose.getY());
         }).andThen(applyRequest(
                 () -> {
-                    //field.getObject("Target Pose").setPose(pidXController.getSetpoint().position, pidYController.getSetpoint().position, targetPose.getRotation());
+                    field.getObject("Target Pose").setPose(pidXController.getSetpoint().position, pidYController.getSetpoint().position, targetPose.getRotation());
                     double directionMultiplier = DriverStationUtil.getAlliance() == DriverStation.Alliance.Red? -1 : 1;
                     double pidXOutput = pidXController.calculate(getPose().getX()) * directionMultiplier;
                     double pidYOutput = pidYController.calculate(getPose().getY()) * directionMultiplier;
@@ -311,7 +311,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
     @Override
     public void addVisionMeasurement(Pose2d pose, double timestamp) {
-        field.getObject("Target Pose").setPose(pose);
+        //field.getObject("Vision Measurement").setPose(pose);
         drivetrain.addVisionMeasurement(pose, timestamp);
     }
 
