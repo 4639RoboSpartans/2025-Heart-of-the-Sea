@@ -10,7 +10,6 @@ import frc.robot.constants.Controls;
 import frc.robot.robot.Robot;
 import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
-import frc.robot.subsystems.scoring.elevator.DummyElevatorSubsystem;
 
 import java.util.Objects;
 
@@ -70,6 +69,10 @@ public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
         return ProportionToRotation.convert(getTargetRotationFraction());
     }
 
+    public final Rotation2d getActionTargetRotation() {
+        return ProportionToRotation.convert(getActionTargetRotationFraction());
+    }
+
     /**
      * Gets the target rotation of the wrist by converting rotations to position.
      *
@@ -79,8 +82,16 @@ public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
         return RotationFractionToMotorPosition.convert(getTargetRotationFraction());
     }
 
+    public final double getActionTargetPosition() {
+        return RotationFractionToMotorPosition.convert(getActionTargetRotationFraction());
+    }
+
     public final double getTargetRotationFraction() {
         return targetRotationFraction;
+    }
+
+    public final double getActionTargetRotationFraction() {
+        return SubsystemManager.getInstance().getScoringSuperstructure().getCurrentAction().targetWristRotationFraction;
     }
 
     public final void setTargetWristRotationFraction(double targetRotationFraction) {
@@ -96,6 +107,14 @@ public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
             getTargetPosition(),
             getCurrentMotorPosition(),
             ScoringConstants.EndEffectorConstants.WRIST_TOLERANCE
+        );
+    }
+
+    public final boolean isWristAtActionTarget() {
+        return MathUtil.isNear(
+            getActionTargetPosition(),
+            getCurrentMotorPosition(),
+            WRIST_TOLERANCE
         );
     }
 

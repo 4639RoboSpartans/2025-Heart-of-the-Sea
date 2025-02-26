@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.constants.Controls;
+import frc.robot.robot.Robot;
 import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
 import frc.robot.subsystems.scoring.constants.ScoringConstants.ElevatorConstants.ElevatorSetpoints;
@@ -105,39 +106,6 @@ public final class ScoringSuperstructure extends SubsystemBase {
         return run(() -> {
             if (isManualControlEnabled) runManualPeriodic();
             else runActionPeriodic();
-
-            SmartDashboard.putString("Scoring superstructure info",
-                "%s in %s: ele = [curr %.3f; tgt %.3f]; wst = [curr %.3f; tgt %.3f]".formatted(
-                    currentState,
-                    currentAction == ScoringSuperstructureAction.IDLE
-                        ? "Idle"
-                        : currentAction == ScoringSuperstructureAction.SCORE_BARGE
-                        ? "Barge"
-                        : currentAction == ScoringSuperstructureAction.SCORE_L1_CORAL
-                        ? "L1 C"
-                        : currentAction == ScoringSuperstructureAction.SCORE_L2_CORAL
-                        ? "L2 C"
-                        : currentAction == ScoringSuperstructureAction.SCORE_L3_CORAL
-                        ? "L3 C"
-                        : currentAction == ScoringSuperstructureAction.SCORE_L4_CORAL
-                        ? "L4 C"
-                        : currentAction == ScoringSuperstructureAction.SCORE_PROCESSOR
-                        ? "Processor"
-                        : currentAction == ScoringSuperstructureAction.INTAKE_FROM_HP
-                        ? "HP In"
-                        : currentAction == ScoringSuperstructureAction.INTAKE_L2_ALGAE
-                        ? "L2 A"
-                        : currentAction == ScoringSuperstructureAction.INTAKE_L3_ALGAE
-                        ? "L3 A"
-                        : currentAction == ScoringSuperstructureAction.GROUND_INTAKE
-                        ? "Ground"
-                        : "Unknown",
-                    elevator.getCurrentPosition(),
-                    elevator.getTargetPosition(),
-                    endEffector.getCurrentMotorPosition(),
-                    endEffector.getTargetPosition()
-                )
-            );
         });
     }
 
@@ -172,8 +140,6 @@ public final class ScoringSuperstructure extends SubsystemBase {
             .getTargetWristRotationFraction(currentAction)
             .orElseGet(endEffector::getTargetRotationFraction);
 
-        double intakeSpeed = currentState.getIntakeSpeed(currentAction);
-
         // Update fine-tuning offsets
         elevatorAdjustment += 0.002 * Controls.Operator.MicroElevatorAdjustment.getAsDouble();
         wristAdjustment += 0.006 * Controls.Operator.MicroWristAdjustment.getAsDouble();
@@ -185,10 +151,16 @@ public final class ScoringSuperstructure extends SubsystemBase {
             targetWristRotationFraction + wristAdjustment,
             WristSetpoints.Wrist_IDLE_Proportion, 1
         ) - targetWristRotationFraction;
-
+        if (Controls.Operator.ManualControlIntake.getAsDouble() != 0) {
+            endEffector.setIntakeSpeed(Controls.Operator.ManualControlIntake.getAsDouble());
+        } else {
+            endEffector.setIntakeSpeed(0);
+        }
         elevator.setTargetExtensionFraction(targetElevatorExtensionFraction + elevatorAdjustment);
         endEffector.setTargetWristRotationFraction(targetWristRotationFraction + wristAdjustment);
-        endEffector.setIntakeSpeed(intakeSpeed);
+        if (isAtActionPosition() && Robot.isInAuton() || currentAction.name.equals("INTAKE_FROM_HP")) {
+            endEffector.setIntakeSpeed(currentAction.intakeSpeed);
+        }
 
         // Advance the state if necessary
         if (currentState.shouldAdvanceState(currentAction, endEffector, elevator)) {
@@ -210,6 +182,10 @@ public final class ScoringSuperstructure extends SubsystemBase {
      */
     public boolean isAtPosition() {
         return elevator.isAtTarget() && endEffector.isWristAtTarget();
+    }
+
+    public boolean isAtActionPosition() {
+        return elevator.isAtTarget() && endEffector.isWristAtActionTarget();
     }
 
     public Trigger isAtPosition = new Trigger(this::isAtPosition);
@@ -235,8 +211,6 @@ public final class ScoringSuperstructure extends SubsystemBase {
         if (SubsystemManager.getInstance().getDrivetrain().getAccelerationInGs() >= 1) {
             setCurrentAction(ScoringSuperstructureAction.IDLE);
         }
-
-        SmartDashboard.putBoolean("isManualControlEnabled", isManualControlEnabled);
     }
 
     /**

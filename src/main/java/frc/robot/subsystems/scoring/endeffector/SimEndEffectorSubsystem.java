@@ -1,7 +1,6 @@
 package frc.robot.subsystems.scoring.endeffector;
 
 import com.revrobotics.spark.config.SparkBaseConfig;
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
