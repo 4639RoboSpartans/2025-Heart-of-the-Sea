@@ -118,8 +118,10 @@ public class RobotContainer {
                     ScoringSuperstructureAction.INTAKE_L3_ALGAE
                 )
             );
-            Controls.Operator.HoldTrigger.onTrue(
-                scoringSuperstructure.hold()
+            Controls.Operator.ScoringIdleTrigger.onTrue(
+                scoringSuperstructure.setAction(
+                    ScoringSuperstructureAction.IDLE
+                )
             );
 
             Controls.Operator.ToggleManualControlTrigger.whileTrue(
@@ -129,14 +131,14 @@ public class RobotContainer {
 
         FunctionalTrigger.of(Controls.Driver.reefAlign)
                 .and(Controls.Driver.targetLeft)
-                .whileTrue(() -> DriveCommands.moveToClosestReefPositionHardcoded((byte) 0));
+                .whileTrue(() -> DriveCommands.moveToClosestReefPositionWithTransformation((byte) 0));
         FunctionalTrigger.of(Controls.Driver.reefAlign)
                 .and(Controls.Driver.targetRight)
-                .whileTrue(() -> DriveCommands.moveToClosestReefPositionHardcoded((byte) 1));
+                .whileTrue(() -> DriveCommands.moveToClosestReefPositionWithTransformation((byte) 1));
         FunctionalTrigger.of(Controls.Driver.reefAlign)
                 .and(Controls.Driver.targetLeft.negate())
                 .and(Controls.Driver.targetRight.negate())
-                .whileTrue(() -> DriveCommands.moveToClosestReefPositionHardcoded((byte) 2));
+                .whileTrue(() -> DriveCommands.moveToClosestReefPositionWithTransformation((byte) 2));
 
         FunctionalTrigger.of(Controls.Driver.coralStationAlign)
                 .and(Controls.Driver.targetLeft).whileTrue(() -> DriveCommands.moveToDesiredCoralStationPosition(true));

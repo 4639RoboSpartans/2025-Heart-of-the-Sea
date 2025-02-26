@@ -91,7 +91,7 @@ public class Controls {
 
         public static final Trigger HPLoadingTrigger = operatorController.X_BUTTON;
 
-        public static final Trigger HoldTrigger = operatorController.Y_BUTTON;
+        public static final Trigger ScoringIdleTrigger = operatorController.Y_BUTTON;
         
         public static final Trigger FunnelTrigger = operatorController.RIGHT_STICK;
 

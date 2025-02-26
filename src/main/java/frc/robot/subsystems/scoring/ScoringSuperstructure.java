@@ -14,6 +14,8 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.constants.Controls;
 import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
+import frc.robot.subsystems.scoring.constants.ScoringConstants.ElevatorConstants.ElevatorSetpoints;
+import frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConstants.WristSetpoints;
 import frc.robot.subsystems.scoring.elevator.AbstractElevatorSubsystem;
 import frc.robot.subsystems.scoring.elevator.ElevatorSysID;
 import frc.robot.subsystems.scoring.endeffector.AbstractEndEffectorSubsystem;
@@ -52,7 +54,7 @@ public final class ScoringSuperstructure extends SubsystemBase {
             ScoringSuperstructureAction prevAction = this.currentAction;
             this.currentAction = action;
 
-            boolean requiresWristTransition = prevAction.requiresWristTransition || action.requiresWristTransition;
+            boolean requiresWristTransition = prevAction.requiresWristTransition || currentAction.requiresWristTransition;
             if (requiresWristTransition) {
                 currentState = ScoringSuperstructureState.TRANSITION_BEFORE_ELEVATOR;
             } else {
@@ -105,8 +107,31 @@ public final class ScoringSuperstructure extends SubsystemBase {
             else runActionPeriodic();
 
             SmartDashboard.putString("Scoring superstructure info",
-                "%s: ele = [curr %.3f; tgt %.3f]; wst = [curr %.3f; tgt %.3f]".formatted(
+                "%s in %s: ele = [curr %.3f; tgt %.3f]; wst = [curr %.3f; tgt %.3f]".formatted(
                     currentState,
+                    currentAction == ScoringSuperstructureAction.IDLE
+                        ? "Idle"
+                        : currentAction == ScoringSuperstructureAction.SCORE_BARGE
+                        ? "Barge"
+                        : currentAction == ScoringSuperstructureAction.SCORE_L1_CORAL
+                        ? "L1 C"
+                        : currentAction == ScoringSuperstructureAction.SCORE_L2_CORAL
+                        ? "L2 C"
+                        : currentAction == ScoringSuperstructureAction.SCORE_L3_CORAL
+                        ? "L3 C"
+                        : currentAction == ScoringSuperstructureAction.SCORE_L4_CORAL
+                        ? "L4 C"
+                        : currentAction == ScoringSuperstructureAction.SCORE_PROCESSOR
+                        ? "Processor"
+                        : currentAction == ScoringSuperstructureAction.INTAKE_FROM_HP
+                        ? "HP In"
+                        : currentAction == ScoringSuperstructureAction.INTAKE_L2_ALGAE
+                        ? "L2 A"
+                        : currentAction == ScoringSuperstructureAction.INTAKE_L3_ALGAE
+                        ? "L3 A"
+                        : currentAction == ScoringSuperstructureAction.GROUND_INTAKE
+                        ? "Ground"
+                        : "Unknown",
                     elevator.getCurrentPosition(),
                     elevator.getTargetPosition(),
                     endEffector.getCurrentMotorPosition(),
@@ -129,18 +154,16 @@ public final class ScoringSuperstructure extends SubsystemBase {
         double targetElevatorExtensionFraction = currentTargetElevatorExtensionFraction
             + Controls.Operator.ManualControlElevator.getAsDouble() * 0.03;
 
-        elevator.setTargetExtensionFraction(MathUtil.clamp(targetElevatorExtensionFraction, 0, 1));
-        endEffector.setTargetWristRotationFraction(Controls.Operator.ManualControlWrist.getAsDouble());
+        elevator.setTargetExtensionFraction(MathUtil.clamp(targetElevatorExtensionFraction, ElevatorSetpoints.IDLE_Proportion, 1));
+        endEffector.setTargetWristRotationFraction(MathUtil.clamp(
+            Controls.Operator.ManualControlWrist.getAsDouble(),
+            WristSetpoints.Wrist_IDLE_Proportion,
+            1.2
+        ));
         endEffector.setIntakeSpeed(Controls.Operator.ManualControlIntake.getAsDouble());
     }
 
     private void runActionPeriodic() {
-        // If the current action's trigger is no longer active,
-        // move to the next action
-        if (!currentAction.trigger.getAsBoolean()) {
-            setCurrentAction(currentAction.nextAction);
-        }
-
         // Get new setpoints
         double targetElevatorExtensionFraction = currentState
             .getTargetElevatorExtensionFraction(currentAction)
@@ -149,19 +172,18 @@ public final class ScoringSuperstructure extends SubsystemBase {
             .getTargetWristRotationFraction(currentAction)
             .orElseGet(endEffector::getTargetRotationFraction);
 
-//        double intakeSpeed = currentState.getIntakeSpeed(currentAction);
-        double intakeSpeed = Controls.Operator.ManualControlIntake.getAsDouble();
+        double intakeSpeed = currentState.getIntakeSpeed(currentAction);
 
         // Update fine-tuning offsets
         elevatorAdjustment += 0.002 * Controls.Operator.MicroElevatorAdjustment.getAsDouble();
         wristAdjustment += 0.006 * Controls.Operator.MicroWristAdjustment.getAsDouble();
         elevatorAdjustment = MathUtil.clamp(
             targetElevatorExtensionFraction + elevatorAdjustment,
-            0, 1
+            ElevatorSetpoints.IDLE_Proportion, 1
         ) - targetElevatorExtensionFraction;
         wristAdjustment = MathUtil.clamp(
             targetWristRotationFraction + wristAdjustment,
-            0, 1
+            WristSetpoints.Wrist_IDLE_Proportion, 1
         ) - targetWristRotationFraction;
 
         elevator.setTargetExtensionFraction(targetElevatorExtensionFraction + elevatorAdjustment);
