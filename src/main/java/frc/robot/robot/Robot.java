@@ -9,6 +9,7 @@ import com.ctre.phoenix6.SignalLogger;
 import com.revrobotics.spark.config.SparkBaseConfig;
 
 import au.grapplerobotics.CanBridge;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.SubsystemManager;
@@ -47,6 +48,7 @@ public class Robot extends LoggedRobot {
     public void disabledInit() {
         SubsystemManager.getInstance().getScoringSuperstructure().setAction(ScoringSuperstructureAction.IDLE);
         SubsystemManager.getInstance().getScoringSuperstructure().getEndEffectorSubsystem().setWristMotorIdleMode(SparkBaseConfig.IdleMode.kCoast);
+        SmartDashboard.putNumber("distanceThresholdMeters", 100);
     }
 
 
@@ -58,6 +60,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void disabledExit() {
         SubsystemManager.getInstance().getScoringSuperstructure().getEndEffectorSubsystem().setWristMotorIdleMode(SparkBaseConfig.IdleMode.kBrake);
+        SmartDashboard.putNumber("distanceThresholdMeters", 20);
     }
 
 
