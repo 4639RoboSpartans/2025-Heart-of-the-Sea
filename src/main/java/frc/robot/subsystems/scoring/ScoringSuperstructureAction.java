@@ -70,10 +70,10 @@ public class ScoringSuperstructureAction {
             .withIntakeSpeed(IntakeSpeeds.Intake_Idle_Speed)
             .stopIntakeOnGamePieceNotSeen(),
         IDLE_STOW_ALGAE = new ScoringSuperstructureAction("IDLE_STOW_ALGAE")
-                    .withTargetElevatorExtensionFraction(ElevatorSetpoints.IDLE_Proportion)
-                    .withTargetWristRotationFraction(WristSetpoints.Wrist_ALGAESTOW_Proportion)
-                    .withIntakeSpeed(IntakeSpeeds.Intake_Idle_Speed)
-                    .stopIntakeOnGamePieceNotSeen(),
+                .withTargetElevatorExtensionFraction(ElevatorSetpoints.IDLE_Proportion)
+                .withTargetWristRotationFraction(WristSetpoints.Wrist_ALGAESTOW_Proportion)
+                .withIntakeSpeed(IntakeSpeeds.Intake_Idle_Speed)
+                .stopIntakeOnGamePieceNotSeen(),
         INTAKE_FROM_HP = new ScoringSuperstructureAction("INTAKE_FROM_HP")
             .withTargetElevatorExtensionFraction(ElevatorSetpoints.HP_Proportion)
             .withTargetWristRotationFraction(WristSetpoints.Wrist_HP_Proportion)

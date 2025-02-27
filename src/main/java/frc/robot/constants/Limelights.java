@@ -5,7 +5,7 @@ public enum Limelights {
     LIMELIGHT2("limelight-slhs");
 
     final String name;
-    private Limelights(String name){
+    Limelights(String name){
         this.name = name;
     }
 

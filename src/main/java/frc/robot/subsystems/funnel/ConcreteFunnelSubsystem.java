@@ -16,7 +16,7 @@ public class ConcreteFunnelSubsystem extends AbstractFunnelSubsystem{
     LinearFilter currents = LinearFilter.movingAverage(10);
     private double avgCurrent;
 
-    private Debouncer debouncer = new Debouncer(1, Debouncer.DebounceType.kBoth);
+    private final Debouncer debouncer = new Debouncer(1, Debouncer.DebounceType.kBoth);
     public ConcreteFunnelSubsystem(){
         pivotMotor = new SparkFlex(
             FunnelConstants.FunnelPivotMotorID,

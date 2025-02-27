@@ -19,7 +19,7 @@ import org.littletonrobotics.junction.LoggedRobot;
 
 public class Robot extends LoggedRobot {
     private Command autonomousCommand;
-    private static boolean isInAuton = false;;
+    private static boolean isInAuton = false;
 
     private final RobotContainer robotContainer;
 

@@ -27,7 +27,6 @@ import frc.robot.constants.FieldConstants;
 import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
 import frc.robot.subsystems.drive.DriveCommands;
-import frc.robot.subsystems.drive.DriveSysID;
 import frc.robot.subsystems.drive.SwerveAutoRoutinesCreator;
 import frc.robot.subsystems.scoring.ScoringSuperstructure;
 import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
@@ -142,24 +141,21 @@ public class RobotContainer {
             Controls.Operator.HomingCommandTrigger.whileTrue(scoringSuperstructure.elevatorHomingCommand());
         }
 
-        FunctionalTrigger.of(Controls.Driver.reefAlign)
-            .and(Controls.Driver.targetLeft)
+        FunctionalTrigger.of(Controls.Driver.alignReefLeft)
             .whileTrue(() -> DriveCommands.moveToClosestReefPositionWithTransformation((byte) 0));
-        FunctionalTrigger.of(Controls.Driver.reefAlign)
-            .and(Controls.Driver.targetRight)
+        FunctionalTrigger.of(Controls.Driver.alignReefRight)
             .whileTrue(() -> DriveCommands.moveToClosestReefPositionWithTransformation((byte) 1));
         FunctionalTrigger.of(Controls.Driver.reefAlign)
-            .and(Controls.Driver.targetLeft.negate())
-            .and(Controls.Driver.targetRight.negate())
+            .and(Controls.Driver.alignReefLeft.negate())
+            .and(Controls.Driver.alignReefRight.negate())
             .whileTrue(() -> DriveCommands.moveToClosestReefPositionWithTransformation((byte) 2));
 
         FunctionalTrigger.of(Controls.Driver.processorAlign)
                 .whileTrue(DriveCommands::moveToProcessor);
-
-        FunctionalTrigger.of(Controls.Driver.coralStationAlign)
-            .and(Controls.Driver.targetLeft).whileTrue(() -> DriveCommands.moveToDesiredCoralStationPosition(true));
-        FunctionalTrigger.of(Controls.Driver.coralStationAlign)
-            .and(Controls.Driver.targetRight).whileTrue(() -> DriveCommands.moveToDesiredCoralStationPosition(false));
+//        FunctionalTrigger.of(Controls.Driver.coralStationAlign)
+//            .and(Controls.Driver.targetLeft).whileTrue(() -> DriveCommands.moveToDesiredCoralStationPosition(true));
+//        FunctionalTrigger.of(Controls.Driver.coralStationAlign)
+//            .and(Controls.Driver.targetRight).whileTrue(() -> DriveCommands.moveToDesiredCoralStationPosition(false));
 
 
         // OI.getInstance().driverController().Y_BUTTON.whileTrue(

@@ -5,7 +5,6 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.lib.annotation.PackagePrivate;
 import frc.lib.util.AllianceFlipUtil;
 import frc.lib.util.PoseUtil;
 import frc.robot.constants.Controls;
@@ -41,7 +40,7 @@ public class DriveCommands {
                                         )
                                 )
                         ),
-                        Controls.Driver.targetLeft
+                        Controls.Driver.alignReefLeft
                 )
         );
     }

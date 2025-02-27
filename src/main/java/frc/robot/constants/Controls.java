@@ -75,8 +75,8 @@ public class Controls {
         public static final Trigger ProcessorTrigger = driverController.Y_BUTTON;
         public static final Trigger BargeScoringTrigger = driverController.X_BUTTON;
 
-        public static final Trigger targetRight = driverController.RIGHT_BUMPER;
-        public static final Trigger targetLeft = driverController.LEFT_BUMPER;
+        public static final Trigger alignReefRight = driverController.RIGHT_BUMPER;
+        public static final Trigger alignReefLeft = driverController.LEFT_BUMPER;
 
         public static final Trigger reefAlign = driverController.RIGHT_TRIGGER;
         public static final Trigger coralStationAlign = driverController.B_BUTTON;
