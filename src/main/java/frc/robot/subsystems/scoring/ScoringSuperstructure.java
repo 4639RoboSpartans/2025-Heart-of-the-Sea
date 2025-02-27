@@ -212,7 +212,7 @@ public final class ScoringSuperstructure extends SubsystemBase {
      * {@link ScoringSuperstructure#isAtPosition()} returns true.
      */
     public boolean isStateFinished() {
-        return elevator.isAtTarget() && endEffector.isWristAtTarget();
+        return elevator.isAtTarget() && endEffector.isWristAtActionTarget();
     }
 
     public Trigger isStateFinished = new Trigger(this::isStateFinished);
