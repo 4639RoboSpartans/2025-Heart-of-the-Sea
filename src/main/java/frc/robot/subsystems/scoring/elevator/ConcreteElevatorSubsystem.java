@@ -102,6 +102,9 @@ public class ConcreteElevatorSubsystem extends AbstractElevatorSubsystem {
                 )
             ));
         }
+
+        SmartDashboard.putNumber("Elevator Current", elevatorMotor.getTorqueCurrent().getValueAsDouble());
+        SmartDashboard.putNumber("Elevator Motor RPS", elevatorMotor.getVelocity().getValueAsDouble());
     }
 
     @Override
@@ -112,9 +115,7 @@ public class ConcreteElevatorSubsystem extends AbstractElevatorSubsystem {
     @Override
     public boolean isPhysicallyStopped() {
         //TODO: evaluate numbers and figure out the conditions for stopping the command
-        SmartDashboard.putNumber("Elevator Current", elevatorMotor.getTorqueCurrent().getValueAsDouble());
-        SmartDashboard.putNumber("Elevator Motor RPS", elevatorMotor.getVelocity().getValueAsDouble());
-        return false;
+        return Math.abs(elevatorMotor.getTorqueCurrent().getValueAsDouble()) > 20 && Math.abs(elevatorMotor.getVelocity().getValueAsDouble()) <= 0.2;
     }
 
     @Override
