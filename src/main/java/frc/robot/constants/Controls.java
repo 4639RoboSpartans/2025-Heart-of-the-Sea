@@ -80,6 +80,8 @@ public class Controls {
 
         public static final Trigger reefAlign = driverController.RIGHT_TRIGGER;
         public static final Trigger coralStationAlign = driverController.B_BUTTON;
+        public static final Trigger bargeScoringAlign = driverController.XBOX_START_BUTTON;
+        public static final Trigger processorAlign = driverController.X_BUTTON;
     }
 
     public static class Operator {
