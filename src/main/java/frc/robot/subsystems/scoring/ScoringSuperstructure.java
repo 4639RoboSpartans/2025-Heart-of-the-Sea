@@ -171,8 +171,11 @@ public final class ScoringSuperstructure extends SubsystemBase {
         }
         elevator.setTargetExtensionFraction(targetElevatorExtensionFraction + elevatorAdjustment);
         endEffector.setTargetWristRotationFraction(targetWristRotationFraction + wristAdjustment);
-        if (isAtActionPosition() && Robot.isInAuton() || currentAction.name.equals("INTAKE_FROM_HP")) {
-            endEffector.setIntakeSpeed(currentState.getIntakeSpeed(currentAction));
+        SmartDashboard.putBoolean("Set Intake Speed", false);
+        if (currentState == ScoringSuperstructureState.EXECUTING_ACTION && (currentAction.name.equals("INTAKE_FROM_HP") || Robot.isInAuton())) {
+            endEffector.setIntakeSpeed(currentAction.intakeSpeed);
+            SmartDashboard.putNumber("Action Intake Speed", currentAction.intakeSpeed);
+            SmartDashboard.putBoolean("Set Intake Speed", true);
         }
 
         // Advance the state if necessary
@@ -225,7 +228,12 @@ public final class ScoringSuperstructure extends SubsystemBase {
             setCurrentAction(ScoringSuperstructureAction.IDLE);
         }
         SmartDashboard.putNumber("Elevator Fraction", elevator.getCurrentExtensionFraction());
-        SmartDashboard.putNumber("Writs Position", endEffector.getCurrentMotorPosition());
+        SmartDashboard.putNumber("Wrist Position", endEffector.getCurrentMotorPosition());
+
+        SmartDashboard.putString("State", currentState.name());
+        SmartDashboard.putString("Action", currentAction.toString());
+
+        SmartDashboard.putBoolean("is in auton", Robot.isInAuton());
     }
 
     /**

@@ -15,7 +15,7 @@ import java.util.Arrays;
 import java.util.Optional;
 
 public class Vision {
-    public static TunableNumber distanceThreshold = new TunableNumber("distanceThresholdMeters").withDefaultValue(100);
+    public static TunableNumber distanceThreshold = new TunableNumber("distanceThresholdMeters").withDefaultValue(1);
 
     public static void addGlobalVisionMeasurements(AbstractSwerveDrivetrain drivetrain) {
         if ((RobotBase.isReal())) Arrays.stream(Limelights.values()).parallel().forEach(

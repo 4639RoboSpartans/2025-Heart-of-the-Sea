@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.lib.FunctionalTrigger;
 import frc.lib.led.*;
+import frc.robot.commands.AutoCommands;
 import frc.robot.commands.AutoRoutines;
 import frc.robot.constants.Controls;
 import frc.robot.constants.FieldConstants;
@@ -60,6 +61,7 @@ public class RobotContainer {
 
         autoChooser = new SendableChooser<>();
         addAllCompAutons(autoChooser, swerveAutoRoutines);
+        autoChooser.addOption("TEST", AutoCommands.L4Score.get());
         SmartDashboard.putData("Auto Chooser", autoChooser);
 
         startPositionChooser.setDefaultOption("DEFAULT", new Pose2d());

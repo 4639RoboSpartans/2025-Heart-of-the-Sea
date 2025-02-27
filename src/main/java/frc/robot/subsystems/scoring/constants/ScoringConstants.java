@@ -40,7 +40,7 @@ public final class ScoringConstants {
             public static final double L1_Proportion = 0.15; // TODO: tune
             // TODO: above
 
-            
+
             public static final double L2_Proportion = 0.26;
             public static final double L3_Proportion = 0.47;
             public static final double L4_Proportion = 0.85;
@@ -94,9 +94,9 @@ public final class ScoringConstants {
             public static final double Intake_HP_Speed = 0.5;
             public static final double Intake_Processor_Speed = 0.5;
             public static final double Intake_L1_Speed = 0.2;
-            public static final double Intake_L2_Speed = 0.5;
-            public static final double Intake_L3_Speed = 0.5;
-            public static final double Intake_L4_Speed = 0.5;
+            public static final double Intake_L2_Speed = -0.5;
+            public static final double Intake_L3_Speed = -0.5;
+            public static final double Intake_L4_Speed = -0.5;
             public static final double Intake_L2_ALGAE_Speed = 1.0;
             public static final double Intake_L3_ALGAE_Speed = 1.0;
             public static final double Intake_Barge_Speed = 0.4;

@@ -21,12 +21,7 @@ public class AutoCommands {
 
     private static Command getScoringSuperstructureCommand(ScoringSuperstructureAction action) {
         return Commands.deadline(
-            Commands.sequence(
-                superstructure.setAction(action),
-                superstructure.runScoringState().until(superstructure.isStateFinished),
-                superstructure.setAction(ScoringSuperstructureAction.IDLE),
-                superstructure.runScoringState().until(superstructure.isStateFinished)
-            ),
+            superstructure.setAction(action).andThen(superstructure.runScoringState()).until(() -> superstructure.getCurrentAction().toString().equals("IDLE") && superstructure.isAtActionPosition()),
             swerve.stop()
         );
     }
