@@ -7,8 +7,10 @@ import java.util.stream.IntStream;
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.util.CommandsUtil;
+import frc.lib.util.PoseUtil;
 import frc.robot.constants.FieldConstants;
 import frc.robot.subsystems.SubsystemManager;
 
@@ -98,7 +100,8 @@ public class AutoRoutines {
         commands.add(paths.get(0).resetOdometry());
         for (int i = 0; i < numPaths; i++) {
             commands.add(paths.get(i).cmd());
-            commands.add(SubsystemManager.getInstance().getDrivetrain().directlyMoveTo(FieldConstants.TargetPositions.valueOf("REEF_" + scoringLocations.get(i / 2)).getPose()));
+            int finalI = i;
+            if (i % 2 == 0) commands.add(SubsystemManager.getInstance().getDrivetrain().directlyMoveTo(FieldConstants.TargetPositions.valueOf("REEF_" + scoringLocations.get(i / 2)).getPose()).until(() -> PoseUtil.withinTolerance(FieldConstants.TargetPositions.valueOf("REEF_" + scoringLocations.get(finalI / 2)).getPose(), SubsystemManager.getInstance().getDrivetrain().getPose(), Units.inchesToMeters(2))));
             commands.add(
                     i % 2 == 0 ?
                             switch (scoringHeights.get(i / 2)) {
@@ -106,8 +109,8 @@ public class AutoRoutines {
                                 case 2 -> AutoCommands.L2Score.get();
                                 case 3 -> AutoCommands.L3Score.get();
                                 case 4 -> AutoCommands.L4Score.get();
-                                default -> AutoCommands.HPLoad.get();
-                            } : AutoCommands.HPLoad.get()
+                                default -> AutoCommands.HPLoad.get().andThen(SubsystemManager.getInstance().getDrivetrain().stop().withTimeout(1));
+                            } : AutoCommands.HPLoad.get().andThen(SubsystemManager.getInstance().getDrivetrain().stop().withTimeout(1))
             );
 
         }

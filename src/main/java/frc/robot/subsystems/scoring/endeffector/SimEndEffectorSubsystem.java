@@ -7,9 +7,12 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.lib.tunable.TunableNumber;
 import frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConstants;
 import frc.robot.subsystems.scoring.constants.ScoringPIDs;
+
+import javax.swing.text.StyleContext;
 
 public class SimEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
     private final ProfiledPIDController wristPID;
@@ -62,6 +65,7 @@ public class SimEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
         double wristPIDOutput = -wristPID.calculate(currentWristPosition, targetWristPosition);
 
         pivotSim.setInputVoltage(wristPIDOutput);
+        SmartDashboard.putNumber("intake speed", intakeSpeed);
     }
 
     @Override
