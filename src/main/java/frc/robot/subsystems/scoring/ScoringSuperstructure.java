@@ -172,7 +172,7 @@ public final class ScoringSuperstructure extends SubsystemBase {
         elevator.setTargetExtensionFraction(targetElevatorExtensionFraction + elevatorAdjustment);
         endEffector.setTargetWristRotationFraction(targetWristRotationFraction + wristAdjustment);
         if (isAtActionPosition() && Robot.isInAuton() || currentAction.name.equals("INTAKE_FROM_HP")) {
-            endEffector.setIntakeSpeed(currentAction.intakeSpeed);
+            endEffector.setIntakeSpeed(currentState.getIntakeSpeed(currentAction));
         }
 
         // Advance the state if necessary
