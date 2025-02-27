@@ -9,11 +9,11 @@ import frc.robot.constants.FieldConstants;
 public class AllianceFlipUtil {
 
     public static double applyX(double x) {
-        return shouldFlip() ? FieldConstants.fieldLength - x : x;
+        return FieldConstants.fieldLength - x;
     }
 
     public static double applyY(double y) {
-        return shouldFlip() ? FieldConstants.fieldWidth - y : y;
+        return FieldConstants.fieldWidth - y;
     }
 
     public static Translation2d apply(Translation2d translation) {
@@ -31,8 +31,7 @@ public class AllianceFlipUtil {
     }
 
     public static boolean shouldFlip() {
-        return DriverStation.getAlliance().isPresent()
-                && DriverStation.getAlliance().get() == DriverStation.Alliance.Red;
+        return DriverStationUtil.getAlliance() != DriverStation.Alliance.Red;
     }
 
     /**

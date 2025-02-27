@@ -7,8 +7,11 @@ import java.util.stream.IntStream;
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.lib.util.AllianceFlipUtil;
 import frc.lib.util.CommandsUtil;
 import frc.lib.util.PoseUtil;
 import frc.robot.constants.FieldConstants;
@@ -101,7 +104,24 @@ public class AutoRoutines {
         for (int i = 0; i < numPaths; i++) {
             commands.add(paths.get(i).cmd());
             int finalI = i;
-            if (i % 2 == 0) commands.add(SubsystemManager.getInstance().getDrivetrain().directlyMoveTo(FieldConstants.TargetPositions.valueOf("REEF_" + scoringLocations.get(i / 2)).getPose()).until(() -> PoseUtil.withinTolerance(FieldConstants.TargetPositions.valueOf("REEF_" + scoringLocations.get(finalI / 2)).getPose(), SubsystemManager.getInstance().getDrivetrain().getPose(), Units.inchesToMeters(2))));
+            if (i % 2 == 0) {
+                Pose2d targetPose =
+                        AllianceFlipUtil.apply(
+                                FieldConstants.TargetPositions.valueOf(
+                                        "REEF_" + scoringLocations.get(i / 2)
+                                ).getPose()
+                        );
+                commands.add(
+                        SubsystemManager.getInstance().getDrivetrain()
+                                .directlyMoveTo(targetPose)
+                                .until(
+                                        () -> PoseUtil.withinTolerance(
+                                                targetPose,
+                                                SubsystemManager.getInstance().getDrivetrain().getPose(),
+                                                Units.inchesToMeters(2))
+                                )
+                );
+            }
             commands.add(
                     i % 2 == 0 ?
                             switch (scoringHeights.get(i / 2)) {

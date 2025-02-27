@@ -6,15 +6,22 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.lib.tunable.TunableNumber;
+import frc.robot.subsystems.SubsystemManager;
+import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
 import frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConstants;
 import frc.robot.subsystems.scoring.constants.ScoringPIDs;
 
 import javax.swing.text.StyleContext;
 
 public class SimEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
+    private boolean prevSeenCoral = false;
+    private double coralSeenStartTime = 0;
+    private final double coralEjectionTime = 2;
+
     private final ProfiledPIDController wristPID;
     private final SingleJointedArmSim pivotSim;
 
@@ -52,7 +59,7 @@ public class SimEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
 
     @Override
     public boolean hasCoral() {
-        return true;
+        return SubsystemManager.getInstance().getScoringSuperstructure().getCurrentAction().endOnGamePieceSeen;
     }
 
     @Override
