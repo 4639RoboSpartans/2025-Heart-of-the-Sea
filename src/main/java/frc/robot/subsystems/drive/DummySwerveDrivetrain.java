@@ -76,4 +76,9 @@ public class DummySwerveDrivetrain extends AbstractSwerveDrivetrain {
     public boolean atTargetPose(Pose2d targetPose) {
         return true;
     }
+
+    @Override
+    public void setVisionStandardDeviations(double xStdDev, double yStdDev, double rotStdDev) {
+       
+    }
 }

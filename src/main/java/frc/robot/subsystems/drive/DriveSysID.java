@@ -65,7 +65,7 @@ public class DriveSysID {
     );
      
     @SuppressWarnings("unused")
-    private static final SysIdRoutine sysIdRoutineToApply = sysIdRoutineRotation;
+    private static final SysIdRoutine sysIdRoutineToApply = sysIdRoutineSteer;
 
     /**
      * Runs the SysId Quasistatic test in the given direction for the routine

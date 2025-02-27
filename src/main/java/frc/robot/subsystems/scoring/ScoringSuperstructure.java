@@ -208,12 +208,15 @@ public final class ScoringSuperstructure extends SubsystemBase {
     @Override
     public void periodic() {
         // Sets scoring mechanisms to IDLE in case robot acceleration is high.
-        if (SubsystemManager.getInstance().getDrivetrain().getAccelerationInGs() >= 1) {
+        if (SubsystemManager.getInstance().getDrivetrain().getAccelerationInGs() >= 1.0 / elevator.getCurrentExtensionFraction()) {
             setCurrentAction(ScoringSuperstructureAction.IDLE);
         }
+        SmartDashboard.putNumber("Elevator Fraction", elevator.getCurrentExtensionFraction());
+        SmartDashboard.putNumber("Writs Position", endEffector.getCurrentMotorPosition());
     }
 
     /**
+     * 
      * @return the real life length of the elevator, for use in simulation only.
      */
     public Distance getCurrentElevatorLength() {
