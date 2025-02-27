@@ -59,7 +59,9 @@ public class SimEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
 
     @Override
     public boolean hasCoral() {
-        return SubsystemManager.getInstance().getScoringSuperstructure().getCurrentAction().endOnGamePieceSeen;
+        ScoringSuperstructureAction currentAction
+                = SubsystemManager.getInstance().getScoringSuperstructure().getCurrentAction();
+        return currentAction.endOnGamePieceSeen;
     }
 
     @Override
