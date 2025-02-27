@@ -26,6 +26,7 @@ import frc.robot.constants.FieldConstants;
 import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
 import frc.robot.subsystems.drive.DriveCommands;
+import frc.robot.subsystems.drive.DriveSysID;
 import frc.robot.subsystems.drive.SwerveAutoRoutinesCreator;
 import frc.robot.subsystems.scoring.ScoringSuperstructure;
 import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
@@ -156,17 +157,17 @@ public class RobotContainer {
             .and(Controls.Driver.targetRight).whileTrue(() -> DriveCommands.moveToDesiredCoralStationPosition(false));
 
 
-        // OI.getInstance().operatorController().Y_BUTTON.whileTrue(
-        //         ElevatorSysID.sysIdQuasistatic(SysIdRoutine.Direction.kForward)
+        // OI.getInstance().driverController().Y_BUTTON.whileTrue(
+        //         DriveSysID.sysIdQuasistatic(SysIdRoutine.Direction.kForward)
         // );
-        // OI.getInstance().operatorController().A_BUTTON.whileTrue(
-        //         ElevatorSysID.sysIdQuasistatic(SysIdRoutine.Direction.kReverse)
+        // OI.getInstance().driverController().A_BUTTON.whileTrue(
+        //         DriveSysID.sysIdQuasistatic(SysIdRoutine.Direction.kReverse)
         // );
-        // OI.getInstance().operatorController().POV_UP.whileTrue(
-        //         ElevatorSysID.sysIdDynamic(SysIdRoutine.Direction.kForward)
+        // OI.getInstance().driverController().POV_UP.whileTrue(
+        //         DriveSysID.sysIdDynamic(SysIdRoutine.Direction.kForward)
         // );
-        // OI.getInstance().operatorController().POV_DOWN.whileTrue(
-        //         ElevatorSysID.sysIdDynamic(SysIdRoutine.Direction.kReverse)
+        // OI.getInstance().driverController().POV_DOWN.whileTrue(
+        //         DriveSysID.sysIdDynamic(SysIdRoutine.Direction.kReverse)
         // );
 
         // OI.getInstance().driverController().A_BUTTON.onTrue(MiscellaneousCommands.ElevatorUpDownTest());

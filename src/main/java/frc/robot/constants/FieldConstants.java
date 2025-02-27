@@ -243,7 +243,7 @@ public class FieldConstants {
         public final Pose2d Pose;
     }
 
-    static Transform2d fromReef = new Transform2d(Units.inchesToMeters(35), 0, Rotation2d.k180deg);
+    static Transform2d fromReef = new Transform2d(Units.inchesToMeters(30), 0, Rotation2d.k180deg);
     static Transform2d fromProcessor = new Transform2d(Units.inchesToMeters(25), 0, Rotation2d.k180deg);
     static Transform2d fromCoralStation = new Transform2d(Units.inchesToMeters(25), 0, Rotation2d.kZero);
     static Transform2d fromBarge = new Transform2d(Units.inchesToMeters(-15), 0, Rotation2d.kZero);
@@ -331,5 +331,5 @@ public class FieldConstants {
     }
 
     public static double reefForwardsDistance = 0;
-    public static double reefSidewaysDistance = 0.125;
+    public static double reefSidewaysDistance = 0.125 + Units.inchesToMeters(2);
 }

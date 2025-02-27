@@ -1,6 +1,8 @@
 package frc.robot.subsystems.drive;
 
 import choreo.trajectory.SwerveSample;
+
+import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
@@ -122,6 +124,8 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
             rawRotation
         );
 
+        if (rawForwards == 0 && rawStrafe == 0 && rawRotation == 0) return new SwerveRequest.SwerveDriveBrake();
+
         if (Controls.Driver.precisionTrigger.getAsBoolean()) {
             chassisSpeeds = chassisSpeeds.div(4.0);
         } else {
@@ -187,6 +191,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
             pidYController.reset(getPose().getY(), getChassisSpeeds().vyMetersPerSecond);
             pidXController.setGoal(targetPose.getX());
             pidYController.setGoal(targetPose.getY());
+            setVisionStandardDeviations(1, 1, 10);
         }).andThen(applyRequest(
                 () -> {
                     field.getObject("Target Pose").setPose(pidXController.getSetpoint().position, pidYController.getSetpoint().position, targetPose.getRotation());
@@ -208,7 +213,8 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                 () -> MathUtil.isNear(targetPose.getX(), getPose().getX(), 0.01)
                         && MathUtil.isNear(targetPose.getY(), getPose().getY(), 0.01)
                         && MathUtil.isNear(targetPose.getRotation().getDegrees(), getPose().getRotation().getDegrees(), 2)
-        )).andThen(stop().withTimeout(0.1));
+        )).andThen(stop().withTimeout(0.1))
+        .andThen(() -> setVisionStandardDeviations(5, 5, 10));
     }
 
     /**
@@ -269,6 +275,9 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
         // Update field on dashboard
         SmartDashboard.putData("Field2D", field);
+        SignalLogger.writeDouble("Steer Velocity", drivetrain.getModule(0).getSteerMotor().getVelocity().getValueAsDouble());
+        SignalLogger.writeDouble("Steer Voltage", drivetrain.getModule(0).getSteerMotor().getMotorVoltage().getValueAsDouble());
+        SignalLogger.writeDouble("Steer Position", drivetrain.getModule(0).getSteerMotor().getPosition().getValueAsDouble());
     }
 
     @Override
@@ -315,5 +324,10 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                 getPose().getRotation().getDegrees(),
                 2
         );
+    }
+
+    @Override
+    public void setVisionStandardDeviations(double xStdDev, double yStdDev, double rotStdDev) {
+        drivetrain.setVisionMeasurementStdDevs(new Matrix<N3, N1>(Nat.N3(), Nat.N1(), new double[]{xStdDev, yStdDev, rotStdDev}));
     }
 }

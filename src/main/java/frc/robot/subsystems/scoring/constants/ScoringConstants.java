@@ -34,15 +34,15 @@ public final class ScoringConstants {
 
         public static final class ElevatorSetpoints {
             //Elevator proportions
-            public static final double IDLE_Proportion = 0.01; // TODO: figure out how to fix
-            public static final double HP_Proportion = ProportionToPosition.convertBackwards(5.9);
+            public static final double IDLE_Proportion = 0.02; // TODO: figure out how to fix
+            public static final double HP_Proportion = 0.02;
             public static final double Processor_Proportion = ProportionToPosition.convertBackwards(2.620); // TODO: tune
             public static final double L1_Proportion = 0.15; // TODO: tune
             // TODO: above
 
             public static final double L2_Proportion = ProportionToPosition.convertBackwards(14.7);
             public static final double L3_Proportion = ProportionToPosition.convertBackwards(28.);
-            public static final double L4_Proportion = ProportionToPosition.convertBackwards(52.224);
+            public static final double L4_Proportion = 0.85;
 
             // TODO: below
             public static final double L2_ALGAE_Proportion = 0.32; // MAYBE
@@ -60,7 +60,7 @@ public final class ScoringConstants {
 
         public static boolean usingRelativeEncoder = false;
         public static final double IDLE_POSITION = 0;
-        public static final double EXTENDED_POSITION = usingRelativeEncoder ? -31.846 : 0.89;
+        public static final double EXTENDED_POSITION = usingRelativeEncoder ? -31.846 : 0.95;
 
         public static Rotation2d RotationStartingPosition = Rotation2d.kZero;
 

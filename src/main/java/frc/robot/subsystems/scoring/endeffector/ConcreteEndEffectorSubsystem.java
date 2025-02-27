@@ -99,7 +99,7 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
             System.out.println("Configuration failed! " + e);
         }
         hasCoral = new Trigger(this::hasCoral);
-        hasCoral.debounce(0.25);
+        hasCoral.debounce(1.5);
         wristMotor.configure(
             new SparkFlexConfig().idleMode(SparkBaseConfig.IdleMode.kCoast),
             SparkBase.ResetMode.kNoResetSafeParameters,
