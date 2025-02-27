@@ -40,8 +40,9 @@ public final class ScoringConstants {
             public static final double L1_Proportion = 0.15; // TODO: tune
             // TODO: above
 
-            public static final double L2_Proportion = ProportionToPosition.convertBackwards(14.7);
-            public static final double L3_Proportion = ProportionToPosition.convertBackwards(28.);
+            
+            public static final double L2_Proportion = 0.26;
+            public static final double L3_Proportion = 0.47;
             public static final double L4_Proportion = 0.85;
 
             // TODO: below

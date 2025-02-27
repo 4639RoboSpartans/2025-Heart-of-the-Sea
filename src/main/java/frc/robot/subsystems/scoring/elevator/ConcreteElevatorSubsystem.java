@@ -10,6 +10,8 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.constants.Controls;
@@ -112,10 +114,13 @@ public class ConcreteElevatorSubsystem extends AbstractElevatorSubsystem {
         elevatorMotor.setControl(new VoltageOut(voltage));
     }
 
+    private final Debouncer physicalStopDebouncer = new Debouncer(0.06);
+
     @Override
     public boolean isPhysicallyStopped() {
         //TODO: evaluate numbers and figure out the conditions for stopping the command
-        return Math.abs(elevatorMotor.getTorqueCurrent().getValueAsDouble()) > 20 && Math.abs(elevatorMotor.getVelocity().getValueAsDouble()) <= 0.2;
+        boolean stopped = Math.abs(elevatorMotor.getTorqueCurrent().getValueAsDouble()) > 25 && Math.abs(elevatorMotor.getVelocity().getValueAsDouble()) <= 0.2;
+        return physicalStopDebouncer.calculate(stopped);
     }
 
     @Override

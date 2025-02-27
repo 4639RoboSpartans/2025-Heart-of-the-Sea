@@ -112,16 +112,21 @@ public final class ScoringSuperstructure extends SubsystemBase {
         double ELEVATOR_HOMING_SPEED = 0.007;
         double ELEVATOR_HOMING_MAX_OFFSET = 0.01;
         return startRun(
-            () -> elevator.setTargetExtensionFraction(elevator.getCurrentExtensionFraction() + ELEVATOR_HOMING_INITIAL_OFFSET),
+            () -> {
+                elevator.setTargetExtensionFraction(elevator.getCurrentExtensionFraction() + ELEVATOR_HOMING_INITIAL_OFFSET);
+                endEffector.setTargetWristRotationFraction(0.5);
+            },
             () -> elevator.setTargetExtensionFraction(
                 Math.max(
                     elevator.getTargetExtensionFraction() - ELEVATOR_HOMING_SPEED,
                     elevator.getCurrentExtensionFraction() - ELEVATOR_HOMING_MAX_OFFSET
                 )
             )
-        ).until(elevator::isPhysicallyStopped).finallyDo(() -> {
-            elevator.resetCurrentExtensionFractionTo(ElevatorSetpoints.Homing_Proportion);
-            setCurrentAction(ScoringSuperstructureAction.IDLE);
+        ).until(elevator::isPhysicallyStopped).finallyDo((wasInterrupted) -> {
+            if(!wasInterrupted) {
+                elevator.resetCurrentExtensionFractionTo(ElevatorSetpoints.Homing_Proportion);
+                setCurrentAction(ScoringSuperstructureAction.IDLE);
+            }
         });
     }
 
