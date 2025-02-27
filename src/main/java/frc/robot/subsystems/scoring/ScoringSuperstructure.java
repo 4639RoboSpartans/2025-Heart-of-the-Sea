@@ -2,9 +2,7 @@ package frc.robot.subsystems.scoring;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -109,12 +107,19 @@ public final class ScoringSuperstructure extends SubsystemBase {
         });
     }
 
-    public Command elevatorHoningCommand() {
-        return run(() ->
-            elevator.setRawMotorVoltage(Voltage.ofBaseUnits(-0.8, Units.Volt))
-        )
-            .until(elevator::shouldStopRunningHoningCommand)
-            .onlyIf(this::isManualControlEnabled);
+    public Command elevatorHomingCommand() {
+        double ELEVATOR_HOMING_INITIAL_OFFSET = 0.01;
+        double ELEVATOR_HOMING_SPEED = 0.007;
+        double ELEVATOR_HOMING_MAX_OFFSET = 0.01;
+        return startRun(
+            () -> elevator.setTargetExtensionFraction(elevator.getCurrentExtensionFraction() + ELEVATOR_HOMING_INITIAL_OFFSET),
+            () -> elevator.setTargetExtensionFraction(
+                Math.max(
+                    elevator.getTargetExtensionFraction() - ELEVATOR_HOMING_SPEED,
+                    elevator.getCurrentExtensionFraction() - ELEVATOR_HOMING_MAX_OFFSET
+                )
+            )
+        ).until(elevator::isPhysicallyStopped).finallyDo(() -> setCurrentAction(ScoringSuperstructureAction.IDLE));
     }
 
     private void runManualPeriodic() {

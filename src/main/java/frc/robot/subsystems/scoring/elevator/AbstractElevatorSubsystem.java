@@ -102,5 +102,7 @@ public abstract class AbstractElevatorSubsystem extends SubsystemBase {
      */
     public abstract void setRawMotorVoltage(Voltage voltage);
 
-    public abstract boolean shouldStopRunningHoningCommand();
+    public abstract boolean isPhysicallyStopped();
+
+    public abstract void resetCurrentExtensionFractionTo(double extensionFraction);
 }

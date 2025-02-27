@@ -131,6 +131,8 @@ public class RobotContainer {
             Controls.Operator.ToggleManualControlTrigger.whileTrue(
                 scoringSuperstructure.toggleManualControl()
             );
+
+            Controls.Operator.HomingCommandTrigger.whileTrue(scoringSuperstructure.elevatorHomingCommand());
         }
 
         FunctionalTrigger.of(Controls.Driver.reefAlign)
