@@ -337,5 +337,5 @@ public class FieldConstants {
     }
 
     public static double reefForwardsDistance = 0;
-    public static double reefSidewaysDistance = 0.125 + Units.inchesToMeters(2);
+    public static double reefSidewaysDistance = 0.125 + Units.inchesToMeters(1);
 }
