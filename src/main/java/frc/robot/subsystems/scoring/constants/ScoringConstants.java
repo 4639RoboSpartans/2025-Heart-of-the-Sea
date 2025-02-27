@@ -106,6 +106,7 @@ public final class ScoringConstants {
         public static final class WristSetpoints {
             //Wrist Proportions
             public static final double Wrist_IDLE_Proportion = 0.2; // For now, because shaft collision
+            public static final double Wrist_ALGAESTOW_Proportion = 0.5;
             public static final double Wrist_HP_Proportion = 0.2;
             public static final double Wrist_Processor_Proportion = 0.709;
             public static final double Wrist_L1_Proportion = 1.0;

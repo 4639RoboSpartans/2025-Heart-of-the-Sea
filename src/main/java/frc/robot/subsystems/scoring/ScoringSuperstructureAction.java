@@ -69,6 +69,11 @@ public class ScoringSuperstructureAction {
             .withTargetWristRotationFraction(WristSetpoints.Wrist_IDLE_Proportion)
             .withIntakeSpeed(IntakeSpeeds.Intake_Idle_Speed)
             .stopIntakeOnGamePieceNotSeen(),
+        IDLE_STOW_ALGAE = new ScoringSuperstructureAction("IDLE_STOW_ALGAE")
+                    .withTargetElevatorExtensionFraction(ElevatorSetpoints.IDLE_Proportion)
+                    .withTargetWristRotationFraction(WristSetpoints.Wrist_ALGAESTOW_Proportion)
+                    .withIntakeSpeed(IntakeSpeeds.Intake_Idle_Speed)
+                    .stopIntakeOnGamePieceNotSeen(),
         INTAKE_FROM_HP = new ScoringSuperstructureAction("INTAKE_FROM_HP")
             .withTargetElevatorExtensionFraction(ElevatorSetpoints.HP_Proportion)
             .withTargetWristRotationFraction(WristSetpoints.Wrist_HP_Proportion)
@@ -108,13 +113,13 @@ public class ScoringSuperstructureAction {
             .withTargetWristRotationFraction(WristSetpoints.Wrist_L2_ALGAE_Proportion)
             .withIntakeSpeed(IntakeSpeeds.Intake_L2_ALGAE_Speed)
             .requireWristTransition()
-            .withStateAfter(IDLE),
+            .withStateAfter(IDLE_STOW_ALGAE),
         INTAKE_L3_ALGAE = new ScoringSuperstructureAction("INTAKE_L3_ALGAE")
             .withTargetElevatorExtensionFraction(ElevatorSetpoints.L3_ALGAE_Proportion)
             .withTargetWristRotationFraction(WristSetpoints.Wrist_L3_ALGAE_Proportion)
             .withIntakeSpeed(IntakeSpeeds.Intake_L3_ALGAE_Speed)
             .requireWristTransition()
-            .withStateAfter(IDLE),
+            .withStateAfter(IDLE_STOW_ALGAE),
         SCORE_BARGE = new ScoringSuperstructureAction("SCORE_BARGE")
             .withTargetElevatorExtensionFraction(ElevatorSetpoints.Barge_Proportion)
             .withTargetWristRotationFraction(WristSetpoints.Wrist_Barge_Proportion)
@@ -131,7 +136,7 @@ public class ScoringSuperstructureAction {
             .withTargetElevatorExtensionFraction(ElevatorSetpoints.Ground_Intake_Proportion)
             .withTargetWristRotationFraction(WristSetpoints.Wrist_Ground_Intake_Proportion)
             .withIntakeSpeed(1.0)
-            .withStateAfter(IDLE);
+            .withStateAfter(IDLE_STOW_ALGAE);
 
     public String toString() {
         return name;
