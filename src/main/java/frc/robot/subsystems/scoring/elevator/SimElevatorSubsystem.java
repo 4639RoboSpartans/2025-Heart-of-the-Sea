@@ -8,6 +8,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.lib.oi.OI;
 import frc.robot.constants.Controls;
 import frc.robot.subsystems.scoring.constants.ScoringPIDs;
 
@@ -84,7 +85,19 @@ public class SimElevatorSubsystem extends AbstractElevatorSubsystem {
     }
 
     @Override
-    public boolean shouldStopRunningHoningCommand() {
-        return true;
+    public boolean isPhysicallyStopped() {
+        return elevatorSim.hasHitLowerLimit() || elevatorSim.hasHitUpperLimit()
+            // For testing:
+            || OI.getInstance().operatorController().XBOX_START_BUTTON.getAsBoolean();
+    }
+
+    @Override
+    public void resetCurrentExtensionFractionTo(double extensionFraction) {
+        elevatorSim.setState(
+            ProportionToHeight.convert(ElevatorSetpoints.IDLE_Proportion).in(Meters),
+            elevatorSim.getVelocityMetersPerSecond()
+        );
+        setTargetExtensionFraction(ElevatorSetpoints.IDLE_Proportion);
+        elevatorPID.reset(ProportionToPosition.convert(ElevatorSetpoints.IDLE_Proportion));
     }
 }

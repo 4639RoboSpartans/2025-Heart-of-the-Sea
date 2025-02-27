@@ -24,7 +24,8 @@ import java.util.function.Supplier;
 public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
     private final SparkFlex intakeMotor;
     private final SparkFlex wristMotor;
-    private final Supplier<Double> wristEncoder;
+    private final Supplier<Double> wristAbsoluteEncoder;
+    private final Supplier<Double> wristRelativeEncoder;
 
     private final LaserCan laserCAN;
 
@@ -45,7 +46,8 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
             ScoringConstants.IDs.WristMotorID,
             SparkLowLevel.MotorType.kBrushless
         );
-        wristEncoder = wristMotor.getAbsoluteEncoder()::getPosition;
+        wristAbsoluteEncoder = wristMotor.getAbsoluteEncoder()::getPosition;
+        wristRelativeEncoder = wristMotor.getExternalEncoder()::getPosition;
         intakeMotor.configure(
             new SparkFlexConfig()
                 .apply(
@@ -120,7 +122,7 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
 
     @Override
     public Rotation2d getCurrentRotation() {
-        return EndEffectorConstants.PositionToRotation.convert((-(wristEncoder.get() - encoderOffset) + 2) % 1);
+        return EndEffectorConstants.PositionToRotation.convert((-(wristAbsoluteEncoder.get() - encoderOffset) + 2) % 1);
     }
 
     @Override
@@ -148,10 +150,11 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
 
         double wristPIDOutput = -wristPID.calculate(currentWristPosition, targetWristPosition);
 
-        SmartDashboard.putNumber("Wrist raw position", wristEncoder.get());
+        SmartDashboard.putNumber("Wrist raw position", wristAbsoluteEncoder.get());
         SmartDashboard.putNumber("LC Measurement", getMeasurement());
         SmartDashboard.putBoolean("Has Coral", hasCoral());
 
+        SmartDashboard.putNumber("Wrist Relative Measurement", EndEffectorConstants.relativeEncoderMeasurementToAbsoluteMeasurement.convert(wristAbsoluteEncoder.get()) + EndEffectorConstants.PositionToRotation.convertBackwards(EndEffectorConstants.RotationStartingPosition));
         wristMotor.setVoltage(wristPIDOutput);
         intakeMotor.set(intakeSpeed);
     }

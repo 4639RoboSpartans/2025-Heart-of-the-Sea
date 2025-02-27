@@ -17,7 +17,10 @@ public class DummyElevatorSubsystem extends AbstractElevatorSubsystem {
     public void setRawMotorVoltage(Voltage voltage) {}
 
     @Override
-    public boolean shouldStopRunningHoningCommand() {
-        return true;
+    public boolean isPhysicallyStopped() {
+        return getCurrentExtensionFraction() <= 0 || getCurrentExtensionFraction() >= 1;
     }
+
+    @Override
+    public void resetCurrentExtensionFractionTo(double extensionFraction) {}
 }

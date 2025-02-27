@@ -1,6 +1,5 @@
 package frc.robot.subsystems.scoring.elevator;
 
-import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
@@ -21,6 +20,7 @@ import static frc.robot.subsystems.scoring.constants.ScoringPIDs.*;
 
 public class ConcreteElevatorSubsystem extends AbstractElevatorSubsystem {
     private final TalonFX elevatorMotor;
+    private double measuredExtensionFractionOffset = 0;
 
     @SuppressWarnings("resource")
     public ConcreteElevatorSubsystem() {
@@ -69,7 +69,7 @@ public class ConcreteElevatorSubsystem extends AbstractElevatorSubsystem {
     public double getCurrentExtensionFraction() {
         return ElevatorConstants.ProportionToPosition.convertBackwards(
             elevatorMotor.getPosition(true).getValueAsDouble()
-        );
+        ) + measuredExtensionFractionOffset;
     }
 
     @Override
@@ -94,8 +94,17 @@ public class ConcreteElevatorSubsystem extends AbstractElevatorSubsystem {
 
             elevatorMotor.setControl(new VoltageOut(outputVoltage));
         } else {
-            elevatorMotor.setControl(new MotionMagicVoltage(getTargetPosition()));
+            elevatorMotor.setControl(new MotionMagicVoltage(
+                ElevatorConstants.ProportionToPosition.convert(
+                    // In measurement, we have measured = raw + offset,
+                    // so here we must have raw = calculated - offset
+                    getTargetExtensionFraction() - measuredExtensionFractionOffset
+                )
+            ));
         }
+
+        SmartDashboard.putNumber("Elevator Current", elevatorMotor.getTorqueCurrent().getValueAsDouble());
+        SmartDashboard.putNumber("Elevator Motor RPS", elevatorMotor.getVelocity().getValueAsDouble());
     }
 
     @Override
@@ -104,10 +113,15 @@ public class ConcreteElevatorSubsystem extends AbstractElevatorSubsystem {
     }
 
     @Override
-    public boolean shouldStopRunningHoningCommand() {
+    public boolean isPhysicallyStopped() {
         //TODO: evaluate numbers and figure out the conditions for stopping the command
-        SmartDashboard.putNumber("Elevator Current", elevatorMotor.getTorqueCurrent().getValueAsDouble());
-        SmartDashboard.putNumber("Elevator Motor RPS", elevatorMotor.getVelocity().getValueAsDouble());
-        return false;
+        return Math.abs(elevatorMotor.getTorqueCurrent().getValueAsDouble()) > 20 && Math.abs(elevatorMotor.getVelocity().getValueAsDouble()) <= 0.2;
+    }
+
+    @Override
+    public void resetCurrentExtensionFractionTo(double extensionFraction) {
+        double currentError = getCurrentExtensionFraction() - extensionFraction;
+        measuredExtensionFractionOffset -= currentError;
+        setTargetExtensionFraction(ElevatorConstants.ElevatorSetpoints.IDLE_Proportion);
     }
 }
