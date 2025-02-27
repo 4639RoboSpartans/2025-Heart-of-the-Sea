@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
+import frc.robot.subsystems.scoring.constants.ScoringConstants;
 import org.littletonrobotics.junction.LoggedRobot;
 
 
@@ -32,6 +33,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void robotInit() {
         SubsystemManager.getInstance().instantiateSubsystems();
+        ScoringConstants.EndEffectorConstants.RotationStartingPosition = SubsystemManager.getInstance().getScoringSuperstructure().getEndEffectorSubsystem().getCurrentRotation();
     }
 
 
