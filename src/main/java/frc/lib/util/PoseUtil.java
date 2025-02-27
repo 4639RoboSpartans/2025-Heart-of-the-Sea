@@ -37,13 +37,13 @@ public class PoseUtil {
 
     public static Pose2d ReefRelativeLeftOf(FieldConstants.TargetPositions targetPosition) {
         return ReefRelativeLeftOf(
-                targetPosition.Pose
+                targetPosition.getPose()
         );
     }
 
     public static Pose2d ReefRelativeRightOf(FieldConstants.TargetPositions targetPosition) {
         return ReefRelativeRightOf(
-                targetPosition.Pose
+                targetPosition.getPose()
         );
     }
 

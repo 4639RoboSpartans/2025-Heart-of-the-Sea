@@ -9,6 +9,8 @@ import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.util.CommandsUtil;
+import frc.robot.constants.FieldConstants;
+import frc.robot.subsystems.SubsystemManager;
 
 public class AutoRoutines {
     private final AutoFactory factory;
@@ -106,6 +108,7 @@ public class AutoRoutines {
                                 default -> AutoCommands.HPLoad.get();
                             } : AutoCommands.HPLoad.get()
             );
+            commands.add(SubsystemManager.getInstance().getDrivetrain().directlyMoveTo(FieldConstants.TargetPositions.valueOf("REEF_" + scoringLocations.get(i / 2)).getPose()));
         }
         routine.active().onTrue(
                 CommandsUtil.sequence(commands)

@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import frc.lib.util.PoseUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -251,35 +252,36 @@ public class FieldConstants {
     public enum TargetPositions {
         //TODO: hop on gui and make sure these work
         REEF_AB(
-                FieldConstants.Reef.centerFaces[0].transformBy((FieldConstants.fromReef)),
-                new Pose2d(new Translation2d(3.113655, 4.182279), new Rotation2d()),
-                new Pose2d(new Translation2d(3.113655, 3.852749), new Rotation2d())
+                FieldConstants.Reef.centerFaces[0].transformBy((FieldConstants.fromReef))
         ),
         REEF_CD(
-                FieldConstants.Reef.centerFaces[5].transformBy((FieldConstants.fromReef)),
-                new Pose2d(new Translation2d(3.658860, 2.912397), Rotation2d.fromDegrees(60)),
-                new Pose2d(new Translation2d(3.946058, 2.746946), Rotation2d.fromDegrees(60))
+                FieldConstants.Reef.centerFaces[5].transformBy((FieldConstants.fromReef))
         ),
         REEF_EF(
-                FieldConstants.Reef.centerFaces[4].transformBy((FieldConstants.fromReef)),
-                new Pose2d(new Translation2d(5.037171, 2.744016), Rotation2d.fromDegrees(120)),
-                new Pose2d(new Translation2d(5.319803, 2.908083), Rotation2d.fromDegrees(120))
+                FieldConstants.Reef.centerFaces[4].transformBy((FieldConstants.fromReef))
         ),
         REEF_GH(
-                FieldConstants.Reef.centerFaces[3].transformBy((FieldConstants.fromReef)),
-                new Pose2d(new Translation2d(5.870153, 3.866000), Rotation2d.fromDegrees(180)),
-                new Pose2d(new Translation2d(5.870153, 4.184414), Rotation2d.fromDegrees(180))
+                FieldConstants.Reef.centerFaces[3].transformBy((FieldConstants.fromReef))
         ),
         REEF_IJ(
-                FieldConstants.Reef.centerFaces[2].transformBy((FieldConstants.fromReef)),
-                new Pose2d(new Translation2d(5.317610, 5.142781), Rotation2d.fromDegrees(240)),
-                new Pose2d(new Translation2d(5.033535, 5.308231), Rotation2d.fromDegrees(240))
+                FieldConstants.Reef.centerFaces[2].transformBy((FieldConstants.fromReef))
         ),
         REEF_KL(
-                FieldConstants.Reef.centerFaces[1].transformBy((FieldConstants.fromReef)),
-                new Pose2d(new Translation2d(3.940934, 5.326961), Rotation2d.fromDegrees(300)),
-                new Pose2d(new Translation2d(3.650615, 5.158389), Rotation2d.fromDegrees(300))
+                FieldConstants.Reef.centerFaces[1].transformBy((FieldConstants.fromReef))
         ),
+
+        REEF_A(PoseUtil.ReefRelativeLeftOf(REEF_AB.getPose())),
+        REEF_B(PoseUtil.ReefRelativeRightOf(REEF_AB.getPose())),
+        REEF_C(PoseUtil.ReefRelativeLeftOf(REEF_CD.getPose())),
+        REEF_D(PoseUtil.ReefRelativeRightOf(REEF_CD.getPose())),
+        REEF_E(PoseUtil.ReefRelativeLeftOf(REEF_EF.getPose())),
+        REEF_F(PoseUtil.ReefRelativeRightOf(REEF_EF.getPose())),
+        REEF_G(PoseUtil.ReefRelativeLeftOf(REEF_GH.getPose())),
+        REEF_H(PoseUtil.ReefRelativeRightOf(REEF_GH.getPose())),
+        REEF_I(PoseUtil.ReefRelativeLeftOf(REEF_IJ.getPose())),
+        REEF_J(PoseUtil.ReefRelativeRightOf(REEF_IJ.getPose())),
+        REEF_K(PoseUtil.ReefRelativeLeftOf(REEF_KL.getPose())),
+        REEF_L(PoseUtil.ReefRelativeRightOf(REEF_KL.getPose())),
 
         PROCESSOR(FieldConstants.Processor.centerFace.transformBy(FieldConstants.fromProcessor)),
 
@@ -300,8 +302,12 @@ public class FieldConstants {
             this(pose, pose, pose);
         }
 
-        public final Pose2d Pose;
+        private final Pose2d Pose;
         public final Pose2d leftPose, rightPose;
+
+        public Pose2d getPose() {
+            return Pose;
+        }
     }
 
     public enum AprilTagIDHolder {

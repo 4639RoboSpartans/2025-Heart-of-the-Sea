@@ -22,7 +22,7 @@ public class DriveCommands {
         return Commands.sequence(
                 swerve.pathfindTo(
                         AllianceFlipUtil.apply(
-                                targetPosition.Pose
+                                targetPosition.getPose()
                         )
                 ),
                 Commands.either(
@@ -58,7 +58,7 @@ public class DriveCommands {
 
         Pose2d nearestReefPose = currentRobotPose.get().nearest(
                 allReefTargets.stream()
-                        .map(target -> target.Pose)
+                        .map(target -> target.getPose())
                         .collect(Collectors.toList()));
 
         var desiredPose =
@@ -85,11 +85,11 @@ public class DriveCommands {
 
         allReefTargets.sort((a, b) -> {
             double diff = Math.hypot(
-                    swerve.getPose().getX() - a.Pose.getX(),
-                    swerve.getPose().getY() - a.Pose.getY()
+                    swerve.getPose().getX() - a.getPose().getX(),
+                    swerve.getPose().getY() - a.getPose().getY()
             ) - Math.hypot(
-                    swerve.getPose().getX() - b.Pose.getX(),
-                    swerve.getPose().getY() - b.Pose.getY()
+                    swerve.getPose().getX() - b.getPose().getX(),
+                    swerve.getPose().getY() - b.getPose().getY()
             );
             return diff == 0 ? 0 : diff < 0 ? -1 : 1;
         });
@@ -97,7 +97,7 @@ public class DriveCommands {
         var desiredPose = switch (direction) {
             case 0 -> allReefTargets.get(0).leftPose;
             case 1 -> allReefTargets.get(0).rightPose;
-            default -> allReefTargets.get(0).Pose;
+            default -> allReefTargets.get(0).getPose();
         };
 
         return swerve.directlyMoveTo(desiredPose)
@@ -116,10 +116,10 @@ public class DriveCommands {
         Supplier<Pose2d> currentRobotPose = SubsystemManager.getInstance().getDrivetrain()::getPose;
         var desiredPose = left ? FieldConstants.TargetPositions.CORALSTATION_LEFT : FieldConstants.TargetPositions.CORALSTATION_RIGHT;
 
-        return (PoseUtil.distanceBetween(desiredPose.Pose, currentRobotPose.get()) > 1
-                ? swerve.pathfindTo(desiredPose.Pose)
-                : swerve.directlyMoveTo(desiredPose.Pose))
-                .until(() -> PoseUtil.withinTolerance(desiredPose.Pose, currentRobotPose.get(), 1))
-                .andThen(swerve.pathfindTo(desiredPose.Pose));
+        return (PoseUtil.distanceBetween(desiredPose.getPose(), currentRobotPose.get()) > 1
+                ? swerve.pathfindTo(desiredPose.getPose())
+                : swerve.directlyMoveTo(desiredPose.getPose()))
+                .until(() -> PoseUtil.withinTolerance(desiredPose.getPose(), currentRobotPose.get(), 1))
+                .andThen(swerve.pathfindTo(desiredPose.getPose()));
     }
 }
