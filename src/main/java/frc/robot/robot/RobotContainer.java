@@ -45,7 +45,7 @@ public class RobotContainer {
     private final SendableChooser<Command> autoChooser;
     private final SendableChooser<Pose2d> startPositionChooser = new SendableChooser<>();
     @SuppressWarnings("unused")
-    private final LEDStrip ledStrip = new PhysicalLEDStrip(9, 10);
+    private final LEDStrip ledStrip = new PhysicalLEDStrip(9, 96);
 
     private final StructArrayPublisher<Pose3d> componentPoses = NetworkTableInstance.getDefault()
         .getStructArrayTopic("zeroed component poses", Pose3d.struct).publish();

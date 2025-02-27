@@ -115,7 +115,14 @@ public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
             getActionTargetPosition(),
             getCurrentMotorPosition(),
             WRIST_TOLERANCE
-        );
+        ) && coralConsistentWithActionRequirement();
+    }
+
+    public final boolean coralConsistentWithActionRequirement(){
+        var action = SubsystemManager.getInstance().getScoringSuperstructure().getCurrentAction();
+        if (action.endOnGamePieceSeen) return hasCoral();
+        if (action.endOnGamePieceNotSeen) return !hasCoral();
+        return true;
     }
 
     /**
