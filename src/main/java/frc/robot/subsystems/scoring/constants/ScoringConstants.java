@@ -50,7 +50,7 @@ public final class ScoringConstants {
             public static final double Barge_Proportion = ProportionToPosition.convertBackwards(62.3);
 
             public static final double Ground_Intake_Proportion = 0.0;
-            public static final double Homing_Proportion = 0;
+            public static final double Homing_Proportion = -0.04;
         }
     }
 
