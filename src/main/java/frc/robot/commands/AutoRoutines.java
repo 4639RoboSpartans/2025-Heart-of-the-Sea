@@ -98,6 +98,7 @@ public class AutoRoutines {
         commands.add(paths.get(0).resetOdometry());
         for (int i = 0; i < numPaths; i++) {
             commands.add(paths.get(i).cmd());
+            commands.add(SubsystemManager.getInstance().getDrivetrain().directlyMoveTo(FieldConstants.TargetPositions.valueOf("REEF_" + scoringLocations.get(i / 2)).getPose()));
             commands.add(
                     i % 2 == 0 ?
                             switch (scoringHeights.get(i / 2)) {
@@ -108,7 +109,7 @@ public class AutoRoutines {
                                 default -> AutoCommands.HPLoad.get();
                             } : AutoCommands.HPLoad.get()
             );
-            commands.add(SubsystemManager.getInstance().getDrivetrain().directlyMoveTo(FieldConstants.TargetPositions.valueOf("REEF_" + scoringLocations.get(i / 2)).getPose()));
+
         }
         routine.active().onTrue(
                 CommandsUtil.sequence(commands)
