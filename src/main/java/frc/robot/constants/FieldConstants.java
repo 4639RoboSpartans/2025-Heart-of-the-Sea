@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import frc.lib.util.AllianceFlipUtil;
 import frc.lib.util.PoseUtil;
 
 import java.util.HashMap;
@@ -306,7 +307,11 @@ public class FieldConstants {
         public final Pose2d leftPose, rightPose;
 
         public Pose2d getPose() {
-            return Pose;
+            return AllianceFlipUtil.apply(Pose);
+        }
+
+        public Pose2d getOpponentAlliancePose() {
+            return AllianceFlipUtil.rawAllianceFlipPose(Pose);
         }
     }
 

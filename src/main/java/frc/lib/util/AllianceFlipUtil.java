@@ -34,4 +34,15 @@ public class AllianceFlipUtil {
         return DriverStation.getAlliance().isPresent()
                 && DriverStation.getAlliance().get() == DriverStation.Alliance.Red;
     }
+
+    /**
+     * Always alliance-flips a pose without checking Driver Station. Useful when working with
+     * a pose that is already alliance-normalized
+     * and needs to be flipped in all situations.
+     * @param pose
+     * @return
+     */
+    public static Pose2d rawAllianceFlipPose(Pose2d pose) {
+        return new Pose2d(apply(pose.getTranslation()), apply(pose.getRotation()));
+    }
 }

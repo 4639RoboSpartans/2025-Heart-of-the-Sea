@@ -14,6 +14,7 @@ import frc.robot.subsystems.SubsystemManager;
 import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class DriveCommands {
     private static final AbstractSwerveDrivetrain swerve = SubsystemManager.getInstance().getDrivetrain();
@@ -57,9 +58,10 @@ public class DriveCommands {
         );
 
         Pose2d nearestReefPose = currentRobotPose.get().nearest(
-                allReefTargets.stream()
-                        .map(target -> target.getPose())
-                        .collect(Collectors.toList()));
+                Stream.concat(
+                        allReefTargets.stream().map(FieldConstants.TargetPositions::getPose),
+                        allReefTargets.stream().map(FieldConstants.TargetPositions::getOpponentAlliancePose)
+                ).collect(Collectors.toList()));
 
         var desiredPose =
                 (direction == 0
@@ -72,6 +74,7 @@ public class DriveCommands {
                 .until(new Trigger(() -> PoseUtil.withinTolerance(desiredPose, currentRobotPose.get(), Units.inchesToMeters(2))).debounce(0.1));
     }
 
+    @Deprecated
     public static Command moveToClosestReefPositionHardcoded(byte direction) {
         Supplier<Pose2d> currentRobotPose = SubsystemManager.getInstance().getDrivetrain()::getPose;
         List<FieldConstants.TargetPositions> allReefTargets = new java.util.ArrayList<>(List.of(
