@@ -97,5 +97,7 @@ public class SimElevatorSubsystem extends AbstractElevatorSubsystem {
             ProportionToHeight.convert(ElevatorSetpoints.IDLE_Proportion).in(Meters),
             elevatorSim.getVelocityMetersPerSecond()
         );
+        setTargetExtensionFraction(ElevatorSetpoints.IDLE_Proportion);
+        elevatorPID.reset(ProportionToPosition.convert(ElevatorSetpoints.IDLE_Proportion));
     }
 }

@@ -121,5 +121,6 @@ public class ConcreteElevatorSubsystem extends AbstractElevatorSubsystem {
     public void resetCurrentExtensionFractionTo(double extensionFraction) {
         double currentError = getCurrentExtensionFraction() - extensionFraction;
         measuredExtensionFractionOffset -= currentError;
+        setTargetExtensionFraction(ElevatorConstants.ElevatorSetpoints.IDLE_Proportion);
     }
 }
