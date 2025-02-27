@@ -94,10 +94,10 @@ public class SimElevatorSubsystem extends AbstractElevatorSubsystem {
     @Override
     public void resetCurrentExtensionFractionTo(double extensionFraction) {
         elevatorSim.setState(
-            ProportionToHeight.convert(ElevatorSetpoints.IDLE_Proportion).in(Meters),
+            ProportionToHeight.convert(extensionFraction).in(Meters),
             elevatorSim.getVelocityMetersPerSecond()
         );
-        setTargetExtensionFraction(ElevatorSetpoints.IDLE_Proportion);
-        elevatorPID.reset(ProportionToPosition.convert(ElevatorSetpoints.IDLE_Proportion));
+        setTargetExtensionFraction(extensionFraction);
+        elevatorPID.reset(ProportionToPosition.convert(extensionFraction));
     }
 }

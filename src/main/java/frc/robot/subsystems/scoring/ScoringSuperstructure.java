@@ -120,7 +120,7 @@ public final class ScoringSuperstructure extends SubsystemBase {
                 )
             )
         ).until(elevator::isPhysicallyStopped).finallyDo(() -> {
-            elevator.resetCurrentExtensionFractionTo(ElevatorSetpoints.IDLE_Proportion);
+            elevator.resetCurrentExtensionFractionTo(ElevatorSetpoints.Homing_Proportion);
             setCurrentAction(ScoringSuperstructureAction.IDLE);
         });
     }
