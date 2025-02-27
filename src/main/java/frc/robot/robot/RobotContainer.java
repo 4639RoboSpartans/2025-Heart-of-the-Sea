@@ -153,6 +153,9 @@ public class RobotContainer {
             .and(Controls.Driver.targetRight.negate())
             .whileTrue(() -> DriveCommands.moveToClosestReefPositionWithTransformation((byte) 2));
 
+        FunctionalTrigger.of(Controls.Driver.processorAlign)
+                .whileTrue(DriveCommands::moveToProcessor);
+
         FunctionalTrigger.of(Controls.Driver.coralStationAlign)
             .and(Controls.Driver.targetLeft).whileTrue(() -> DriveCommands.moveToDesiredCoralStationPosition(true));
         FunctionalTrigger.of(Controls.Driver.coralStationAlign)

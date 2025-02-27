@@ -5,6 +5,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.lib.annotation.PackagePrivate;
 import frc.lib.util.AllianceFlipUtil;
 import frc.lib.util.PoseUtil;
 import frc.robot.constants.Controls;
@@ -18,7 +19,6 @@ import java.util.stream.Stream;
 
 public class DriveCommands {
     private static final AbstractSwerveDrivetrain swerve = SubsystemManager.getInstance().getDrivetrain();
-
     public static Command pathfindToReefCommand(FieldConstants.TargetPositions targetPosition) {
         return Commands.sequence(
                 swerve.pathfindTo(
@@ -74,7 +74,6 @@ public class DriveCommands {
                 .until(new Trigger(() -> PoseUtil.withinTolerance(desiredPose, currentRobotPose.get(), Units.inchesToMeters(2))).debounce(0.1));
     }
 
-    @Deprecated
     public static Command moveToClosestReefPositionHardcoded(byte direction) {
         Supplier<Pose2d> currentRobotPose = SubsystemManager.getInstance().getDrivetrain()::getPose;
         List<FieldConstants.TargetPositions> allReefTargets = new java.util.ArrayList<>(List.of(
@@ -117,12 +116,22 @@ public class DriveCommands {
 
     public static Command moveToDesiredCoralStationPosition(boolean left) {
         Supplier<Pose2d> currentRobotPose = SubsystemManager.getInstance().getDrivetrain()::getPose;
-        var desiredPose = left ? FieldConstants.TargetPositions.CORALSTATION_LEFT : FieldConstants.TargetPositions.CORALSTATION_RIGHT;
+        var desiredTarget = left ? FieldConstants.TargetPositions.CORALSTATION_LEFT : FieldConstants.TargetPositions.CORALSTATION_RIGHT;
 
-        return (PoseUtil.distanceBetween(desiredPose.getPose(), currentRobotPose.get()) > 1
-                ? swerve.pathfindTo(desiredPose.getPose())
-                : swerve.directlyMoveTo(desiredPose.getPose()))
-                .until(() -> PoseUtil.withinTolerance(desiredPose.getPose(), currentRobotPose.get(), 1))
-                .andThen(swerve.pathfindTo(desiredPose.getPose()));
+        return (!PoseUtil.withinTolerance(desiredTarget.getPose(), currentRobotPose.get(), 2)
+                ? swerve.pathfindTo(desiredTarget.getPose())
+                : swerve.directlyMoveTo(desiredTarget.getPose()))
+                .until(() -> PoseUtil.withinTolerance(desiredTarget.getPose(), currentRobotPose.get(), 2))
+                .andThen(swerve.directlyMoveTo(desiredTarget.getPose()));
+    }
+
+    public static Command moveToProcessor(){
+        var desiredTarget = FieldConstants.TargetPositions.PROCESSOR;
+        Supplier<Pose2d> currentRobotPose = SubsystemManager.getInstance().getDrivetrain()::getPose;
+        return (!PoseUtil.withinTolerance(desiredTarget.getPose(), currentRobotPose.get(), 2)
+                        ? swerve.pathfindTo(desiredTarget.getPose())
+                        : swerve.directlyMoveTo(desiredTarget.getPose()))
+                .until(() -> PoseUtil.withinTolerance(desiredTarget.getPose(), currentRobotPose.get(), 2))
+                .andThen(swerve.directlyMoveTo(desiredTarget.getPose()));
     }
 }
