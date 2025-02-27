@@ -307,7 +307,7 @@ public class FieldConstants {
         public final Pose2d leftPose, rightPose;
 
         public Pose2d getPose() {
-            return AllianceFlipUtil.apply(Pose);
+            return Pose;
         }
 
         public Pose2d getOpponentAlliancePose() {
