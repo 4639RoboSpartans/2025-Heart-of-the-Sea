@@ -5,10 +5,9 @@
 
 package frc.robot.robot;
 
+import au.grapplerobotics.CanBridge;
 import com.ctre.phoenix6.SignalLogger;
 import com.revrobotics.spark.config.SparkBaseConfig;
-
-import au.grapplerobotics.CanBridge;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -117,9 +116,5 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void testExit() {
-    }
-
-    public static boolean isInAuton() {
-        return isInAuton;
     }
 }

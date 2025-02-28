@@ -11,6 +11,7 @@ public class ScoringSuperstructureAction {
     public boolean endOnGamePieceSeen = false;
     public boolean endOnGamePieceNotSeen = false;
     public boolean requiresWristTransition = false;
+    public boolean useManualControlInTeleop = true;
     public String name;
     /**
      * The state to use after this state has finished. Usually, this will
@@ -52,6 +53,11 @@ public class ScoringSuperstructureAction {
         return this;
     }
 
+    private ScoringSuperstructureAction useManualControlInTeleop(boolean useManualControlInTeleop) {
+        this.useManualControlInTeleop = useManualControlInTeleop;
+        return this;
+    }
+
     private ScoringSuperstructureAction withStateAfter(ScoringSuperstructureAction stateAfter) {
         this.nextAction = stateAfter;
         return this;
@@ -65,21 +71,21 @@ public class ScoringSuperstructureAction {
 
     public static final ScoringSuperstructureAction
         IDLE = new ScoringSuperstructureAction("IDLE")
+        .withTargetElevatorExtensionFraction(ElevatorSetpoints.IDLE_Proportion)
+        .withTargetWristRotationFraction(WristSetpoints.Wrist_IDLE_Proportion)
+        .withIntakeSpeed(IntakeSpeeds.Intake_Idle_Speed),
+        IDLE_STOW_ALGAE = new ScoringSuperstructureAction("IDLE_STOW_ALGAE")
             .withTargetElevatorExtensionFraction(ElevatorSetpoints.IDLE_Proportion)
-            .withTargetWristRotationFraction(WristSetpoints.Wrist_IDLE_Proportion)
+            .withTargetWristRotationFraction(WristSetpoints.Wrist_ALGAESTOW_Proportion)
             .withIntakeSpeed(IntakeSpeeds.Intake_Idle_Speed)
             .stopIntakeOnGamePieceNotSeen(),
-        IDLE_STOW_ALGAE = new ScoringSuperstructureAction("IDLE_STOW_ALGAE")
-                .withTargetElevatorExtensionFraction(ElevatorSetpoints.IDLE_Proportion)
-                .withTargetWristRotationFraction(WristSetpoints.Wrist_ALGAESTOW_Proportion)
-                .withIntakeSpeed(IntakeSpeeds.Intake_Idle_Speed)
-                .stopIntakeOnGamePieceNotSeen(),
         INTAKE_FROM_HP = new ScoringSuperstructureAction("INTAKE_FROM_HP")
             .withTargetElevatorExtensionFraction(ElevatorSetpoints.HP_Proportion)
             .withTargetWristRotationFraction(WristSetpoints.Wrist_HP_Proportion)
             .withIntakeSpeed(IntakeSpeeds.Intake_HP_Speed)
             .stopIntakeOnGamePieceSeen()
-            .withStateAfter(IDLE),
+            .withStateAfter(IDLE)
+            .useManualControlInTeleop(false),
         SCORE_L1_CORAL = new ScoringSuperstructureAction("SCORE_L1_CORAL")
             .withTargetElevatorExtensionFraction(ElevatorSetpoints.L1_Proportion)
             .withTargetWristRotationFraction(WristSetpoints.Wrist_L1_Proportion)

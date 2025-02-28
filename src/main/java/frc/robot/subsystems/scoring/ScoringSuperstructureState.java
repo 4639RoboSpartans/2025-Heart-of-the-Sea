@@ -1,6 +1,5 @@
 package frc.robot.subsystems.scoring;
 
-import frc.robot.constants.Controls;
 import frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConstants.WristSetpoints;
 import frc.robot.subsystems.scoring.elevator.AbstractElevatorSubsystem;
 import frc.robot.subsystems.scoring.endeffector.AbstractEndEffectorSubsystem;
@@ -73,8 +72,7 @@ public enum ScoringSuperstructureState {
 
     public double getIntakeSpeed(ScoringSuperstructureAction action) {
         return Math.abs(switch (this) {
-            case EXECUTING_ACTION -> action.intakeSpeed;
-            default -> 0.5;
-        }) * Controls.Operator.ManualControlIntake.getAsDouble();
+            default -> action.intakeSpeed;
+        });
     }
 }

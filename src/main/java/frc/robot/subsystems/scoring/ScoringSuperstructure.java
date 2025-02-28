@@ -11,7 +11,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.constants.Controls;
-import frc.robot.robot.Robot;
 import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
 import frc.robot.subsystems.scoring.constants.ScoringConstants.ElevatorConstants.ElevatorSetpoints;
@@ -124,7 +123,7 @@ public final class ScoringSuperstructure extends SubsystemBase {
                 )
             )
         ).until(elevator::isPhysicallyStopped).finallyDo((wasInterrupted) -> {
-            if(!wasInterrupted) {
+            if (!wasInterrupted) {
                 elevator.resetCurrentExtensionFractionTo(ElevatorSetpoints.Homing_Proportion);
                 setCurrentAction(ScoringSuperstructureAction.IDLE);
             }
@@ -153,6 +152,11 @@ public final class ScoringSuperstructure extends SubsystemBase {
         double targetWristRotationFraction = currentState
             .getTargetWristRotationFraction(currentAction)
             .orElseGet(endEffector::getTargetRotationFraction);
+        double intakeSpeed = currentAction.intakeSpeed * (
+            RobotState.isTeleop() && currentAction.useManualControlInTeleop
+                ? Controls.Operator.ManualControlIntake.getAsDouble()
+                : 1
+        );
 
         // Update fine-tuning offsets
         elevatorAdjustment += 0.002 * Controls.Operator.MicroElevatorAdjustment.getAsDouble();
@@ -165,27 +169,21 @@ public final class ScoringSuperstructure extends SubsystemBase {
             targetWristRotationFraction + wristAdjustment,
             WristSetpoints.Wrist_IDLE_Proportion, 1
         ) - targetWristRotationFraction;
-        if (Controls.Operator.ManualControlIntake.getAsDouble() != 0) {
-            endEffector.setIntakeSpeed(Controls.Operator.ManualControlIntake.getAsDouble());
-        } else {
-            endEffector.setIntakeSpeed(0);
-        }
+
+        // Set speeds
         elevator.setTargetExtensionFraction(targetElevatorExtensionFraction + elevatorAdjustment);
         endEffector.setTargetWristRotationFraction(targetWristRotationFraction + wristAdjustment);
-        SmartDashboard.putBoolean("Set Intake Speed", false);
-        if (currentState == ScoringSuperstructureState.EXECUTING_ACTION && (currentAction.name.equals("INTAKE_FROM_HP") || Robot.isInAuton())) {
-            endEffector.setIntakeSpeed(currentAction.intakeSpeed);
-            SmartDashboard.putNumber("Action Intake Speed", currentAction.intakeSpeed);
-            SmartDashboard.putBoolean("Set Intake Speed", true);
-        }
-        SmartDashboard.putBoolean("Advance State", currentState.shouldAdvanceState(currentAction, endEffector, elevator));
+        endEffector.setIntakeSpeed(intakeSpeed);
+
         // Advance the state if necessary
+        SmartDashboard.putBoolean("Should Advance State", currentState.shouldAdvanceState(currentAction, endEffector, elevator));
         if (currentState.shouldAdvanceState(currentAction, endEffector, elevator)) {
             currentState = currentState.next();
             resetAdjustments();
         }
+
         // If the state is finished and, go to the next action, requires IDLE trigger to go down to IDLE
-        if (currentState == ScoringSuperstructureState.DONE && (!RobotState.isTeleop() || Controls.Operator.ScoringIdleTrigger.getAsBoolean())) {
+        if (currentState == ScoringSuperstructureState.DONE && RobotState.isAutonomous()) {
             setCurrentAction(currentAction.nextAction);
         }
     }
@@ -234,11 +232,10 @@ public final class ScoringSuperstructure extends SubsystemBase {
         SmartDashboard.putString("State", currentState.name());
         SmartDashboard.putString("Action", currentAction.toString());
 
-        SmartDashboard.putBoolean("is in auton", Robot.isInAuton());
+        SmartDashboard.putBoolean("is in auton", RobotState.isAutonomous());
     }
 
     /**
-     * 
      * @return the real life length of the elevator, for use in simulation only.
      */
     public Distance getCurrentElevatorLength() {
