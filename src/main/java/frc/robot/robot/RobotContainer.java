@@ -229,7 +229,14 @@ public class RobotContainer {
             }
         );
     }
-
+    /*
+        Intake coral - triple flash green -> solid green
+        Honed -> triple flash green
+        Not honed -> flash red
+        Default disabled ->breathing alliance color
+        Reef align -> flashing orange blue
+        Default -> blue orange cycling
+     */
     private void configureLED() {
         LEDPattern idlePattern = (ledIdx, time) -> {
             time *= 2;
@@ -240,10 +247,10 @@ public class RobotContainer {
             return new Color8Bit(Color.fromHSV((int) (h), 255, (int) (255 * v)));
         };
         LEDPattern transitionPattern = new BasicLEDPattern(3,
-            new Color8Bit(Color.kOrange)
+            new Color8Bit(Color.kGreen)
         );
         LEDPattern elevatorMovePattern = new BasicLEDPattern(3,
-            new Color8Bit(Color.kBlue)
+            new Color8Bit(Color.kYellow)
         );
         LEDPattern executingActionPattern = new SolidLEDPattern(new Color8Bit(255, 0, 0));
 
