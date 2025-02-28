@@ -206,9 +206,9 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                     Rotation2d headingOffset = DriverStationUtil.getAlliance() == Alliance.Red ? Rotation2d.k180deg : new Rotation2d();
 
                     return request
-                            .withVelocityX(frc.lib.util.MathUtil.clamp(pidXOutput, -2.0, 2.0))
-                            .withVelocityY(frc.lib.util.MathUtil.clamp(pidYOutput, -2.0, 2.0))
-                            .withTargetDirection(targetPose.getRotation().plus(headingOffset));
+                        .withVelocityX(frc.lib.util.MathUtil.clamp(pidXOutput, -2.0, 2.0))
+                        .withVelocityY(frc.lib.util.MathUtil.clamp(pidYOutput, -2.0, 2.0))
+                        .withTargetDirection(targetPose.getRotation().plus(headingOffset));
                 }
             ).until(
                 () -> MathUtil.isNear(targetPose.getX(), getPose().getX(), 0.01)
@@ -280,6 +280,8 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         SignalLogger.writeDouble("Steer Velocity", drivetrain.getModule(0).getSteerMotor().getVelocity().getValueAsDouble());
         SignalLogger.writeDouble("Steer Voltage", drivetrain.getModule(0).getSteerMotor().getMotorVoltage().getValueAsDouble());
         SignalLogger.writeDouble("Steer Position", drivetrain.getModule(0).getSteerMotor().getPosition().getValueAsDouble());
+
+        SmartDashboard.putNumber("Current heading", getPose().getRotation().getDegrees());
     }
 
     @Override

@@ -64,7 +64,6 @@ public class RobotContainer {
         SmartDashboard.putData("Auto Chooser", autoChooser);
 
         startPositionChooser.setDefaultOption("DEFAULT", new Pose2d());
-        SmartDashboard.putBoolean("pigeon reset", false);
         Arrays.stream(FieldConstants.AutonStartingPositions.values()).forEach(
             position -> startPositionChooser.addOption(position.name(), position.Pose)
         );

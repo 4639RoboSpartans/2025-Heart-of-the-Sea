@@ -167,7 +167,7 @@ public final class ScoringSuperstructure extends SubsystemBase {
         ) - targetElevatorExtensionFraction;
         wristAdjustment = MathUtil.clamp(
             targetWristRotationFraction + wristAdjustment,
-            WristSetpoints.Wrist_IDLE_Proportion, 1
+            WristSetpoints.Wrist_Lowest_Proportion, 1
         ) - targetWristRotationFraction;
 
         // Set speeds
