@@ -124,7 +124,7 @@ public class AutoRoutines {
         // Activate the commands when the auton routine is active
         routine.active().onTrue(CommandsUtil.sequence(commands));
 
-        return new Auton(routine, name);
+        return new Auton(routine, autonName);
     }
 
     private void addScoringSegment(List<Command> commands, AutoTrajectory path, ScoringTarget scoringTarget) {
