@@ -158,9 +158,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     @Override
     public Command resetHeadingToZero() {
         return runOnce(
-            () -> drivetrain.getPigeon2().setYaw(
-                -85
-            )
+            () -> drivetrain.getPigeon2().reset()
         ).andThen(() -> field.setRobotPose(getPose()));
     }
 
