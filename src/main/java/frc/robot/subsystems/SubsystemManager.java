@@ -40,7 +40,7 @@ public class SubsystemManager {
         //climberSubsystem = AbstractClimberSubsystem.getInstance();
         drivetrain = AbstractSwerveDrivetrain.getInstance(getInstanceAccess);
         scoringSuperstructure = ScoringSuperstructure.getInstance(getInstanceAccess);
-        ledStripSubsystem = LEDStrip.getInstance();
+        ledStripSubsystem = LEDStrip.getInstance(getInstanceAccess);
     }
 
     public AbstractClimberSubsystem getClimberSubsystem() {

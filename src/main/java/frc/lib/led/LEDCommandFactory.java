@@ -1,60 +1,43 @@
 package frc.lib.led;
 
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.*;
+import frc.lib.util.DriverStationUtil;
 import frc.robot.subsystems.SubsystemManager;
 
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.IntStream;
 
 public class LEDCommandFactory {
+    static LEDStrip ledStripSubsystem = SubsystemManager.getInstance().getLEDStripSubsystem();
     public static Command LEDBreathingRed(){
-        return new RunCommand(() -> LEDStrip.getInstance().usePattern(new LEDPattern() {
-            @Override
-            public Color8Bit get(int led, double time) {
-                return new Color8Bit(Color.fromHSV(0, 100, (int) (75 + 25 * Math.sin(time * 2))));
-            }
-        }), SubsystemManager.getInstance().getLEDStripSubsystem());
+        return new RunCommand(() -> ledStripSubsystem.usePattern(breathingRed), ledStripSubsystem).ignoringDisable(true);
     }
 
     public static Command LEDBreathingBlue(){
-        return new RunCommand(() -> LEDStrip.getInstance().usePattern(new LEDPattern() {
-            @Override
-            public Color8Bit get(int led, double time) {
-                return new Color8Bit(Color.fromHSV(238, 100, (int) (75 + 25 * Math.sin(time * 2))));
-            }
-        }), SubsystemManager.getInstance().getLEDStripSubsystem());
+        return new RunCommand(() -> ledStripSubsystem.usePattern(breathingBlue), ledStripSubsystem).ignoringDisable(true);
     }
 
     public static Command LEDThreeFlashGreen(){
-        return new RunCommand(() -> LEDStrip.getInstance().usePattern(new LEDPattern() {
-            @Override
-            public Color8Bit get(int led, double time) {
-                return new Color8Bit(Color.fromHSV(121, 100, Math.sin(time * 12)>0 ? 100 : 0));
-            }
-        }), SubsystemManager.getInstance().getLEDStripSubsystem()).withTimeout(3 * Math.PI/8);
+        return flashColors(0.3, Color.kGreen, Color.kBlack).ignoringDisable(true);
     }
 
     public static Command LEDFlashRed(){
-        return new RunCommand(() -> LEDStrip.getInstance().usePattern(new LEDPattern() {
-            @Override
-            public Color8Bit get(int led, double time) {
-                return new Color8Bit(Color.fromHSV(0, 100, Math.sin(time/4)>0 ? 100 : 0));
-            }
-        }), SubsystemManager.getInstance().getLEDStripSubsystem());
+        return flashColors(0.5, Color.kRed, Color.kBlack).ignoringDisable(true);
     }
 
     public static Command LEDSolidColor(Color color){
-        return new RunCommand(() -> LEDStrip.getInstance().usePattern(new SolidLEDPattern(new Color8Bit(color))), SubsystemManager.getInstance().getLEDStripSubsystem());
+        return new RunCommand(() -> ledStripSubsystem.usePattern(new SolidLEDPattern(new Color8Bit(color))), ledStripSubsystem).ignoringDisable(true);
     }
 
     public static Command LEDThreeFlashThenSolidGreen(){
-        return LEDThreeFlashGreen().andThen(LEDSolidColor(Color.kLimeGreen));
+        return LEDThreeFlashGreen().andThen(LEDSolidColor(Color.kLimeGreen)).ignoringDisable(true);
     }
 
     public static Command flashColors(double period, Color... colors){
@@ -63,11 +46,11 @@ public class LEDCommandFactory {
         Arrays.stream(colors).forEachOrdered(color -> {
             commandGroup.addCommands(LEDSolidColor(color).withTimeout(singleColorLength));
         });
-        return commandGroup.repeatedly();
+        return commandGroup.repeatedly().ignoringDisable(true);
     }
 
     public static Command flashBlueOrange(){
-        return flashColors(0.5, Color.kBlue, Color.kOrange);
+        return flashColors(1, Color.kBlue, Color.kOrange).ignoringDisable(true);
     }
 
     public static Command colorProfileBetween(Color startColor, Color endColor, double transitionLength){
@@ -78,7 +61,7 @@ public class LEDCommandFactory {
 
         double[] differences = IntStream.range(0, 3).mapToDouble(i -> rgbEnd[i] - rgbStart[i]).toArray();
 
-        return new RunCommand(() -> LEDStrip.getInstance().usePattern(new LEDPattern() {
+        return new RunCommand(() -> ledStripSubsystem.usePattern(new LEDPattern() {
 
             @Override
             public Color8Bit get(int led, double time) {
@@ -87,7 +70,7 @@ public class LEDCommandFactory {
                         (int) (rgbStart[1] + ((time-startTime)/transitionLength) * differences[1]),
                         (int) (rgbStart[2] + ((time-startTime)/transitionLength) * differences[2]));
             }
-        }), SubsystemManager.getInstance().getLEDStripSubsystem()).until(() -> Timer.getFPGATimestamp() >= startTime + transitionLength);
+        }), ledStripSubsystem).until(() -> Timer.getFPGATimestamp() >= startTime + transitionLength).ignoringDisable(true);
     }
 
     public static Command cycleBetweenColors(double period, double transitionLength, Color... colors){
@@ -101,23 +84,55 @@ public class LEDCommandFactory {
         });
         commandGroup.addCommands(colorProfileBetween(colors[colors.length-1], colors[0], transitionLength));
 
-        return commandGroup.repeatedly();
+        return commandGroup.repeatedly().ignoringDisable(true);
     }
 
     public static Command blueOrangeCycle() {
-        return cycleBetweenColors(3, 0.5, Color.kBlue, Color.kOrange);
+        return cycleBetweenColors(3, 0.5, Color.kBlue, Color.kOrange).ignoringDisable(true);
     }
 
     public static Command usePattern(LEDPattern pattern){
-        return new RunCommand(() -> LEDStrip.getInstance().usePattern(pattern), SubsystemManager.getInstance().getLEDStripSubsystem());
+        return new RunCommand(() -> ledStripSubsystem.usePattern(pattern), ledStripSubsystem).ignoringDisable(true);
+    }
+
+    public static Command usePatternChooser(Function<LEDStrip, LEDPattern> chooser){
+        return Commands.run(
+                () -> ledStripSubsystem.usePattern(chooser.apply(ledStripSubsystem))
+        , ledStripSubsystem).ignoringDisable(true);
+    }
+
+    public static Command disabledPatternChooser(){
+        return usePatternChooser(_strip -> {
+            if (RobotState.isDisabled() && DriverStationUtil.getAlliance() == DriverStation.Alliance.Red) return breathingRed;
+            else return breathingBlue;
+        });
+    }
+
+
+    public static LEDPattern breathingRed = new LEDPattern() {
+        @Override
+        public Color8Bit get(int led, double time) {
+            return new Color8Bit((int) ((255-150) + 75 * Math.sin(time * 2)), 0, 0);
+        }
+    };
+
+    public static LEDPattern breathingBlue = new LEDPattern() {
+        @Override
+        public Color8Bit get(int led, double time) {
+            return new Color8Bit(0, 0, (int) ((255-150) + 75 * Math.sin(time * 2)));
+        }
+    };
+
+    public static void setLEDCommand(Command command){
+        if (command.getRequirements().contains(ledStripSubsystem)) CommandScheduler.getInstance().schedule(command);
     }
 
     /*
-        Intake coral - triple flash green -> solid green done
-        Honed -> triple flash green done
-        Not honed -> flash red done
-        Default disabled ->breathing alliance color done
-        Reef align -> flashing orange blue done
+        Intake coral - triple flash green -> solid green
+        Honed -> triple flash green
+        Not honed -> flash red
+        Default disabled ->breathing alliance color
+        Reef align -> flashing orange blue
         Default -> blue orange cycling
      */
 }

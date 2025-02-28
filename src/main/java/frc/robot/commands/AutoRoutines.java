@@ -150,7 +150,7 @@ public class AutoRoutines {
                                 case 3 -> AutoCommands.L3Score.get();
                                 case 4 -> AutoCommands.L4Score.get();
                                 default -> AutoCommands.HPLoad.get().alongWith(drivetrain.stop()).withTimeout(1);
-                            } : AutoCommands.HPLoad.get().alongWith(drivetrain.stop()).withTimeout(1)
+                            } : AutoCommands.HPLoad.get().withTimeout(1)
             );
 
         }
