@@ -28,6 +28,7 @@ public class AutoRoutines {
     public Auton COMP_J_K() {
         return compileAuton(
             true,
+            true,
             new ScoringTarget('J', 4),
             new ScoringTarget('K', 4)
         );
@@ -35,6 +36,7 @@ public class AutoRoutines {
 
     public Auton COMP_H_G() {
         return compileAuton(
+            true,
             true,
             new ScoringTarget('H', 4),
             new ScoringTarget('G', 4)
@@ -44,6 +46,7 @@ public class AutoRoutines {
     public Auton COMP_A_B() {
         return compileAuton(
             true,
+            true,
             new ScoringTarget('A', 4),
             new ScoringTarget('B', 4)
         );
@@ -51,6 +54,7 @@ public class AutoRoutines {
 
     public Auton COMP_H_A() {
         return compileAuton(
+            true,
             true,
             new ScoringTarget('H', 4),
             new ScoringTarget('A', 4)
@@ -60,6 +64,7 @@ public class AutoRoutines {
     public Auton COMP_G_C_D_B() {
         return compileAuton(
             true,
+            false,
             new ScoringTarget('G', 4),
             new ScoringTarget('C', 4),
             new ScoringTarget('D', 4),
@@ -70,6 +75,7 @@ public class AutoRoutines {
     public Auton TEST_A_B() {
         return compileAuton(
             false,
+            true,
             new ScoringTarget('A', 1),
             new ScoringTarget('B', 2)
         );
@@ -96,6 +102,7 @@ public class AutoRoutines {
      */
     private Auton compileAuton(
         boolean isComp,
+        boolean left,
         ScoringTarget... scoringTargets
         ///List<Integer> scoringHeights, List<Character> scoringLocations
     ) {
@@ -117,7 +124,7 @@ public class AutoRoutines {
         for (int targetIndex = 0; targetIndex < scoringTargets.length; targetIndex++) {
             addScoringSegment(commands, pathSegments[targetIndex * 2], scoringTargets[targetIndex]);
             if (targetIndex != scoringTargets.length - 1) {
-                addHPLoadingSegment(commands, pathSegments[targetIndex * 2 + 1]);
+                addHPLoadingSegment(commands, pathSegments[targetIndex * 2 + 1], left);
             }
         }
 
@@ -148,13 +155,14 @@ public class AutoRoutines {
         });
     }
 
-    private void addHPLoadingSegment(List<Command> commands, AutoTrajectory path) {
+    private void addHPLoadingSegment(List<Command> commands, AutoTrajectory path, boolean isStationLeft) {
         // Add path to intake
         commands.add(path.cmd());
 
         // Add directly move to stuff IDK
         addDirectlyMoveToCommand(
-            commands, TargetPositions.CORALSTATION_LEFT.getPose()
+            commands,
+            isStationLeft? TargetPositions.CORALSTATION_LEFT.getPose() : TargetPositions.CORALSTATION_RIGHT.getPose()
         );
 
         // Add HP load command
