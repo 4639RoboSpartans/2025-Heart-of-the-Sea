@@ -3,6 +3,7 @@ package frc.robot.subsystems.scoring;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -183,8 +184,8 @@ public final class ScoringSuperstructure extends SubsystemBase {
             currentState = currentState.next();
             resetAdjustments();
         }
-        // If the state is finished, go to the next action
-        if (currentState == ScoringSuperstructureState.DONE) {
+        // If the state is finished and, go to the next action, requires IDLE trigger to go down to IDLE
+        if (currentState == ScoringSuperstructureState.DONE && (!RobotState.isTeleop() || Controls.Operator.ScoringIdleTrigger.getAsBoolean())) {
             setCurrentAction(currentAction.nextAction);
         }
     }
