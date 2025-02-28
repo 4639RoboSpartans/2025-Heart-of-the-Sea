@@ -8,12 +8,14 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.util.CommandsUtil;
 import frc.lib.util.PoseUtil;
-import frc.robot.constants.FieldConstants;
+import frc.robot.constants.FieldConstants.TargetPositions;
 import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class AutoRoutines {
@@ -25,83 +27,90 @@ public class AutoRoutines {
 
     public AutoRoutine COMP_J_K() {
         return compileAuton(
-            List.of('J', 'K'),
-            List.of(4, 4),
-            true
+            true,
+            new ScoringTarget('J', 4),
+            new ScoringTarget('K', 4)
         );
     }
 
     public AutoRoutine COMP_H_G() {
         return compileAuton(
-            List.of('H', 'G'),
-            List.of(4, 4),
-            true
+            true,
+            new ScoringTarget('H', 4),
+            new ScoringTarget('G', 4)
         );
     }
 
     public AutoRoutine COMP_A_B() {
         return compileAuton(
-            List.of('A', 'B'),
-            List.of(4, 4),
-            true
+            true,
+            new ScoringTarget('A', 4),
+            new ScoringTarget('B', 4)
         );
     }
 
     public AutoRoutine COMP_H_A() {
         return compileAuton(
-            List.of('H', 'A'),
-            List.of(4, 4),
-            true
+            true,
+            new ScoringTarget('H', 4),
+            new ScoringTarget('A', 4)
         );
     }
 
     public AutoRoutine COMP_G_C_D_B() {
         return compileAuton(
-            List.of('G', 'C', 'D', 'B'),
-            List.of(4, 4, 4, 4),
-            true
+            true,
+            new ScoringTarget('G', 4),
+            new ScoringTarget('C', 4),
+            new ScoringTarget('D', 4),
+            new ScoringTarget('B', 4)
         );
     }
 
     public AutoRoutine TEST_A_B() {
         return compileAuton(
-            List.of('A', 'B'),
-            List.of(1, 2),
-            false
+            false,
+            new ScoringTarget('A', 1),
+            new ScoringTarget('B', 2)
         );
     }
 
+    private record ScoringTarget(char scoringLocation, int scoringHeight) {
+        @Override
+        public String toString() {
+            return "%s%d".formatted(scoringLocation, scoringHeight);
+        }
+
+        public TargetPositions getTargetPosition() {
+            return TargetPositions.valueOf(
+                "REEF_" + this.scoringLocation
+            );
+        }
+    }
 
     /**
-     * @param scoringLocations all locations as designated in path naming
-     * @param scoringHeights   all heights, each corresponding to a location,
-     *                         must be the same size as {@param scoringLocations}
-     * @param comp             is the auton for competition
+     * @param isComp         is the auton for competition
+     * @param scoringTargets all scoring targets
      *
      * @return a new routine with the specified characteristics
      */
-    private AutoRoutine compileAuton(List<Character> scoringLocations, List<Integer> scoringHeights, boolean comp) {
-        StringBuilder pathName = new StringBuilder(comp ? "COMP-" : "TEST-");
-        StringBuilder name = new StringBuilder(pathName.toString());
-        int numPaths = (scoringHeights.size()) // Movements to reef
-            + (scoringHeights.size() - 1)      // Movements to HP station
-            ;
-        int numScores = scoringLocations.size();
-        for (int i = 0; i < numScores; i++) {
-            pathName.append(scoringLocations.get(i));
-            name.append(scoringLocations.get(i));
-            name.append(scoringHeights.get(i));
-            if (i < numScores - 1) {
-                pathName.append("-");
-                name.append("-");
-            }
-        }
+    private AutoRoutine compileAuton(
+        boolean isComp,
+        ScoringTarget... scoringTargets
+        ///List<Integer> scoringHeights, List<Character> scoringLocations
+    ) {
+        String pathPrefix = isComp ? "COMP-" : "TEST-";
+        String name = getAutonName(scoringTargets, pathPrefix);
+        String pathName = getAutonPathName(scoringTargets, pathPrefix);
 
-        AutoRoutine routine = factory.newRoutine(name.toString());
-        List<AutoTrajectory> paths = new ArrayList<>();
-        for (int i : IntStream.range(0, numPaths).toArray()) {
-            paths.add(routine.trajectory(pathName.toString(), i));
-        }
+        int numScores = scoringTargets.length;
+        int numPaths = (numScores) // Movements to reef
+            + (numScores - 1);     // Movements to HP station
+
+        AutoRoutine routine = factory.newRoutine(name);
+        List<AutoTrajectory> paths = IntStream.range(0, numPaths)
+            .mapToObj(i -> routine.trajectory(pathName, i))
+            .toList();
 
         List<Command> commands = new ArrayList<>();
         commands.add(paths.get(0).resetOdometry());
@@ -112,9 +121,7 @@ public class AutoRoutines {
             AbstractSwerveDrivetrain drivetrain = SubsystemManager.getInstance().getDrivetrain();
             if (pathIndex % 2 == 0) {
                 targetPose = (
-                    FieldConstants.TargetPositions.valueOf(
-                        "REEF_" + scoringLocations.get(pathIndex / 2)
-                    ).getPose()
+                    scoringTargets[pathIndex / 2].getTargetPosition().getPose()
                 );
                 commands.add(
                     drivetrain
@@ -125,12 +132,10 @@ public class AutoRoutines {
                                 drivetrain.getPose(),
                                 Units.inchesToMeters(0.5))
                         )
-                        .andThen(FieldConstants.TargetPositions.valueOf(
-                            "REEF_" + scoringLocations.get(pathIndex / 2)
-                        ).fineTuneTargetCommand.get()));
+                        .andThen(scoringTargets[pathIndex / 2].getTargetPosition().fineTuneTargetCommand.get()));
             } else {
                 targetPose = (
-                    FieldConstants.TargetPositions.CORALSTATION_LEFT.getPose()
+                    TargetPositions.CORALSTATION_LEFT.getPose()
                 );
                 commands.add(
                     drivetrain
@@ -147,7 +152,7 @@ public class AutoRoutines {
 
             commands.add(
                 pathIndex % 2 == 0 ?
-                    switch (scoringHeights.get(pathIndex / 2)) {
+                    switch (scoringTargets[pathIndex / 2].scoringHeight()) {
                         case 1 -> AutoCommands.L1Score.get();
                         case 2 -> AutoCommands.L2Score.get();
                         case 3 -> AutoCommands.L3Score.get();
@@ -155,12 +160,24 @@ public class AutoRoutines {
                         default -> AutoCommands.HPLoad.get().withTimeout(1);
                     } : AutoCommands.HPLoad.get().withTimeout(1)
             );
-
         }
+
         routine.active().onTrue(
             CommandsUtil.sequence(commands)
         );
         return routine;
+    }
+
+    private static String getAutonPathName(ScoringTarget[] scoringTargets, String pathPrefix) {
+        return pathPrefix + Arrays.stream(scoringTargets)
+            .map(i -> String.valueOf(i.scoringLocation))
+            .collect(Collectors.joining("-"));
+    }
+
+    private static String getAutonName(ScoringTarget[] scoringTargets, String pathPrefix) {
+        return pathPrefix + Arrays.stream(scoringTargets)
+            .map(ScoringTarget::toString)
+            .collect(Collectors.joining("-"));
     }
 
     public List<AutoRoutine> getAllCompRoutines() {
