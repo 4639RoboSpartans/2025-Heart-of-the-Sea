@@ -26,12 +26,11 @@ public enum ScoringSuperstructureState {
             case TRANSITION_AFTER_ELEVATOR -> endEffector.isWristAtTarget();
             case ELEVATOR_MOVE_NO_TRANSITION -> elevator.isAtTarget();
             case EXECUTING_ACTION -> {
-                if (action.endOnGamePieceNotSeen) {
+                if (action.endOnGamePieceNotSeen || action.toString().equals("INTAKE_FROM_HP")) {
                     yield !endEffector.hasCoral();
                 } else if (action.endOnGamePieceSeen) {
                     yield endEffector.hasCoral();
                 } else {
-                    assert !action.toString().equals("INTAKE_FROM_HP");
                     yield false;
                 }
             }
