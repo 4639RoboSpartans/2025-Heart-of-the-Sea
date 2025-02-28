@@ -19,8 +19,8 @@ public class DriveConstants {
     public static final Rotation2d BlueAlliancePerspectiveRotation = Rotation2d.kZero;
     public static final Rotation2d RedAlliancePerspectiveRotation = Rotation2d.k180deg;
 
-    public static final double leftTargetTA = 0.0; //TODO: tune these
-    public static final double leftTargetTX = 0.0;
+    public static final double leftTargetTA = 6.79; //TODO: tune these
+    public static final double leftTargetTX = -0.47;
 
     public static final double rightTargetTA = 0.0;
     public static final double rightTargetTX = 0.0;
