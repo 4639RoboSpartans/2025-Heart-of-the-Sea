@@ -22,6 +22,7 @@ import frc.lib.FunctionalTrigger;
 import frc.lib.led.*;
 import frc.robot.commands.AutoCommands;
 import frc.robot.commands.AutoRoutines;
+import frc.robot.commands.AutoRoutines.Auton;
 import frc.robot.constants.Controls;
 import frc.robot.constants.FieldConstants;
 import frc.robot.subsystems.SubsystemManager;
@@ -175,8 +176,8 @@ public class RobotContainer {
     }
 
     private void addAllCompAutons(SendableChooser<Command> autoChooser, AutoRoutines swerveAutoRoutines) {
-        for (AutoRoutine a : swerveAutoRoutines.getAllCompRoutines()) {
-            autoChooser.addOption(a.toString(), a.cmd());
+        for (Auton a : swerveAutoRoutines.getAllCompRoutines()) {
+            autoChooser.addOption(a.name(), a.routine().cmd());
         }
     }
 
