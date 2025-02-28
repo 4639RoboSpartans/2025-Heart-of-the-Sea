@@ -35,7 +35,7 @@ public abstract class AbstractSwerveDrivetrain extends SubsystemBase {
      *
      * @return Command to run
      */
-    public abstract Command resetPigeon();
+    public abstract Command resetHeadingToZero();
 
     /**
      * Returns a command that stops the swerve drive

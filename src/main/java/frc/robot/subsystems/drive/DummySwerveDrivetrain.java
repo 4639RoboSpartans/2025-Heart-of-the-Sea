@@ -12,7 +12,7 @@ public class DummySwerveDrivetrain extends AbstractSwerveDrivetrain {
     Pose2d currentPose = new Pose2d();
 
     @Override
-    public Command resetPigeon() {
+    public Command resetHeadingToZero() {
         return new InstantCommand(() -> {});
     }
 
