@@ -300,10 +300,7 @@ public class FieldConstants {
         BARGE_CLOSECAGE(new Pose2d(FieldConstants.Barge.closeCage, Rotation2d.kZero).transformBy(fromBarge));
 
         TargetPositions(Pose2d pose, Pose2d leftPose, Pose2d rightPose) {
-            this.Pose = pose;
-            this.leftPose = leftPose;
-            this.rightPose = rightPose;
-            fineTuneTargetCommand = Commands::none;
+            this(pose, leftPose, rightPose, Commands::none);
         }
 
         TargetPositions(Pose2d pose, Pose2d leftPose, Pose2d rightPose, Supplier<Command> fineTuneTargetCommand) {
