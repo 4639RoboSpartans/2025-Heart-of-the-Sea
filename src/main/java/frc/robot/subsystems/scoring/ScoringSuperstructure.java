@@ -156,7 +156,7 @@ public final class ScoringSuperstructure extends SubsystemBase {
         double intakeSpeed = (
             RobotState.isTeleop() && currentAction.useManualControlInTeleop
                 ? manualIntakeSpeed * Math.abs(currentAction.intakeSpeed)
-                : manualIntakeSpeed == 0 ? currentAction.intakeSpeed : manualIntakeSpeed
+                : manualIntakeSpeed == 0 ? currentState.getIntakeSpeed(currentAction) : manualIntakeSpeed
         );
 
         // Update fine-tuning offsets
