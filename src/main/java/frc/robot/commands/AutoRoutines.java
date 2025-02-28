@@ -16,6 +16,7 @@ import frc.lib.util.CommandsUtil;
 import frc.lib.util.PoseUtil;
 import frc.robot.constants.FieldConstants;
 import frc.robot.subsystems.SubsystemManager;
+import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
 
 public class AutoRoutines {
     private final AutoFactory factory;
@@ -116,13 +117,14 @@ public class AutoRoutines {
                         FieldConstants.TargetPositions.CORALSTATION_LEFT.getPose()
                 );
             }
+            AbstractSwerveDrivetrain drivetrain = SubsystemManager.getInstance().getDrivetrain();
             commands.add(
-                    SubsystemManager.getInstance().getDrivetrain()
+                    drivetrain
                             .directlyMoveTo(targetPose)
                             .until(
                                     () -> PoseUtil.withinTolerance(
                                             targetPose,
-                                            SubsystemManager.getInstance().getDrivetrain().getPose(),
+                                            drivetrain.getPose(),
                                             Units.inchesToMeters(0.5))
                             )
             );
@@ -133,8 +135,8 @@ public class AutoRoutines {
                                 case 2 -> AutoCommands.L2Score.get();
                                 case 3 -> AutoCommands.L3Score.get();
                                 case 4 -> AutoCommands.L4Score.get();
-                                default -> AutoCommands.HPLoad.get().andThen(SubsystemManager.getInstance().getDrivetrain().stop().withTimeout(1));
-                            } : AutoCommands.HPLoad.get().alongWith()
+                                default -> AutoCommands.HPLoad.get().alongWith(drivetrain.stop()).withTimeout(1);
+                            } : AutoCommands.HPLoad.get().alongWith(drivetrain.stop()).withTimeout(1)
             );
 
         }
