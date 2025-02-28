@@ -104,24 +104,28 @@ public class AutoRoutines {
         for (int i = 0; i < numPaths; i++) {
             commands.add(paths.get(i).cmd());
             int finalI = i;
+            Pose2d targetPose;
             if (i % 2 == 0) {
-                Pose2d targetPose =
-                        AllianceFlipUtil.apply(
-                                FieldConstants.TargetPositions.valueOf(
-                                        "REEF_" + scoringLocations.get(i / 2)
-                                ).getPose()
-                        );
-                commands.add(
-                        SubsystemManager.getInstance().getDrivetrain()
-                                .directlyMoveTo(targetPose)
-                                .until(
-                                        () -> PoseUtil.withinTolerance(
-                                                targetPose,
-                                                SubsystemManager.getInstance().getDrivetrain().getPose(),
-                                                Units.inchesToMeters(2))
-                                )
+                targetPose = (
+                        FieldConstants.TargetPositions.valueOf(
+                                "REEF_" + scoringLocations.get(i / 2)
+                        ).getPose()
+                );
+            } else {
+                targetPose = (
+                        FieldConstants.TargetPositions.CORALSTATION_LEFT.getPose()
                 );
             }
+            commands.add(
+                    SubsystemManager.getInstance().getDrivetrain()
+                            .directlyMoveTo(targetPose)
+                            .until(
+                                    () -> PoseUtil.withinTolerance(
+                                            targetPose,
+                                            SubsystemManager.getInstance().getDrivetrain().getPose(),
+                                            Units.inchesToMeters(0.5))
+                            )
+            );
             commands.add(
                     i % 2 == 0 ?
                             switch (scoringHeights.get(i / 2)) {
@@ -130,7 +134,7 @@ public class AutoRoutines {
                                 case 3 -> AutoCommands.L3Score.get();
                                 case 4 -> AutoCommands.L4Score.get();
                                 default -> AutoCommands.HPLoad.get().andThen(SubsystemManager.getInstance().getDrivetrain().stop().withTimeout(1));
-                            } : AutoCommands.HPLoad.get().andThen(SubsystemManager.getInstance().getDrivetrain().stop().withTimeout(1))
+                            } : AutoCommands.HPLoad.get().alongWith()
             );
 
         }

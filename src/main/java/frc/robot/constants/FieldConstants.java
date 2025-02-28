@@ -245,9 +245,9 @@ public class FieldConstants {
         public final Pose2d Pose;
     }
 
-    static Transform2d fromReef = new Transform2d(Units.inchesToMeters(30), 0, Rotation2d.k180deg);
+    static Transform2d fromReef = new Transform2d(Units.inchesToMeters(34), 0, Rotation2d.k180deg);
     static Transform2d fromProcessor = new Transform2d(Units.inchesToMeters(25), 0, Rotation2d.k180deg);
-    static Transform2d fromCoralStation = new Transform2d(Units.inchesToMeters(25), 0, Rotation2d.kZero);
+    static Transform2d fromCoralStation = new Transform2d(Units.inchesToMeters(10), 0, Rotation2d.kZero);
     static Transform2d fromBarge = new Transform2d(Units.inchesToMeters(-15), 0, Rotation2d.kZero);
 
     public enum TargetPositions {

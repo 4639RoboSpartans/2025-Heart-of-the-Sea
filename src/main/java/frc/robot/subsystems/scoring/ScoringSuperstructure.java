@@ -178,7 +178,7 @@ public final class ScoringSuperstructure extends SubsystemBase {
             SmartDashboard.putNumber("Action Intake Speed", currentAction.intakeSpeed);
             SmartDashboard.putBoolean("Set Intake Speed", true);
         }
-
+        SmartDashboard.putBoolean("Advance State", currentState.shouldAdvanceState(currentAction, endEffector, elevator));
         // Advance the state if necessary
         if (currentState.shouldAdvanceState(currentAction, endEffector, elevator)) {
             currentState = currentState.next();
