@@ -117,38 +117,6 @@ public class AutoRoutines {
 
         for (int pathIndex = 0; pathIndex < numPaths; pathIndex++) {
             commands.add(paths.get(pathIndex).cmd());
-            Pose2d targetPose;
-            AbstractSwerveDrivetrain drivetrain = SubsystemManager.getInstance().getDrivetrain();
-            if (pathIndex % 2 == 0) {
-                targetPose = (
-                    scoringTargets[pathIndex / 2].getTargetPosition().getPose()
-                );
-                commands.add(
-                    drivetrain
-                        .directlyMoveTo(targetPose)
-                        .until(
-                            () -> PoseUtil.withinTolerance(
-                                targetPose,
-                                drivetrain.getPose(),
-                                Units.inchesToMeters(0.5))
-                        )
-                        .andThen(scoringTargets[pathIndex / 2].getTargetPosition().fineTuneTargetCommand.get()));
-            } else {
-                targetPose = (
-                    TargetPositions.CORALSTATION_LEFT.getPose()
-                );
-                commands.add(
-                    drivetrain
-                        .directlyMoveTo(targetPose)
-                        .until(
-                            () -> PoseUtil.withinTolerance(
-                                targetPose,
-                                drivetrain.getPose(),
-                                Units.inchesToMeters(0.5))
-                        )
-                );
-            }
-
 
             commands.add(
                 pathIndex % 2 == 0 ?
