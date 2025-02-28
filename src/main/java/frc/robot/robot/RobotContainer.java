@@ -5,7 +5,6 @@
 
 package frc.robot.robot;
 
-import choreo.auto.AutoRoutine;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -80,8 +79,8 @@ public class RobotContainer {
 
         //Scoring Controls
         {
-            Controls.Driver.rotationResetTrigger.onTrue(
-                swerve.resetPigeon()
+            Controls.Driver.rotationResetTrigger.whileTrue(
+                swerve.resetHeadingToZero()
             );
 
             Controls.Driver.BargeScoringTrigger.onTrue(

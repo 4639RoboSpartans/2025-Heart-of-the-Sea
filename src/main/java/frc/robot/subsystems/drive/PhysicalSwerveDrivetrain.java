@@ -1,7 +1,6 @@
 package frc.robot.subsystems.drive;
 
 import choreo.trajectory.SwerveSample;
-
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
@@ -38,7 +37,9 @@ import frc.robot.subsystems.drive.constants.DrivePIDs;
 import frc.robot.subsystems.drive.constants.TunerConstants;
 import frc.robot.subsystems.drive.constants.TunerConstants.TunerSwerveDrivetrain;
 import frc.robot.subsystems.scoring.Vision;
+
 import java.util.function.Supplier;
+
 import static edu.wpi.first.units.Units.Radians;
 
 public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
@@ -48,11 +49,11 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
     private final PhoenixPIDController headingController = new PhoenixPIDController(28.48, 0, 1.1466);
     protected final PIDController
-            pathXController = new PIDController(18, 0, 0),
-            pathYController = new PIDController(18, 0, 0),
-            pathHeadingController = new PIDController(7, 0, 0);
+        pathXController = new PIDController(18, 0, 0),
+        pathYController = new PIDController(18, 0, 0),
+        pathHeadingController = new PIDController(7, 0, 0);
     protected ProfiledPIDController
-            pidXController = constructPIDXController();
+        pidXController = constructPIDXController();
     protected ProfiledPIDController pidYController = constructPIDYController();
 
     public static ProfiledPIDController constructPIDYController() {
@@ -155,7 +156,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     }
 
     @Override
-    public Command resetPigeon() {
+    public Command resetHeadingToZero() {
         return runOnce(
             () -> drivetrain.getPigeon2().setYaw(
                 -85
@@ -195,32 +196,33 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         }).andThen(applyRequest(
                 () -> {
                     field.getObject("Target Pose").setPose(pidXController.getSetpoint().position, pidYController.getSetpoint().position, targetPose.getRotation());
-                    double directionMultiplier = DriverStationUtil.getAlliance() == DriverStation.Alliance.Red? -1 : 1;
+                    double directionMultiplier = DriverStationUtil.getAlliance() == DriverStation.Alliance.Red ? -1 : 1;
                     double pidXOutput = pidXController.calculate(getPose().getX()) * directionMultiplier;
                     double pidYOutput = pidYController.calculate(getPose().getY()) * directionMultiplier;
 
                     var request = new SwerveRequest.FieldCentricFacingAngle();
                     request.HeadingController = new PhoenixPIDController(8, 0, 0);
                     request.HeadingController.enableContinuousInput(-Math.PI, Math.PI);
-                    Rotation2d headingOffset = DriverStationUtil.getAlliance() == Alliance.Red? Rotation2d.k180deg : new Rotation2d();
+                    Rotation2d headingOffset = DriverStationUtil.getAlliance() == Alliance.Red ? Rotation2d.k180deg : new Rotation2d();
 
                     return request
-                            .withVelocityX(pidXOutput)
-                            .withVelocityY(pidYOutput)
-                            .withTargetDirection(targetPose.getRotation().plus(headingOffset));
+                        .withVelocityX(pidXOutput)
+                        .withVelocityY(pidYOutput)
+                        .withTargetDirection(targetPose.getRotation().plus(headingOffset));
                 }
-        ).until(
+            ).until(
                 () -> MathUtil.isNear(targetPose.getX(), getPose().getX(), 0.01)
-                        && MathUtil.isNear(targetPose.getY(), getPose().getY(), 0.01)
-                        && MathUtil.isNear(targetPose.getRotation().getDegrees(), getPose().getRotation().getDegrees(), 2)
-        )).andThen(stop().withTimeout(0.1))
-        .andThen(() -> setVisionStandardDeviations(5, 5, 10));
+                    && MathUtil.isNear(targetPose.getY(), getPose().getY(), 0.01)
+                    && MathUtil.isNear(targetPose.getRotation().getDegrees(), getPose().getRotation().getDegrees(), 2)
+            )).andThen(stop().withTimeout(0.1))
+            .andThen(() -> setVisionStandardDeviations(5, 5, 10));
     }
 
     /**
      * Returns a command that applies the specified control request to this swerve drivetrain.
      *
      * @param requestSupplier Function returning the request to apply
+     *
      * @return Command to run
      */
     public Command applyRequest(Supplier<SwerveRequest> requestSupplier) {
@@ -312,17 +314,17 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     @Override
     public boolean atTargetPose(Pose2d targetPose) {
         return MathUtil.isNear(
-                targetPose.getX(),
-                getPose().getX(),
-                0.025
+            targetPose.getX(),
+            getPose().getX(),
+            0.025
         ) && MathUtil.isNear(
-                targetPose.getY(),
-                getPose().getY(),
-                0.025
+            targetPose.getY(),
+            getPose().getY(),
+            0.025
         ) && MathUtil.isNear(
-                targetPose.getRotation().getDegrees(),
-                getPose().getRotation().getDegrees(),
-                2
+            targetPose.getRotation().getDegrees(),
+            getPose().getRotation().getDegrees(),
+            2
         );
     }
 
@@ -333,70 +335,70 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
     public SwerveRequest targetToRightReef() {
         double rawForwards = (frc.lib.util.MathUtil.withinTolerance(Vision.getTX().orElse(0), DriveConstants.rightTargetTA, DriveConstants.TATolerance)
-                ? 0
-                : ((Vision.getTX().orElse(0) -DriveConstants.rightTargetTA) > 0 ? -1 : 1))
-                * 0.1 * DriveConstants.CURRENT_MAX_ROBOT_MPS;
+            ? 0
+            : ((Vision.getTX().orElse(0) - DriveConstants.rightTargetTA) > 0 ? -1 : 1))
+            * 0.1 * DriveConstants.CURRENT_MAX_ROBOT_MPS;
         double rawStrafe = (frc.lib.util.MathUtil.withinTolerance(Vision.getTX().orElse(0), DriveConstants.rightTargetTX, DriveConstants.TXTolerance)
-                ? 0
-                : ((Vision.getTX().orElse(0) -DriveConstants.rightTargetTX) > 0 ? -1 : 1))
-                * 0.1 * DriveConstants.CURRENT_MAX_ROBOT_MPS;
+            ? 0
+            : ((Vision.getTX().orElse(0) - DriveConstants.rightTargetTX) > 0 ? -1 : 1))
+            * 0.1 * DriveConstants.CURRENT_MAX_ROBOT_MPS;
         double rawRotation = 0;
         ChassisSpeeds chassisSpeeds = new ChassisSpeeds(
-                rawForwards,
-                rawStrafe,
-                rawRotation
+            rawForwards,
+            rawStrafe,
+            rawRotation
         );
 
         if (rawForwards == 0 && rawStrafe == 0) return new SwerveRequest.SwerveDriveBrake();
 
         SwerveSetpoint setpoint = swerveSetpointGenerator.generateSetpoint(
-                prevSwerveSetpoint,
-                chassisSpeeds,
-                0.02
+            prevSwerveSetpoint,
+            chassisSpeeds,
+            0.02
         );
         prevSwerveSetpoint = setpoint;
 
         return new SwerveRequest.ApplyRobotSpeeds()
-                .withDesaturateWheelSpeeds(true)
-                .withSpeeds(
-                        chassisSpeeds
-                )
-                .withWheelForceFeedforwardsX(setpoint.feedforwards().robotRelativeForcesX())
-                .withWheelForceFeedforwardsY(setpoint.feedforwards().robotRelativeForcesY());
+            .withDesaturateWheelSpeeds(true)
+            .withSpeeds(
+                chassisSpeeds
+            )
+            .withWheelForceFeedforwardsX(setpoint.feedforwards().robotRelativeForcesX())
+            .withWheelForceFeedforwardsY(setpoint.feedforwards().robotRelativeForcesY());
     }
 
     public SwerveRequest targetToLeftReef() {
         double rawForwards = (frc.lib.util.MathUtil.withinTolerance(Vision.getTX().orElse(0), DriveConstants.leftTargetTA, DriveConstants.TATolerance)
-                ? 0
-                : ((Vision.getTX().orElse(0) -DriveConstants.leftTargetTA) > 0 ? -1 : 1))
-                * 0.1 * DriveConstants.CURRENT_MAX_ROBOT_MPS;
+            ? 0
+            : ((Vision.getTX().orElse(0) - DriveConstants.leftTargetTA) > 0 ? -1 : 1))
+            * 0.1 * DriveConstants.CURRENT_MAX_ROBOT_MPS;
         double rawStrafe = (frc.lib.util.MathUtil.withinTolerance(Vision.getTX().orElse(0), DriveConstants.leftTargetTX, DriveConstants.TXTolerance)
-                ? 0
-                : ((Vision.getTX().orElse(0) -DriveConstants.leftTargetTX) > 0 ? -1 : 1))
-                * 0.1 * DriveConstants.CURRENT_MAX_ROBOT_MPS;
+            ? 0
+            : ((Vision.getTX().orElse(0) - DriveConstants.leftTargetTX) > 0 ? -1 : 1))
+            * 0.1 * DriveConstants.CURRENT_MAX_ROBOT_MPS;
         double rawRotation = 0;
         ChassisSpeeds chassisSpeeds = new ChassisSpeeds(
-                rawForwards,
-                rawStrafe,
-                rawRotation
+            rawForwards,
+            rawStrafe,
+            rawRotation
         );
 
         if (rawForwards == 0 && rawStrafe == 0) return new SwerveRequest.SwerveDriveBrake();
 
         SwerveSetpoint setpoint = swerveSetpointGenerator.generateSetpoint(
-                prevSwerveSetpoint,
-                chassisSpeeds,
-                0.02
+            prevSwerveSetpoint,
+            chassisSpeeds,
+            0.02
         );
         prevSwerveSetpoint = setpoint;
 
         return new SwerveRequest.ApplyRobotSpeeds()
-                .withDesaturateWheelSpeeds(true)
-                .withSpeeds(
-                        chassisSpeeds
-                )
-                .withWheelForceFeedforwardsX(setpoint.feedforwards().robotRelativeForcesX())
-                .withWheelForceFeedforwardsY(setpoint.feedforwards().robotRelativeForcesY());
+            .withDesaturateWheelSpeeds(true)
+            .withSpeeds(
+                chassisSpeeds
+            )
+            .withWheelForceFeedforwardsX(setpoint.feedforwards().robotRelativeForcesX())
+            .withWheelForceFeedforwardsY(setpoint.feedforwards().robotRelativeForcesY());
     }
 
     public boolean atRightTarget() {
