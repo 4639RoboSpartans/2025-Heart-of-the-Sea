@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import frc.lib.led.LEDStrip;
 import frc.lib.led.PhysicalLEDStrip;
 import frc.robot.subsystems.climber.AbstractClimberSubsystem;
 import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
@@ -21,7 +22,7 @@ public class SubsystemManager {
     private AbstractClimberSubsystem climberSubsystem;
     private AbstractSwerveDrivetrain drivetrain;
     private ScoringSuperstructure scoringSuperstructure;
-    private PhysicalLEDStrip ledStripSubsystem;
+    private LEDStrip ledStripSubsystem;
 
     public static synchronized SubsystemManager getInstance() {
         return instance = Objects.requireNonNullElseGet(instance, SubsystemManager::new);
@@ -39,7 +40,7 @@ public class SubsystemManager {
         //climberSubsystem = AbstractClimberSubsystem.getInstance();
         drivetrain = AbstractSwerveDrivetrain.getInstance(getInstanceAccess);
         scoringSuperstructure = ScoringSuperstructure.getInstance(getInstanceAccess);
-        ledStripSubsystem =
+        ledStripSubsystem = LEDStrip.getInstance();
     }
 
     public AbstractClimberSubsystem getClimberSubsystem() {
@@ -52,6 +53,10 @@ public class SubsystemManager {
 
     public ScoringSuperstructure getScoringSuperstructure() {
         return scoringSuperstructure;
+    }
+
+    public LEDStrip getLEDStripSubsystem() {
+        return ledStripSubsystem;
     }
 
 }
