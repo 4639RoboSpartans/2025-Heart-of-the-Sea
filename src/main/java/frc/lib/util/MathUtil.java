@@ -6,4 +6,8 @@ public class MathUtil {
         if (value.compareTo(min) < 0) return min;
         return value;
     }
+
+    public static <T extends Number> boolean withinTolerance(T value, T desired, T tolerance) {
+        return Math.abs(value.doubleValue() - desired.doubleValue()) < tolerance.doubleValue();
+    }
 }

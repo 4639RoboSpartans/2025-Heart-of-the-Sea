@@ -13,6 +13,7 @@ import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
 
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.OptionalDouble;
 
 public class Vision {
     public static TunableNumber distanceThreshold = new TunableNumber("distanceThresholdMeters").withDefaultValue(1);
@@ -35,11 +36,16 @@ public class Vision {
                 }
         );
         getMaximumVisionArea().ifPresent(maximumVisionArea -> SmartDashboard.putNumber("Maximum Vision Area", maximumVisionArea));
-
+        getTX().ifPresent(tx -> SmartDashboard.putNumber("TX", tx));
     }
 
     public static Optional<Double> getMaximumVisionArea(){
         if (RobotBase.isReal()) return Arrays.stream(Limelights.values()).parallel().map(limelight -> LimelightHelpers.getTA(limelight.getName())).reduce(Math::max);
         return Optional.of(Double.MIN_NORMAL);
+    }
+
+    public static OptionalDouble getTX(){
+        if (RobotBase.isReal()) return OptionalDouble.of(LimelightHelpers.getTX("limelight"));
+        return OptionalDouble.of(Double.MIN_NORMAL);
     }
 }

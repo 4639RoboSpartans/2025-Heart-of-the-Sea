@@ -11,13 +11,19 @@ import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.lib.util.AllianceFlipUtil;
 import frc.lib.util.PoseUtil;
+import frc.robot.subsystems.SubsystemManager;
+import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.*;
 import java.util.stream.Stream;
+import java.util.function.Supplier;
 
 /**
  * Contains various field dimensions and useful reference points. All units are in meters and poses
@@ -271,18 +277,18 @@ public class FieldConstants {
                 FieldConstants.Reef.centerFaces[1].transformBy((FieldConstants.fromReef))
         ),
 
-        REEF_A(PoseUtil.ReefRelativeLeftOf(REEF_AB.getPose())),
-        REEF_B(PoseUtil.ReefRelativeRightOf(REEF_AB.getPose())),
-        REEF_C(PoseUtil.ReefRelativeLeftOf(REEF_CD.getPose())),
-        REEF_D(PoseUtil.ReefRelativeRightOf(REEF_CD.getPose())),
-        REEF_E(PoseUtil.ReefRelativeLeftOf(REEF_EF.getPose())),
-        REEF_F(PoseUtil.ReefRelativeRightOf(REEF_EF.getPose())),
-        REEF_G(PoseUtil.ReefRelativeLeftOf(REEF_GH.getPose())),
-        REEF_H(PoseUtil.ReefRelativeRightOf(REEF_GH.getPose())),
-        REEF_I(PoseUtil.ReefRelativeLeftOf(REEF_IJ.getPose())),
-        REEF_J(PoseUtil.ReefRelativeRightOf(REEF_IJ.getPose())),
-        REEF_K(PoseUtil.ReefRelativeLeftOf(REEF_KL.getPose())),
-        REEF_L(PoseUtil.ReefRelativeRightOf(REEF_KL.getPose())),
+        REEF_A(PoseUtil.ReefRelativeLeftOf(REEF_AB.getPose()), SubsystemManager.getInstance().getDrivetrain()::targetToLeftReefCommand),
+        REEF_B(PoseUtil.ReefRelativeRightOf(REEF_AB.getPose()), SubsystemManager.getInstance().getDrivetrain()::targetToRightReefCommand),
+        REEF_C(PoseUtil.ReefRelativeLeftOf(REEF_CD.getPose()), SubsystemManager.getInstance().getDrivetrain()::targetToLeftReefCommand),
+        REEF_D(PoseUtil.ReefRelativeRightOf(REEF_CD.getPose()), SubsystemManager.getInstance().getDrivetrain()::targetToRightReefCommand),
+        REEF_E(PoseUtil.ReefRelativeLeftOf(REEF_EF.getPose()), SubsystemManager.getInstance().getDrivetrain()::targetToLeftReefCommand),
+        REEF_F(PoseUtil.ReefRelativeRightOf(REEF_EF.getPose()), SubsystemManager.getInstance().getDrivetrain()::targetToRightReefCommand),
+        REEF_G(PoseUtil.ReefRelativeLeftOf(REEF_GH.getPose()), SubsystemManager.getInstance().getDrivetrain()::targetToLeftReefCommand),
+        REEF_H(PoseUtil.ReefRelativeRightOf(REEF_GH.getPose()), SubsystemManager.getInstance().getDrivetrain()::targetToRightReefCommand),
+        REEF_I(PoseUtil.ReefRelativeLeftOf(REEF_IJ.getPose()), SubsystemManager.getInstance().getDrivetrain()::targetToLeftReefCommand),
+        REEF_J(PoseUtil.ReefRelativeRightOf(REEF_IJ.getPose()), SubsystemManager.getInstance().getDrivetrain()::targetToRightReefCommand),
+        REEF_K(PoseUtil.ReefRelativeLeftOf(REEF_KL.getPose()), SubsystemManager.getInstance().getDrivetrain()::targetToLeftReefCommand),
+        REEF_L(PoseUtil.ReefRelativeRightOf(REEF_KL.getPose()), SubsystemManager.getInstance().getDrivetrain()::targetToRightReefCommand),
 
         PROCESSOR(FieldConstants.Processor.centerFace.transformBy(FieldConstants.fromProcessor)),
 
@@ -297,14 +303,27 @@ public class FieldConstants {
             this.Pose = pose;
             this.leftPose = leftPose;
             this.rightPose = rightPose;
+            fineTuneTargetCommand = Commands::none;
+        }
+
+        TargetPositions(Pose2d pose, Pose2d leftPose, Pose2d rightPose, Supplier<Command> fineTuneTargetCommand) {
+            this.Pose = pose;
+            this.leftPose = leftPose;
+            this.rightPose = rightPose;
+            this.fineTuneTargetCommand = fineTuneTargetCommand;
         }
 
         TargetPositions(Pose2d pose) {
             this(pose, pose, pose);
         }
 
+        TargetPositions(Pose2d pose, Supplier<Command> fineTuneTargetCommand) {
+            this(pose, pose, pose, fineTuneTargetCommand);
+        }
+
         private final Pose2d Pose;
         public final Pose2d leftPose, rightPose;
+        public final Supplier<Command> fineTuneTargetCommand;
 
         public Pose2d getPose() {
             return Pose;

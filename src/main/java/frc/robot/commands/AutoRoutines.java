@@ -106,28 +106,42 @@ public class AutoRoutines {
             commands.add(paths.get(i).cmd());
             int finalI = i;
             Pose2d targetPose;
+            AbstractSwerveDrivetrain drivetrain = SubsystemManager.getInstance().getDrivetrain();
             if (i % 2 == 0) {
                 targetPose = (
                         FieldConstants.TargetPositions.valueOf(
                                 "REEF_" + scoringLocations.get(i / 2)
                         ).getPose()
                 );
+                commands.add(
+                        drivetrain
+                                .directlyMoveTo(targetPose)
+                                .until(
+                                        () -> PoseUtil.withinTolerance(
+                                                targetPose,
+                                                drivetrain.getPose(),
+                                                Units.inchesToMeters(0.5))
+                                )
+                .andThen(FieldConstants.TargetPositions.valueOf(
+                        "REEF_" + scoringLocations.get(i / 2)
+                ).fineTuneTargetCommand.get()));
             } else {
                 targetPose = (
                         FieldConstants.TargetPositions.CORALSTATION_LEFT.getPose()
                 );
+                commands.add(
+                        drivetrain
+                                .directlyMoveTo(targetPose)
+                                .until(
+                                        () -> PoseUtil.withinTolerance(
+                                                targetPose,
+                                                drivetrain.getPose(),
+                                                Units.inchesToMeters(0.5))
+                                )
+                );
             }
-            AbstractSwerveDrivetrain drivetrain = SubsystemManager.getInstance().getDrivetrain();
-            commands.add(
-                    drivetrain
-                            .directlyMoveTo(targetPose)
-                            .until(
-                                    () -> PoseUtil.withinTolerance(
-                                            targetPose,
-                                            drivetrain.getPose(),
-                                            Units.inchesToMeters(0.5))
-                            )
-            );
+
+
             commands.add(
                     i % 2 == 0 ?
                             switch (scoringHeights.get(i / 2)) {
