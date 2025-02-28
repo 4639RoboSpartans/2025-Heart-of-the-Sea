@@ -25,7 +25,7 @@ public class AutoRoutines {
         this.factory = factory;
     }
 
-    public AutoRoutine COMP_J_K() {
+    public Auton COMP_J_K() {
         return compileAuton(
             true,
             new ScoringTarget('J', 4),
@@ -33,7 +33,7 @@ public class AutoRoutines {
         );
     }
 
-    public AutoRoutine COMP_H_G() {
+    public Auton COMP_H_G() {
         return compileAuton(
             true,
             new ScoringTarget('H', 4),
@@ -41,7 +41,7 @@ public class AutoRoutines {
         );
     }
 
-    public AutoRoutine COMP_A_B() {
+    public Auton COMP_A_B() {
         return compileAuton(
             true,
             new ScoringTarget('A', 4),
@@ -49,7 +49,7 @@ public class AutoRoutines {
         );
     }
 
-    public AutoRoutine COMP_H_A() {
+    public Auton COMP_H_A() {
         return compileAuton(
             true,
             new ScoringTarget('H', 4),
@@ -57,7 +57,7 @@ public class AutoRoutines {
         );
     }
 
-    public AutoRoutine COMP_G_C_D_B() {
+    public Auton COMP_G_C_D_B() {
         return compileAuton(
             true,
             new ScoringTarget('G', 4),
@@ -67,7 +67,7 @@ public class AutoRoutines {
         );
     }
 
-    public AutoRoutine TEST_A_B() {
+    public Auton TEST_A_B() {
         return compileAuton(
             false,
             new ScoringTarget('A', 1),
@@ -94,7 +94,7 @@ public class AutoRoutines {
      *
      * @return a new routine with the specified characteristics
      */
-    private AutoRoutine compileAuton(
+    private Auton compileAuton(
         boolean isComp,
         ScoringTarget... scoringTargets
         ///List<Integer> scoringHeights, List<Character> scoringLocations
@@ -124,7 +124,7 @@ public class AutoRoutines {
         // Activate the commands when the auton routine is active
         routine.active().onTrue(CommandsUtil.sequence(commands));
 
-        return routine;
+        return new Auton(routine, name);
     }
 
     private void addScoringSegment(List<Command> commands, AutoTrajectory path, ScoringTarget scoringTarget) {
@@ -188,7 +188,7 @@ public class AutoRoutines {
             .collect(Collectors.joining("-"));
     }
 
-    public List<AutoRoutine> getAllCompRoutines() {
+    public List<Auton> getAllCompRoutines() {
         return List.of(
             COMP_A_B(),
             COMP_H_A(),
@@ -198,4 +198,5 @@ public class AutoRoutines {
         );
     }
 
+    public record Auton(AutoRoutine routine, String name){}
 }
