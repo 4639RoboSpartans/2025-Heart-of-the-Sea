@@ -73,7 +73,8 @@ public class ScoringSuperstructureAction {
         IDLE = new ScoringSuperstructureAction("IDLE")
         .withTargetElevatorExtensionFraction(ElevatorSetpoints.IDLE_Proportion)
         .withTargetWristRotationFraction(WristSetpoints.Wrist_IDLE_Proportion)
-        .withIntakeSpeed(IntakeSpeeds.Intake_Idle_Speed),
+        .withIntakeSpeed(IntakeSpeeds.Intake_Idle_Speed)
+        .useManualControlInTeleop(true),
         IDLE_STOW_ALGAE = new ScoringSuperstructureAction("IDLE_STOW_ALGAE")
             .withTargetElevatorExtensionFraction(ElevatorSetpoints.IDLE_Proportion)
             .withTargetWristRotationFraction(WristSetpoints.Wrist_ALGAESTOW_Proportion)

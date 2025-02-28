@@ -143,7 +143,7 @@ public class AutoRoutines {
         addDirectlyMoveToCommand(
             commands, targetPosition.getPose()
         );
-        commands.add(targetPosition.fineTuneTargetCommand.get());
+        //commands.add(targetPosition.fineTuneTargetCommand.get());
 
         // Add scoring command
         commands.add(switch (scoringTarget.scoringHeight()) {
