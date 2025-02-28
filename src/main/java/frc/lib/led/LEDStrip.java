@@ -7,6 +7,10 @@ public interface LEDStrip extends Subsystem {
 
     void update();
 
+    public static LEDStrip getInstance() {
+
+    }
+
     @Override
     default void periodic() {
         update();
