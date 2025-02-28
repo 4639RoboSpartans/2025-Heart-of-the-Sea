@@ -100,7 +100,7 @@ public final class ScoringConstants {
             public static final double Intake_L2_ALGAE_Speed = 1.0;
             public static final double Intake_L3_ALGAE_Speed = 1.0;
             public static final double Intake_Barge_Speed = 0.4;
-            public static final double Intake_Idle_Speed = 0.0;
+            public static final double Intake_Idle_Speed = 0.5;
         }
 
         public static final class WristSetpoints {
