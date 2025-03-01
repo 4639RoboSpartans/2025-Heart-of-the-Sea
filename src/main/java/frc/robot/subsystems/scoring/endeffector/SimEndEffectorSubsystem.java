@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -59,6 +60,10 @@ public class SimEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
 
     @Override
     public boolean hasCoral() {
+        if (RobotState.isAutonomous()
+                && SubsystemManager.getInstance().getScoringSuperstructure()
+                .getCurrentAction().toString()
+                .equals(ScoringSuperstructureAction.INTAKE_FROM_HP.toString())) return false;
         ScoringSuperstructureAction currentAction
                 = SubsystemManager.getInstance().getScoringSuperstructure().getCurrentAction();
         return currentAction.endOnGamePieceSeen;

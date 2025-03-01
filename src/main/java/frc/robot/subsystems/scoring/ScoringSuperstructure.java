@@ -229,7 +229,6 @@ public final class ScoringSuperstructure extends SubsystemBase {
         }
         SmartDashboard.putNumber("Elevator Fraction", elevator.getCurrentExtensionFraction());
         SmartDashboard.putNumber("Wrist Position", endEffector.getCurrentMotorPosition());
-
         SmartDashboard.putString("State", currentState.name());
         SmartDashboard.putString("Action", currentAction.toString());
 

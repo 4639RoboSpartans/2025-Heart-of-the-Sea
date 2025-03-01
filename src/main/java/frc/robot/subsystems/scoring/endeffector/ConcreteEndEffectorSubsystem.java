@@ -11,9 +11,12 @@ import com.revrobotics.spark.config.SparkFlexConfig;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.tunable.TunableNumber;
+import frc.robot.subsystems.SubsystemManager;
+import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
 import frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConstants;
 import frc.robot.subsystems.scoring.constants.ScoringPIDs;
@@ -127,6 +130,10 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
 
     @Override
     public boolean hasCoral() {
+        if (RobotState.isAutonomous()
+                && SubsystemManager.getInstance().getScoringSuperstructure()
+                .getCurrentAction().toString()
+                .equals(ScoringSuperstructureAction.INTAKE_FROM_HP.toString())) return false;
         return Optional.ofNullable(laserCAN.getMeasurement()).map(measurement ->
             measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT && measurement.distance_mm <= 50
         ).orElse(false);
