@@ -323,11 +323,11 @@ public class FieldConstants {
         public final Supplier<Command> fineTuneTargetCommand;
 
         public Pose2d getPose() {
-            return Pose;
+            return AllianceFlipUtil.apply(Pose);
         }
 
         public Pose2d getOpponentAlliancePose() {
-            return AllianceFlipUtil.rawAllianceFlipPose(Pose);
+            return AllianceFlipUtil.rawAllianceFlipPose(getPose());
         }
     }
 

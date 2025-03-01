@@ -49,8 +49,7 @@ public class Robot extends LoggedRobot {
         SubsystemManager.getInstance().getScoringSuperstructure().setAction(ScoringSuperstructureAction.IDLE);
         SubsystemManager.getInstance().getScoringSuperstructure().getEndEffectorSubsystem().setWristMotorIdleMode(SparkBaseConfig.IdleMode.kCoast);
         SmartDashboard.putNumber("distanceThresholdMeters", 100);
-        //SubsystemManager.getInstance().getLEDStripSubsystem().setDefaultCommand(LEDCommandFactory.disabledPatternChooser());
-        SubsystemManager.getInstance().getLEDStripSubsystem().setDefaultCommand(LEDCommandFactory.LEDThreeFlashThenSolidGreen());
+        SubsystemManager.getInstance().getLEDStripSubsystem().setDefaultCommand(LEDCommandFactory.disabledPatternChooser());
     }
 
 
