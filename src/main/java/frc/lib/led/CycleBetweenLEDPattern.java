@@ -18,7 +18,7 @@ public class CycleBetweenLEDPattern implements LEDPattern {
 
     @Override
     public Color get(int led, double time) {
-        double progress = time / speed;
+        double progress = time * speed;
 
         int currColorIndex = (int) progress % colors.length;
 

@@ -57,11 +57,11 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     protected ProfiledPIDController pidYController = constructPIDYController();
 
     public static ProfiledPIDController constructPIDYController() {
-        return new ProfiledPIDController(8, 0, 0, new TrapezoidProfile.Constraints(8, 12));
+        return new ProfiledPIDController(16, 0, 0, new TrapezoidProfile.Constraints(8, 12));
     }
 
     public static ProfiledPIDController constructPIDXController() {
-        return new ProfiledPIDController(8, 0, 0, new TrapezoidProfile.Constraints(8, 12));
+        return new ProfiledPIDController(16, 0, 0, new TrapezoidProfile.Constraints(8, 12));
     }
 
     {
@@ -199,13 +199,13 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                     double pidYOutput = pidYController.calculate(getPose().getY()) * directionMultiplier;
 
                     var request = new SwerveRequest.FieldCentricFacingAngle();
-                    request.HeadingController = new PhoenixPIDController(8, 0, 0);
+                    request.HeadingController = new PhoenixPIDController(16, 0, 0);
                     request.HeadingController.enableContinuousInput(-Math.PI, Math.PI);
                     Rotation2d headingOffset = DriverStationUtil.getAlliance() == Alliance.Red ? Rotation2d.k180deg : new Rotation2d();
 
                     return request
-                        .withVelocityX(frc.lib.util.MathUtil.clamp(pidXOutput, -2.0, 2.0))
-                        .withVelocityY(frc.lib.util.MathUtil.clamp(pidYOutput, -2.0, 2.0))
+                        .withVelocityX(frc.lib.util.MathUtil.clamp(pidXOutput, -1.0, 1.0))
+                        .withVelocityY(frc.lib.util.MathUtil.clamp(pidYOutput, -1.0, 1.0))
                         .withTargetDirection(targetPose.getRotation().plus(headingOffset));
                 }
             ).until(

@@ -72,7 +72,7 @@ public enum ScoringSuperstructureState {
 
     public double getIntakeSpeed(ScoringSuperstructureAction action) {
         return Math.abs(switch (this) {
-            case EXECUTING_ACTION -> action.intakeSpeed ;
+            case EXECUTING_ACTION -> action.intakeSpeed;
             default -> 0;
         });
     }

@@ -23,8 +23,8 @@ public class LEDCommandFactory {
     public static Command LEDThreeFlashGreen() {
         return leds.resetTime().andThen(
             leds.usePattern(new CycleBetweenLEDPattern(
-                3, Color.kGreen, Color.kBlack
-            )).withTimeout(0.9)
+                7, Color.kBlack, Color.kGreen
+            )).withTimeout(1)
         );
     }
 
@@ -39,7 +39,7 @@ public class LEDCommandFactory {
     }
 
     public static Command blueOrangeCycle() {
-        return leds.usePattern(new FadeBetweenLEDPattern(2, Color.kBlue, Color.kOrange));
+        return leds.usePattern(new FadeBetweenLEDPattern(2, Color.kOrange, Color.kBlue));
     }
 
     public static Command LEDFlashPurple() {

@@ -7,6 +7,7 @@ package frc.robot.robot;
 
 import au.grapplerobotics.CanBridge;
 import com.ctre.phoenix6.SignalLogger;
+import com.revrobotics.ColorSensorV3.LEDPulseFrequency;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -49,7 +50,7 @@ public class Robot extends LoggedRobot {
         SubsystemManager.getInstance().getScoringSuperstructure().setAction(ScoringSuperstructureAction.IDLE);
         SubsystemManager.getInstance().getScoringSuperstructure().getEndEffectorSubsystem().setWristMotorIdleMode(SparkBaseConfig.IdleMode.kCoast);
         SmartDashboard.putNumber("distanceThresholdMeters", 100);
-        SubsystemManager.getInstance().getLEDStripSubsystem().setDefaultCommand(LEDCommandFactory.disabledCommand());
+        LEDCommandFactory.setLEDCommand(LEDCommandFactory.disabledCommand());
     }
 
 

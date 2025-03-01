@@ -66,7 +66,7 @@ public class RobotContainer {
             position -> startPositionChooser.addOption(position.name(), position.Pose)
         );
         SmartDashboard.putData("Selected Reset Position", startPositionChooser);
-
+        configureLEDs();
     }
 
     private void configureBindings() {
