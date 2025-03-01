@@ -1,7 +1,6 @@
 package frc.robot.subsystems;
 
-import frc.lib.led.LEDStrip;
-import frc.lib.led.PhysicalLEDStrip;
+import frc.robot.subsystems.led.LEDStrip;
 import frc.robot.subsystems.climber.AbstractClimberSubsystem;
 import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
 import frc.robot.subsystems.scoring.ScoringSuperstructure;
