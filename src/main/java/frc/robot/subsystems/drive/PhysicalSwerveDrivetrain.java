@@ -114,6 +114,8 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         return applyRequest(this::getFieldCentricRequest);
     }
 
+    private Rotation2d driverControlRotationOffset = Rotation2d.kZero;
+
     private SwerveRequest getFieldCentricRequest() {
         double rawForwards = Controls.Driver.SwerveForwardAxis.getAsDouble() * DriveConstants.CURRENT_MAX_ROBOT_MPS;
         double rawStrafe = -Controls.Driver.SwerveStrafeAxis.getAsDouble() * DriveConstants.CURRENT_MAX_ROBOT_MPS;
@@ -133,11 +135,14 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
             chassisSpeeds = chassisSpeeds.times(getSwerveSpeedMultiplier());
         }
 
+        Rotation2d currentRobotRotation =
+            Rotation2d.fromRadians(drivetrain.getPigeon2().getYaw().getValue().in(Radians))
+                .plus(driverControlRotationOffset);
         SwerveSetpoint setpoint = swerveSetpointGenerator.generateSetpoint(
             prevSwerveSetpoint,
             ChassisSpeeds.fromFieldRelativeSpeeds(
                 chassisSpeeds,
-                Rotation2d.fromRadians(drivetrain.getPigeon2().getYaw().getValue().in(Radians))
+                currentRobotRotation
             ),
             0.02
         );
@@ -148,7 +153,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
             .withSpeeds(
                 ChassisSpeeds.fromRobotRelativeSpeeds(
                     setpoint.robotRelativeSpeeds(),
-                    Rotation2d.fromRadians(drivetrain.getPigeon2().getYaw().getValue().in(Radians))
+                    currentRobotRotation
                 )
             )
             .withWheelForceFeedforwardsX(setpoint.feedforwards().robotRelativeForcesX())
@@ -157,7 +162,10 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
     @Override
     public Command resetHeadingToZero() {
-        return runOnce(() -> resetPose(new Pose2d(getPose().getTranslation(), Rotation2d.k180deg)));
+        return runOnce(() -> {
+            Rotation2d currentRobotRotation = Rotation2d.fromRadians(drivetrain.getPigeon2().getYaw().getValue().in(Radians));
+            driverControlRotationOffset = driverControlRotationOffset.minus(currentRobotRotation);
+        });
     }
 
     @Override
