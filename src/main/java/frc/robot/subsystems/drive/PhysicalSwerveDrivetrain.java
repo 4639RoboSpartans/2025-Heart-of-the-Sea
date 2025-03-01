@@ -406,6 +406,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     }
 
     @Override
+    @Deprecated
     public Command targetToRightReefCommand() {
         return applyRequest(this::targetToRightReef).until(this::atRightTarget);
     }
@@ -415,6 +416,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     }
 
     @Override
+    @Deprecated
     public Command targetToLeftReefCommand() {
         return applyRequest(this::targetToLeftReef).until(this::atLeftTarget);
     }

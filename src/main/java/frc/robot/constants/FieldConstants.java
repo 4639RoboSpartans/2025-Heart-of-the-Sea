@@ -320,7 +320,7 @@ public class FieldConstants {
 
         private final Pose2d Pose;
         public final Pose2d leftPose, rightPose;
-        public final Supplier<Command> fineTuneTargetCommand;
+        @Deprecated public final Supplier<Command> fineTuneTargetCommand;
 
         public Pose2d getPose() {
             return AllianceFlipUtil.apply(Pose);

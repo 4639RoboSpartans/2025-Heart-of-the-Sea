@@ -35,10 +35,6 @@ public class Vision {
                     measurement.ifPresent(pose -> drivetrain.addVisionMeasurement(pose, Utils.getCurrentTimeSeconds()));
                 }
         );
-        if (RobotBase.isReal()){
-            postTAs();
-            postTXs();
-        }
     }
 
     public static OptionalDouble getTA(){
@@ -49,15 +45,5 @@ public class Vision {
     public static OptionalDouble getTX(){
         if (RobotBase.isReal()) return OptionalDouble.of(LimelightHelpers.getTX("limelight"));
         return OptionalDouble.of(Double.MIN_NORMAL);
-    }
-
-    public static void postTAs(){
-        SmartDashboard.putNumber("Right TA", LimelightHelpers.getTA("limelight"));
-        SmartDashboard.putNumber("Left TA", LimelightHelpers.getTA("limelight-slhs"));
-    }
-
-    public static void postTXs(){
-        SmartDashboard.putNumber("Right TX", LimelightHelpers.getTX("limelight"));
-        SmartDashboard.putNumber("Left TX", LimelightHelpers.getTX("limelight-slhs"));
     }
 }
