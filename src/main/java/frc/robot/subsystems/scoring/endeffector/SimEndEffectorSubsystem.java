@@ -7,16 +7,15 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.RobotState;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.lib.oi.OI;
 import frc.lib.tunable.TunableNumber;
 import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
-import frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConstants;
 import frc.robot.subsystems.scoring.constants.ScoringPIDs;
 
-import javax.swing.text.StyleContext;
+import static frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConstants.*;
 
 public class SimEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
     private boolean prevSeenCoral = false;
@@ -46,10 +45,10 @@ public class SimEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
             DCMotor.getNEO(1),
             25.6,
             0.419,
-            EndEffectorConstants.ProportionToRotation.convert(1.).getRadians(),
-            EndEffectorConstants.ProportionToRotation.convert(0.).getRadians(),
+            ProportionToRotation.convert(1.).getRadians(),
+            ProportionToRotation.convert(0.).getRadians(),
             false,
-            EndEffectorConstants.ProportionToRotation.convert(0.).getRadians()
+            ProportionToRotation.convert(0.).getRadians()
         );
     }
 
@@ -61,11 +60,11 @@ public class SimEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
     @Override
     public boolean hasCoral() {
         if (RobotState.isAutonomous()
-                && SubsystemManager.getInstance().getScoringSuperstructure()
-                .getCurrentAction().toString()
-                .equals(ScoringSuperstructureAction.INTAKE_FROM_HP.toString())) return false;
+            && SubsystemManager.getInstance().getScoringSuperstructure()
+            .getCurrentAction().toString()
+            .equals(ScoringSuperstructureAction.INTAKE_FROM_HP.toString())) return false;
         ScoringSuperstructureAction currentAction
-                = SubsystemManager.getInstance().getScoringSuperstructure().getCurrentAction();
+            = SubsystemManager.getInstance().getScoringSuperstructure().getCurrentAction();
         return currentAction.endOnGamePieceSeen;
     }
 
@@ -74,7 +73,7 @@ public class SimEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
         pivotSim.update(0.020);
 
         double currentWristPosition = getCurrentMotorPosition();
-        double targetWristPosition = EndEffectorConstants.RotationFractionToMotorPosition.convert(targetWristRotationFraction);
+        double targetWristPosition = RotationFractionToMotorPosition.convert(targetWristRotationFraction);
 
         double wristPIDOutput = -wristPID.calculate(currentWristPosition, targetWristPosition);
 
@@ -85,5 +84,22 @@ public class SimEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
     @Override
     public void setWristMotorIdleMode(SparkBaseConfig.IdleMode mode) {
 
+    }
+
+    @Override
+    public boolean isWristPhysicallyStopped() {
+        return pivotSim.hasHitLowerLimit() || pivotSim.hasHitUpperLimit()
+            // For testing:
+            || OI.getInstance().operatorController().XBOX_START_BUTTON.getAsBoolean();
+    }
+
+    @Override
+    public void resetCurrentWristRotationFractionTo(double wristRotationFraction) {
+        pivotSim.setState(
+            ProportionToRotation.convert(wristRotationFraction).getRadians(),
+            pivotSim.getVelocityRadPerSec()
+        );
+        setTargetWristRotationFraction(wristRotationFraction);
+        wristPID.reset(PositionToRotation.convertBackwards(ProportionToRotation.convert(wristRotationFraction)));
     }
 }

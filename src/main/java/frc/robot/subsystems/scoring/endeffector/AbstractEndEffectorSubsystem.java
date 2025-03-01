@@ -1,7 +1,7 @@
 package frc.robot.subsystems.scoring.endeffector;
 
-import edu.wpi.first.math.MathUtil;
 import com.revrobotics.spark.config.SparkBaseConfig;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -118,7 +118,7 @@ public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
         ) && coralConsistentWithActionRequirement();
     }
 
-    public final boolean coralConsistentWithActionRequirement(){
+    public final boolean coralConsistentWithActionRequirement() {
         var action = SubsystemManager.getInstance().getScoringSuperstructure().getCurrentAction();
         if (action.endOnGamePieceSeen) return hasCoral();
         if (action.endOnGamePieceNotSeen) return !hasCoral();
@@ -161,4 +161,8 @@ public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
     }
 
     public abstract void setWristMotorIdleMode(SparkBaseConfig.IdleMode mode);
+
+    public abstract boolean isWristPhysicallyStopped();
+
+    public abstract void resetCurrentWristRotationFractionTo(double newWristRotationFraction);
 }

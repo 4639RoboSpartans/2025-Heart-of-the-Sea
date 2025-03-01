@@ -55,7 +55,7 @@ public final class ScoringSuperstructure extends SubsystemBase {
             this.currentAction = action;
 
             maybeNeedsTransition |= action.requiresWristTransition;
-            
+
             if (maybeNeedsTransition) {
                 currentState = ScoringSuperstructureState.TRANSITION_BEFORE_ELEVATOR;
             } else {
@@ -110,12 +110,25 @@ public final class ScoringSuperstructure extends SubsystemBase {
     }
 
     public Command wristHomingCommand() {
-        // Go as far out as possible
-        // Elevator to middleish
-        // Go as far out as possible again
-        // That's our L4 setpoint
-
-        return Commands.none();
+        double WRIST_HOMING_SPEED = 0.03;
+        double WRIST_HOMING_MAX_OFFSET = 0.2;
+        return startRun(() -> {
+            // Assume the elevator is completely ok; go to bottom
+            elevator.setTargetExtensionFraction(ElevatorSetpoints.ELEVATOR_LOWEST_PROPORTION);
+        }, () -> {}).until(elevator::isAtTarget).andThen(() -> {
+            // Go as far back as possible until we hit the hard stop
+            endEffector.setTargetWristRotationFraction(
+                Math.max(
+                    endEffector.getTargetRotationFraction() - WRIST_HOMING_SPEED,
+                    endEffector.getCurrentRotationFraction() - WRIST_HOMING_MAX_OFFSET
+                )
+            );
+        }).until(endEffector::isWristPhysicallyStopped).finallyDo((wasInterrupted) -> {
+            if (!wasInterrupted) {
+                endEffector.resetCurrentWristRotationFractionTo(WristSetpoints.Wrist_Hard_Stop_Proportion);
+                setCurrentAction(ScoringSuperstructureAction.IDLE);
+            }
+        });
     }
 
     public Command elevatorHomingCommand() {
@@ -157,10 +170,10 @@ public final class ScoringSuperstructure extends SubsystemBase {
 
     private void runActionPeriodic() {
         // Update maybeNeedsTransition
-        switch(currentState) {
+        switch (currentState) {
             case TRANSITION_AFTER_ELEVATOR, EXECUTING_ACTION, DONE -> {
                 maybeNeedsTransition = currentAction.requiresWristTransition;
-            } 
+            }
             default -> {}
         }
         // Get new setpoints

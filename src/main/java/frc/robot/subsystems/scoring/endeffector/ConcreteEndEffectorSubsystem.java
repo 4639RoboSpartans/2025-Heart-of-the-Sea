@@ -9,6 +9,7 @@ import com.revrobotics.spark.config.SoftLimitConfig;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.RobotState;
@@ -18,11 +19,12 @@ import frc.lib.tunable.TunableNumber;
 import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
-import frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConstants;
 import frc.robot.subsystems.scoring.constants.ScoringPIDs;
 
 import java.util.Optional;
 import java.util.function.Supplier;
+
+import static frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConstants.*;
 
 public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
     private final SparkFlex intakeMotor;
@@ -31,7 +33,7 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
     private final LaserCan laserCAN;
 
     private final ProfiledPIDController wristPID;
-    private final double encoderOffset;
+    private double encoderOffset;
     private final static double DEFAULT_ENCODER_OFFSET = 0.92 + 0.05;
 
 
@@ -53,17 +55,17 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
                 .apply(
                     new SoftLimitConfig()
                         .forwardSoftLimit(
-                            EndEffectorConstants.IntakeForwardSoftLimit
+                            IntakeForwardSoftLimit
                         )
                         .reverseSoftLimit(
-                            EndEffectorConstants.IntakeReverseSoftLimit
+                            IntakeReverseSoftLimit
                         )
-                ).smartCurrentLimit(EndEffectorConstants.IntakeCurrentLimit),
+                ).smartCurrentLimit(IntakeCurrentLimit),
             SparkBase.ResetMode.kResetSafeParameters,
             SparkBase.PersistMode.kPersistParameters
         );
         wristMotor.configure(
-                getWristMotorConfig(),
+            getWristMotorConfig(),
             SparkBase.ResetMode.kResetSafeParameters,
             SparkBase.PersistMode.kPersistParameters
         );
@@ -109,28 +111,29 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
 
     private static SparkBaseConfig getWristMotorConfig() {
         return new SparkFlexConfig()
-                .apply(
-                        new SoftLimitConfig()
-                                .forwardSoftLimit(
-                                        EndEffectorConstants.WristForwardSoftLimit
-                                )
-                                .reverseSoftLimit(
-                                        EndEffectorConstants.WristReverseSoftLimit
-                                )
-                ).smartCurrentLimit(EndEffectorConstants.WristCurrentLimit);
+            .apply(
+                new SoftLimitConfig()
+                    .forwardSoftLimit(
+                        WristForwardSoftLimit
+                    )
+                    .reverseSoftLimit(
+                        WristReverseSoftLimit
+                    )
+            ).smartCurrentLimit(WristCurrentLimit);
     }
 
     @Override
     public Rotation2d getCurrentRotation() {
-        return EndEffectorConstants.PositionToRotation.convert((-(wristAbsoluteEncoder.get() - encoderOffset) + 2) % 1);
+        return PositionToRotation.convert(
+            ((-(wristAbsoluteEncoder.get() - encoderOffset)) % 1 + 1) % 1);
     }
 
     @Override
     public boolean hasCoral() {
         if (RobotState.isAutonomous()
-                && SubsystemManager.getInstance().getScoringSuperstructure()
-                .getCurrentAction().toString()
-                .equals(ScoringSuperstructureAction.INTAKE_FROM_HP.toString())) return false;
+            && SubsystemManager.getInstance().getScoringSuperstructure()
+            .getCurrentAction().toString()
+            .equals(ScoringSuperstructureAction.INTAKE_FROM_HP.toString())) return false;
         return Optional.ofNullable(laserCAN.getMeasurement()).map(measurement ->
             measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT && measurement.distance_mm <= 50
         ).orElse(false);
@@ -140,7 +143,8 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
         var measurement = laserCAN.getMeasurement();
         if (measurement == null) {
             return Integer.MAX_VALUE;
-        } if (measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
+        }
+        if (measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
             return measurement.distance_mm;
         } else {
             return Integer.MAX_VALUE;
@@ -150,7 +154,7 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
     @Override
     protected void periodic(double targetWristRotationFraction, double intakeSpeed) {
         double currentWristPosition = getCurrentMotorPosition();
-        double targetWristPosition = EndEffectorConstants.RotationFractionToMotorPosition.convert(targetWristRotationFraction);
+        double targetWristPosition = RotationFractionToMotorPosition.convert(targetWristRotationFraction);
 
         double wristPIDOutput = -wristPID.calculate(currentWristPosition, targetWristPosition);
 
@@ -158,7 +162,7 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
         SmartDashboard.putNumber("LC Measurement", getMeasurement());
         SmartDashboard.putBoolean("Has Coral", hasCoral());
 
-        SmartDashboard.putNumber("Wrist Relative Measurement", EndEffectorConstants.relativeEncoderMeasurementToAbsoluteMeasurement.convert(wristAbsoluteEncoder.get()) + EndEffectorConstants.PositionToRotation.convertBackwards(EndEffectorConstants.RotationStartingPosition));
+        SmartDashboard.putNumber("Wrist Relative Measurement", relativeEncoderMeasurementToAbsoluteMeasurement.convert(wristAbsoluteEncoder.get()) + PositionToRotation.convertBackwards(RotationStartingPosition));
         wristMotor.setVoltage(wristPIDOutput);
         intakeMotor.set(intakeSpeed);
         SmartDashboard.putNumber("Intake Speed", intakeSpeed);
@@ -167,5 +171,24 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
     @Override
     public void setWristMotorIdleMode(SparkBaseConfig.IdleMode mode) {
         wristMotor.configure(getWristMotorConfig().idleMode(mode), SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
+    }
+
+    private final Debouncer physicalStopDebouncer = new Debouncer(0.06);
+
+    @Override
+    public boolean isWristPhysicallyStopped() {
+        boolean stopped = Math.abs(wristMotor.getOutputCurrent()) > 25
+            && Math.abs(wristMotor.getExternalEncoder().getVelocity()) <= 0.2;
+        return physicalStopDebouncer.calculate(stopped);
+    }
+
+    @Override
+    public void resetCurrentWristRotationFractionTo(double wristRotationFraction) {
+        double currentPosition = PositionToRotation.convertBackwards(getCurrentRotation());
+        double expectedPosition = PositionToRotation.convertBackwards(ProportionToRotation.convert(wristRotationFraction));
+        double positionError = currentPosition - expectedPosition;
+
+        encoderOffset += positionError;
+        setTargetWristRotationFraction(wristRotationFraction);
     }
 }
