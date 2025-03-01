@@ -25,7 +25,7 @@ public class LEDCommandFactory {
     }
 
     public static Command LEDThreeFlashGreen(){
-        return flashColors(0.3, Color.kGreen, Color.kBlack).ignoringDisable(true);
+        return flashColors(0.3, Color.kGreen, Color.kBlack).ignoringDisable(true).withTimeout(0.9);
     }
 
     public static Command LEDFlashRed(){
@@ -91,6 +91,10 @@ public class LEDCommandFactory {
         return cycleBetweenColors(3, 0.5, Color.kBlue, Color.kOrange).ignoringDisable(true);
     }
 
+    public static Command LEDFlashPurple(){
+        return flashColors(0.3, Color.kPurple, Color.kBlack).ignoringDisable(true);
+    }
+
     public static Command usePattern(LEDPattern pattern){
         return new RunCommand(() -> ledStripSubsystem.usePattern(pattern), ledStripSubsystem).ignoringDisable(true);
     }
@@ -127,6 +131,7 @@ public class LEDCommandFactory {
         if (command.getRequirements().contains(ledStripSubsystem)) CommandScheduler.getInstance().schedule(command);
     }
 
+
     /*
         Intake coral - triple flash green -> solid green
         Honed -> triple flash green
@@ -134,5 +139,6 @@ public class LEDCommandFactory {
         Default disabled ->breathing alliance color
         Reef align -> flashing orange blue
         Default -> blue orange cycling
+        Manual -> flash purple
      */
 }
