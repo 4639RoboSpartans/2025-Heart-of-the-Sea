@@ -24,4 +24,12 @@ public class DummyEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
     public void setWristMotorIdleMode(SparkBaseConfig.IdleMode mode) {
 
     }
+
+    @Override
+    public boolean isWristPhysicallyStopped() {
+        return true;
+    }
+
+    @Override
+    public void resetCurrentWristRotationFractionTo(double newWristRotationFraction) {}
 }
