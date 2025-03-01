@@ -23,8 +23,8 @@ public class LEDCommandFactory {
     public static Command LEDThreeFlashGreen() {
         return leds.resetTime().andThen(
             leds.usePattern(new CycleBetweenLEDPattern(
-                14, Color.kBlack, Color.kGreen
-            )).withTimeout(0.5)
+                7, Color.kBlack, Color.kGreen
+            )).withTimeout(1)
         );
     }
 
@@ -35,7 +35,7 @@ public class LEDCommandFactory {
     }
 
     public static Command LEDThreeFlashThenSolidGreen() {
-        return LEDThreeFlashGreen().andThen(leds.usePattern(new SolidLEDPattern(Color.kGreen)));
+        return LEDThreeFlashGreen().andThen(leds.usePattern(new SolidLEDPattern(Color.kLimeGreen)));
     }
 
     public static Command blueOrangeCycle() {
@@ -46,13 +46,11 @@ public class LEDCommandFactory {
         return leds.usePattern(new CycleBetweenLEDPattern(3, Color.kPurple, Color.kBlack));
     }
 
-    public static Command defaultCommand() {
-        return leds.usePattern(() -> {
-            if (RobotState.isDisabled()) {
-                if (DriverStationUtil.getAlliance().equals(DriverStation.Alliance.Red)) return breathingRed;
-                else return breathingBlue;
-            } else return blueOrangeCycle;
-        }
+    public static Command disabledCommand() {
+        return leds.usePattern(() ->
+            RobotState.isDisabled() && DriverStationUtil.getAlliance() == DriverStation.Alliance.Red
+                ? breathingRed
+                : breathingBlue
         );
     }
 
@@ -63,8 +61,6 @@ public class LEDCommandFactory {
     public static LEDPattern breathingBlue = new BreathingLEDPattern(
         Color.kBlue, 0.5, .1, .7
     );
-
-    public static LEDPattern blueOrangeCycle = new FadeBetweenLEDPattern(4, Color.kBlue, Color.kOrange, Color.kOrange, Color.kBlue);
 
     public static void setLEDCommand(Command command) {
         if (command.getRequirements().contains(leds)) CommandScheduler.getInstance().schedule(command);
