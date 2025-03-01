@@ -41,8 +41,8 @@ public final class ScoringConstants {
             // TODO: above
 
 
-            public static final double L2_Proportion = 0.26;
-            public static final double L3_Proportion = 0.47;
+            public static final double L2_Proportion = 0.28;
+            public static final double L3_Proportion = 0.481;
             public static final double L4_Proportion = 0.85;
 
             // TODO: below
