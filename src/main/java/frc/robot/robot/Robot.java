@@ -73,6 +73,7 @@ public class Robot extends LoggedRobot {
         if (autonomousCommand != null) {
             autonomousCommand.schedule();
         }
+        SmartDashboard.putNumber("distanceThresholdMeters", 100);
     }
 
     @Override
@@ -83,6 +84,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void autonomousExit() {
         isInAuton = false;
+        SmartDashboard.putNumber("distanceThresholdMeters", 2);
     }
 
 
