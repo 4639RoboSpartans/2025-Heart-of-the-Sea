@@ -4,6 +4,7 @@ import choreo.trajectory.SwerveSample;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.robot.Robot;
@@ -118,4 +119,6 @@ public abstract class AbstractSwerveDrivetrain extends SubsystemBase {
     public abstract Command targetToRightReefCommand();
 
     public abstract Command targetToLeftReefCommand();
+
+    public abstract Field2d getField();
 }

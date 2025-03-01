@@ -1,7 +1,7 @@
 package frc.robot.constants;
 
 public enum Limelights {
-    //LIMELIGHT("limelight");
+    LIMELIGHT("limelight"),
     LIMELIGHT2("limelight-slhs");
 
     final String name;

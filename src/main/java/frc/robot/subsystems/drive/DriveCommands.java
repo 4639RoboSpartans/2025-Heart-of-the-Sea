@@ -1,11 +1,14 @@
 package frc.robot.subsystems.drive;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.util.AllianceFlipUtil;
+import frc.lib.util.DriverStationUtil;
 import frc.lib.util.PoseUtil;
 import frc.robot.constants.Controls;
 import frc.robot.constants.FieldConstants;
@@ -69,9 +72,11 @@ public class DriveCommands {
                         : (direction == 1
                         ? PoseUtil.ReefRelativeRightOf(nearestReefPose)
                         : nearestReefPose));
+        
+        var finalPose = desiredPose;
 
         return DriveCommands.drivetrain.directlyMoveTo(desiredPose)
-                .until(new Trigger(() -> PoseUtil.withinTolerance(desiredPose, currentRobotPose.get(), Units.inchesToMeters(2))).debounce(0.1))
+                .until(new Trigger(() -> PoseUtil.withinTolerance(finalPose, currentRobotPose.get(), Units.inchesToMeters(2))).debounce(0.1))
 //TODO:                .andThen(
 //                        (direction == 0
 //                                ? drivetrain.targetToLeftReefCommand()

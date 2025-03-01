@@ -23,8 +23,8 @@ public class Vision {
                 limelight -> {
                     Optional<Pose2d> measurement = Optional.of(
                             DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue
-                                    ? LimelightHelpers.getBotPose2d_wpiBlue(limelight.getName())
-                                    : LimelightHelpers.getBotPose2d_wpiRed(limelight.getName())
+                                    ? LimelightHelpers.getBotPose2d_wpiRed(limelight.getName())
+                                    : LimelightHelpers.getBotPose2d_wpiBlue(limelight.getName())
                     );
                     measurement = measurement.get().getX() == 0 && measurement.get().getY() == 0
                             ? Optional.empty()
@@ -32,7 +32,10 @@ public class Vision {
                                 ? measurement
                                 : Optional.empty();
 
-                    measurement.ifPresent(pose -> drivetrain.addVisionMeasurement(pose, Utils.getCurrentTimeSeconds()));
+                    measurement.ifPresent(pose -> {
+                        drivetrain.getField().getObject("Vision Measurement "+ limelight.getName()).setPose(pose);
+                        drivetrain.addVisionMeasurement(pose, Utils.getCurrentTimeSeconds());
+                    });
                 }
         );
         if (RobotBase.isReal()){
@@ -52,12 +55,16 @@ public class Vision {
     }
 
     public static void postTAs(){
-        SmartDashboard.putNumber("Right TA", LimelightHelpers.getTA("limelight"));
-        SmartDashboard.putNumber("Left TA", LimelightHelpers.getTA("limelight-slhs"));
+        SmartDashboard.putNumberArray("limelight", LimelightHelpers.getTargetPose_CameraSpace("limelight"));
+        SmartDashboard.putNumberArray("limelight-slhs", LimelightHelpers.getTargetPose_CameraSpace("limelight-slhs"));
+        SmartDashboard.putNumber("Right TZ", LimelightHelpers.getTargetPose_CameraSpace("limelight")[2]);
+        SmartDashboard.putNumber("Left TZ", LimelightHelpers.getTargetPose_CameraSpace("limelight-slhs")[2]);
     }
 
     public static void postTXs(){
-        SmartDashboard.putNumber("Right TX", LimelightHelpers.getTX("limelight"));
-        SmartDashboard.putNumber("Left TX", LimelightHelpers.getTX("limelight-slhs"));
+        SmartDashboard.putNumber("Right TY", LimelightHelpers.getTargetPose_CameraSpace("limelight-slhs")[1]);
+        SmartDashboard.putNumber("Left TY", LimelightHelpers.getTargetPose_CameraSpace("limelight-slhs")[1]);
+        SmartDashboard.putNumber("Right TX", LimelightHelpers.getTargetPose_CameraSpace("limelight-slhs")[0]);
+        SmartDashboard.putNumber("Left TX", LimelightHelpers.getTargetPose_CameraSpace("limelight-slhs")[0]);
     }
 }

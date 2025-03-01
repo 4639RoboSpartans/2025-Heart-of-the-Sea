@@ -307,7 +307,6 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
     @Override
     public void addVisionMeasurement(Pose2d pose, double timestamp) {
-        //field.getObject("Vision Measurement").setPose(pose);
         drivetrain.addVisionMeasurement(pose, timestamp);
     }
 
@@ -417,5 +416,10 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     @Override
     public Command targetToLeftReefCommand() {
         return applyRequest(this::targetToLeftReef).until(this::atLeftTarget);
+    }
+
+    @Override
+    public Field2d getField() {
+        return field;
     }
 }

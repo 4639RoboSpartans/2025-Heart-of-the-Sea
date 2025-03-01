@@ -48,7 +48,7 @@ public final class ScoringConstants {
             // TODO: below
             public static final double L2_ALGAE_Proportion = 0.32; // MAYBE
             public static final double L3_ALGAE_Proportion = ProportionToPosition.convertBackwards(32.0);
-            public static final double Barge_Proportion = ProportionToPosition.convertBackwards(62.3);
+            public static final double Barge_Proportion = 0.908;
 
             public static final double Ground_Intake_Proportion = 0.0;
             public static final double Homing_Proportion = -0.04;
