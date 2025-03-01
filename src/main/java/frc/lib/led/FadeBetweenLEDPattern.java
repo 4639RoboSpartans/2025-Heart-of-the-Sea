@@ -18,10 +18,10 @@ public class FadeBetweenLEDPattern implements LEDPattern {
 
     @Override
     public Color get(int led, double time) {
-        double progress = time / speed;
+        double progress = time * speed;
 
         int currColorIndex = (int) progress % (colors.length - 1);
-        int nextColorIndex = (currColorIndex + 1) % (colors.length);
+        int nextColorIndex = currColorIndex + 1;
 
         return LEDPattern.mixColors(
             colors[currColorIndex],

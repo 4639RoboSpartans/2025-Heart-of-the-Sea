@@ -13,11 +13,9 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.lib.util.AllianceFlipUtil;
 import frc.lib.util.PoseUtil;
 import frc.robot.subsystems.SubsystemManager;
-import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -323,11 +321,22 @@ public class FieldConstants {
         @Deprecated public final Supplier<Command> fineTuneTargetCommand;
 
         public Pose2d getPose() {
-            return AllianceFlipUtil.apply(Pose);
+            return (Pose);
         }
 
         public Pose2d getOpponentAlliancePose() {
             return AllianceFlipUtil.rawAllianceFlipPose(getPose());
+        }
+
+        public static TargetPositions RLReefPoseFromChar(Character character){
+            return valueOf("REEF_"+character);
+        }
+
+        public static Optional<TargetPositions> hexReefPoseFromChar(Character character){
+            return Arrays.stream(values()).parallel()
+                    .filter(pos -> pos.toString().contains("REEF"))
+                    .filter(pos -> pos.toString().substring(3).contains(character.toString()))
+                    .findFirst();
         }
     }
 

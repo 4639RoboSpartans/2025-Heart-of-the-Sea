@@ -4,19 +4,20 @@ import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.util.CommandsUtil;
-import frc.lib.util.PoseUtil;
+import frc.robot.constants.FieldConstants;
 import frc.robot.constants.FieldConstants.TargetPositions;
 import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
+import frc.robot.subsystems.drive.DriveCommands;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class AutoRoutines {
     private final AutoFactory factory;
@@ -141,7 +142,7 @@ public class AutoRoutines {
         // Add directly move to and fine tune stuff IDK
         TargetPositions targetPosition = scoringTarget.getTargetPosition();
         addDirectlyMoveToCommand(
-            commands, targetPosition.getPose()
+            commands, targetPosition
         );
         //commands.add(targetPosition.fineTuneTargetCommand.get());
 
@@ -160,7 +161,7 @@ public class AutoRoutines {
         commands.add(path.cmd());
 
         // Add directly move to stuff IDK
-        addDirectlyMoveToCommand(
+        addHPMoveToCommand(
             commands,
             isStationLeft? TargetPositions.CORALSTATION_LEFT.getPose() : TargetPositions.CORALSTATION_RIGHT.getPose()
         );
@@ -169,17 +170,23 @@ public class AutoRoutines {
         commands.add(AutoCommands.HPLoad.get().withTimeout(1));
     }
 
-    private static void addDirectlyMoveToCommand(List<Command> commands, Pose2d targetPose) {
+    private static void addDirectlyMoveToCommand(List<Command> commands, FieldConstants.TargetPositions targetPose) {
+        commands.add(
+                DriveCommands.moveToHexThenMoveToRLCommand(
+                        Stream.of(targetPose)
+                                .map(Enum::toString)
+                                .map(name -> name.charAt(name.length()-1))
+                                .findAny().get()
+                )
+        );
+    }
+
+    private static void addHPMoveToCommand(List<Command> commands, Pose2d pose){
         AbstractSwerveDrivetrain drivetrain = SubsystemManager.getInstance().getDrivetrain();
 
         commands.add(
-            drivetrain
-                .directlyMoveTo(targetPose)
-                .until(
-                    () -> PoseUtil.withinTolerance(
-                        targetPose,
-                        drivetrain.getPose(),
-                        Units.inchesToMeters(0.5))
+                drivetrain.directlyMoveTo(
+                        pose
                 )
         );
     }

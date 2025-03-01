@@ -142,4 +142,18 @@ public class DriveCommands {
                 .until(() -> PoseUtil.withinTolerance(desiredTarget.getPose(), currentRobotPose.get(), 2))
                 .andThen(drivetrain.directlyMoveTo(desiredTarget.getPose()));
     }
+
+    /**
+     * only for use in auton
+     * @param reefLetter letter
+     * @return command
+     */
+    public static Command moveToHexThenMoveToRLCommand(char reefLetter){
+        return FieldConstants.TargetPositions.hexReefPoseFromChar(reefLetter)
+                .map(target -> drivetrain.directlyMoveTo(target.getPose()))
+                .orElse(Commands.none())
+                .andThen(drivetrain.directlyMoveTo(FieldConstants.TargetPositions.RLReefPoseFromChar(reefLetter).getPose()))
+                .until(() -> PoseUtil.withinTolerance(drivetrain.getPose(), FieldConstants.TargetPositions.RLReefPoseFromChar(reefLetter).getPose(), Units.inchesToMeters(0.5)));
+
+    }
 }
