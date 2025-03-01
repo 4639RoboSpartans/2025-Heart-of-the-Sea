@@ -48,13 +48,15 @@ public final class ScoringSuperstructure extends SubsystemBase {
         SmartDashboard.putBoolean("isManualControlEnabled", isManualControlEnabled);
     }
 
+    private boolean maybeNeedsTransition = false;
+
     private void setCurrentAction(ScoringSuperstructureAction action) {
         if (action != this.currentAction) {
-            ScoringSuperstructureAction prevAction = this.currentAction;
             this.currentAction = action;
 
-            boolean requiresWristTransition = prevAction.requiresWristTransition || currentAction.requiresWristTransition;
-            if (requiresWristTransition) {
+            maybeNeedsTransition |= action.requiresWristTransition;
+            
+            if (maybeNeedsTransition) {
                 currentState = ScoringSuperstructureState.TRANSITION_BEFORE_ELEVATOR;
             } else {
                 currentState = ScoringSuperstructureState.ELEVATOR_MOVE_NO_TRANSITION;
@@ -145,6 +147,13 @@ public final class ScoringSuperstructure extends SubsystemBase {
     }
 
     private void runActionPeriodic() {
+        // Update maybeNeedsTransition
+        switch(currentState) {
+            case TRANSITION_AFTER_ELEVATOR, EXECUTING_ACTION, DONE -> {
+                maybeNeedsTransition = currentAction.requiresWristTransition;
+            } 
+            default -> {}
+        }
         // Get new setpoints
         double targetElevatorExtensionFraction = currentState
             .getTargetElevatorExtensionFraction(currentAction)

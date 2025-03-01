@@ -157,7 +157,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
     @Override
     public Command resetHeadingToZero() {
-        return runOnce(() -> resetPose(new Pose2d(getPose().getTranslation(), new Rotation2d(0))));
+        return runOnce(() -> resetPose(new Pose2d(getPose().getTranslation(), Rotation2d.k180deg)));
     }
 
     @Override
