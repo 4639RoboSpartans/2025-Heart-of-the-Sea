@@ -28,13 +28,11 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
     private final SparkFlex intakeMotor;
     private final SparkFlex wristMotor;
     private final Supplier<Double> wristAbsoluteEncoder;
-    private final Supplier<Double> wristRelativeEncoder;
-
     private final LaserCan laserCAN;
 
     private final ProfiledPIDController wristPID;
     private final double encoderOffset;
-    private final static double DEFAULT_ENCODER_OFFSET = 0.92; // 0.645; 0.92
+    private final static double DEFAULT_ENCODER_OFFSET = 0.92 + 0.05;
 
 
     // given is frac 0.82, measured frac 0.556 => need to sub frac 0.264 from measurement
@@ -50,7 +48,6 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
             SparkLowLevel.MotorType.kBrushless
         );
         wristAbsoluteEncoder = wristMotor.getAbsoluteEncoder()::getPosition;
-        wristRelativeEncoder = wristMotor.getExternalEncoder()::getPosition;
         intakeMotor.configure(
             new SparkFlexConfig()
                 .apply(

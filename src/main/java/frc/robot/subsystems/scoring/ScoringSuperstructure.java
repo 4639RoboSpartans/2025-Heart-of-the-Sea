@@ -109,6 +109,15 @@ public final class ScoringSuperstructure extends SubsystemBase {
         }).finallyDo(() -> endEffector.setIntakeSpeed(0));
     }
 
+    public Command wristHomingCommand() {
+        // Go as far out as possible
+        // Elevator to middleish
+        // Go as far out as possible again
+        // That's our L4 setpoint
+
+        return Commands.none();
+    }
+
     public Command elevatorHomingCommand() {
         double ELEVATOR_HOMING_INITIAL_OFFSET = 0.01;
         double ELEVATOR_HOMING_SPEED = 0.007;
