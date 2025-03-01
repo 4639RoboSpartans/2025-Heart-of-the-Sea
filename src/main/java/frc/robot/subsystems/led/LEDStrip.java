@@ -39,6 +39,6 @@ public abstract class LEDStrip extends SubsystemBase {
     }
 
     public Command usePattern(Supplier<LEDPattern> patternSupplier) {
-        return run(() -> this.setPattern(patternSupplier.get())).ignoringDisable(true);
+        return run(() -> this.setPattern(patternSupplier.get())).finallyDo(() -> resetToBlank()).ignoringDisable(true);
     }
 }

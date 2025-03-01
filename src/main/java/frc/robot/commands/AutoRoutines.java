@@ -167,7 +167,7 @@ public class AutoRoutines {
         );
 
         // Add HP load command
-        commands.add(AutoCommands.HPLoad.get().withTimeout(1));
+        commands.add(AutoCommands.HPLoad.get().withTimeout(2));
     }
 
     private static void addDirectlyMoveToCommand(List<Command> commands, FieldConstants.TargetPositions targetPose) {

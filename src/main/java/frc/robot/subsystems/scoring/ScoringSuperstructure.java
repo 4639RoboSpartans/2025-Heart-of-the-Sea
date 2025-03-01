@@ -104,7 +104,7 @@ public final class ScoringSuperstructure extends SubsystemBase {
         return run(() -> {
             if (isManualControlEnabled) runManualPeriodic();
             else runActionPeriodic();
-        });
+        }).finallyDo(() -> endEffector.setIntakeSpeed(0));
     }
 
     public Command elevatorHomingCommand() {
@@ -164,7 +164,7 @@ public final class ScoringSuperstructure extends SubsystemBase {
         wristAdjustment += 0.006 * Controls.Operator.MicroWristAdjustment.getAsDouble();
         elevatorAdjustment = MathUtil.clamp(
             targetElevatorExtensionFraction + elevatorAdjustment,
-            ElevatorSetpoints.IDLE_Proportion, 1
+            ElevatorSetpoints.ELEVATOR_LOWEST_PROPORTION, 1
         ) - targetElevatorExtensionFraction;
         wristAdjustment = MathUtil.clamp(
             targetWristRotationFraction + wristAdjustment,
