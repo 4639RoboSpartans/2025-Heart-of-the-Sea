@@ -33,7 +33,7 @@ public final class SwerveAutoRoutinesCreator {
             ),
             config,
             // Assume the path needs to be flipped for Red vs Blue, this is normally the case
-            () -> false,
+            () -> true,
             drivetrain // Subsystem for requirements
         );
 
@@ -41,7 +41,7 @@ public final class SwerveAutoRoutinesCreator {
             drivetrain::getPose,
             drivetrain::resetPose,
             drivetrain::followPath,
-            true,
+            false,
             drivetrain,
             (sample, isStart) -> {}
         ));

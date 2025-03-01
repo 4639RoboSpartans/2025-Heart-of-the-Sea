@@ -24,7 +24,7 @@ public class LEDCommandFactory {
         return leds.resetTime().andThen(
             leds.usePattern(new CycleBetweenLEDPattern(
                 3, Color.kGreen, Color.kBlack
-            )).withTimeout(0.9)
+            )).withTimeout(1)
         );
     }
 
