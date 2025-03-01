@@ -11,7 +11,7 @@ import com.revrobotics.spark.config.SparkBaseConfig;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.lib.led.LEDCommandFactory;
+import frc.robot.subsystems.led.LEDCommandFactory;
 import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
@@ -49,7 +49,7 @@ public class Robot extends LoggedRobot {
         SubsystemManager.getInstance().getScoringSuperstructure().setAction(ScoringSuperstructureAction.IDLE);
         SubsystemManager.getInstance().getScoringSuperstructure().getEndEffectorSubsystem().setWristMotorIdleMode(SparkBaseConfig.IdleMode.kCoast);
         SmartDashboard.putNumber("distanceThresholdMeters", 100);
-        SubsystemManager.getInstance().getLEDStripSubsystem().setDefaultCommand(LEDCommandFactory.disabledPatternChooser());
+        SubsystemManager.getInstance().getLEDStripSubsystem().setDefaultCommand(LEDCommandFactory.disabledCommand());
     }
 
 
@@ -72,6 +72,7 @@ public class Robot extends LoggedRobot {
         if (autonomousCommand != null) {
             autonomousCommand.schedule();
         }
+        SmartDashboard.putNumber("distanceThresholdMeters", 100);
     }
 
     @Override
@@ -82,6 +83,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void autonomousExit() {
         isInAuton = false;
+        SmartDashboard.putNumber("distanceThresholdMeters", 2);
     }
 
 

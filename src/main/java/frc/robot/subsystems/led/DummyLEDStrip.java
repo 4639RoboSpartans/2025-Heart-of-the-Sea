@@ -1,11 +1,11 @@
-package frc.lib.led;
+package frc.robot.subsystems.led;
 
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.annotation.PackagePrivate;
+import frc.lib.led.LEDPattern;
 
 import java.util.Objects;
 
-public class DummyLEDStrip extends SubsystemBase implements LEDStrip {
+public class DummyLEDStrip extends LEDStrip {
 
     private static volatile LEDStrip instance;
 
@@ -15,17 +15,17 @@ public class DummyLEDStrip extends SubsystemBase implements LEDStrip {
     }
 
     @Override
-    public void usePattern(LEDPattern pattern) {
+    public void setPattern(LEDPattern pattern) {
+
+    }
+
+    @Override
+    public void doResetTime() {
 
     }
 
     @Override
     public void update() {
-
-    }
-
-    @Override
-    public void resetToBlank() {
 
     }
 }

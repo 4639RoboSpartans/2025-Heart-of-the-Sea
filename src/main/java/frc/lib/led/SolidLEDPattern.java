@@ -1,16 +1,16 @@
 package frc.lib.led;
 
-import edu.wpi.first.wpilibj.util.Color8Bit;
+import edu.wpi.first.wpilibj.util.Color;
 
 public final class SolidLEDPattern implements LEDPattern {
-    private final Color8Bit color;
+    private final Color color;
 
-    public SolidLEDPattern(Color8Bit color) {
+    public SolidLEDPattern(Color color) {
         this.color = color;
     }
 
     @Override
-    public Color8Bit get(int led, double time) {
+    public Color get(int led, double time) {
         return color;
     }
 }

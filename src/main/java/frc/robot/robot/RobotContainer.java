@@ -13,12 +13,8 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.util.Color;
-import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.lib.FunctionalTrigger;
-import frc.lib.led.*;
 import frc.robot.commands.AutoCommands;
 import frc.robot.commands.AutoRoutines;
 import frc.robot.commands.AutoRoutines.Auton;
@@ -28,6 +24,8 @@ import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
 import frc.robot.subsystems.drive.DriveCommands;
 import frc.robot.subsystems.drive.SwerveAutoRoutinesCreator;
+import frc.robot.subsystems.led.LEDCommandFactory;
+import frc.robot.subsystems.led.LEDStrip;
 import frc.robot.subsystems.scoring.ScoringSuperstructure;
 import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
@@ -69,7 +67,6 @@ public class RobotContainer {
         );
         SmartDashboard.putData("Selected Reset Position", startPositionChooser);
 
-        configureLED();
     }
 
     private void configureBindings() {
@@ -228,44 +225,10 @@ public class RobotContainer {
             }
         );
     }
-    /*
-        Intake coral - triple flash green -> solid green
-        Honed -> triple flash green
-        Not honed -> flash red
-        Default disabled ->breathing alliance color
-        Reef align -> flashing orange blue
-        Default -> blue orange cycling
-     */
-    private void configureLED() {
-        LEDPattern idlePattern = (ledIdx, time) -> {
-            time *= 2;
-            double x = ledIdx * 0.2 + time * 3;
-            double h = 30 * Math.pow(Math.sin(x), 2) + 90;
-            double v = Math.pow(Math.sin(time), 2) * 0.9 + 0.1;
 
-            return new Color8Bit(Color.fromHSV((int) (h), 255, (int) (255 * v)));
-        };
-        LEDPattern transitionPattern = new BasicLEDPattern(3,
-            new Color8Bit(Color.kGreen)
-        );
-        LEDPattern elevatorMovePattern = new BasicLEDPattern(3,
-            new Color8Bit(Color.kYellow)
-        );
-        LEDPattern executingActionPattern = new SolidLEDPattern(new Color8Bit(255, 0, 0));
+    public void configureLEDs(){
+        FunctionalTrigger.of(scoringSuperstructure::isManualControlEnabled).whileTrue(LEDCommandFactory::LEDFlashPurple);
+        FunctionalTrigger.of(scoringSuperstructure.getEndEffectorSubsystem()::hasCoral).whileTrue(LEDCommandFactory::LEDThreeFlashThenSolidGreen);
 
-        ledStrip.setDefaultCommand(new RunCommand(() -> {
-            ledStrip.usePattern(
-                scoringSuperstructure.getCurrentAction() == ScoringSuperstructureAction.IDLE ?
-                    idlePattern :
-                    switch (scoringSuperstructure.getCurrentState()) {
-                        case TRANSITION_BEFORE_ELEVATOR -> transitionPattern;
-                        case ELEVATOR_MOVE_WITH_TRANSITION -> elevatorMovePattern;
-                        case TRANSITION_AFTER_ELEVATOR -> transitionPattern;
-                        case ELEVATOR_MOVE_NO_TRANSITION -> elevatorMovePattern;
-                        case EXECUTING_ACTION -> executingActionPattern;
-                        case DONE -> idlePattern;
-                    }
-            );
-        }, ledStrip));
     }
 }
