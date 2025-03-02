@@ -135,6 +135,7 @@ public class RobotContainer {
             );
 
             Controls.Operator.HomingCommandTrigger.whileTrue(scoringSuperstructure.elevatorHomingCommand());
+            // Controls.Operator.homingWristCommandTrigger.whileTrue(scoringSuperstructure.wristHomingCommand());
         }
 
         FunctionalTrigger.of(Controls.Driver.alignReefLeft)

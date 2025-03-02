@@ -165,7 +165,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     public Command resetHeadingToZero() {
         return runOnce(() -> {
             Rotation2d currentRobotRotation = Rotation2d.fromRadians(drivetrain.getPigeon2().getYaw().getValue().in(Radians));
-            driverControlRotationOffset = driverControlRotationOffset.minus(currentRobotRotation);
+            driverControlRotationOffset = currentRobotRotation.unaryMinus().plus(DriverStationUtil.getAlliance() == Alliance.Blue ? Rotation2d.fromDegrees(40) : Rotation2d.kZero);
         });
     }
 
