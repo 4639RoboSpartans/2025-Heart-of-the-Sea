@@ -120,10 +120,9 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         double rawForwards = Controls.Driver.SwerveForwardAxis.getAsDouble() * DriveConstants.CURRENT_MAX_ROBOT_MPS;
         double rawStrafe = -Controls.Driver.SwerveStrafeAxis.getAsDouble() * DriveConstants.CURRENT_MAX_ROBOT_MPS;
         double rawRotation = Controls.Driver.SwerveRotationAxis.getAsDouble() * DriveConstants.TELOP_ROTATION_SPEED;
-        double allianceBasedDirection = DriverStationUtil.getAlliance() == Alliance.Blue ? 1 : -1;
         ChassisSpeeds chassisSpeeds = new ChassisSpeeds(
-            allianceBasedDirection * rawForwards,
-            allianceBasedDirection * rawStrafe,
+            rawForwards,
+            rawStrafe,
             rawRotation
         );
 
@@ -135,14 +134,16 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
             chassisSpeeds = chassisSpeeds.times(getSwerveSpeedMultiplier());
         }
 
-        Rotation2d currentRobotRotation =
-            Rotation2d.fromRadians(drivetrain.getPigeon2().getYaw().getValue().in(Radians))
-                .plus(driverControlRotationOffset);
+        Rotation2d currentRobotRotation = Rotation2d.fromRadians(drivetrain.getPigeon2().getYaw().getValue().in(Radians));
+
+        SmartDashboard.putNumber("robot rotation", currentRobotRotation.getDegrees());
+        SmartDashboard.putNumber("robot rotation offset", driverControlRotationOffset.getDegrees());
+
         SwerveSetpoint setpoint = swerveSetpointGenerator.generateSetpoint(
             prevSwerveSetpoint,
             ChassisSpeeds.fromFieldRelativeSpeeds(
                 chassisSpeeds,
-                currentRobotRotation
+                currentRobotRotation.plus(driverControlRotationOffset)
             ),
             0.02
         );
