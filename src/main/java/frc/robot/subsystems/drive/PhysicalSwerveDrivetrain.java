@@ -40,8 +40,6 @@ import frc.robot.subsystems.scoring.Vision;
 
 import java.util.function.Supplier;
 
-import static edu.wpi.first.units.Units.Radians;
-
 public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     protected final TunerSwerveDrivetrain drivetrain;
 
@@ -114,7 +112,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         return applyRequest(this::getFieldCentricRequest);
     }
 
-    private Rotation2d driverControlRotationOffset = Rotation2d.kZero;
+    private Rotation2d fieldCentricZeroRotation = Rotation2d.kZero;
 
     private SwerveRequest getFieldCentricRequest() {
         double rawForwards = Controls.Driver.SwerveForwardAxis.getAsDouble() * DriveConstants.CURRENT_MAX_ROBOT_MPS;
@@ -134,16 +132,16 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
             chassisSpeeds = chassisSpeeds.times(getSwerveSpeedMultiplier());
         }
 
-        Rotation2d currentRobotRotation = Rotation2d.fromRadians(drivetrain.getPigeon2().getYaw().getValue().in(Radians));
+        Rotation2d currentRobotRotation = getPose().getRotation();
 
         SmartDashboard.putNumber("robot rotation", currentRobotRotation.getDegrees());
-        SmartDashboard.putNumber("robot rotation offset", driverControlRotationOffset.getDegrees());
+        SmartDashboard.putNumber("robot rotation offset", fieldCentricZeroRotation.getDegrees());
 
         SwerveSetpoint setpoint = swerveSetpointGenerator.generateSetpoint(
             prevSwerveSetpoint,
             ChassisSpeeds.fromFieldRelativeSpeeds(
                 chassisSpeeds,
-                currentRobotRotation.plus(driverControlRotationOffset)
+                currentRobotRotation.minus(fieldCentricZeroRotation)
             ),
             0.02
         );
@@ -163,10 +161,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
     @Override
     public Command resetHeadingToZero() {
-        return runOnce(() -> {
-            Rotation2d currentRobotRotation = Rotation2d.fromRadians(drivetrain.getPigeon2().getYaw().getValue().in(Radians));
-            driverControlRotationOffset = currentRobotRotation.unaryMinus().plus(DriverStationUtil.getAlliance() == Alliance.Blue ? Rotation2d.fromDegrees(40) : Rotation2d.kZero);
-        });
+        return runOnce(() -> fieldCentricZeroRotation = getPose().getRotation());
     }
 
     @Override
