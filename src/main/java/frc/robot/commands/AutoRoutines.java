@@ -4,8 +4,10 @@ import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.util.CommandsUtil;
+import frc.lib.util.PoseUtil;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.FieldConstants.TargetPositions;
 import frc.robot.subsystems.SubsystemManager;
@@ -187,7 +189,7 @@ public class AutoRoutines {
         commands.add(
                 drivetrain.directlyMoveTo(
                         pose
-                )
+                ).until(() -> PoseUtil.withinTolerance(drivetrain.getPose(), pose, Units.inchesToMeters(2)))
         );
     }
 
