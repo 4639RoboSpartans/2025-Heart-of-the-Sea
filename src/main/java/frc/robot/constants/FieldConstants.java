@@ -348,6 +348,14 @@ public class FieldConstants {
         REEF_EF(22, 9),
         REEF_CD(17, 8);
 
+        public int getRedAllianceID() {
+            return redAllianceID;
+        }
+
+        public int getBlueAllianceID() {
+            return blueAllianceID;
+        }
+
         private final int blueAllianceID;
         private final int redAllianceID;
 

@@ -12,6 +12,8 @@ public class SuppyGyroPoseUnlessTargetInSight implements Supplier<Pose2d> {
     private Supplier<LimelightHelpers.PoseEstimate> limelightPoseEstimateSupplier;
     private BooleanSupplier hasTargetSupplier;
 
+    private boolean m_last = false;
+
     public SuppyGyroPoseUnlessTargetInSight(Supplier<LimelightHelpers.PoseEstimate> limelightPoseEstimateSupplier, BooleanSupplier hasTargetSupplier) {
         this.limelightPoseEstimateSupplier = limelightPoseEstimateSupplier;
         this.hasTargetSupplier = hasTargetSupplier;
@@ -24,6 +26,7 @@ public class SuppyGyroPoseUnlessTargetInSight implements Supplier<Pose2d> {
      */
     @Override
     public Pose2d get() {
-        return hasTargetSupplier.getAsBoolean() ? limelightPoseEstimateSupplier.get().pose : drivetrain.getPose();
+        var hasTarget = hasTargetSupplier.getAsBoolean();
+        return hasTarget ? limelightPoseEstimateSupplier.get().pose : drivetrain.getPose();
     }
 }

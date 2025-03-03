@@ -11,11 +11,14 @@ import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
 import frc.robot.subsystems.vision.supplier.SuppyGyroPoseUnlessTargetInSight;
 import frc.robot.subsystems.vision.supplier.NonNullablePoseEstimateSupplier;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 /**
  * Wraps a limelight
@@ -81,6 +84,14 @@ public class Limelight {
     public Supplier<LimelightHelpers.PoseEstimate> poseEstimateMegaTag2 = new NonNullablePoseEstimateSupplier(this::getCurrentPoseEstimateMegaTag2);
 
     public Supplier<Pose2d> createVisionAlignPoseSupplier(FieldConstants.AprilTagIDHolder tagIDHolder){
-        return new SuppyGyroPoseUnlessTargetInSight(this::getCurrentPoseEstimateMegaTag2, () -> onlyHasTarget(tagIDHolder.getAllianceRespectiveID()));
+        return new SuppyGyroPoseUnlessTargetInSight(this::getCurrentPoseEstimateMegaTag2, () -> hasTarget(tagIDHolder.getAllianceRespectiveID()));
+    }
+
+    public void filterRawFiducials(int... fiducialIDs){
+        LimelightHelpers.SetFiducialIDFiltersOverride(this.getName(), fiducialIDs);
+    }
+
+    public void resetFiducialFilter(){
+        LimelightHelpers.SetFiducialIDFiltersOverride(this.getName(), Arrays.stream(FieldConstants.AprilTagIDHolder.values()).parallel().flatMapToInt(IDHolder -> IntStream.of(IDHolder.getBlueAllianceID(), IDHolder.getRedAllianceID())).toArray());
     }
 }
