@@ -1,20 +1,21 @@
 package frc.robot.subsystems.drive;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.util.AllianceFlipUtil;
-import frc.lib.util.DriverStationUtil;
 import frc.lib.util.PoseUtil;
 import frc.robot.constants.Controls;
 import frc.robot.constants.FieldConstants;
 import frc.robot.subsystems.SubsystemManager;
+import frc.robot.subsystems.vision.Limelights;
 
+import java.lang.annotation.Target;
+import java.util.Comparator;
 import java.util.List;
+import java.util.function.BinaryOperator;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -48,8 +49,7 @@ public class DriveCommands {
         );
     }
 
-    public static Command moveToClosestReefPositionWithTransformation(byte direction) {
-        drivetrain.setVisionStandardDeviations(0.1, 0.1, 10);
+    public static Command moveToNearestReefCenterPosition() {
         Supplier<Pose2d> currentRobotPose = drivetrain::getPose;
         List<FieldConstants.TargetPositions> allReefTargets = List.of(
                 FieldConstants.TargetPositions.REEF_AB,
@@ -60,75 +60,63 @@ public class DriveCommands {
                 FieldConstants.TargetPositions.REEF_KL
         );
 
-        Pose2d nearestReefPose = currentRobotPose.get().nearest(
-                Stream.concat(
-                        allReefTargets.stream().map(FieldConstants.TargetPositions::getPose),
-                        allReefTargets.stream().map(FieldConstants.TargetPositions::getOpponentAlliancePose)
-                ).collect(Collectors.toList()));
+        FieldConstants.TargetPositions target = allReefTargets.stream().reduce(FieldConstants.TargetPositions.REEF_AB, (target1, target2) -> {
+            if (currentRobotPose.get().nearest(List.of(target1.getPose(), target1.getPose()))==target1.getPose()) return target1;
+            else return target2;
+        });
 
-        var desiredPose =
-                (direction == 0
-                        ? PoseUtil.ReefRelativeLeftOf(nearestReefPose)
-                        : (direction == 1
-                        ? PoseUtil.ReefRelativeRightOf(nearestReefPose)
-                        : nearestReefPose));
-        
-        var finalPose = desiredPose;
-
-        return DriveCommands.drivetrain.directlyMoveTo(desiredPose)
-                .until(new Trigger(() -> PoseUtil.withinTolerance(finalPose, currentRobotPose.get(), Units.inchesToMeters(2))).debounce(0.1))
-//TODO:                .andThen(
-//                        (direction == 0
-//                                ? drivetrain.targetToLeftReefCommand()
-//                                : (direction == 1
-//                                ? drivetrain.targetToRightReefCommand()
-//                                : Commands.none()))
-//                )
-                .andThen(() -> drivetrain.setVisionStandardDeviations(10, 10, 10));
+        var nearestReefPose = target.getPose();
+        var visionPoseSupplier = Limelights.RIGHT.createVisionAlignPoseSupplier(target.getAprilTagIDHolder());
+        return DriveCommands.drivetrain.directlyMoveTo(nearestReefPose, visionPoseSupplier)
+                .until(new Trigger(() -> PoseUtil.withinTolerance(nearestReefPose, visionPoseSupplier.get(), Units.inchesToMeters(0.5))).debounce(0.1));
     }
 
-    public static Command moveToClosestReefPositionHardcoded(byte direction) {
-        Supplier<Pose2d> currentRobotPose = SubsystemManager.getInstance().getDrivetrain()::getPose;
-        List<FieldConstants.TargetPositions> allReefTargets = new java.util.ArrayList<>(List.of(
+    public static Command moveToNearestReefLeftPosition() {
+        Supplier<Pose2d> currentRobotPose = drivetrain::getPose;
+        List<FieldConstants.TargetPositions> allReefTargets = List.of(
                 FieldConstants.TargetPositions.REEF_AB,
                 FieldConstants.TargetPositions.REEF_CD,
                 FieldConstants.TargetPositions.REEF_EF,
                 FieldConstants.TargetPositions.REEF_GH,
                 FieldConstants.TargetPositions.REEF_IJ,
                 FieldConstants.TargetPositions.REEF_KL
-        ));
+        );
 
-        allReefTargets.sort((a, b) -> {
-            double diff = Math.hypot(
-                    drivetrain.getPose().getX() - a.getPose().getX(),
-                    drivetrain.getPose().getY() - a.getPose().getY()
-            ) - Math.hypot(
-                    drivetrain.getPose().getX() - b.getPose().getX(),
-                    drivetrain.getPose().getY() - b.getPose().getY()
-            );
-            return diff == 0 ? 0 : diff < 0 ? -1 : 1;
+        FieldConstants.TargetPositions target = allReefTargets.stream().reduce(FieldConstants.TargetPositions.REEF_AB, (target1, target2) -> {
+            if (currentRobotPose.get().nearest(List.of(target1.getPose(), target1.getPose()))==target1.getPose()) return target1;
+            else return target2;
         });
 
-        var desiredPose = switch (direction) {
-            case 0 -> allReefTargets.get(0).leftPose;
-            case 1 -> allReefTargets.get(0).rightPose;
-            default -> allReefTargets.get(0).getPose();
-        };
+        var nearestReefPose = PoseUtil.ReefRelativeLeftOf(target.getPose());
+        var visionPoseSupplier = Limelights.LEFT.createVisionAlignPoseSupplier(target.getAprilTagIDHolder());
+        return DriveCommands.drivetrain.directlyMoveTo(nearestReefPose, visionPoseSupplier)
+                .until(new Trigger(() -> PoseUtil.withinTolerance(nearestReefPose, visionPoseSupplier.get(), Units.inchesToMeters(0.5))).debounce(0.1));
+    }
 
-        return drivetrain.directlyMoveTo(desiredPose)
-                .until(
-                        new Trigger(
-                                () -> PoseUtil.withinTolerance(
-                                        desiredPose,
-                                        currentRobotPose.get(),
-                                        Units.inchesToMeters(2)
-                                )
-                        )
-                                .debounce(0.1));
+    public static Command moveToNearestReefRightPosition() {
+        Supplier<Pose2d> currentRobotPose = drivetrain::getPose;
+        List<FieldConstants.TargetPositions> allReefTargets = List.of(
+                FieldConstants.TargetPositions.REEF_AB,
+                FieldConstants.TargetPositions.REEF_CD,
+                FieldConstants.TargetPositions.REEF_EF,
+                FieldConstants.TargetPositions.REEF_GH,
+                FieldConstants.TargetPositions.REEF_IJ,
+                FieldConstants.TargetPositions.REEF_KL
+        );
+
+        FieldConstants.TargetPositions target = allReefTargets.stream().reduce(FieldConstants.TargetPositions.REEF_AB, (target1, target2) -> {
+            if (currentRobotPose.get().nearest(List.of(target1.getPose(), target1.getPose()))==target1.getPose()) return target1;
+            else return target2;
+        });
+
+        var nearestReefPose = PoseUtil.ReefRelativeRightOf(target.getPose());
+        var visionPoseSupplier = Limelights.LEFT.createVisionAlignPoseSupplier(target.getAprilTagIDHolder());
+        return DriveCommands.drivetrain.directlyMoveTo(nearestReefPose, visionPoseSupplier)
+                .until(new Trigger(() -> PoseUtil.withinTolerance(nearestReefPose, visionPoseSupplier.get(), Units.inchesToMeters(0.5))).debounce(0.1));
     }
 
     public static Command moveToDesiredCoralStationPosition(boolean left) {
-        Supplier<Pose2d> currentRobotPose = SubsystemManager.getInstance().getDrivetrain()::getPose;
+        Supplier<Pose2d> currentRobotPose = drivetrain::getPose;
         var desiredTarget = left ? FieldConstants.TargetPositions.CORALSTATION_LEFT : FieldConstants.TargetPositions.CORALSTATION_RIGHT;
 
         return (!PoseUtil.withinTolerance(desiredTarget.getPose(), currentRobotPose.get(), 2)

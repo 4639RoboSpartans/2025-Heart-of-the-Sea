@@ -9,6 +9,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 
+import java.util.function.Supplier;
+
 public class DummySwerveDrivetrain extends AbstractSwerveDrivetrain {
     Pose2d currentPose = new Pose2d();
 
@@ -35,6 +37,18 @@ public class DummySwerveDrivetrain extends AbstractSwerveDrivetrain {
         return new InstantCommand(() -> {
             currentPose = targetPose;
         });
+    }
+
+    /**
+     * Returns a command that moves the robot to the specified pose under PID control, without pathfinding
+     *
+     * @param targetPose        The pose to move to
+     * @param robotPoseSupplier
+     * @return Command to run
+     */
+    @Override
+    public Command directlyMoveTo(Pose2d targetPose, Supplier<Pose2d> robotPoseSupplier) {
+        return Commands.none();
     }
 
     @Override
@@ -82,16 +96,6 @@ public class DummySwerveDrivetrain extends AbstractSwerveDrivetrain {
     @Override
     public void setVisionStandardDeviations(double xStdDev, double yStdDev, double rotStdDev) {
        
-    }
-
-    @Override
-    public Command targetToRightReefCommand() {
-        return Commands.none();
-    }
-
-    @Override
-    public Command targetToLeftReefCommand() {
-        return Commands.none();
     }
 
     @Override
