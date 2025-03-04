@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.lib.led.*;
 import frc.lib.util.DriverStationUtil;
 import frc.robot.subsystems.SubsystemManager;
@@ -46,12 +47,13 @@ public class LEDCommandFactory {
         return leds.usePattern(new CycleBetweenLEDPattern(3, Color.kPurple, Color.kBlack));
     }
 
-    public static Command disabledCommand() {
-        return leds.usePattern(() ->
-            RobotState.isDisabled() && DriverStationUtil.getAlliance() == DriverStation.Alliance.Red
-                ? breathingRed
-                : breathingBlue
-        );
+    public static Command defaultCommand() {
+        return leds.usePattern(() -> {
+            if (RobotState.isDisabled()){
+                if (DriverStationUtil.getAlliance() == DriverStation.Alliance.Red) return redOrangeMovingWave;
+                else return blueTealMovingWave;
+            } else return new SolidLEDPattern(Color.kBlack);
+        });
     }
 
     public static LEDPattern breathingRed = new BreathingLEDPattern(
@@ -65,6 +67,14 @@ public class LEDCommandFactory {
     public static void setLEDCommand(Command command) {
         if (command.getRequirements().contains(leds)) CommandScheduler.getInstance().schedule(command);
     }
+
+    public static LEDPattern redOrangeMovingWave = new MovingWaveLEDPattern(
+            Color.kRed, Color.kOrangeRed, 2
+    );
+
+    public static LEDPattern blueTealMovingWave = new MovingWaveLEDPattern(
+            Color.kBlue, Color.kTeal, 2
+    );
 
     /*
         Intake coral - triple flash green -> solid green
