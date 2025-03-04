@@ -2,13 +2,14 @@ package frc.robot.subsystems.vision.supplier;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import frc.lib.network.LimelightHelpers;
+import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 public class SuppyGyroPoseUnlessTargetInSight implements Supplier<Pose2d> {
-    private AbstractSwerveDrivetrain drivetrain;
+    private AbstractSwerveDrivetrain drivetrain = SubsystemManager.getInstance().getDrivetrain();
     private Supplier<LimelightHelpers.PoseEstimate> limelightPoseEstimateSupplier;
     private BooleanSupplier hasTargetSupplier;
 

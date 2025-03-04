@@ -3,6 +3,7 @@ package frc.robot.subsystems.vision;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotBase;
 import frc.lib.network.LimelightHelpers;
 import frc.lib.util.PoseUtil;
 import frc.robot.constants.FieldConstants;
@@ -36,6 +37,7 @@ public class Limelight {
      * Use this for general limelight pose
      */
     public LimelightHelpers.PoseEstimate getCurrentPoseEstimateMegaTag1(){
+        if (!RobotBase.isReal()) return null;
         LimelightHelpers.PoseEstimate measurement =
                 DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue
                         ? LimelightHelpers.getBotPoseEstimate_wpiBlue(getName())
@@ -52,6 +54,7 @@ public class Limelight {
      * use this for precise localization maybe??
      */
     private LimelightHelpers.PoseEstimate getCurrentPoseEstimateMegaTag2(){
+        if (!RobotBase.isReal()) return null;
         LimelightHelpers.SetRobotOrientation(getName(), drivetrain.getPose().getRotation().getDegrees(), Rotation2d.fromRadians(drivetrain.getChassisSpeeds().omegaRadiansPerSecond).getDegrees(), 0, 0, 0, 0);
         LimelightHelpers.PoseEstimate measurement =
                 DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue

@@ -1,6 +1,7 @@
 package frc.robot.subsystems.drive;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -13,6 +14,7 @@ import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.vision.Limelights;
 
 import java.lang.annotation.Target;
+import java.lang.reflect.Field;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.BinaryOperator;
@@ -60,12 +62,13 @@ public class DriveCommands {
                 FieldConstants.TargetPositions.REEF_KL
         );
 
-        FieldConstants.TargetPositions target = allReefTargets.stream().reduce(FieldConstants.TargetPositions.REEF_AB, (target1, target2) -> {
-            if (currentRobotPose.get().nearest(List.of(target1.getPose(), target1.getPose()))==target1.getPose()) return target1;
-            else return target2;
-        });
+        Pose2d nearestReefPose = currentRobotPose.get().nearest(
+                allReefTargets.stream()
+                        .map(FieldConstants.TargetPositions::getPose)
+                        .collect(Collectors.toList()));
 
-        var nearestReefPose = target.getPose();
+        FieldConstants.TargetPositions target = allReefTargets.stream().filter(poseTarget -> poseTarget.getPose().equals(nearestReefPose)).findAny().orElse(FieldConstants.TargetPositions.IDENTITY);
+
         var visionPoseSupplier = Limelights.RIGHT.createVisionAlignPoseSupplier(target.getAprilTagIDHolder());
         return Commands.runOnce(() -> Limelights.RIGHT.filterRawFiducials(target.getAprilTagIDHolder().getAllianceRespectiveID()))
                 .andThen( DriveCommands.drivetrain.directlyMoveTo(nearestReefPose, visionPoseSupplier)
@@ -84,12 +87,15 @@ public class DriveCommands {
                 FieldConstants.TargetPositions.REEF_KL
         );
 
-        FieldConstants.TargetPositions target = allReefTargets.stream().reduce(FieldConstants.TargetPositions.REEF_AB, (target1, target2) -> {
-            if (currentRobotPose.get().nearest(List.of(target1.getPose(), target1.getPose()))==target1.getPose()) return target1;
-            else return target2;
-        });
+        Pose2d centerReefPose = currentRobotPose.get().nearest(
+                allReefTargets.stream()
+                        .map(FieldConstants.TargetPositions::getPose)
+                        .collect(Collectors.toList()));
 
-        var nearestReefPose = PoseUtil.ReefRelativeLeftOf(target.getPose());
+        FieldConstants.TargetPositions target = allReefTargets.stream().filter(poseTarget -> poseTarget.getPose().equals(centerReefPose)).findAny().orElse(FieldConstants.TargetPositions.IDENTITY);
+
+        var nearestReefPose = PoseUtil.ReefRelativeLeftOf(centerReefPose);
+
         var visionPoseSupplier = Limelights.RIGHT.createVisionAlignPoseSupplier(target.getAprilTagIDHolder());
         return Commands.runOnce(() -> Limelights.RIGHT.filterRawFiducials(target.getAprilTagIDHolder().getAllianceRespectiveID()))
                 .andThen( DriveCommands.drivetrain.directlyMoveTo(nearestReefPose, visionPoseSupplier)
@@ -108,12 +114,14 @@ public class DriveCommands {
                 FieldConstants.TargetPositions.REEF_KL
         );
 
-        FieldConstants.TargetPositions target = allReefTargets.stream().reduce(FieldConstants.TargetPositions.REEF_AB, (target1, target2) -> {
-            if (currentRobotPose.get().nearest(List.of(target1.getPose(), target1.getPose()))==target1.getPose()) return target1;
-            else return target2;
-        });
+        Pose2d centerReefPose = currentRobotPose.get().nearest(
+                allReefTargets.stream()
+                        .map(FieldConstants.TargetPositions::getPose)
+                        .collect(Collectors.toList()));
 
-        var nearestReefPose = PoseUtil.ReefRelativeRightOf(target.getPose());
+        FieldConstants.TargetPositions target = allReefTargets.stream().filter(poseTarget -> poseTarget.getPose().equals(centerReefPose)).findAny().orElse(FieldConstants.TargetPositions.IDENTITY);
+
+        var nearestReefPose = PoseUtil.ReefRelativeRightOf(centerReefPose);
         var visionPoseSupplier = Limelights.LEFT.createVisionAlignPoseSupplier(target.getAprilTagIDHolder());
         return Commands.runOnce(() -> Limelights.LEFT.filterRawFiducials(target.getAprilTagIDHolder().getAllianceRespectiveID()))
                 .andThen( DriveCommands.drivetrain.directlyMoveTo(nearestReefPose, visionPoseSupplier)
@@ -140,5 +148,27 @@ public class DriveCommands {
                         : drivetrain.directlyMoveTo(desiredTarget.getPose()))
                 .until(() -> PoseUtil.withinTolerance(desiredTarget.getPose(), currentRobotPose.get(), 2))
                 .andThen(drivetrain.directlyMoveTo(desiredTarget.getPose()));
+    }
+
+    public static Command moveToReefRight(FieldConstants.TargetPositions target) {
+        Supplier<Pose2d> currentRobotPose = drivetrain::getPose;
+
+        var nearestReefPose = target.getPose();
+        var visionPoseSupplier = Limelights.LEFT.createVisionAlignPoseSupplier(target.getAprilTagIDHolder());
+        return Commands.runOnce(() -> Limelights.LEFT.filterRawFiducials(target.getAprilTagIDHolder().getAllianceRespectiveID()))
+                .andThen( DriveCommands.drivetrain.directlyMoveTo(nearestReefPose, visionPoseSupplier)
+                        .until(new Trigger(() -> PoseUtil.withinTolerance(nearestReefPose, visionPoseSupplier.get(), Units.inchesToMeters(1))).debounce(0.1)))
+                .finallyDo(Limelights.LEFT::resetFiducialFilter);
+    }
+
+    public static Command moveToReefLeft(FieldConstants.TargetPositions target) {
+        Supplier<Pose2d> currentRobotPose = drivetrain::getPose;
+
+        var nearestReefPose = target.getPose();
+        var visionPoseSupplier = Limelights.RIGHT.createVisionAlignPoseSupplier(target.getAprilTagIDHolder());
+        return Commands.runOnce(() -> Limelights.RIGHT.filterRawFiducials(target.getAprilTagIDHolder().getAllianceRespectiveID()))
+                .andThen( DriveCommands.drivetrain.directlyMoveTo(nearestReefPose, visionPoseSupplier)
+                        .until(new Trigger(() -> PoseUtil.withinTolerance(nearestReefPose, visionPoseSupplier.get(), Units.inchesToMeters(1))).debounce(0.1)))
+                .finallyDo(Limelights.RIGHT::resetFiducialFilter);
     }
 }

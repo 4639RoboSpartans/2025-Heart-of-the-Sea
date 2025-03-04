@@ -15,6 +15,8 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.lib.util.DriverStationUtil;
 import frc.lib.util.PoseUtil;
 
+import java.util.function.Supplier;
+
 public class SimSwerveDrivetrain extends PhysicalSwerveDrivetrain {
     private static final double SIM_LOOP_PERIOD = 0.005; // 5 ms
 
@@ -34,7 +36,7 @@ public class SimSwerveDrivetrain extends PhysicalSwerveDrivetrain {
         }).andThen(applyRequest(
                 () -> {
                     field.getObject("Target Pose").setPose(pidXController.getSetpoint().position, pidYController.getSetpoint().position, targetPose.getRotation());
-                    double directionMultiplier = DriverStationUtil.getAlliance() == DriverStation.Alliance.Red? -1 : 1;
+                    double directionMultiplier = 1;
                     double pidXOutput = pidXController.calculate(getPose().getX()) * directionMultiplier;
                     double pidYOutput = pidYController.calculate(getPose().getY()) * directionMultiplier;
 
@@ -51,6 +53,37 @@ public class SimSwerveDrivetrain extends PhysicalSwerveDrivetrain {
         ).until(
                 () -> PoseUtil.withinTolerance(targetPose, getPose(), Units.inchesToMeters(2))
                         && MathUtil.isNear(targetPose.getRotation().getDegrees(), getPose().getRotation().getDegrees(), 2)
+        )).andThen(stop().withTimeout(0.1));
+    }
+
+    @Override
+    public Command directlyMoveTo(Pose2d targetPose, Supplier<Pose2d> robotPoseSupplier){
+        return new InstantCommand(() -> {
+            pidXController.reset(robotPoseSupplier.get().getX(), getChassisSpeeds().vxMetersPerSecond);
+            pidYController.reset(robotPoseSupplier.get().getY(), getChassisSpeeds().vyMetersPerSecond);
+            pidXController.setGoal(targetPose.getX());
+            pidYController.setGoal(targetPose.getY());
+        }).andThen(applyRequest(
+                () -> {
+                    field.getObject("Target Pose").setPose(pidXController.getSetpoint().position, pidYController.getSetpoint().position, targetPose.getRotation());
+                    double directionMultiplier = 1;
+                    double pidXOutput = pidXController.calculate(robotPoseSupplier.get().getX()) * directionMultiplier;
+                    double pidYOutput = pidYController.calculate(robotPoseSupplier.get().getY()) * directionMultiplier;
+
+                    var request = new SwerveRequest.FieldCentricFacingAngle();
+                    request.HeadingController = new PhoenixPIDController(8, 0, 0);
+                    request.HeadingController.enableContinuousInput(-Math.PI, Math.PI);
+                    Rotation2d headingOffset = DriverStationUtil.getAlliance() == DriverStation.Alliance.Red ? Rotation2d.k180deg : new Rotation2d();
+
+                    return request
+                            .withVelocityX(frc.lib.util.MathUtil.clamp(pidXOutput, -2.0, 2.0))
+                            .withVelocityY(frc.lib.util.MathUtil.clamp(pidYOutput, -2.0, 2.0))
+                            .withTargetDirection(targetPose.getRotation().plus(headingOffset));
+                }
+        ).until(
+                () -> MathUtil.isNear(targetPose.getX(), robotPoseSupplier.get().getX(), 0.01)
+                        && MathUtil.isNear(targetPose.getY(), robotPoseSupplier.get().getY(), 0.01)
+                        && MathUtil.isNear(targetPose.getRotation().getDegrees(), robotPoseSupplier.get().getRotation().getDegrees(), 1)
         )).andThen(stop().withTimeout(0.1));
     }
 

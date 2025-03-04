@@ -138,16 +138,16 @@ public class RobotContainer {
         }
 
         FunctionalTrigger.of(Controls.Driver.alignReefLeft)
-            .whileTrue(() -> DriveCommands.moveToNearestReefCenterPosition());
+            .whileTrue(DriveCommands::moveToNearestReefLeftPosition);
         FunctionalTrigger.of(Controls.Driver.alignReefRight)
-            .whileTrue(() -> DriveCommands.moveToNearestReefCenterPosition());
+            .whileTrue(DriveCommands::moveToNearestReefRightPosition);
         FunctionalTrigger.of(Controls.Driver.reefAlign)
             .and(Controls.Driver.alignReefLeft.negate())
             .and(Controls.Driver.alignReefRight.negate())
-            .whileTrue(() -> DriveCommands.moveToNearestReefCenterPosition());
+            .whileTrue(DriveCommands::moveToNearestReefCenterPosition);
 
-        FunctionalTrigger.of(Controls.Driver.processorAlign)
-                .whileTrue(DriveCommands::moveToProcessor);
+//        FunctionalTrigger.of(Controls.Driver.processorAlign)
+//                .whileTrue(DriveCommands::moveToProcessor);
 //        FunctionalTrigger.of(Controls.Driver.coralStationAlign)
 //            .and(Controls.Driver.targetLeft).whileTrue(() -> DriveCommands.moveToDesiredCoralStationPosition(true));
 //        FunctionalTrigger.of(Controls.Driver.coralStationAlign)

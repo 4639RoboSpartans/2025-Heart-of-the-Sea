@@ -8,7 +8,7 @@ import java.util.function.Supplier;
 
 public class NonNullablePoseEstimateSupplier implements Supplier<LimelightHelpers.PoseEstimate> {
     Supplier<LimelightHelpers.PoseEstimate> rawSupplier;
-    LimelightHelpers.PoseEstimate lastNonNullMeasurement = new LimelightHelpers.PoseEstimate(new Pose2d(), 0, 0, 0, 0, 0, 0, new LimelightHelpers.RawFiducial[]{});
+    LimelightHelpers.PoseEstimate lastNonNullMeasurement = new LimelightHelpers.PoseEstimate(new Pose2d(), 0.0, 0.0, 0, 0.0, 0.0, 0.0, new LimelightHelpers.RawFiducial[]{}, false);
     public NonNullablePoseEstimateSupplier(Supplier<LimelightHelpers.PoseEstimate> rawSupplier) {
         this.rawSupplier = rawSupplier;
     }

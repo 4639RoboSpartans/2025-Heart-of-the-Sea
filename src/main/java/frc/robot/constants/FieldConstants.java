@@ -257,64 +257,66 @@ public class FieldConstants {
     public enum TargetPositions {
         //TODO: hop on gui and make sure these work
         REEF_AB(
-                FieldConstants.Reef.centerFaces[0].transformBy((FieldConstants.fromReef)),
+                Reef.centerFaces[0].transformBy((FieldConstants.fromReef)),
                 FieldConstants.AprilTagIDHolder.REEF_AB
         ),
         REEF_CD(
-                FieldConstants.Reef.centerFaces[5].transformBy((FieldConstants.fromReef)),
+                Reef.centerFaces[5].transformBy((FieldConstants.fromReef)),
                 FieldConstants.AprilTagIDHolder.REEF_CD
         ),
         REEF_EF(
-                FieldConstants.Reef.centerFaces[4].transformBy((FieldConstants.fromReef)),
+                Reef.centerFaces[4].transformBy((FieldConstants.fromReef)),
                 FieldConstants.AprilTagIDHolder.REEF_EF
         ),
         REEF_GH(
-                FieldConstants.Reef.centerFaces[3].transformBy((FieldConstants.fromReef)),
+                Reef.centerFaces[3].transformBy((FieldConstants.fromReef)),
                 FieldConstants.AprilTagIDHolder.REEF_GH
         ),
         REEF_IJ(
-                FieldConstants.Reef.centerFaces[2].transformBy((FieldConstants.fromReef)),
+                Reef.centerFaces[2].transformBy((FieldConstants.fromReef)),
                 FieldConstants.AprilTagIDHolder.REEF_IJ
         ),
         REEF_KL(
-                FieldConstants.Reef.centerFaces[1].transformBy((FieldConstants.fromReef)),
+                Reef.centerFaces[1].transformBy((FieldConstants.fromReef)),
                 FieldConstants.AprilTagIDHolder.REEF_KL
         ),
 
-        REEF_A(PoseUtil.ReefRelativeLeftOf(REEF_AB.getPose()), FieldConstants.AprilTagIDHolder.REEF_AB, DriveCommands::moveToNearestReefLeftPosition),
-        REEF_B(PoseUtil.ReefRelativeRightOf(REEF_AB.getPose()), FieldConstants.AprilTagIDHolder.REEF_AB, DriveCommands::moveToNearestReefRightPosition),
-        REEF_C(PoseUtil.ReefRelativeLeftOf(REEF_CD.getPose()), FieldConstants.AprilTagIDHolder.REEF_CD, DriveCommands::moveToNearestReefLeftPosition),
-        REEF_D(PoseUtil.ReefRelativeRightOf(REEF_CD.getPose()), FieldConstants.AprilTagIDHolder.REEF_CD, DriveCommands::moveToNearestReefRightPosition),
-        REEF_E(PoseUtil.ReefRelativeLeftOf(REEF_EF.getPose()), FieldConstants.AprilTagIDHolder.REEF_EF, DriveCommands::moveToNearestReefLeftPosition),
-        REEF_F(PoseUtil.ReefRelativeRightOf(REEF_EF.getPose()), FieldConstants.AprilTagIDHolder.REEF_EF, DriveCommands::moveToNearestReefRightPosition),
-        REEF_G(PoseUtil.ReefRelativeLeftOf(REEF_GH.getPose()), FieldConstants.AprilTagIDHolder.REEF_GH, DriveCommands::moveToNearestReefLeftPosition),
-        REEF_H(PoseUtil.ReefRelativeRightOf(REEF_GH.getPose()), FieldConstants.AprilTagIDHolder.REEF_GH, DriveCommands::moveToNearestReefRightPosition),
-        REEF_I(PoseUtil.ReefRelativeLeftOf(REEF_IJ.getPose()), FieldConstants.AprilTagIDHolder.REEF_IJ, DriveCommands::moveToNearestReefLeftPosition),
-        REEF_J(PoseUtil.ReefRelativeRightOf(REEF_IJ.getPose()), FieldConstants.AprilTagIDHolder.REEF_IJ, DriveCommands::moveToNearestReefRightPosition),
-        REEF_K(PoseUtil.ReefRelativeLeftOf(REEF_KL.getPose()), FieldConstants.AprilTagIDHolder.REEF_KL, DriveCommands::moveToNearestReefLeftPosition),
-        REEF_L(PoseUtil.ReefRelativeRightOf(REEF_KL.getPose()), FieldConstants.AprilTagIDHolder.REEF_KL, DriveCommands::moveToNearestReefRightPosition),
+        REEF_A(PoseUtil.ReefRelativeLeftOf(REEF_AB.getPose()), FieldConstants.AprilTagIDHolder.REEF_AB, AlignDirection.LEFT),
+        REEF_B(PoseUtil.ReefRelativeRightOf(REEF_AB.getPose()), FieldConstants.AprilTagIDHolder.REEF_AB, AlignDirection.RIGHT),
+        REEF_C(PoseUtil.ReefRelativeLeftOf(REEF_CD.getPose()), FieldConstants.AprilTagIDHolder.REEF_CD, AlignDirection.LEFT),
+        REEF_D(PoseUtil.ReefRelativeRightOf(REEF_CD.getPose()), FieldConstants.AprilTagIDHolder.REEF_CD, AlignDirection.RIGHT),
+        REEF_E(PoseUtil.ReefRelativeLeftOf(REEF_EF.getPose()), FieldConstants.AprilTagIDHolder.REEF_EF, AlignDirection.LEFT),
+        REEF_F(PoseUtil.ReefRelativeRightOf(REEF_EF.getPose()), FieldConstants.AprilTagIDHolder.REEF_EF, AlignDirection.RIGHT),
+        REEF_G(PoseUtil.ReefRelativeLeftOf(REEF_GH.getPose()), FieldConstants.AprilTagIDHolder.REEF_GH, AlignDirection.LEFT),
+        REEF_H(PoseUtil.ReefRelativeRightOf(REEF_GH.getPose()), FieldConstants.AprilTagIDHolder.REEF_GH, AlignDirection.RIGHT),
+        REEF_I(PoseUtil.ReefRelativeLeftOf(REEF_IJ.getPose()), FieldConstants.AprilTagIDHolder.REEF_IJ, AlignDirection.LEFT),
+        REEF_J(PoseUtil.ReefRelativeRightOf(REEF_IJ.getPose()), FieldConstants.AprilTagIDHolder.REEF_IJ, AlignDirection.RIGHT),
+        REEF_K(PoseUtil.ReefRelativeLeftOf(REEF_KL.getPose()), FieldConstants.AprilTagIDHolder.REEF_KL, AlignDirection.LEFT),
+        REEF_L(PoseUtil.ReefRelativeRightOf(REEF_KL.getPose()), FieldConstants.AprilTagIDHolder.REEF_KL, AlignDirection.RIGHT),
 
-        PROCESSOR(FieldConstants.Processor.centerFace.transformBy(FieldConstants.fromProcessor), FieldConstants.AprilTagIDHolder.Processor),
+        PROCESSOR(Processor.centerFace.transformBy(FieldConstants.fromProcessor), FieldConstants.AprilTagIDHolder.Processor),
 
-        CORALSTATION_LEFT(FieldConstants.CoralStation.leftCenterFace.transformBy(FieldConstants.fromCoralStation), FieldConstants.AprilTagIDHolder.LeftCoralStation),
-        CORALSTATION_RIGHT(FieldConstants.CoralStation.rightCenterFace.transformBy(FieldConstants.fromCoralStation), FieldConstants.AprilTagIDHolder.RightCoralStation),
+        CORALSTATION_LEFT(CoralStation.leftCenterFace.transformBy(FieldConstants.fromCoralStation), FieldConstants.AprilTagIDHolder.LeftCoralStation),
+        CORALSTATION_RIGHT(CoralStation.rightCenterFace.transformBy(FieldConstants.fromCoralStation), FieldConstants.AprilTagIDHolder.RightCoralStation),
 
-        BARGE_FARCAGE(new Pose2d(FieldConstants.Barge.farCage, Rotation2d.kZero).transformBy(fromBarge), FieldConstants.AprilTagIDHolder.AllianceBarge),
-        BARGE_MIDDLECAGE(new Pose2d(FieldConstants.Barge.middleCage, Rotation2d.kZero).transformBy(fromBarge), FieldConstants.AprilTagIDHolder.AllianceBarge),
-        BARGE_CLOSECAGE(new Pose2d(FieldConstants.Barge.closeCage, Rotation2d.kZero).transformBy(fromBarge), FieldConstants.AprilTagIDHolder.AllianceBarge),;
+        BARGE_FARCAGE(new Pose2d(Barge.farCage, Rotation2d.kZero).transformBy(fromBarge), FieldConstants.AprilTagIDHolder.AllianceBarge),
+        BARGE_MIDDLECAGE(new Pose2d(Barge.middleCage, Rotation2d.kZero).transformBy(fromBarge), FieldConstants.AprilTagIDHolder.AllianceBarge),
+        BARGE_CLOSECAGE(new Pose2d(Barge.closeCage, Rotation2d.kZero).transformBy(fromBarge), FieldConstants.AprilTagIDHolder.AllianceBarge),
 
-        TargetPositions(Pose2d pose, AprilTagIDHolder aprilTagIDHolder, Supplier<Command> alignCommandSupplier) {
+        IDENTITY(new Pose2d(Integer.MAX_VALUE, Integer.MAX_VALUE, Rotation2d.kZero), FieldConstants.AprilTagIDHolder.OpponentBarge);
+
+        TargetPositions(Pose2d pose, AprilTagIDHolder aprilTagIDHolder, AlignDirection direction) {
             this.Pose = pose;
             this.AprilTagIDHolder = aprilTagIDHolder;
-            this.alignCommandSupplier = alignCommandSupplier;
+            this.direction = direction;
         }
 
         TargetPositions(Pose2d pose, AprilTagIDHolder aprilTagIDHolder){
-            this(pose, aprilTagIDHolder, Commands::none);
+            this(pose, aprilTagIDHolder, AlignDirection.NONE);
         }
 
         private final Pose2d Pose;
-        private final Supplier<Command> alignCommandSupplier;
+        private final AlignDirection direction;
 
         public FieldConstants.AprilTagIDHolder getAprilTagIDHolder() {
             return AprilTagIDHolder;
@@ -323,15 +325,23 @@ public class FieldConstants {
         private final AprilTagIDHolder AprilTagIDHolder;
 
         public Pose2d getPose() {
-            return AllianceFlipUtil.apply(Pose);
+            return Pose;
         }
 
         public Pose2d getOpponentAlliancePose() {
             return AllianceFlipUtil.rawAllianceFlipPose(getPose());
         }
 
+        /**
+         * Only to be used in autonomous routines for reef R/L align commands
+         * @return
+         */
         public Supplier<Command> getAlignCommandSupplier() {
-            return alignCommandSupplier;
+            return switch(direction) {
+                case LEFT -> () -> DriveCommands.moveToReefLeft(this);
+                case RIGHT -> () -> DriveCommands.moveToReefRight(this);
+                case NONE -> Commands::none;
+            };
         }
     }
 
@@ -371,4 +381,10 @@ public class FieldConstants {
 
     public static double reefForwardsDistance = 0;
     public static double reefSidewaysDistance = 0.125 + Units.inchesToMeters(1.5);
+
+    public enum AlignDirection {
+        LEFT,
+        RIGHT,
+        NONE;
+    }
 }
