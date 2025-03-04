@@ -31,12 +31,12 @@
  },
  "params":{
   "waypoints":[
-    {"x":{"exp":"LEFT_START.x", "val":7.561896800994873}, "y":{"exp":"LEFT_START.y", "val":6.703902721405029}, "heading":{"exp":"LEFT_START.heading", "val":3.141592653589793}, "intervals":30, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"LEFT_START.x", "val":7.561896800994873}, "y":{"exp":"LEFT_START.y", "val":6.703902721405029}, "heading":{"exp":"LEFT_START.heading", "val":3.141592653589793}, "intervals":27, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"6.0604963302612305 m", "val":6.0604963302612305}, "y":{"exp":"5.989569187164307 m", "val":5.989569187164307}, "heading":{"exp":"-2.1462205062541533 rad", "val":-2.1462205062541533}, "intervals":25, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":{"exp":"5.4765777587890625 m", "val":5.4765777587890625}, "y":{"exp":"5.554492473602295 m", "val":5.554492473602295}, "heading":{"exp":"J.heading", "val":4.1887902047863905}, "intervals":29, "split":true, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":{"exp":"4.237143516540527 m", "val":4.237143516540527}, "y":{"exp":"5.958988666534424 m", "val":5.958988666534424}, "heading":{"exp":"0 deg", "val":0.0}, "intervals":28, "split":false, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
+    {"x":{"exp":"5.4765777587890625 m", "val":5.4765777587890625}, "y":{"exp":"5.554492473602295 m", "val":5.554492473602295}, "heading":{"exp":"J.heading", "val":4.1887902047863905}, "intervals":27, "split":true, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"4.237143516540527 m", "val":4.237143516540527}, "y":{"exp":"5.958988666534424 m", "val":5.958988666534424}, "heading":{"exp":"0 deg", "val":0.0}, "intervals":26, "split":false, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
     {"x":{"exp":"2.726391553878784 m", "val":2.726391553878784}, "y":{"exp":"6.424034118652344 m", "val":6.424034118652344}, "heading":{"exp":"-0.900897488641429 rad", "val":-0.900897488641429}, "intervals":28, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":{"exp":"1.4807432889938354 m", "val":1.4807432889938354}, "y":{"exp":"6.687981605529785 m", "val":6.687981605529785}, "heading":{"exp":"-0.9362048488645347 rad", "val":-0.9362048488645348}, "intervals":25, "split":true, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"1.4807432889938354 m", "val":1.4807432889938354}, "y":{"exp":"6.687981605529785 m", "val":6.687981605529785}, "heading":{"exp":"-0.9362048488645347 rad", "val":-0.9362048488645348}, "intervals":21, "split":true, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"3.014960527420044 m", "val":3.014960527420044}, "y":{"exp":"5.955221176147461 m", "val":5.955221176147461}, "heading":{"exp":"-1.0101093398895575 rad", "val":-1.0101093398895575}, "intervals":21, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"3.5874297618865967 m", "val":3.5874297618865967}, "y":{"exp":"5.56594181060791 m", "val":5.56594181060791}, "heading":{"exp":"K.heading", "val":5.235987755982989}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[
@@ -54,7 +54,7 @@
     {"from":6, "to":7, "data":{"type":"MaxAngularVelocity", "props":{"max":{"exp":"0.1 rad / s", "val":0.1}}}, "enabled":true},
     {"from":4, "to":6, "data":{"type":"MaxAngularVelocity", "props":{"max":{"exp":"3 rad / s", "val":3.0}}}, "enabled":true},
     {"from":0, "to":7, "data":{"type":"MaxAcceleration", "props":{"max":{"exp":"8 m / s ^ 2", "val":8.0}}}, "enabled":true},
-    {"from":0, "to":7, "data":{"type":"MaxVelocity", "props":{"max":{"exp":"2 m / s", "val":2.0}}}, "enabled":true}],
+    {"from":0, "to":7, "data":{"type":"MaxVelocity", "props":{"max":{"exp":"3 m / s", "val":3.0}}}, "enabled":true}],
   "targetDt":{
    "exp":"0.05 s",
    "val":0.05
