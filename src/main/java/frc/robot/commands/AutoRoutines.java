@@ -40,7 +40,7 @@ public class AutoRoutines {
     public Auton COMP_H_G() {
         return compileAuton(
             true,
-            true,
+            false,
             new ScoringTarget('H', 4),
             new ScoringTarget('G', 4)
         );

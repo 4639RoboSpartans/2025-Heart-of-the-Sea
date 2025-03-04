@@ -34,7 +34,7 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
 
     private final ProfiledPIDController wristPID;
     private double encoderOffset;
-    private final static double DEFAULT_ENCODER_OFFSET = 0.92 + 0.05;
+    private final static double DEFAULT_ENCODER_OFFSET = 0.020;
 
 
     // given is frac 0.82, measured frac 0.556 => need to sub frac 0.264 from measurement
@@ -101,7 +101,7 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
             System.out.println("Configuration failed! " + e);
         }
         hasCoral = new Trigger(this::hasCoral);
-        hasCoral.debounce(1.5);
+        hasCoral.debounce(3);
         wristMotor.configure(
             new SparkFlexConfig().idleMode(SparkBaseConfig.IdleMode.kCoast),
             SparkBase.ResetMode.kNoResetSafeParameters,
