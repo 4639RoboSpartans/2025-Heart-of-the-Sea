@@ -218,6 +218,26 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
             .andThen(() -> setVisionStandardDeviations(5, 5, 10));
     }
 
+    public Command fineTuneUsingLaserCANCommand(Pose2d targetPose) {
+        return applyRequest(
+                () -> {
+                    double laserCANAlignOutput = LasercanAlign.getInstance().getOutput();
+                    ChassisSpeeds fieldCentricSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(
+                            new ChassisSpeeds(
+                                    laserCANAlignOutput,
+                                    0,
+                                    0
+                            ),
+                            getPose().getRotation()
+                    );
+                    return new SwerveRequest.FieldCentricFacingAngle()
+                            .withVelocityX(fieldCentricSpeeds.vxMetersPerSecond)
+                            .withVelocityY(fieldCentricSpeeds.vyMetersPerSecond)
+                            .withTargetDirection(targetPose.getRotation());
+                }
+        );
+    }
+
     /**
      * Returns a command that applies the specified control request to this swerve drivetrain.
      *
