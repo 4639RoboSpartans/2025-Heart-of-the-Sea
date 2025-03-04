@@ -69,11 +69,11 @@ public class LEDCommandFactory {
     }
 
     public static LEDPattern redOrangeMovingWave = new MovingWaveLEDPattern(
-            Color.kRed, Color.kOrangeRed, 2
+            Color.kRed, Color.kOrangeRed, 5
     );
 
     public static LEDPattern blueTealMovingWave = new MovingWaveLEDPattern(
-            Color.kBlue, Color.kTeal, 2
+            Color.kBlue, Color.kLimeGreen, 5
     );
 
     /*

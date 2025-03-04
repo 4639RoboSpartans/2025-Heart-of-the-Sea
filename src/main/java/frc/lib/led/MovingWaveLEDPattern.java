@@ -12,7 +12,7 @@ public class MovingWaveLEDPattern implements LEDPattern {
     public MovingWaveLEDPattern(Color color1, Color color2, double frequency) {
         this.color1 = color1;
         this.color2 = color2;
-        waveEquation = (led, time) -> Math.sin((frequency * 2 * Math.PI) - time - led);
+        waveEquation = (led, time) -> Math.sin((frequency * 2 * Math.PI * time)- led);
     }
 
     @Override
