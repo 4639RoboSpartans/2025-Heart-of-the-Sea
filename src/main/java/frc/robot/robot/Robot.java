@@ -61,7 +61,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void disabledExit() {
         SubsystemManager.getInstance().getScoringSuperstructure().getEndEffectorSubsystem().setWristMotorIdleMode(SparkBaseConfig.IdleMode.kBrake);
-        SmartDashboard.putNumber("distanceThresholdMeters", 2);
+        SmartDashboard.putNumber("distanceThresholdMeters", 100);
     }
 
 

@@ -36,8 +36,10 @@ import frc.robot.subsystems.drive.constants.DriveConstants;
 import frc.robot.subsystems.drive.constants.DrivePIDs;
 import frc.robot.subsystems.drive.constants.TunerConstants;
 import frc.robot.subsystems.drive.constants.TunerConstants.TunerSwerveDrivetrain;
+import frc.robot.subsystems.vision.Limelights;
 import frc.robot.subsystems.vision.Vision;
 
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import static edu.wpi.first.units.Units.Radians;
@@ -304,7 +306,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
             });
         }
 
-        Vision.addGlobalVisionMeasurements(this);
+        Optional.ofNullable(Limelights.RIGHT.getCurrentPoseEstimateMegaTag1()).ifPresent(est -> this.addVisionMeasurement(est.pose, est.timestampSeconds));
 
         // Update robot pose
         field.setRobotPose(getPose());

@@ -12,7 +12,7 @@ public class Limelights {
     
     private static Limelight constructLimelight(String name){
        var limelight = new Limelight(name);
-       Objects.requireNonNull(all).add(limelight);
+      all.add(limelight);
        return limelight;
     }
 }

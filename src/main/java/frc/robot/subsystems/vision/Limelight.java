@@ -41,13 +41,12 @@ public class Limelight {
         LimelightHelpers.PoseEstimate measurement =
                 DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue
                         ? LimelightHelpers.getBotPoseEstimate_wpiBlue(getName())
-                        : LimelightHelpers.getBotPoseEstimate_wpiRed(getName()
-        );
+                        : LimelightHelpers.getBotPoseEstimate_wpiRed(getName());
         return measurement.pose.getX() == 0 && measurement.pose.getY() == 0
                 ? null
-                : PoseUtil.withinTolerance(measurement.pose, drivetrain.getPose(), Vision.distanceThreshold.get())
+                : (PoseUtil.withinTolerance(measurement.pose, drivetrain.getPose(), Vision.distanceThreshold.get())
                 ? measurement
-                : null;
+                : null);
     }
 
     /**
