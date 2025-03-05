@@ -35,7 +35,7 @@ public class LEDCommandFactory {
     }
 
     public static Command LEDThreeFlashThenSolidGreen() {
-        return LEDThreeFlashGreen().andThen(leds.usePattern(new SolidLEDPattern(Color.kLimeGreen)));
+        return LEDThreeFlashGreen().andThen(leds.usePattern(new SolidLEDPattern(Color.kGreen)));
     }
 
     public static Command blueOrangeCycle() {

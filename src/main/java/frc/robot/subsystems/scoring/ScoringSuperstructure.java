@@ -127,7 +127,7 @@ public final class ScoringSuperstructure extends SubsystemBase {
                 elevator.resetCurrentExtensionFractionTo(ElevatorSetpoints.Homing_Proportion);
                 setCurrentAction(ScoringSuperstructureAction.IDLE);
             }
-        });
+        }).withName("elevatorHomingCommand");
     }
 
     private void runManualPeriodic() {

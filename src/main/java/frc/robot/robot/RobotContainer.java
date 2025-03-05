@@ -14,7 +14,8 @@ import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.lib.FunctionalTrigger;
+import edu.wpi.first.wpilibj2.command.DeferredCommand;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.AutoCommands;
 import frc.robot.commands.AutoRoutines;
 import frc.robot.commands.AutoRoutines.Auton;
@@ -31,6 +32,7 @@ import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
 
 import java.util.Arrays;
+import java.util.Set;
 
 import static edu.wpi.first.units.Units.Meters;
 
@@ -137,21 +139,17 @@ public class RobotContainer {
             Controls.Operator.HomingCommandTrigger.whileTrue(scoringSuperstructure.elevatorHomingCommand());
         }
 
-        FunctionalTrigger.of(Controls.Driver.alignReefLeft)
-            .whileTrue(() -> DriveCommands.moveToClosestReefPositionWithTransformation((byte) 0));
-        FunctionalTrigger.of(Controls.Driver.alignReefRight)
-            .whileTrue(() -> DriveCommands.moveToClosestReefPositionWithTransformation((byte) 1));
-        FunctionalTrigger.of(Controls.Driver.reefAlign)
+        Controls.Driver.alignReefLeft
+            .whileTrue(new DeferredCommand(() -> DriveCommands.moveToClosestReefPositionWithTransformation((byte) 0), Set.of(swerve)));
+        Controls.Driver.alignReefLeft
+                .whileTrue(new DeferredCommand(() -> DriveCommands.moveToClosestReefPositionWithTransformation((byte) 1), Set.of(swerve)));
+        Controls.Driver.reefAlign
             .and(Controls.Driver.alignReefLeft.negate())
             .and(Controls.Driver.alignReefRight.negate())
-            .whileTrue(() -> DriveCommands.moveToClosestReefPositionWithTransformation((byte) 2));
+                .whileTrue(new DeferredCommand(() -> DriveCommands.moveToClosestReefPositionWithTransformation((byte) 2), Set.of(swerve)));
 
-        FunctionalTrigger.of(Controls.Driver.processorAlign)
-                .whileTrue(DriveCommands::moveToProcessor);
-//        FunctionalTrigger.of(Controls.Driver.coralStationAlign)
-//            .and(Controls.Driver.targetLeft).whileTrue(() -> DriveCommands.moveToDesiredCoralStationPosition(true));
-//        FunctionalTrigger.of(Controls.Driver.coralStationAlign)
-//            .and(Controls.Driver.targetRight).whileTrue(() -> DriveCommands.moveToDesiredCoralStationPosition(false));
+        Controls.Driver.processorAlign
+                .whileTrue(new DeferredCommand(DriveCommands::moveToProcessor, Set.of(swerve)));
 
 
         // OI.getInstance().driverController().Y_BUTTON.whileTrue(
@@ -227,8 +225,10 @@ public class RobotContainer {
     }
 
     public void configureLEDs(){
-        FunctionalTrigger.of(scoringSuperstructure::isManualControlEnabled).whileTrue(LEDCommandFactory::LEDFlashPurple);
-        FunctionalTrigger.of(scoringSuperstructure.getEndEffectorSubsystem()::hasCoral).whileTrue(LEDCommandFactory::LEDThreeFlashThenSolidGreen);
-
+        new Trigger(scoringSuperstructure::isManualControlEnabled).whileTrue(new DeferredCommand(LEDCommandFactory::LEDFlashPurple, Set.of(SubsystemManager.getInstance().getLEDStripSubsystem())));
+        new Trigger(scoringSuperstructure.getEndEffectorSubsystem()::hasCoral).whileTrue(new DeferredCommand(LEDCommandFactory::LEDFlashPurple, Set.of(SubsystemManager.getInstance().getLEDStripSubsystem())));
+        var homingTrigger = new Trigger(() -> scoringSuperstructure.getCurrentCommand().getName().equals("elevatorHomingCommand"));
+        homingTrigger.whileTrue(new DeferredCommand(LEDCommandFactory::LEDFlashRed, Set.of(SubsystemManager.getInstance().getLEDStripSubsystem())));
+        homingTrigger.onFalse(new DeferredCommand(LEDCommandFactory::LEDThreeFlashGreen, Set.of(SubsystemManager.getInstance().getLEDStripSubsystem())));
     }
 }
