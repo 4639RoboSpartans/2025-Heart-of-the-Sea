@@ -1,18 +1,16 @@
 package frc.robot.subsystems.scoring;
 
-import com.ctre.phoenix6.Utils;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.lib.network.LimelightHelpers;
+import frc.lib.limelight.LimelightHelpers;
+import frc.lib.limelight.data.PoseEstimate;
+import frc.lib.limelight.data.PoseEstimate.Botpose;
 import frc.lib.tunable.TunableNumber;
 import frc.lib.util.PoseUtil;
 import frc.robot.constants.Limelights;
 import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
 
 import java.util.Arrays;
-import java.util.Optional;
 import java.util.OptionalDouble;
 
 public class Vision {
@@ -21,18 +19,21 @@ public class Vision {
     public static void addGlobalVisionMeasurements(AbstractSwerveDrivetrain drivetrain) {
         if ((RobotBase.isReal())) Arrays.stream(Limelights.values()).parallel().forEach(
                 limelight -> {
-                    Optional<Pose2d> measurement = Optional.of(
+                    PoseEstimate measurement = 
                             DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue
-                                    ? LimelightHelpers.getBotPose2d_wpiBlue(limelight.getName())
-                                    : LimelightHelpers.getBotPose2d_wpiRed(limelight.getName())
-                    );
-                    measurement = measurement.get().getX() == 0 && measurement.get().getY() == 0
-                            ? Optional.empty()
-                            : PoseUtil.withinTolerance(measurement.get(), drivetrain.getPose(), distanceThreshold.get())
-                                ? measurement
-                                : Optional.empty();
+                                    ? LimelightHelpers.getBotPoseEstimate(limelight.getName(), Botpose.BLUE_MEGATAG1)
+                                    : LimelightHelpers.getBotPoseEstimate(limelight.getName(), Botpose.RED_MEGATAG1);
+                    var res = measurement.pose().getX() == 0 && measurement.pose().getY() == 0
+                            ? null
+                            : PoseUtil.withinTolerance(measurement.pose(), drivetrain.getPose(), distanceThreshold.get())
+                                ? measurement.pose()
+                                : null;
 
-                    measurement.ifPresent(pose -> drivetrain.addVisionMeasurement(pose, Utils.getCurrentTimeSeconds()));
+                    if (res != null) {
+                        double[] stdevs = LimelightHelpers.getStDevs_MT1(limelight.getName());
+                        drivetrain.setVisionStandardDeviations(stdevs[0], stdevs[1], stdevs[3]);
+                        drivetrain.addVisionMeasurement(res, measurement.timestampSeconds());
+                    }
                 }
         );
     }
