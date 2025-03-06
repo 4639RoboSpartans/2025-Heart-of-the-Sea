@@ -43,7 +43,7 @@ public final class ScoringConstants {
 
             public static final double L2_Proportion = 0.28;
             public static final double L3_Proportion = 0.481;
-            public static final double L4_Proportion = 0.85;
+            public static final double L4_Proportion = 0.865;
 
             // TODO: below
             public static final double L2_ALGAE_Proportion = 0.32; // MAYBE

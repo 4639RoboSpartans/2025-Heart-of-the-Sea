@@ -55,11 +55,11 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     protected ProfiledPIDController pidYController = constructPIDYController();
 
     public static ProfiledPIDController constructPIDYController() {
-        return new ProfiledPIDController(16, 0, 0, new TrapezoidProfile.Constraints(8, 12));
+        return new ProfiledPIDController(1, 0, 0, new TrapezoidProfile.Constraints(0.5, 2));
     }
 
     public static ProfiledPIDController constructPIDXController() {
-        return new ProfiledPIDController(16, 0, 0, new TrapezoidProfile.Constraints(8, 12));
+        return new ProfiledPIDController(1, 0, 0, new TrapezoidProfile.Constraints(0.5, 2));
     }
 
     {
@@ -192,7 +192,8 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
             pidYController.reset(getPose().getY(), getChassisSpeeds().vyMetersPerSecond);
             pidXController.setGoal(targetPose.getX());
             pidYController.setGoal(targetPose.getY());
-            setVisionStandardDeviations(1, 1, 10);
+            setVisionStandardDeviations(0.5, 0.5, 0.5);
+            SmartDashboard.putNumber("distanceThresholdMeters", 10);
         }).andThen(applyRequest(
                 () -> {
                     field.getObject("Target Pose").setPose(pidXController.getSetpoint().position, pidYController.getSetpoint().position, targetPose.getRotation());
@@ -206,8 +207,8 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                     Rotation2d headingOffset = DriverStationUtil.getAlliance() == Alliance.Red ? Rotation2d.k180deg : new Rotation2d();
 
                     return request
-                        .withVelocityX(frc.lib.util.MathUtil.clamp(pidXOutput, -1.0, 1.0))
-                        .withVelocityY(frc.lib.util.MathUtil.clamp(pidYOutput, -1.0, 1.0))
+                        .withVelocityX(pidXOutput)
+                        .withVelocityY(pidYOutput)
                         .withTargetDirection(targetPose.getRotation().plus(headingOffset));
                 }
             ).until(
@@ -215,7 +216,10 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                     && MathUtil.isNear(targetPose.getY(), getPose().getY(), 0.01)
                     && MathUtil.isNear(targetPose.getRotation().getDegrees(), getPose().getRotation().getDegrees(), 2)
             )).andThen(stop().withTimeout(0.1))
-            .andThen(() -> setVisionStandardDeviations(5, 5, 10));
+            .andThen(() -> {
+                setVisionStandardDeviations(5, 5, 10);
+                SmartDashboard.putNumber("distanceThresholdMeters", 2);
+            });
     }
 
     /**
