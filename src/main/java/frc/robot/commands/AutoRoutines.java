@@ -84,6 +84,15 @@ public class AutoRoutines {
         );
     }
 
+    public Auton TEST_E_C() {
+        return compileAuton(
+                false,
+                false,
+                new ScoringTarget('E', 4),
+                new ScoringTarget('C', 4)
+        );
+    }
+
     private record ScoringTarget(char scoringLocation, int scoringHeight) {
         @Override
         public String toString() {
@@ -211,7 +220,8 @@ public class AutoRoutines {
             COMP_H_A(),
             COMP_H_G(),
             COMP_J_K(),
-            COMP_G_C_D_B()
+            COMP_G_C_D_B(),
+                TEST_E_C()
         );
     }
 
