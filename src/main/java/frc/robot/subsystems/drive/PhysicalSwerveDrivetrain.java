@@ -26,6 +26,7 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -197,7 +198,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         }).andThen(applyRequest(
                 () -> {
                     field.getObject("Target Pose").setPose(pidXController.getSetpoint().position, pidYController.getSetpoint().position, targetPose.getRotation());
-                    double directionMultiplier = DriverStationUtil.getAlliance() == DriverStation.Alliance.Red ? -1 : 1;
+                    double directionMultiplier = (DriverStationUtil.getAlliance() == DriverStation.Alliance.Red ? -1 : 1) * (RobotState.isAutonomous() ? -1 : 1);
                     double pidXOutput = pidXController.calculate(getPose().getX()) * directionMultiplier;
                     double pidYOutput = pidYController.calculate(getPose().getY()) * directionMultiplier;
 
