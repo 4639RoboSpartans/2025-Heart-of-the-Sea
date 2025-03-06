@@ -55,11 +55,11 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     protected ProfiledPIDController pidYController = constructPIDYController();
 
     public static ProfiledPIDController constructPIDYController() {
-        return new ProfiledPIDController(1, 0, 0, new TrapezoidProfile.Constraints(0.5, 2));
+        return new ProfiledPIDController(0.5, 0, 0, new TrapezoidProfile.Constraints(1, 0.5));
     }
 
     public static ProfiledPIDController constructPIDXController() {
-        return new ProfiledPIDController(1, 0, 0, new TrapezoidProfile.Constraints(0.5, 2));
+        return new ProfiledPIDController(0.5, 0, 0, new TrapezoidProfile.Constraints(1, 0.5));
     }
 
     {
