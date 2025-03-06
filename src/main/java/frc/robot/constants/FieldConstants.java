@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.util.AllianceFlipUtil;
+import frc.lib.util.DriverStationUtil;
 import frc.lib.util.PoseUtil;
 import frc.robot.subsystems.SubsystemManager;
 
@@ -326,6 +327,12 @@ public class FieldConstants {
 
         public Pose2d getOpponentAlliancePose() {
             return AllianceFlipUtil.rawAllianceFlipPose(getPose());
+        }
+
+        public Pose2d getAllianceRespectivePose() {
+            return DriverStationUtil.getAlliance() == Alliance.Red
+                    ? getOpponentAlliancePose()
+                    : getPose();
         }
 
         public static TargetPositions RLReefPoseFromChar(Character character){

@@ -72,13 +72,6 @@ public class DriveCommands {
 
         return DriveCommands.drivetrain.directlyMoveTo(desiredPose)
                 .until(new Trigger(() -> PoseUtil.withinTolerance(desiredPose, currentRobotPose.get(), Units.inchesToMeters(2))).debounce(0.1))
-//TODO:                .andThen(
-//                        (direction == 0
-//                                ? drivetrain.targetToLeftReefCommand()
-//                                : (direction == 1
-//                                ? drivetrain.targetToRightReefCommand()
-//                                : Commands.none()))
-//                )
                 .andThen(() -> drivetrain.setVisionStandardDeviations(10, 10, 10));
     }
 
@@ -150,9 +143,9 @@ public class DriveCommands {
      */
     public static Command moveToHexThenMoveToRLCommand(char reefLetter){
         return FieldConstants.TargetPositions.hexReefPoseFromChar(reefLetter)
-                .map(target -> (Command) drivetrain.directlyMoveTo(target.getPose()).until(() -> PoseUtil.withinTolerance(drivetrain.getPose(), target.getPose(), Units.inchesToMeters(2))))
+                .map(target -> (Command) drivetrain.directlyMoveTo(target.getAllianceRespectivePose()).until(() -> PoseUtil.withinTolerance(drivetrain.getPose(), target.getPose(), Units.inchesToMeters(2))))
                 .orElse(Commands.none())
-                .andThen(drivetrain.directlyMoveTo(FieldConstants.TargetPositions.RLReefPoseFromChar(reefLetter).getPose()))
+                .andThen(drivetrain.directlyMoveTo(FieldConstants.TargetPositions.RLReefPoseFromChar(reefLetter).getAllianceRespectivePose()))
                 .until(() -> PoseUtil.withinTolerance(drivetrain.getPose(), FieldConstants.TargetPositions.RLReefPoseFromChar(reefLetter).getPose(), Units.inchesToMeters(0.5)));
 
     }

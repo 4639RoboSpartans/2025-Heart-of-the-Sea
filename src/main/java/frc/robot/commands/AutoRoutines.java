@@ -10,6 +10,7 @@ import frc.lib.util.CommandsUtil;
 import frc.lib.util.PoseUtil;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.FieldConstants.TargetPositions;
+import frc.robot.robot.Robot;
 import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
 import frc.robot.subsystems.drive.DriveCommands;
@@ -158,13 +159,15 @@ public class AutoRoutines {
         //commands.add(targetPosition.fineTuneTargetCommand.get());
 
         // Add scoring command
-        commands.add(switch (scoringTarget.scoringHeight()) {
-            case 1 -> AutoCommands.L1Score.get();
-            case 2 -> AutoCommands.L2Score.get();
-            case 3 -> AutoCommands.L3Score.get();
-            case 4 -> AutoCommands.L4Score.get();
-            default -> AutoCommands.HPLoad.get().withTimeout(1);
-        });
+        if (Robot.isReal()) {
+            commands.add(switch (scoringTarget.scoringHeight()) {
+                case 1 -> AutoCommands.L1Score.get();
+                case 2 -> AutoCommands.L2Score.get();
+                case 3 -> AutoCommands.L3Score.get();
+                case 4 -> AutoCommands.L4Score.get();
+                default -> AutoCommands.HPLoad.get().withTimeout(1);
+            });
+        }
     }
 
     private void addHPLoadingSegment(List<Command> commands, AutoTrajectory path, boolean isStationLeft) {
@@ -174,11 +177,13 @@ public class AutoRoutines {
         // Add directly move to stuff IDK
         addHPMoveToCommand(
             commands,
-            isStationLeft? TargetPositions.CORALSTATION_LEFT.getPose() : TargetPositions.CORALSTATION_RIGHT.getPose()
+            isStationLeft? TargetPositions.CORALSTATION_LEFT.getAllianceRespectivePose() : TargetPositions.CORALSTATION_RIGHT.getAllianceRespectivePose()
         );
 
         // Add HP load command
-        commands.add(AutoCommands.HPLoad.get().withTimeout(2));
+        if (Robot.isReal()) {
+            commands.add(AutoCommands.HPLoad.get());
+        }
     }
 
     private static void addDirectlyMoveToCommand(List<Command> commands, FieldConstants.TargetPositions targetPose) {

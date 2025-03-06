@@ -6,6 +6,8 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import edu.wpi.first.wpilibj.DriverStation;
+import frc.lib.util.DriverStationUtil;
 import frc.robot.commands.AutoRoutines;
 
 public final class SwerveAutoRoutinesCreator {
@@ -41,7 +43,7 @@ public final class SwerveAutoRoutinesCreator {
             drivetrain::getPose,
             drivetrain::resetPose,
             drivetrain::followPath,
-            false,
+            DriverStationUtil.getAlliance() == DriverStation.Alliance.Red,
             drivetrain,
             (sample, isStart) -> {}
         ));
