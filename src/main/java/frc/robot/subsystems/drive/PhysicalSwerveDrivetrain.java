@@ -198,7 +198,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         }).andThen(applyRequest(
                 () -> {
                     double directionMultiplier = (DriverStationUtil.getAlliance() == DriverStation.Alliance.Red ? -1 : 1) * (RobotState.isAutonomous() ? -1 : 1);
-                    if (RobotState.isAutonomous()) directionMultiplier = -1;
+                    // if (RobotState.isAutonomous()) directionMultiplier = -1;
                     double pidXOutput = pidXController.calculate(getPose().getX()) * directionMultiplier;
                     double pidYOutput = pidYController.calculate(getPose().getY()) * directionMultiplier;
 

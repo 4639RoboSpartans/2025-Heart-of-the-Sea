@@ -685,10 +685,10 @@ public class LimelightHelpers {
   }
 
   public static double[] getStDevs_MT1(String name) {
-    return NTUtils.getLimelightNetworkTableDoubleArray(name, "stdev_mt1");
+    return NTUtils.getLimelightNetworkTableDoubleArray(name, "stddevs");
   }
 
   public static double[] getStDevs_MT2(String name) {
-    return NTUtils.getLimelightNetworkTableDoubleArray(name, "stdev_mt2");
+    return NTUtils.getLimelightNetworkTableDoubleArray(name, "stddevs");
   }
 }

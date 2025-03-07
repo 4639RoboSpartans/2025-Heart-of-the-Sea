@@ -2,6 +2,9 @@ package frc.robot.subsystems.vision;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.RobotState;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.lib.limelight.LimelightHelpers;
 import frc.lib.limelight.data.PoseEstimate;
 import frc.lib.limelight.data.PoseEstimate.Botpose;
@@ -15,9 +18,11 @@ import java.util.OptionalDouble;
 
 public class Vision {
     public static TunableNumber distanceThreshold = new TunableNumber("distanceThresholdMeters").withDefaultValue(1);
+    private static Field2d visionMeasurements = new Field2d();
 
     public static void addGlobalVisionMeasurements(AbstractSwerveDrivetrain drivetrain) {
-        if ((RobotBase.isReal())) Arrays.stream(Limelights.values()).parallel().forEach(
+        if ((RobotBase.isReal())) {
+            Arrays.stream(Limelights.values()).parallel().forEach(
                 limelight -> {
                     PoseEstimate measurement = 
                             DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue
@@ -25,17 +30,21 @@ public class Vision {
                                     : LimelightHelpers.getBotPoseEstimate(limelight.getName(), Botpose.RED_MEGATAG1);
                     var res = measurement.pose().getX() == 0 && measurement.pose().getY() == 0
                             ? null
-                            : PoseUtil.withinTolerance(measurement.pose(), drivetrain.getPose(), distanceThreshold.get())
-                                ? measurement.pose()
-                                : null;
+                            : measurement.pose();
 
                     if (res != null) {
                         double[] stdevs = LimelightHelpers.getStDevs_MT1(limelight.getName());
                         drivetrain.setVisionStandardDeviations(stdevs[0], stdevs[1], stdevs[3]);
                         drivetrain.addVisionMeasurement(res, measurement.timestampSeconds());
+                        visionMeasurements.getObject(limelight.getName()).setPose(res);
+                        SmartDashboard.putBoolean("Added Vision", true);
+                    } else {
+                        SmartDashboard.putBoolean("Added Vision", false);
                     }
+                    SmartDashboard.putData("Vision Measurements", visionMeasurements);
                 }
-        );
+            );
+        }
     }
 
     public static OptionalDouble getTA(){
