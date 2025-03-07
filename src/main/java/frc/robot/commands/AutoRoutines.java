@@ -6,6 +6,7 @@ import choreo.auto.AutoTrajectory;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.util.CommandsUtil;
 import frc.lib.util.PoseUtil;
 import frc.robot.constants.FieldConstants;
@@ -77,21 +78,35 @@ public class AutoRoutines {
     }
 
     public Auton TEST_A_B() {
-        return compileAuton(
-            false,
-            true,
-            new ScoringTarget('A', 1),
-            new ScoringTarget('B', 2)
+        AutoRoutine routine = factory.newRoutine("COMP_A_B");
+        AutoTrajectory traj1 = routine.trajectory("TEST-A-B", 0);
+        AutoTrajectory traj2 = routine.trajectory("TEST-A-B", 0);
+
+        routine.active().onTrue(
+            Commands.sequence(
+                traj1.resetOdometry(),
+                traj1.cmd(),
+                traj2.cmd()
+            )
         );
+
+        return new Auton(routine, "TESTING-A-B");
     }
 
     public Auton TEST_E_C() {
-        return compileAuton(
-                false,
-                false,
-                new ScoringTarget('E', 4),
-                new ScoringTarget('C', 4)
+        AutoRoutine routine = factory.newRoutine("TEST_E_C");
+        AutoTrajectory traj1 = routine.trajectory("TEST-E-C", 0);
+        AutoTrajectory traj2 = routine.trajectory("TEST-E-C", 0);
+
+        routine.active().onTrue(
+            Commands.sequence(
+                traj1.resetOdometry(),
+                traj1.cmd(),
+                traj2.cmd()
+            )
         );
+
+        return new Auton(routine, "TESTING-E-C");
     }
 
     private record ScoringTarget(char scoringLocation, int scoringHeight) {
@@ -226,7 +241,8 @@ public class AutoRoutines {
             COMP_H_G(),
             COMP_J_K(),
             COMP_G_C_D_B(),
-                TEST_E_C()
+            TEST_E_C(),
+            TEST_A_B()
         );
     }
 

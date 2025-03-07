@@ -23,8 +23,9 @@ public class AutoCommands {
         return Commands.deadline(
             superstructure.setAction(action).andThen(superstructure.runScoringState())
                     .until(
-                            () -> superstructure.getCurrentAction().toString().equals("IDLE")
-                                    && superstructure.isAtActionPosition()
+                            () -> (superstructure.getCurrentAction().toString().equals("IDLE")
+                                    && superstructure.isAtActionPosition())
+                                    || (superstructure.hasCoral() && action.name.equals(ScoringSuperstructureAction.INTAKE_FROM_HP.name))
                     ),
             swerve.stop()
         );

@@ -214,8 +214,8 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                         .withTargetDirection(targetPose.getRotation().plus(headingOffset));
                 }
             ).until(
-                () -> MathUtil.isNear(targetPose.getX(), getPose().getX(), 0.1)
-                    && MathUtil.isNear(targetPose.getY(), getPose().getY(), 0.1)
+                () -> MathUtil.isNear(targetPose.getX(), getPose().getX(), 0.025)
+                    && MathUtil.isNear(targetPose.getY(), getPose().getY(), 0.025)
                     && MathUtil.isNear(targetPose.getRotation().getDegrees(), getPose().getRotation().getDegrees(), 2)
             )).andThen(stop().withTimeout(0.1))
             .andThen(() -> {

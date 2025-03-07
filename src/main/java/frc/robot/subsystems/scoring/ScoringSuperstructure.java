@@ -70,6 +70,10 @@ public final class ScoringSuperstructure extends SubsystemBase {
         wristAdjustment = 0;
     }
 
+    public boolean hasCoral() {
+        return endEffector.hasCoral();
+    }
+
     /**
      * @param state the new state to set the scoring superstructure to.
      *

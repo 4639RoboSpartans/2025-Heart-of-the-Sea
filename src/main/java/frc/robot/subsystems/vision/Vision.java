@@ -36,9 +36,12 @@ public class Vision {
 
                     if (res != null) {
                         double[] stdevs = LimelightHelpers.getStDevs_MT1(limelight.getName());
-                        drivetrain.setVisionStandardDeviations(stdevs[0] * 100, stdevs[1] * 100, stdevs[3]);
-                        if (!RobotState.isAutonomous())
-                            drivetrain.addVisionMeasurement(res, Utils.getCurrentTimeSeconds());
+                        if (RobotState.isAutonomous()) {
+                            drivetrain.setVisionStandardDeviations(10, 10, 999999);
+                        } else {
+                            drivetrain.setVisionStandardDeviations(stdevs[0] * 100, stdevs[1] * 100, stdevs[3]);
+                        }
+                        drivetrain.addVisionMeasurement(res, Utils.getCurrentTimeSeconds());
                         visionMeasurements.getObject(limelight.getName()).setPose(res);
                         SmartDashboard.putBoolean("Added Vision", true);
                     } else {
