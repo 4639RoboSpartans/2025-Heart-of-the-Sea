@@ -11,7 +11,7 @@ import frc.lib.util.DriverStationUtil;
 import frc.robot.commands.AutoRoutines;
 
 public final class SwerveAutoRoutinesCreator {
-    private static final PIDConstants AUTON_TRANSLATION_PID_CONSTANTS = new PIDConstants(10, 0, 0);
+    private static final PIDConstants AUTON_TRANSLATION_PID_CONSTANTS = new PIDConstants(0, 0, 0);
     private static final PIDConstants AUTON_ROTATION_PID_CONSTANTS = new PIDConstants(7, 0, 0);
 
     public static AutoRoutines createAutoRoutines(AbstractSwerveDrivetrain drivetrain) {

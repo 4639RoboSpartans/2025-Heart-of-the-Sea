@@ -152,10 +152,10 @@ public class AutoRoutines {
         commands.add(path.cmd());
 
         // Add directly move to and fine tune stuff IDK
-        TargetPositions targetPosition = scoringTarget.getTargetPosition();
-        addDirectlyMoveToCommand(
-            commands, targetPosition
-        );
+        // TargetPositions targetPosition = scoringTarget.getTargetPosition();
+        // addDirectlyMoveToCommand(
+        //     commands, targetPosition
+        // );
         //commands.add(targetPosition.fineTuneTargetCommand.get());
 
         // Add scoring command
@@ -175,10 +175,10 @@ public class AutoRoutines {
         commands.add(path.cmd());
 
         // Add directly move to stuff IDK
-        addHPMoveToCommand(
-            commands,
-            isStationLeft? TargetPositions.CORALSTATION_LEFT.getAllianceRespectivePose() : TargetPositions.CORALSTATION_RIGHT.getAllianceRespectivePose()
-        );
+        // addHPMoveToCommand(
+        //     commands,
+        //     isStationLeft? TargetPositions.CORALSTATION_LEFT.getAllianceRespectivePose() : TargetPositions.CORALSTATION_RIGHT.getAllianceRespectivePose()
+        // );
 
         // Add HP load command
         if (Robot.isReal()) {

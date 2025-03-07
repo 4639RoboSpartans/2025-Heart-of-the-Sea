@@ -16,6 +16,8 @@ import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
 import java.util.Arrays;
 import java.util.OptionalDouble;
 
+import com.ctre.phoenix6.Utils;
+
 public class Vision {
     public static TunableNumber distanceThreshold = new TunableNumber("distanceThresholdMeters").withDefaultValue(1);
     private static Field2d visionMeasurements = new Field2d();
@@ -34,8 +36,9 @@ public class Vision {
 
                     if (res != null) {
                         double[] stdevs = LimelightHelpers.getStDevs_MT1(limelight.getName());
-                        drivetrain.setVisionStandardDeviations(stdevs[0], stdevs[1], stdevs[3]);
-                        drivetrain.addVisionMeasurement(res, measurement.timestampSeconds());
+                        drivetrain.setVisionStandardDeviations(stdevs[0] * 100, stdevs[1] * 100, stdevs[3]);
+                        if (!RobotState.isAutonomous())
+                            drivetrain.addVisionMeasurement(res, Utils.getCurrentTimeSeconds());
                         visionMeasurements.getObject(limelight.getName()).setPose(res);
                         SmartDashboard.putBoolean("Added Vision", true);
                     } else {
