@@ -80,6 +80,7 @@ public final class ScoringConstants {
         );
 
         public static final double WRIST_TOLERANCE = 0.03;
+        public static final double WRIST_VELOCITY_TOLERANCE = 0.1;
 
         //Limits for Intake
         public static final double IntakeForwardSoftLimit = 40;
