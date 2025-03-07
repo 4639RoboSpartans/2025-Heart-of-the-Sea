@@ -8,7 +8,6 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.lib.util.AllianceFlipUtil;
 import frc.lib.util.CommandsUtil;
 import frc.lib.util.DriverStationUtil;
 import frc.lib.util.PoseUtil;
@@ -81,35 +80,14 @@ public class AutoRoutines {
 
     public Auton TEST_A_B() {
         AutoRoutine routine = factory.newRoutine("COMP_A_B");
-        AutoTrajectory traj1 = routine.trajectory("COMP-A-B", 0);
-        AutoTrajectory traj2 = routine.trajectory("COMP-A-B", 1);
-        AutoTrajectory traj3 = routine.trajectory("COMP-A-B", 2);
+        AutoTrajectory traj1 = routine.trajectory("TEST-A-B", 0);
+        AutoTrajectory traj2 = routine.trajectory("TEST-A-B", 0);
 
         routine.active().onTrue(
             Commands.sequence(
                 traj1.resetOdometry(),
                 traj1.cmd(),
-                DriveCommands.moveToReefPosition(
-                    TargetPositions.REEF_A,
-                    () -> {
-                        return DriverStationUtil.getAlliance() == Alliance.Red
-                            ? AllianceFlipUtil.rawAllianceFlipPose(SubsystemManager.getInstance().getDrivetrain().getPose())
-                            : SubsystemManager.getInstance().getDrivetrain().getPose();
-                    }
-                ),
-                AutoCommands.L4Score.get(),
-                traj2.cmd(),
-                AutoCommands.HPLoad.get(),
-                traj3.cmd(),
-                DriveCommands.moveToReefPosition(
-                    TargetPositions.REEF_B,
-                    () -> {
-                        return DriverStationUtil.getAlliance() == Alliance.Red
-                            ? AllianceFlipUtil.rawAllianceFlipPose(SubsystemManager.getInstance().getDrivetrain().getPose())
-                            : SubsystemManager.getInstance().getDrivetrain().getPose();
-                    }
-                ),
-                AutoCommands.L4Score.get()
+                traj2.cmd()
             )
         );
 
@@ -119,34 +97,13 @@ public class AutoRoutines {
     public Auton TEST_E_C() {
         AutoRoutine routine = factory.newRoutine("TEST_E_C");
         AutoTrajectory traj1 = routine.trajectory("TEST-E-C", 0);
-        AutoTrajectory traj2 = routine.trajectory("TEST-E-C", 1);
-        AutoTrajectory traj3 = routine.trajectory("TEST-E-C", 2);
+        AutoTrajectory traj2 = routine.trajectory("TEST-E-C", 0);
 
         routine.active().onTrue(
             Commands.sequence(
                 traj1.resetOdometry(),
                 traj1.cmd(),
-                DriveCommands.moveToReefPosition(
-                    TargetPositions.REEF_E,
-                    () -> {
-                        return DriverStationUtil.getAlliance() == Alliance.Red
-                            ? AllianceFlipUtil.rawAllianceFlipPose(SubsystemManager.getInstance().getDrivetrain().getPose())
-                            : SubsystemManager.getInstance().getDrivetrain().getPose();
-                    }
-                ),
-                AutoCommands.L4Score.get(),
-                traj2.cmd(),
-                AutoCommands.HPLoad.get(),
-                traj3.cmd(),
-                DriveCommands.moveToReefPosition(
-                    TargetPositions.REEF_C,
-                    () -> {
-                        return DriverStationUtil.getAlliance() == Alliance.Red
-                            ? AllianceFlipUtil.rawAllianceFlipPose(SubsystemManager.getInstance().getDrivetrain().getPose())
-                            : SubsystemManager.getInstance().getDrivetrain().getPose();
-                    }
-                ),
-                AutoCommands.L4Score.get()
+                traj2.cmd()
             )
         );
 
