@@ -31,8 +31,10 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import frc.lib.limelight.LimelightHelpers;
 import frc.lib.util.DriverStationUtil;
 import frc.robot.constants.Controls;
+import frc.robot.constants.Limelights;
 import frc.robot.constants.FieldConstants.TargetPositions;
 import frc.robot.subsystems.drive.constants.DriveConstants;
 import frc.robot.subsystems.drive.constants.DrivePIDs;
@@ -40,6 +42,9 @@ import frc.robot.subsystems.drive.constants.TunerConstants;
 import frc.robot.subsystems.drive.constants.TunerConstants.TunerSwerveDrivetrain;
 import frc.robot.subsystems.vision.Vision;
 
+import static edu.wpi.first.units.Units.Rotation;
+
+import java.util.Arrays;
 import java.util.function.Supplier;
 
 public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
@@ -294,6 +299,19 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         SmartDashboard.putNumber("Current heading", getPose().getRotation().getDegrees());
 
         field.getObject("Reef E").setPose(TargetPositions.REEF_E.getAllianceRespectivePose());
+
+        Arrays.stream(Limelights.values()).parallel().forEach(
+            limelight -> {
+                LimelightHelpers.setRobotOrientation(
+                    limelight.getName(), 
+                    getPose().getRotation().minus(fieldCentricZeroRotation).plus(
+                        DriverStationUtil.getAlliance() == Alliance.Red
+                        ? Rotation2d.k180deg
+                        : Rotation2d.kZero
+                    ).getDegrees()
+                );
+            }
+        );
     }
 
     @Override
