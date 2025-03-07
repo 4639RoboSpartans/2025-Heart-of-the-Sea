@@ -193,12 +193,12 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
             pidYController.reset(getPose().getY(), getChassisSpeeds().vyMetersPerSecond);
             pidXController.setGoal(targetPose.getX());
             pidYController.setGoal(targetPose.getY());
-            field.getObject("Target Pose").setPose(targetPose);
-            SmartDashboard.putBoolean("At Position", true);
+            setVisionStandardDeviations(0.5, 0.5, 0.5);
+            SmartDashboard.putNumber("distanceThresholdMeters", 10);
         }).andThen(applyRequest(
                 () -> {
+                    field.getObject("Target Pose").setPose(pidXController.getSetpoint().position, pidYController.getSetpoint().position, targetPose.getRotation());
                     double directionMultiplier = (DriverStationUtil.getAlliance() == DriverStation.Alliance.Red ? -1 : 1) * (RobotState.isAutonomous() ? -1 : 1);
-                    if (RobotState.isAutonomous()) directionMultiplier = -1;
                     double pidXOutput = pidXController.calculate(getPose().getX()) * directionMultiplier;
                     double pidYOutput = pidYController.calculate(getPose().getY()) * directionMultiplier;
 
@@ -206,7 +206,6 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                     request.HeadingController = new PhoenixPIDController(16, 0, 0);
                     request.HeadingController.enableContinuousInput(-Math.PI, Math.PI);
                     Rotation2d headingOffset = DriverStationUtil.getAlliance() == Alliance.Red ? Rotation2d.k180deg : new Rotation2d();
-                    field.getObject("Setpoint Pose").setPose(pidXController.getSetpoint().position, pidYController.getSetpoint().position, targetPose.getRotation());
 
                     return request
                         .withVelocityX(pidXOutput)
@@ -214,13 +213,13 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                         .withTargetDirection(targetPose.getRotation().plus(headingOffset));
                 }
             ).until(
-                () -> MathUtil.isNear(targetPose.getX(), getPose().getX(), 0.025)
-                    && MathUtil.isNear(targetPose.getY(), getPose().getY(), 0.025)
+                () -> MathUtil.isNear(targetPose.getX(), getPose().getX(), 0.01)
+                    && MathUtil.isNear(targetPose.getY(), getPose().getY(), 0.01)
                     && MathUtil.isNear(targetPose.getRotation().getDegrees(), getPose().getRotation().getDegrees(), 2)
             )).andThen(stop().withTimeout(0.1))
             .andThen(() -> {
+                setVisionStandardDeviations(5, 5, 10);
                 SmartDashboard.putNumber("distanceThresholdMeters", 2);
-                SmartDashboard.putBoolean("At Position", false);
             });
     }
 
@@ -315,6 +314,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
     @Override
     public void addVisionMeasurement(Pose2d pose, double timestamp) {
+        //field.getObject("Vision Measurement").setPose(pose);
         drivetrain.addVisionMeasurement(pose, timestamp);
     }
 
