@@ -416,7 +416,7 @@ public class LimelightHelpers {
     for (int i = 0; i < rawFiducials.length; i++) {
       int baseIndex = i * 7;
       RawFiducial fid = rawFiducials[i];
-      data[baseIndex] = (double) fid.id();
+      data[baseIndex] = fid.id();
       data[baseIndex + 1] = fid.txnc();
       data[baseIndex + 2] = fid.tync();
       data[baseIndex + 3] = fid.ta();

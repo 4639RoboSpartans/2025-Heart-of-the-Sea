@@ -1,5 +1,6 @@
 package frc.robot.subsystems.vision;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotState;
@@ -23,12 +24,8 @@ import com.ctre.phoenix6.Utils;
 
 public class Vision {
     public static TunableNumber distanceThreshold = new TunableNumber("distanceThresholdMeters").withDefaultValue(1);
-    private static Field2d visionMeasurements = new Field2d();
+    private static final Field2d visionMeasurements = new Field2d();
 
-    static {
-        LimelightHelpers.setFiducialIDFiltersOverride("limelight-left", FieldConstants.kReefAprilTags);
-        LimelightHelpers.setFiducialIDFiltersOverride("limelight-right", FieldConstants.kReefAprilTags);
-    }
 
     public static void addGlobalVisionMeasurements(AbstractSwerveDrivetrain drivetrain) {
         if ((RobotBase.isReal())) {
@@ -42,23 +39,13 @@ public class Vision {
                             new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22}
                         );
                     }
-                    PoseEstimate measurement = 
-                            DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue
-                                    ? LimelightHelpers.getBotPoseEstimate(limelight.getName(), Botpose.BLUE_MEGATAG1)
-                                    : LimelightHelpers.getBotPoseEstimate(limelight.getName(), Botpose.RED_MEGATAG1);
-                    var res = measurement.pose().getX() == 0 && measurement.pose().getY() == 0
-                            ? null
-                            : measurement.pose();
+                    PoseEstimate measurement =
+                            getRawMeasurement(limelight);
+                    var res = filterRawMeasurement(measurement);
 
                     if (res != null) {
                         double[] stdevs = LimelightHelpers.getStDevs_MT1(limelight.getName());
-                        if (RobotState.isAutonomous()) {
-                            drivetrain.setVisionStandardDeviations(10, 10, 999999);
-                        } else if (RobotState.isDisabled()) {
-                            drivetrain.setVisionStandardDeviations(stdevs[0], stdevs[1], stdevs[3]);
-                        } else {
-                            drivetrain.setVisionStandardDeviations(stdevs[0] * 100, stdevs[1] * 100, stdevs[3]);
-                        }
+                        drivetrain.setVisionStandardDeviations(stdevs[0], stdevs[1], stdevs[3]);
                         drivetrain.addVisionMeasurement(res, Utils.getCurrentTimeSeconds());
                         visionMeasurements.getObject(limelight.getName()).setPose(res);
                         SmartDashboard.putBoolean("Added Vision", true);
@@ -71,27 +58,31 @@ public class Vision {
         }
     }
 
-    public static void filterFiducials(Limelights limelight) {
-        PoseEstimate measurement = 
-                DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue
-                        ? LimelightHelpers.getBotPoseEstimate(limelight.getName(), Botpose.BLUE_MEGATAG1)
-                        : LimelightHelpers.getBotPoseEstimate(limelight.getName(), Botpose.RED_MEGATAG1);
-        var res = measurement.pose().getX() == 0 && measurement.pose().getY() == 0
+    private static Pose2d filterRawMeasurement(PoseEstimate measurement) {
+        return measurement.pose().getX() == 0 && measurement.pose().getY() == 0
                 ? null
                 : measurement.pose();
+    }
+
+    private static PoseEstimate getRawMeasurement(Limelights limelight) {
+        return DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue
+                ? LimelightHelpers.getBotPoseEstimate(limelight.getName(), Botpose.BLUE_MEGATAG1)
+                : LimelightHelpers.getBotPoseEstimate(limelight.getName(), Botpose.RED_MEGATAG1);
+    }
+
+    public static void filterFiducials(Limelights limelight) {
+        PoseEstimate measurement =
+                getRawMeasurement(limelight);
+        var res = filterRawMeasurement(measurement);
 
         if (res != null) {
             var rawFiducials = measurement.rawFiducials();
-            List<RawFiducial> allFiducials = new ArrayList<>();
-            for (RawFiducial fiducial : rawFiducials) allFiducials.add(fiducial);
+            List<RawFiducial> allFiducials = Arrays.asList(rawFiducials);
             List<Integer> allIds = allFiducials.stream().filter(
                 fiducial -> fiducial.distToCamera() >= distanceThreshold.get()
             ).map(RawFiducial::id).toList();
-            int[] allIdInts = new int[allIds.size()];
-            for (int i = 0; i < allIds.size(); i++) {
-                allIdInts[i] = allIds.get(i);
-            }
-            LimelightHelpers.setFiducialIDFiltersOverride(limelight.getName(), allIdInts);
+
+            LimelightHelpers.setFiducialIDFiltersOverride(limelight.getName(), allIds.stream().mapToInt(Integer::intValue).toArray());
         }
     }
 

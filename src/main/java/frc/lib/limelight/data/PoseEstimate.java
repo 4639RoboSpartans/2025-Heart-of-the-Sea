@@ -42,7 +42,7 @@ public record PoseEstimate(
    * Limelight. Each constant corresponds to a specific NetworkTables entry name and indicates
    * whether it uses the MegaTag2 algorithm or the original MegaTag1 algorithm for pose estimation.
    */
-  public static enum Botpose {
+  public enum Botpose {
     /**
      * Botpose data for the blue alliance using the MegaTag1 algorithm. Retrieved from the
      * "botpose_wpiblue" NetworkTables entry.
