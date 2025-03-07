@@ -24,7 +24,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 public class AutoRoutines {
     private final AutoFactory factory;
@@ -98,7 +97,9 @@ public class AutoRoutines {
                             : SubsystemManager.getInstance().getDrivetrain().getPose();
                     }
                 ),
+                AutoCommands.L4Score.get(),
                 traj2.cmd(),
+                AutoCommands.HPLoad.get(),
                 traj3.cmd(),
                 DriveCommands.moveToReefPosition(
                     TargetPositions.REEF_B,
@@ -107,7 +108,8 @@ public class AutoRoutines {
                             ? AllianceFlipUtil.rawAllianceFlipPose(SubsystemManager.getInstance().getDrivetrain().getPose())
                             : SubsystemManager.getInstance().getDrivetrain().getPose();
                     }
-                )
+                ),
+                AutoCommands.L4Score.get()
             )
         );
 
@@ -134,6 +136,7 @@ public class AutoRoutines {
                 ),
                 AutoCommands.L4Score.get(),
                 traj2.cmd(),
+                AutoCommands.HPLoad.get(),
                 traj3.cmd(),
                 DriveCommands.moveToReefPosition(
                     TargetPositions.REEF_C,
@@ -217,7 +220,7 @@ public class AutoRoutines {
         //commands.add(targetPosition.fineTuneTargetCommand.get());
 
         // Add scoring command
-        if (Robot.isReal()) {
+        // if (Robot.isReal()) {
             commands.add(switch (scoringTarget.scoringHeight()) {
                 case 1 -> AutoCommands.L1Score.get();
                 case 2 -> AutoCommands.L2Score.get();
@@ -225,7 +228,7 @@ public class AutoRoutines {
                 case 4 -> AutoCommands.L4Score.get();
                 default -> AutoCommands.HPLoad.get().withTimeout(1);
             });
-        }
+        // }
     }
 
     private void addHPLoadingSegment(List<Command> commands, AutoTrajectory path, boolean isStationLeft) {
@@ -248,11 +251,14 @@ public class AutoRoutines {
 
     private static void addDirectlyMoveToCommand(List<Command> commands, FieldConstants.TargetPositions targetPose) {
         commands.add(
-                DriveCommands.moveToHexThenMoveToRLCommand(
-                        Stream.of(targetPose)
-                                .map(Enum::toString)
-                                .map(name -> name.charAt(name.length()-1))
-                                .findAny().get()
+                DriveCommands.moveToReefPosition(
+                    targetPose,
+                    () -> {
+                        return DriverStationUtil.getAlliance() == Alliance.Red
+                            ? AllianceFlipUtil.rawAllianceFlipPose(SubsystemManager.getInstance().getDrivetrain().getPose())
+                            : SubsystemManager.getInstance().getDrivetrain().getPose();
+                    }
+
                 )
         );
     }

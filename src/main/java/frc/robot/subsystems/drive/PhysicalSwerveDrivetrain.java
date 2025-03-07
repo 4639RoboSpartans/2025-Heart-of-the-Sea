@@ -20,6 +20,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -62,11 +63,11 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     protected ProfiledPIDController pidYController = constructPIDYController();
 
     public static ProfiledPIDController constructPIDYController() {
-        return new ProfiledPIDController(3, 0, 0, new TrapezoidProfile.Constraints(2, 0.5));
+        return new ProfiledPIDController(3, 0, 0, new TrapezoidProfile.Constraints(2, 1));
     }
 
     public static ProfiledPIDController constructPIDXController() {
-        return new ProfiledPIDController(3, 0, 0, new TrapezoidProfile.Constraints(2, 0.5));
+        return new ProfiledPIDController(3, 0, 0, new TrapezoidProfile.Constraints(2, 1));
     }
 
     {
@@ -205,8 +206,18 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
             pidYController.setGoal(targetPose.getY());
             setVisionStandardDeviations(0.5, 0.5, 0.5);
             SmartDashboard.putNumber("distanceThresholdMeters", 10);
+            field.getObject("Target Pose").setPose(targetPose);
         }).andThen(applyRequest(
                 () -> {
+                    field.getObject("Setpoint Pose").setPose(
+                        new Pose2d(
+                            new Translation2d(
+                                pidXController.getSetpoint().position,
+                                pidYController.getSetpoint().position
+                            ),
+                            targetPose.getRotation()
+                        )
+                    );
                     double directionMultiplier = 
                         (DriverStationUtil.getAlliance() == DriverStation.Alliance.Red ? -1 : 1);
                     double pidXOutput = pidXController.calculate(getPose().getX()) * directionMultiplier;
@@ -297,8 +308,6 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         SignalLogger.writeDouble("Steer Position", drivetrain.getModule(0).getSteerMotor().getPosition().getValueAsDouble());
 
         SmartDashboard.putNumber("Current heading", getPose().getRotation().getDegrees());
-
-        field.getObject("Reef E").setPose(TargetPositions.REEF_E.getAllianceRespectivePose());
 
         Arrays.stream(Limelights.values()).parallel().forEach(
             limelight -> {
