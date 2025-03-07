@@ -2,14 +2,13 @@ package frc.robot.subsystems.vision;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.lib.limelight.LimelightHelpers;
 import frc.lib.limelight.data.PoseEstimate;
 import frc.lib.limelight.data.PoseEstimate.Botpose;
 import frc.lib.tunable.TunableNumber;
-import frc.lib.util.PoseUtil;
+import frc.robot.constants.FieldConstants;
 import frc.robot.constants.Limelights;
 import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
 
@@ -21,6 +20,11 @@ import com.ctre.phoenix6.Utils;
 public class Vision {
     public static TunableNumber distanceThreshold = new TunableNumber("distanceThresholdMeters").withDefaultValue(1);
     private static Field2d visionMeasurements = new Field2d();
+
+    static {
+        LimelightHelpers.setFiducialIDFiltersOverride("limelight-left", FieldConstants.kReefAprilTags);
+        LimelightHelpers.setFiducialIDFiltersOverride("limelight-right", FieldConstants.kReefAprilTags);
+    }
 
     public static void addGlobalVisionMeasurements(AbstractSwerveDrivetrain drivetrain) {
         if ((RobotBase.isReal())) {
@@ -36,11 +40,7 @@ public class Vision {
 
                     if (res != null) {
                         double[] stdevs = LimelightHelpers.getStDevs_MT1(limelight.getName());
-                        if (RobotState.isAutonomous()) {
-                            drivetrain.setVisionStandardDeviations(10, 10, 999999);
-                        } else {
-                            drivetrain.setVisionStandardDeviations(stdevs[0] * 100, stdevs[1] * 100, stdevs[3]);
-                        }
+                        drivetrain.setVisionStandardDeviations(stdevs[0] * 100, stdevs[1] * 100, stdevs[3]);
                         drivetrain.addVisionMeasurement(res, Utils.getCurrentTimeSeconds());
                         visionMeasurements.getObject(limelight.getName()).setPose(res);
                         SmartDashboard.putBoolean("Added Vision", true);
