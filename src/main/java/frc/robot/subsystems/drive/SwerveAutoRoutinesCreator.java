@@ -8,7 +8,7 @@ import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.lib.util.DriverStationUtil;
-import frc.robot.commands.AutoRoutines;
+import frc.robot.commands.auto.AutoRoutines;
 
 public final class SwerveAutoRoutinesCreator {
     private static final PIDConstants AUTON_TRANSLATION_PID_CONSTANTS = new PIDConstants(0, 0, 0);

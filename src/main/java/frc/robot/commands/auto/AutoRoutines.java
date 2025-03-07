@@ -1,4 +1,4 @@
-package frc.robot.commands;
+package frc.robot.commands.auto;
 
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
@@ -167,10 +167,12 @@ public class AutoRoutines {
         commands.add(path.cmd());
 
         // Add directly move to and fine tune stuff IDK
-        // TargetPositions targetPosition = scoringTarget.getTargetPosition();
-        // addDirectlyMoveToCommand(
-        //     commands, targetPosition
-        // );
+        if (AutoConstants.addVisionAlignToCommands) {
+            TargetPositions targetPosition = scoringTarget.getTargetPosition();
+            addDirectlyMoveToCommand(
+                commands, targetPosition
+            );
+        }
         //commands.add(targetPosition.fineTuneTargetCommand.get());
 
         // Add scoring command
@@ -190,10 +192,12 @@ public class AutoRoutines {
         commands.add(path.cmd());
 
         // Add directly move to stuff IDK
-        // addHPMoveToCommand(
-        //     commands,
-        //     isStationLeft? TargetPositions.CORALSTATION_LEFT.getAllianceRespectivePose() : TargetPositions.CORALSTATION_RIGHT.getAllianceRespectivePose()
-        // );
+        if (AutoConstants.addVisionAlignToCommands) {
+            addHPMoveToCommand(
+                commands,
+                isStationLeft? TargetPositions.CORALSTATION_LEFT.getAllianceRespectivePose() : TargetPositions.CORALSTATION_RIGHT.getAllianceRespectivePose()
+            );
+        }
 
         // Add HP load command
         if (Robot.isReal()) {
