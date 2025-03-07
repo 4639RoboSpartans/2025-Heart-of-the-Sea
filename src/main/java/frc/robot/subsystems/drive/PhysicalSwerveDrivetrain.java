@@ -33,6 +33,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.lib.util.DriverStationUtil;
 import frc.robot.constants.Controls;
+import frc.robot.constants.FieldConstants.TargetPositions;
 import frc.robot.subsystems.drive.constants.DriveConstants;
 import frc.robot.subsystems.drive.constants.DrivePIDs;
 import frc.robot.subsystems.drive.constants.TunerConstants;
@@ -162,7 +163,11 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
     @Override
     public Command resetHeadingToZero() {
-        return runOnce(() -> fieldCentricZeroRotation = getPose().getRotation());
+        return runOnce(
+            () -> {
+                fieldCentricZeroRotation = getPose().getRotation();
+            }
+        );
     }
 
     @Override
@@ -197,8 +202,8 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
             SmartDashboard.putBoolean("At Position", true);
         }).andThen(applyRequest(
                 () -> {
-                    double directionMultiplier = (DriverStationUtil.getAlliance() == DriverStation.Alliance.Red ? -1 : 1) * (RobotState.isAutonomous() ? -1 : 1);
-                    if (RobotState.isAutonomous()) directionMultiplier = -1;
+                    double directionMultiplier = 
+                        (DriverStationUtil.getAlliance() == DriverStation.Alliance.Red ? -1 : 1);
                     double pidXOutput = pidXController.calculate(getPose().getX()) * directionMultiplier;
                     double pidYOutput = pidYController.calculate(getPose().getY()) * directionMultiplier;
 
@@ -288,6 +293,8 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         SignalLogger.writeDouble("Steer Position", drivetrain.getModule(0).getSteerMotor().getPosition().getValueAsDouble());
 
         SmartDashboard.putNumber("Current heading", getPose().getRotation().getDegrees());
+
+        field.getObject("Reef E").setPose(TargetPositions.REEF_E.getAllianceRespectivePose());
     }
 
     @Override
@@ -338,93 +345,5 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     @Override
     public void setVisionStandardDeviations(double xStdDev, double yStdDev, double rotStdDev) {
         drivetrain.setVisionMeasurementStdDevs(new Matrix<N3, N1>(Nat.N3(), Nat.N1(), new double[]{xStdDev, yStdDev, rotStdDev}));
-    }
-
-    public SwerveRequest targetToRightReef() {
-        double rawForwards = (frc.lib.util.MathUtil.withinTolerance(Vision.getTX().orElse(0), DriveConstants.rightTargetTA, DriveConstants.TATolerance)
-            ? 0
-            : ((Vision.getTX().orElse(0) - DriveConstants.rightTargetTA) > 0 ? -1 : 1))
-            * 0.1 * DriveConstants.CURRENT_MAX_ROBOT_MPS;
-        double rawStrafe = (frc.lib.util.MathUtil.withinTolerance(Vision.getTX().orElse(0), DriveConstants.rightTargetTX, DriveConstants.TXTolerance)
-            ? 0
-            : ((Vision.getTX().orElse(0) - DriveConstants.rightTargetTX) > 0 ? -1 : 1))
-            * 0.1 * DriveConstants.CURRENT_MAX_ROBOT_MPS;
-        double rawRotation = 0;
-        ChassisSpeeds chassisSpeeds = new ChassisSpeeds(
-            rawForwards,
-            rawStrafe,
-            rawRotation
-        );
-
-        if (rawForwards == 0 && rawStrafe == 0) return new SwerveRequest.SwerveDriveBrake();
-
-        SwerveSetpoint setpoint = swerveSetpointGenerator.generateSetpoint(
-            prevSwerveSetpoint,
-            chassisSpeeds,
-            0.02
-        );
-        prevSwerveSetpoint = setpoint;
-
-        return new SwerveRequest.ApplyRobotSpeeds()
-            .withDesaturateWheelSpeeds(true)
-            .withSpeeds(
-                chassisSpeeds
-            )
-            .withWheelForceFeedforwardsX(setpoint.feedforwards().robotRelativeForcesX())
-            .withWheelForceFeedforwardsY(setpoint.feedforwards().robotRelativeForcesY());
-    }
-
-    public SwerveRequest targetToLeftReef() {
-        double rawForwards = (frc.lib.util.MathUtil.withinTolerance(Vision.getTX().orElse(0), DriveConstants.leftTargetTA, DriveConstants.TATolerance)
-            ? 0
-            : ((Vision.getTX().orElse(0) - DriveConstants.leftTargetTA) > 0 ? -1 : 1))
-            * 0.1 * DriveConstants.CURRENT_MAX_ROBOT_MPS;
-        double rawStrafe = (frc.lib.util.MathUtil.withinTolerance(Vision.getTX().orElse(0), DriveConstants.leftTargetTX, DriveConstants.TXTolerance)
-            ? 0
-            : ((Vision.getTX().orElse(0) - DriveConstants.leftTargetTX) > 0 ? -1 : 1))
-            * 0.1 * DriveConstants.CURRENT_MAX_ROBOT_MPS;
-        double rawRotation = 0;
-        ChassisSpeeds chassisSpeeds = new ChassisSpeeds(
-            rawForwards,
-            rawStrafe,
-            rawRotation
-        );
-
-        if (rawForwards == 0 && rawStrafe == 0) return new SwerveRequest.SwerveDriveBrake();
-
-        SwerveSetpoint setpoint = swerveSetpointGenerator.generateSetpoint(
-            prevSwerveSetpoint,
-            chassisSpeeds,
-            0.02
-        );
-        prevSwerveSetpoint = setpoint;
-
-        return new SwerveRequest.ApplyRobotSpeeds()
-            .withDesaturateWheelSpeeds(true)
-            .withSpeeds(
-                chassisSpeeds
-            )
-            .withWheelForceFeedforwardsX(setpoint.feedforwards().robotRelativeForcesX())
-            .withWheelForceFeedforwardsY(setpoint.feedforwards().robotRelativeForcesY());
-    }
-
-    public boolean atRightTarget() {
-        return frc.lib.util.MathUtil.withinTolerance(Vision.getTX().orElse(0), DriveConstants.rightTargetTA, DriveConstants.TATolerance) && frc.lib.util.MathUtil.withinTolerance(Vision.getTX().orElse(0), DriveConstants.rightTargetTA, DriveConstants.TXTolerance);
-    }
-
-    @Override
-    @Deprecated
-    public Command targetToRightReefCommand() {
-        return applyRequest(this::targetToRightReef).until(this::atRightTarget);
-    }
-
-    public boolean atLeftTarget() {
-        return frc.lib.util.MathUtil.withinTolerance(Vision.getTX().orElse(0), DriveConstants.leftTargetTA, DriveConstants.TATolerance) && frc.lib.util.MathUtil.withinTolerance(Vision.getTX().orElse(0), DriveConstants.leftTargetTX, DriveConstants.TXTolerance);
-    }
-
-    @Override
-    @Deprecated
-    public Command targetToLeftReefCommand() {
-        return applyRequest(this::targetToLeftReef).until(this::atLeftTarget);
     }
 }

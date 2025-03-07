@@ -82,14 +82,4 @@ public class DummySwerveDrivetrain extends AbstractSwerveDrivetrain {
     public void setVisionStandardDeviations(double xStdDev, double yStdDev, double rotStdDev) {
        
     }
-
-    @Override
-    public Command targetToRightReefCommand() {
-        return Commands.none();
-    }
-
-    @Override
-    public Command targetToLeftReefCommand() {
-        return Commands.none();
-    }
 }

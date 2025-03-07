@@ -9,6 +9,7 @@ import frc.lib.util.AllianceFlipUtil;
 import frc.lib.util.PoseUtil;
 import frc.robot.constants.Controls;
 import frc.robot.constants.FieldConstants;
+import frc.robot.constants.FieldConstants.TargetPositions;
 import frc.robot.subsystems.SubsystemManager;
 
 import java.util.List;
@@ -45,8 +46,7 @@ public class DriveCommands {
         );
     }
 
-    public static Command moveToClosestReefPositionWithTransformation(byte direction) {
-        Supplier<Pose2d> currentRobotPose = drivetrain::getPose;
+    public static Command moveToClosestReefPositionWithTransformation(byte direction, Supplier<Pose2d> currentRobotPose) {
         List<FieldConstants.TargetPositions> allReefTargets = List.of(
                 FieldConstants.TargetPositions.REEF_AB,
                 FieldConstants.TargetPositions.REEF_CD,
@@ -68,6 +68,13 @@ public class DriveCommands {
                         : (direction == 1
                         ? PoseUtil.ReefRelativeRightOf(nearestReefPose)
                         : nearestReefPose));
+
+        return DriveCommands.drivetrain.directlyMoveTo(desiredPose)
+                .until(new Trigger(() -> PoseUtil.withinTolerance(desiredPose, currentRobotPose.get(), Units.inchesToMeters(2))).debounce(0.1));
+    }
+
+    public static Command moveToReefPosition(TargetPositions position, Supplier<Pose2d> currentRobotPose) {
+        var desiredPose = position.getAllianceRespectivePose();
 
         return DriveCommands.drivetrain.directlyMoveTo(desiredPose)
                 .until(new Trigger(() -> PoseUtil.withinTolerance(desiredPose, currentRobotPose.get(), Units.inchesToMeters(2))).debounce(0.1));
