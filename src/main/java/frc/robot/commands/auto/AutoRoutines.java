@@ -236,10 +236,10 @@ public class AutoRoutines {
         commands.add(path.cmd());
 
         // Add directly move to stuff IDK
-        if (AutoConstants.addVisionAlignToCommands) {
+        if (AutoConstants.addVisionAlignToCommands && AutoConstants.addHPVisionAlignToCommands) {
             addHPMoveToCommand(
                 commands,
-                isStationLeft? TargetPositions.CORALSTATION_LEFT.getAllianceRespectivePose() : TargetPositions.CORALSTATION_RIGHT.getAllianceRespectivePose()
+                isStationLeft
             );
         }
 
@@ -254,22 +254,17 @@ public class AutoRoutines {
                 DriveCommands.moveToReefPosition(
                     targetPose,
                     () -> {
-                        return DriverStationUtil.getAlliance() == Alliance.Red
-                            ? AllianceFlipUtil.rawAllianceFlipPose(SubsystemManager.getInstance().getDrivetrain().getPose())
-                            : SubsystemManager.getInstance().getDrivetrain().getPose();
+                        return SubsystemManager.getInstance().getDrivetrain().getPose();
                     }
 
                 )
         );
     }
 
-    private static void addHPMoveToCommand(List<Command> commands, Pose2d pose){
-        AbstractSwerveDrivetrain drivetrain = SubsystemManager.getInstance().getDrivetrain();
-
-        commands.add(
-                drivetrain.directlyMoveTo(
-                        pose
-                ).until(() -> PoseUtil.withinTolerance(drivetrain.getPose(), pose, Units.inchesToMeters(2)))
+    private static void addHPMoveToCommand(List<Command> commands, boolean isLeft){
+        addDirectlyMoveToCommand(
+                commands,
+                isLeft? TargetPositions.CORALSTATION_LEFT : TargetPositions.CORALSTATION_RIGHT
         );
     }
 

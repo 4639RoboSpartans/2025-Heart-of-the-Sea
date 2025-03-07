@@ -32,14 +32,16 @@ public class DriveCommands {
                                         PoseUtil.ReefRelativeLeftOf(
                                                 targetPosition
                                         )
-                                )
+                                ),
+                                drivetrain::getPose
                         ),
                         drivetrain.directlyMoveTo(
                                 AllianceFlipUtil.apply(
                                         PoseUtil.ReefRelativeRightOf(
                                                 targetPosition
                                         )
-                                )
+                                ),
+                                drivetrain::getPose
                         ),
                         Controls.Driver.alignReefLeft
                 )
@@ -69,14 +71,14 @@ public class DriveCommands {
                         ? PoseUtil.ReefRelativeRightOf(nearestReefPose)
                         : nearestReefPose));
 
-        return DriveCommands.drivetrain.directlyMoveTo(desiredPose)
+        return DriveCommands.drivetrain.directlyMoveTo(desiredPose, currentRobotPose)
                 .until(new Trigger(() -> PoseUtil.withinTolerance(desiredPose, currentRobotPose.get(), Units.inchesToMeters(2))).debounce(0.1));
     }
 
     public static Command moveToReefPosition(TargetPositions position, Supplier<Pose2d> currentRobotPose) {
         var desiredPose = position.getAllianceRespectivePose();
 
-        return DriveCommands.drivetrain.directlyMoveTo(desiredPose)
+        return DriveCommands.drivetrain.directlyMoveTo(desiredPose, currentRobotPose)
                 .until(new Trigger(() -> PoseUtil.withinTolerance(desiredPose, currentRobotPose.get(), Units.inchesToMeters(2))).debounce(0.1));
     }
 
@@ -108,7 +110,7 @@ public class DriveCommands {
             default -> allReefTargets.get(0).getPose();
         };
 
-        return drivetrain.directlyMoveTo(desiredPose)
+        return drivetrain.directlyMoveTo(desiredPose, currentRobotPose)
                 .until(
                         new Trigger(
                                 () -> PoseUtil.withinTolerance(
@@ -126,9 +128,9 @@ public class DriveCommands {
 
         return (!PoseUtil.withinTolerance(desiredTarget.getPose(), currentRobotPose.get(), 2)
                 ? drivetrain.pathfindTo(desiredTarget.getPose())
-                : drivetrain.directlyMoveTo(desiredTarget.getPose()))
+                : drivetrain.directlyMoveTo(desiredTarget.getPose(), currentRobotPose))
                 .until(() -> PoseUtil.withinTolerance(desiredTarget.getPose(), currentRobotPose.get(), 2))
-                .andThen(drivetrain.directlyMoveTo(desiredTarget.getPose()));
+                .andThen(drivetrain.directlyMoveTo(desiredTarget.getPose(), currentRobotPose));
     }
 
     public static Command moveToProcessor(){
@@ -136,9 +138,9 @@ public class DriveCommands {
         Supplier<Pose2d> currentRobotPose = SubsystemManager.getInstance().getDrivetrain()::getPose;
         return (!PoseUtil.withinTolerance(desiredTarget.getPose(), currentRobotPose.get(), 2)
                         ? drivetrain.pathfindTo(desiredTarget.getPose())
-                        : drivetrain.directlyMoveTo(desiredTarget.getPose()))
+                        : drivetrain.directlyMoveTo(desiredTarget.getPose(), currentRobotPose))
                 .until(() -> PoseUtil.withinTolerance(desiredTarget.getPose(), currentRobotPose.get(), 2))
-                .andThen(drivetrain.directlyMoveTo(desiredTarget.getPose()));
+                .andThen(drivetrain.directlyMoveTo(desiredTarget.getPose(), currentRobotPose));
     }
 
     /**
@@ -148,9 +150,9 @@ public class DriveCommands {
      */
     public static Command moveToHexThenMoveToRLCommand(char reefLetter){
         return FieldConstants.TargetPositions.hexReefPoseFromChar(reefLetter)
-                .map(target -> (Command) drivetrain.directlyMoveTo(target.getAllianceRespectivePose()).until(() -> PoseUtil.withinTolerance(drivetrain.getPose(), target.getPose(), Units.inchesToMeters(2))))
+                .map(target -> (Command) drivetrain.directlyMoveTo(target.getAllianceRespectivePose(), drivetrain::getPose).until(() -> PoseUtil.withinTolerance(drivetrain.getPose(), target.getPose(), Units.inchesToMeters(2))))
                 .orElse(Commands.none())
-                .andThen(drivetrain.directlyMoveTo(FieldConstants.TargetPositions.RLReefPoseFromChar(reefLetter).getAllianceRespectivePose()))
+                .andThen(drivetrain.directlyMoveTo(FieldConstants.TargetPositions.RLReefPoseFromChar(reefLetter).getAllianceRespectivePose(), drivetrain::getPose))
                 .until(() -> PoseUtil.withinTolerance(drivetrain.getPose(), FieldConstants.TargetPositions.RLReefPoseFromChar(reefLetter).getPose(), Units.inchesToMeters(0.5)));
 
     }

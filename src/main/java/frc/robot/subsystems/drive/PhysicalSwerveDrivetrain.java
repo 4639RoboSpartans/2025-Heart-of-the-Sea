@@ -26,24 +26,22 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotState;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.lib.limelight.LimelightHelpers;
 import frc.lib.util.DriverStationUtil;
+import frc.lib.util.PoseUtil;
 import frc.robot.constants.Controls;
 import frc.robot.constants.Limelights;
-import frc.robot.constants.FieldConstants.TargetPositions;
 import frc.robot.subsystems.drive.constants.DriveConstants;
 import frc.robot.subsystems.drive.constants.DrivePIDs;
 import frc.robot.subsystems.drive.constants.TunerConstants;
 import frc.robot.subsystems.drive.constants.TunerConstants.TunerSwerveDrivetrain;
 import frc.robot.subsystems.vision.Vision;
-
-import static edu.wpi.first.units.Units.Rotation;
 
 import java.util.Arrays;
 import java.util.function.Supplier;
@@ -198,7 +196,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     }
 
     @Override
-    public Command directlyMoveTo(Pose2d targetPose) {
+    public Command directlyMoveTo(Pose2d targetPose, Supplier<Pose2d> currentPose) {
         return new InstantCommand(() -> {
             pidXController.reset(getPose().getX(), getChassisSpeeds().vxMetersPerSecond);
             pidYController.reset(getPose().getY(), getChassisSpeeds().vyMetersPerSecond);
@@ -207,8 +205,10 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
             setVisionStandardDeviations(0.5, 0.5, 0.5);
             SmartDashboard.putNumber("distanceThresholdMeters", 10);
             field.getObject("Target Pose").setPose(targetPose);
+            SmartDashboard.putBoolean("Aligned", false);
         }).andThen(applyRequest(
                 () -> {
+                    SmartDashboard.putNumber("Distance to Target", PoseUtil.distanceBetween(targetPose, currentPose.get()));
                     field.getObject("Setpoint Pose").setPose(
                         new Pose2d(
                             new Translation2d(
@@ -220,8 +220,9 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                     );
                     double directionMultiplier = 
                         (DriverStationUtil.getAlliance() == DriverStation.Alliance.Red ? -1 : 1);
-                    double pidXOutput = pidXController.calculate(getPose().getX()) * directionMultiplier;
-                    double pidYOutput = pidYController.calculate(getPose().getY()) * directionMultiplier;
+                    // if (RobotState.isAutonomous()) directionMultiplier = 1;
+                    double pidXOutput = pidXController.calculate(currentPose.get().getX()) * directionMultiplier;
+                    double pidYOutput = pidYController.calculate(currentPose.get().getY()) * directionMultiplier;
 
                     var request = new SwerveRequest.FieldCentricFacingAngle();
                     request.HeadingController = new PhoenixPIDController(16, 0, 0);
@@ -234,13 +235,14 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                         .withTargetDirection(targetPose.getRotation().plus(headingOffset));
                 }
             ).until(
-                () -> MathUtil.isNear(targetPose.getX(), getPose().getX(), 0.01)
-                    && MathUtil.isNear(targetPose.getY(), getPose().getY(), 0.01)
-                    && MathUtil.isNear(targetPose.getRotation().getDegrees(), getPose().getRotation().getDegrees(), 2)
+                () -> MathUtil.isNear(targetPose.getX(), currentPose.get().getX(), 0.01)
+                    && MathUtil.isNear(targetPose.getY(), currentPose.get().getY(), 0.01)
+                    && MathUtil.isNear(targetPose.getRotation().getDegrees(), currentPose.get().getRotation().getDegrees(), 2)
             )).andThen(stop().withTimeout(0.1))
             .andThen(() -> {
                 setVisionStandardDeviations(5, 5, 10);
                 SmartDashboard.putNumber("distanceThresholdMeters", 2);
+                SmartDashboard.putBoolean("Aligned", true);
             });
     }
 

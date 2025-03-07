@@ -10,6 +10,7 @@ import frc.robot.robot.Robot;
 import frc.robot.subsystems.SubsystemManager;
 
 import java.util.Objects;
+import java.util.function.Supplier;
 
 public abstract class AbstractSwerveDrivetrain extends SubsystemBase {
     private static AbstractSwerveDrivetrain instance;
@@ -59,7 +60,7 @@ public abstract class AbstractSwerveDrivetrain extends SubsystemBase {
      * @param targetPose The pose to move to
      * @return Command to run
      */
-    public abstract Command directlyMoveTo(Pose2d targetPose);
+    public abstract Command directlyMoveTo(Pose2d targetPose, Supplier<Pose2d> currentPose);
 
     /**
      * Returns a command that makes the robot pathfind to the specified pose

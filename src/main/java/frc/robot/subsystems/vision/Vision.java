@@ -11,11 +11,9 @@ import frc.lib.limelight.data.PoseEstimate;
 import frc.lib.limelight.data.PoseEstimate.Botpose;
 import frc.lib.limelight.data.RawFiducial;
 import frc.lib.tunable.TunableNumber;
-import frc.robot.constants.FieldConstants;
 import frc.robot.constants.Limelights;
 import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.OptionalDouble;
@@ -45,7 +43,13 @@ public class Vision {
 
                     if (res != null) {
                         double[] stdevs = LimelightHelpers.getStDevs_MT1(limelight.getName());
-                        drivetrain.setVisionStandardDeviations(stdevs[0], stdevs[1], stdevs[3]);
+                        if (RobotState.isDisabled()) {
+                            drivetrain.setVisionStandardDeviations(stdevs[0], stdevs[1], stdevs[3]);
+                        } else if (RobotState.isAutonomous()) {
+                            drivetrain.setVisionStandardDeviations(stdevs[0] * 100, stdevs[1] * 100, 99999);
+                        } else {
+                            drivetrain.setVisionStandardDeviations(10, 10, 99999);
+                        }
                         drivetrain.addVisionMeasurement(res, Utils.getCurrentTimeSeconds());
                         visionMeasurements.getObject(limelight.getName()).setPose(res);
                         SmartDashboard.putBoolean("Added Vision", true);
