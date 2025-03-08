@@ -8,6 +8,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.lib.util.CommandsUtil;
 import frc.lib.util.DriverStationUtil;
 import frc.lib.util.PoseUtil;
@@ -164,9 +165,10 @@ public class AutoRoutines {
     }
 
     private void addScoringSegment(List<Command> commands, AutoTrajectory path, ScoringTarget scoringTarget) {
+        commands.add(new InstantCommand(() -> SubsystemManager.getInstance().getDrivetrain().setVisionStandardDeviations(100, 100, 100)));
         // Add path to scoring
         commands.add(path.cmd());
-
+        commands.add(new InstantCommand(() -> SubsystemManager.getInstance().getDrivetrain().setVisionStandardDeviations(0.5, 0.5, 10)));
         // Add directly move to and fine tune stuff IDK
         if (AutoConstants.addVisionAlignToCommands) {
             TargetPositions targetPosition = scoringTarget.getTargetPosition();
@@ -189,8 +191,10 @@ public class AutoRoutines {
     }
 
     private void addHPLoadingSegment(List<Command> commands, AutoTrajectory path, boolean isStationLeft) {
+        commands.add(new InstantCommand(() -> SubsystemManager.getInstance().getDrivetrain().setVisionStandardDeviations(100, 100, 100)));
         // Add path to intake
         commands.add(path.cmd());
+        commands.add(new InstantCommand(() -> SubsystemManager.getInstance().getDrivetrain().setVisionStandardDeviations(0.1, 0.1, 1)));
 
         // Add directly move to stuff IDK
         if (AutoConstants.addVisionAlignToCommands && AutoConstants.addHPVisionAlignToCommands) {

@@ -49,6 +49,7 @@ public class DriveCommands {
     }
 
     public static Command moveToClosestReefPositionWithTransformation(byte direction, Supplier<Pose2d> currentRobotPose) {
+        drivetrain.setVisionStandardDeviations(0.1, 0.1, 10);
         List<FieldConstants.TargetPositions> allReefTargets = List.of(
                 FieldConstants.TargetPositions.REEF_AB,
                 FieldConstants.TargetPositions.REEF_CD,
@@ -72,7 +73,8 @@ public class DriveCommands {
                         : nearestReefPose));
 
         return DriveCommands.drivetrain.directlyMoveTo(desiredPose, currentRobotPose)
-                .until(new Trigger(() -> PoseUtil.withinTolerance(desiredPose, currentRobotPose.get(), Units.inchesToMeters(2))).debounce(0.1));
+                .until(new Trigger(() -> PoseUtil.withinTolerance(desiredPose, currentRobotPose.get(), Units.inchesToMeters(2))).debounce(0.1))
+                .andThen(() -> drivetrain.setVisionStandardDeviations(0.1, 0.1, 10));
     }
 
     public static Command moveToReefPosition(TargetPositions position, Supplier<Pose2d> currentRobotPose) {
