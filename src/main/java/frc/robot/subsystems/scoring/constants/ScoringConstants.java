@@ -3,7 +3,9 @@ package frc.robot.subsystems.scoring.constants;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.UnitConvertor;
+import frc.robot.subsystems.SubsystemManager;
 
 import static edu.wpi.first.units.Units.Inches;
 
@@ -150,4 +152,6 @@ public final class ScoringConstants {
 
         public static final int LaserCANID = 56;
     }
+
+    public static Trigger autonShouldAdvanceToOuttakeTrigger = new Trigger(SubsystemManager.getInstance().getScoringSuperstructure().getEndEffectorSubsystem()::isWristAtTarget).debounce(0.5);
 }
