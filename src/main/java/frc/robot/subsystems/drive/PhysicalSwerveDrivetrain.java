@@ -33,6 +33,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.limelight.LimelightHelpers;
 import frc.lib.util.DriverStationUtil;
 import frc.lib.util.PoseUtil;
@@ -62,11 +63,11 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     protected ProfiledPIDController pidYController = constructPIDYController();
 
     public static ProfiledPIDController constructPIDYController() {
-        return new ProfiledPIDController(3, 0, 0, new TrapezoidProfile.Constraints(2, 1));
+        return new ProfiledPIDController(5, 0, 0, new TrapezoidProfile.Constraints(2, 2));
     }
 
     public static ProfiledPIDController constructPIDXController() {
-        return new ProfiledPIDController(3, 0, 0, new TrapezoidProfile.Constraints(2, 1));
+        return new ProfiledPIDController(5, 0, 0, new TrapezoidProfile.Constraints(2, 2));
     }
 
     {
@@ -81,6 +82,8 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     private final SwerveSetpointGenerator swerveSetpointGenerator;
     private SwerveSetpoint prevSwerveSetpoint;
     private static final double MAX_STEER_VELOCITY_RADS_PER_SEC = 12.49;
+
+    private boolean shouldUseMTSTDevs = false;
 
     public PhysicalSwerveDrivetrain() {
         SwerveDrivetrainConstants drivetrainConstants = TunerConstants.DrivetrainConstants;
@@ -206,10 +209,10 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
             pidYController.reset(getPose().getY(), getChassisSpeeds().vyMetersPerSecond);
             pidXController.setGoal(targetPose.getX());
             pidYController.setGoal(targetPose.getY());
-            setVisionStandardDeviations(0.5, 0.5, 0.5);
             SmartDashboard.putNumber("distanceThresholdMeters", 10);
             field.getObject("Target Pose").setPose(targetPose);
             SmartDashboard.putBoolean("Aligned", false);
+            shouldUseMTSTDevs = true;
         }).andThen(applyRequest(
                 () -> {
                     SmartDashboard.putNumber("Distance to Target", PoseUtil.distanceBetween(targetPose, currentPose.get()));
@@ -239,14 +242,18 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                         .withTargetDirection(targetPose.getRotation().plus(headingOffset));
                 }
             ).until(
-                () -> MathUtil.isNear(targetPose.getX(), getPose().getX(), 0.025)
-                    && MathUtil.isNear(targetPose.getY(), getPose().getY(), 0.025)
-                    && MathUtil.isNear(targetPose.getRotation().getDegrees(), getPose().getRotation().getDegrees(), 2)
+                new Trigger(
+                () -> (!RobotState.isTeleop())
+                    && MathUtil.isNear(targetPose.getX(), getPose().getX(), 0.01)
+                    && MathUtil.isNear(targetPose.getY(), getPose().getY(), 0.01)
+                    && MathUtil.isNear(targetPose.getRotation().getDegrees(), getPose().getRotation().getDegrees(), 1))
+                    .debounce(1)
             )).andThen(stop().withTimeout(0.1))
-            .andThen(() -> {
+            .finallyDo(() -> {
                 setVisionStandardDeviations(5, 5, 10);
                 SmartDashboard.putNumber("distanceThresholdMeters", 2);
                 SmartDashboard.putBoolean("Aligned", true);
+                shouldUseMTSTDevs = false;
             });
     }
 
@@ -302,7 +309,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
             });
         }
 
-        Vision.addGlobalVisionMeasurements(this);
+        Vision.addGlobalVisionMeasurements(this, shouldUseMTSTDevs);
 
         // Update robot pose
         field.setRobotPose(getPose());
@@ -314,6 +321,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         SignalLogger.writeDouble("Steer Position", drivetrain.getModule(0).getSteerMotor().getPosition().getValueAsDouble());
 
         SmartDashboard.putNumber("Current heading", getPose().getRotation().getDegrees());
+        SmartDashboard.putBoolean("use mt1 stdevs", shouldUseMTSTDevs);
 
         Arrays.stream(Limelights.values()).parallel().forEach(
             limelight -> {

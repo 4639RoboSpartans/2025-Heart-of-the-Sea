@@ -32,7 +32,7 @@ public class Vision {
     }
 
 
-    public static void addGlobalVisionMeasurements(AbstractSwerveDrivetrain drivetrain) {
+    public static void addGlobalVisionMeasurements(AbstractSwerveDrivetrain drivetrain, boolean shouldUseMT1STDevs) {
         if ((RobotBase.isReal())) Arrays.stream(Limelights.values()).parallel().forEach(
                 limelight -> {
                     Optional<Pose2d> measurement = Optional.of(
@@ -44,7 +44,15 @@ public class Vision {
                                 ? measurement
                                 : Optional.empty();
 
-                    measurement.ifPresent(pose -> drivetrain.addVisionMeasurement(pose, Utils.getCurrentTimeSeconds()));
+                    measurement.ifPresent(
+                        pose -> {
+                            if (shouldUseMT1STDevs) {
+                                double[] stdevs = LimelightHelpers.getStDevs_MT1(limelight.getName());
+                                drivetrain.setVisionStandardDeviations(stdevs[0], stdevs[1], stdevs[3]);
+                            }
+                            drivetrain.addVisionMeasurement(pose, Utils.getCurrentTimeSeconds());
+                        }
+                    );
                 }
         );
     }

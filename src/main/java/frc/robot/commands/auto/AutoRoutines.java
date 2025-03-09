@@ -79,6 +79,16 @@ public class AutoRoutines {
         );
     }
 
+    public Auton COMP_I_K_L() {
+        return compileAuton(
+            true,
+            true, 
+            new ScoringTarget('I', 4),
+            new ScoringTarget('K', 4),
+            new ScoringTarget('L', 4)
+        );
+    }
+
     public Auton TEST_A_B() {
         AutoRoutine routine = factory.newRoutine("COMP_A_B");
         AutoTrajectory traj1 = routine.trajectory("TEST-A-B", 0);
@@ -109,6 +119,19 @@ public class AutoRoutines {
         );
 
         return new Auton(routine, "TESTING-E-C");
+    }
+
+    public Auton SCORING_TEST() {
+        AutoRoutine routine = factory.newRoutine("TESTING");
+
+        routine.active().onTrue(
+            Commands.sequence(
+                Commands.waitSeconds(0.5),
+                AutoCommands.L4Score.get()
+            )
+        );
+
+        return new Auton(routine, "TESTING");
     }
 
     private record ScoringTarget(char scoringLocation, int scoringHeight) {
@@ -165,7 +188,7 @@ public class AutoRoutines {
     }
 
     private void addScoringSegment(List<Command> commands, AutoTrajectory path, ScoringTarget scoringTarget) {
-        commands.add(new InstantCommand(() -> SubsystemManager.getInstance().getDrivetrain().setVisionStandardDeviations(100, 100, 100)));
+        commands.add(new InstantCommand(() -> SubsystemManager.getInstance().getDrivetrain().setVisionStandardDeviations(5, 5, 100)));
         // Add path to scoring
         commands.add(path.cmd());
         commands.add(new InstantCommand(() -> SubsystemManager.getInstance().getDrivetrain().setVisionStandardDeviations(0.5, 0.5, 10)));
@@ -217,7 +240,6 @@ public class AutoRoutines {
                     () -> {
                         return SubsystemManager.getInstance().getDrivetrain().getPose();
                     }
-
                 )
         );
     }
@@ -248,8 +270,7 @@ public class AutoRoutines {
             COMP_H_G(),
             COMP_J_K(),
             COMP_G_C_D_B(),
-            TEST_E_C(),
-            TEST_A_B()
+            COMP_I_K_L()
         );
     }
 

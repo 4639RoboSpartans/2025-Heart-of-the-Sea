@@ -73,8 +73,7 @@ public class DriveCommands {
                         : nearestReefPose));
 
         return DriveCommands.drivetrain.directlyMoveTo(desiredPose, currentRobotPose)
-                .until(new Trigger(() -> PoseUtil.withinTolerance(desiredPose, currentRobotPose.get(), Units.inchesToMeters(2))).debounce(0.1))
-                .andThen(() -> drivetrain.setVisionStandardDeviations(0.1, 0.1, 10));
+                .until(new Trigger(() -> PoseUtil.withinTolerance(desiredPose, currentRobotPose.get(), Units.inchesToMeters(2))).debounce(0.1));
     }
 
     public static Command moveToReefPosition(TargetPositions position, Supplier<Pose2d> currentRobotPose) {

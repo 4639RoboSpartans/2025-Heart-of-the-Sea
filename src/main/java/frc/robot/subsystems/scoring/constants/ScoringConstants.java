@@ -45,7 +45,7 @@ public final class ScoringConstants {
 
             public static final double L2_Proportion = 0.28;
             public static final double L3_Proportion = 0.481;
-            public static final double L4_Proportion = 0.865;
+            public static final double L4_Proportion = 0.8625;
 
             // TODO: below
             public static final double L2_ALGAE_Proportion = 0.32; // MAYBE
@@ -114,7 +114,7 @@ public final class ScoringConstants {
             public static final double Wrist_IDLE_Proportion = 0.35;
             public static final double Wrist_Lowest_Proportion = Wrist_Hard_Stop_Proportion; // 0.2;
             public static final double Wrist_ALGAESTOW_Proportion = 0.5;
-            public static final double Wrist_HP_Proportion = 0.2;
+            public static final double Wrist_HP_Proportion = 0.175;
             public static final double Wrist_Processor_Proportion = 0.709;
             public static final double Wrist_L1_Proportion = 1.0;
             // TODO: above
@@ -153,5 +153,7 @@ public final class ScoringConstants {
         public static final int LaserCANID = 56;
     }
 
-    public static Trigger autonShouldAdvanceToOuttakeTrigger = new Trigger(SubsystemManager.getInstance().getScoringSuperstructure().getEndEffectorSubsystem()::isWristAtTarget).debounce(0.5);
+    public static Trigger autonShouldAdvanceToOuttakeTrigger = 
+        new Trigger(SubsystemManager.getInstance().getScoringSuperstructure().getEndEffectorSubsystem()::isWristAtTarget)
+            .debounce(0.1);
 }

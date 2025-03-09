@@ -6,10 +6,10 @@ public class ScoringPIDs {
     public static TunableNumber elevatorKp = new TunableNumber("Scoring PIDs/Elevator kP").withDefaultValue(3.596);
     public static TunableNumber elevatorKi = new TunableNumber("Scoring PIDs/Elevator kI").withDefaultValue(0.0);
     public static TunableNumber elevatorKd = new TunableNumber("Scoring PIDs/Elevator kD").withDefaultValue(0.0);
-    public static TunableNumber elevatorVelocity = new TunableNumber("Scoring PIDs/Elevator Velocity").withDefaultValue(280.0);
-    public static TunableNumber elevatorAcceleration = new TunableNumber("Scoring PIDs/Elevator Acceleration").withDefaultValue(160.0);
+    public static TunableNumber elevatorVelocity = new TunableNumber("Scoring PIDs/Elevator Velocity").withDefaultValue(300.0);
+    public static TunableNumber elevatorAcceleration = new TunableNumber("Scoring PIDs/Elevator Acceleration").withDefaultValue(200.0);
     public static TunableNumber elevatorKs = new TunableNumber("Scoring PIDs/Elevator Ks").withDefaultValue(0.27919);
-    public static TunableNumber elevatorKg = new TunableNumber("Scoring PIDs/Elevator Kg").withDefaultValue(0.47437);
+    public static TunableNumber elevatorKg = new TunableNumber("Scoring PIDs/Elevator Kg").withDefaultValue(2);
     public static TunableNumber elevatorKv = new TunableNumber("Scoring PIDs/Elevator Kv").withDefaultValue(0.11358);
     public static TunableNumber elevatorKa = new TunableNumber("Scoring PIDs/Elevator Ka").withDefaultValue(0.0);
 
