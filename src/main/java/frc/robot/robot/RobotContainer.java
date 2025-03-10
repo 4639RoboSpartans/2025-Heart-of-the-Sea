@@ -230,6 +230,5 @@ public class RobotContainer {
     public void configureLEDs(){
         FunctionalTrigger.of(scoringSuperstructure::isManualControlEnabled).whileTrue(LEDCommandFactory::LEDFlashPurple);
         FunctionalTrigger.of(scoringSuperstructure.getEndEffectorSubsystem()::hasCoral).whileTrue(LEDCommandFactory::LEDThreeFlashThenSolidGreen);
-
     }
 }

@@ -4,6 +4,8 @@ import frc.robot.subsystems.scoring.constants.ScoringConstants.ElevatorConstants
 import frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConstants.IntakeSpeeds;
 import frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConstants.WristSetpoints;
 
+import java.util.function.Consumer;
+
 public class ScoringSuperstructureAction {
     public double targetElevatorExtensionFraction = 0;
     public double targetWristRotationFraction = 0;
@@ -19,54 +21,74 @@ public class ScoringSuperstructureAction {
      */
     public ScoringSuperstructureAction nextAction = this;
 
+    private ScoringSuperstructureAction(ScoringSuperstructureAction action, String name) {
+        this.targetElevatorExtensionFraction = action.targetElevatorExtensionFraction;
+        this.targetWristRotationFraction = action.targetWristRotationFraction;
+        this.intakeSpeed = action.intakeSpeed;
+        this.endOnGamePieceSeen = action.endOnGamePieceSeen;
+        this.endOnGamePieceNotSeen = action.endOnGamePieceNotSeen;
+        this.requiresWristTransition = action.requiresWristTransition;
+        this.useManualControlInTeleop = action.useManualControlInTeleop;
+        this.name = name;
+    }
+
+    private ScoringSuperstructureAction(ScoringSuperstructureAction action) {
+        this(action, action.name);
+    }
+
     private ScoringSuperstructureAction(String name) {
         this.name = name;
     }
 
-    private ScoringSuperstructureAction withTargetElevatorExtensionFraction(double fraction) {
-        this.targetElevatorExtensionFraction = fraction;
+    private ScoringSuperstructureAction modifyInPlace(Consumer<ScoringSuperstructureAction> f) {
+        f.accept(this);
         return this;
+    }
+
+    private ScoringSuperstructureAction withTargetElevatorExtensionFraction(double fraction) {
+        return new ScoringSuperstructureAction(this).modifyInPlace(a -> a.targetElevatorExtensionFraction = fraction);
     }
 
     private ScoringSuperstructureAction withTargetWristRotationFraction(double fraction) {
-        this.targetWristRotationFraction = fraction;
-        return this;
+        return new ScoringSuperstructureAction(this).modifyInPlace(a -> a.targetWristRotationFraction = fraction);
     }
 
     private ScoringSuperstructureAction withIntakeSpeed(double speed) {
-        this.intakeSpeed = speed;
-        return this;
+        return new ScoringSuperstructureAction(this).modifyInPlace(a -> a.intakeSpeed = speed);
     }
 
     private ScoringSuperstructureAction stopIntakeOnGamePieceSeen() {
-        this.endOnGamePieceSeen = true;
-        return this;
+        return new ScoringSuperstructureAction(this).modifyInPlace(a -> a.endOnGamePieceSeen = true);
     }
 
     private ScoringSuperstructureAction stopIntakeOnGamePieceNotSeen() {
-        this.endOnGamePieceNotSeen = true;
-        return this;
+        return new ScoringSuperstructureAction(this).modifyInPlace(a -> a.endOnGamePieceNotSeen = true);
     }
 
     private ScoringSuperstructureAction requireWristTransition() {
-        this.requiresWristTransition = true;
-        return this;
+        return new ScoringSuperstructureAction(this).modifyInPlace(a -> a.requiresWristTransition = true);
     }
 
     private ScoringSuperstructureAction useManualControlInTeleop(boolean useManualControlInTeleop) {
-        this.useManualControlInTeleop = useManualControlInTeleop;
-        return this;
+        return new ScoringSuperstructureAction(this).modifyInPlace(a -> a.useManualControlInTeleop = useManualControlInTeleop);
     }
 
     private ScoringSuperstructureAction withStateAfter(ScoringSuperstructureAction stateAfter) {
-        this.nextAction = stateAfter;
-        return this;
+        return new ScoringSuperstructureAction(this).modifyInPlace(a -> a.nextAction = stateAfter);
     }
 
     public static ScoringSuperstructureAction HOLD(double elevatorProportion, double wristProportion) {
         return new ScoringSuperstructureAction("HOLD")
             .withTargetElevatorExtensionFraction(elevatorProportion)
             .withTargetWristRotationFraction(wristProportion);
+    }
+
+    public ScoringSuperstructureAction withNoIntakeUsage() {
+        return new ScoringSuperstructureAction(this, name + "_NO_INTAKE").modifyInPlace(a -> {
+            a.endOnGamePieceNotSeen = false;
+            a.endOnGamePieceSeen = false;
+            a.intakeSpeed = 0;
+        });
     }
 
     public static final ScoringSuperstructureAction

@@ -36,7 +36,7 @@ public class LEDCommandFactory {
     }
 
     public static Command LEDThreeFlashThenSolidGreen() {
-        return LEDThreeFlashGreen().andThen(leds.usePattern(new SolidLEDPattern(Color.kLimeGreen)));
+        return LEDThreeFlashGreen().andThen(leds.usePattern(new SolidLEDPattern(Color.kGreen)));
     }
 
     public static Command blueOrangeCycle() {
@@ -50,8 +50,8 @@ public class LEDCommandFactory {
     public static Command defaultCommand() {
         return leds.usePattern(() -> {
             if (RobotState.isDisabled()){
-                if (DriverStationUtil.getAlliance() == DriverStation.Alliance.Red) return redOrangeMovingWave;
-                else return blueTealMovingWave;
+                if (DriverStationUtil.getAlliance() == DriverStation.Alliance.Red) return breathingRed;
+                else return breathingBlue;
             } else return new SolidLEDPattern(Color.kBlack);
         });
     }
