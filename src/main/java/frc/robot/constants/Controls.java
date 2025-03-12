@@ -104,7 +104,7 @@ public class Controls {
         //Manual override controls
         public static Trigger ToggleManualControlTrigger = operatorController.LEFT_STICK;
         public static Trigger HomingCommandTrigger = operatorController.RIGHT_STICK;
-        public static Trigger homingWristCommandTrigger = operatorController.A_BUTTON.and(driverController.B_BUTTON);
+        public static Trigger homingWristCommandTrigger = operatorController.A_BUTTON.and(operatorController.B_BUTTON);
 
         public static final DoubleSupplier ManualControlWrist = () -> operatorController.rightStickY() * 0.5 + 0.5;
         public static final DoubleSupplier ManualControlElevator = operatorController::leftStickY;
