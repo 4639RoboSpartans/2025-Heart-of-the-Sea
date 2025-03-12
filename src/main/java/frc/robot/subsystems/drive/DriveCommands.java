@@ -151,10 +151,10 @@ public class DriveCommands {
      */
     public static Command moveToHexThenMoveToRLCommand(char reefLetter){
         return FieldConstants.TargetPositions.hexReefPoseFromChar(reefLetter)
-                .map(target -> (Command) drivetrain.directlyMoveTo(target.getAllianceRespectivePose(), drivetrain::getPose).until(() -> PoseUtil.withinTolerance(drivetrain.getPose(), target.getPose(), Units.inchesToMeters(2))))
+                .map(target -> (Command) drivetrain.directlyMoveTo(target.getAllianceRespectivePose(), drivetrain::getPose).until(() -> PoseUtil.withinTolerance(drivetrain.getPose(), target.getAllianceRespectivePose(), Units.inchesToMeters(2))))
                 .orElse(Commands.none())
                 .andThen(drivetrain.directlyMoveTo(FieldConstants.TargetPositions.RLReefPoseFromChar(reefLetter).getAllianceRespectivePose(), drivetrain::getPose))
-                .until(() -> PoseUtil.withinTolerance(drivetrain.getPose(), FieldConstants.TargetPositions.RLReefPoseFromChar(reefLetter).getPose(), Units.inchesToMeters(0.5)));
+                .until(() -> PoseUtil.withinTolerance(drivetrain.getPose(), FieldConstants.TargetPositions.RLReefPoseFromChar(reefLetter).getAllianceRespectivePose(), Units.inchesToMeters(0.5)));
 
     }
 }

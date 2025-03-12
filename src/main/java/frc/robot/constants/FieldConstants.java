@@ -327,13 +327,11 @@ public class FieldConstants {
         }
 
         public Pose2d getOpponentAlliancePose() {
-            return AllianceFlipUtil.rawAllianceFlipPose(getPose());
+            return AllianceFlipUtil.rawAllianceFlipPose(getAllianceRespectivePose());
         }
 
         public Pose2d getAllianceRespectivePose() {
-            return DriverStationUtil.getAlliance() == Alliance.Red
-                    ? getOpponentAlliancePose()
-                    : getPose();
+            return AllianceFlipUtil.applyIfShouldFlip(getPose());
         }
 
         public static TargetPositions RLReefPoseFromChar(Character character){
