@@ -68,6 +68,10 @@ public class LEDCommandFactory {
         });
     }
 
+    public static Command OceanWave(){
+        return leds.usePattern(new OceanWaveLEDPattern(20, 20, 20, .25));
+    }
+
     public static LEDPattern breathingRed = new BreathingLEDPattern(
         Color.kRed, 0.5, .1, .7
     );

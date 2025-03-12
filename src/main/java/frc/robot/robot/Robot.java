@@ -35,7 +35,7 @@ public class Robot extends LoggedRobot {
     public void robotInit() {
         SubsystemManager.getInstance().instantiateSubsystems();
         ScoringConstants.EndEffectorConstants.RotationStartingPosition = SubsystemManager.getInstance().getScoringSuperstructure().getEndEffectorSubsystem().getCurrentRotation();
-        LEDCommandFactory.setLEDCommand(LEDCommandFactory.defaultCommand());
+        LEDCommandFactory.setLEDCommand(LEDCommandFactory.OceanWave());
     }
 
 
