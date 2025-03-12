@@ -41,6 +41,15 @@ public class AutoRoutines {
         );
     }
 
+    public Auton COMP_J_L() {
+        return compileAuton(
+            true, 
+            true, 
+            new ScoringTarget('J', 4),
+            new ScoringTarget('L', 4)
+        );
+    }
+
     public Auton COMP_H_G() {
         return compileAuton(
             true,
@@ -270,7 +279,8 @@ public class AutoRoutines {
             COMP_H_G(),
             COMP_J_K(),
             COMP_G_C_D_B(),
-            COMP_I_K_L()
+            COMP_I_K_L(),
+            COMP_J_L()
         );
     }
 
