@@ -52,6 +52,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     protected final TunerSwerveDrivetrain drivetrain;
 
     private boolean didApplyOperatorPerspective = false;
+    private boolean aligned = false;
 
     private final PhoenixPIDController headingController = new PhoenixPIDController(28.48, 0, 1.1466);
     protected final PIDController
@@ -211,7 +212,8 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
             pidYController.setGoal(targetPose.getY());
             SmartDashboard.putNumber("distanceThresholdMeters", 10);
             field.getObject("Target Pose").setPose(targetPose);
-            SmartDashboard.putBoolean("Aligned", false);
+            aligned = false;
+            SmartDashboard.putBoolean("Aligned", aligned);
             shouldUseMTSTDevs = true;
         }).andThen(applyRequest(
                 () -> {
@@ -252,7 +254,8 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
             .finallyDo(() -> {
                 setVisionStandardDeviations(5, 5, 10);
                 SmartDashboard.putNumber("distanceThresholdMeters", 2);
-                SmartDashboard.putBoolean("Aligned", true);
+                aligned = true;
+                SmartDashboard.putBoolean("Aligned", aligned);
                 shouldUseMTSTDevs = false;
             });
     }
@@ -386,5 +389,10 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     @Override
     public void setVisionStandardDeviations(double xStdDev, double yStdDev, double rotStdDev) {
         drivetrain.setVisionMeasurementStdDevs(new Matrix<N3, N1>(Nat.N3(), Nat.N1(), new double[]{xStdDev, yStdDev, rotStdDev}));
+    }
+
+    @Override
+    public boolean isAtAlignment(){
+        return aligned;
     }
 }

@@ -84,4 +84,7 @@ public class DummySwerveDrivetrain extends AbstractSwerveDrivetrain {
     public void setVisionStandardDeviations(double xStdDev, double yStdDev, double rotStdDev) {
        
     }
+
+    @Override
+    public boolean isAtAlignment(){return false;}
 }

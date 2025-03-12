@@ -35,6 +35,18 @@ public class LEDCommandFactory {
         ));
     }
 
+    public static Command LEDThreeFlashGold(){
+        return leds.resetTime().andThen(
+            leds.usePattern(new CycleBetweenLEDPattern(
+                7, Color.kBlack, Color.kGold
+            )).withTimeout(1)
+        );
+    }
+
+    public static Command LEDThreeFlashThenSolidGold(){
+        return LEDThreeFlashGold().andThen(leds.usePattern(new SolidLEDPattern(Color.kGold)));
+    }
+
     public static Command LEDThreeFlashThenSolidGreen() {
         return LEDThreeFlashGreen().andThen(leds.usePattern(new SolidLEDPattern(Color.kGreen)));
     }
