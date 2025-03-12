@@ -31,11 +31,16 @@ public class OceanWaveLEDPattern implements LEDPattern{
         BC = new Color(128, 128, 128); //warm white(if needed): 255, 200, 150
 
         map = new Color[lengthOfFirstSegment+lengthOfDeadZone+lengthOfSecondSegment];
+
+        for(int i = lengthOfFirstSegment; i < lengthOfFirstSegment + lengthOfDeadZone + lengthOfSecondSegment; i++){
+            map[i] = Color.kBlack;
+        }
     }
 
     @Override
     public Color get(int led, double time){
-        return null;
+        runColor(time);
+        return map[led];
     }
 
     public void runColor(double time){
