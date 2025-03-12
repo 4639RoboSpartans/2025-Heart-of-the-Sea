@@ -249,7 +249,7 @@ public class FieldConstants {
 
         public final Pose2d Pose;
     }
-
+    //either 30.75 or 29.25
     static Transform2d fromReef = new Transform2d(Units.inchesToMeters(29.25), 0, Rotation2d.k180deg);
     static Transform2d fromProcessor = new Transform2d(Units.inchesToMeters(25), 0, Rotation2d.k180deg);
     //change this to tune how far the align tries to go from the intake station

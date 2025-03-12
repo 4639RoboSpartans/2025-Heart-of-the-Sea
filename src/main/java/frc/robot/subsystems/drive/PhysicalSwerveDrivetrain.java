@@ -63,11 +63,11 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     protected ProfiledPIDController pidYController = constructPIDYController();
 
     public static ProfiledPIDController constructPIDYController() {
-        return new ProfiledPIDController(5, 0, 0, new TrapezoidProfile.Constraints(2, 2));
+        return new ProfiledPIDController(5, 0, 0, new TrapezoidProfile.Constraints(2, 1));
     }
 
     public static ProfiledPIDController constructPIDXController() {
-        return new ProfiledPIDController(5, 0, 0, new TrapezoidProfile.Constraints(2, 2));
+        return new ProfiledPIDController(5, 0, 0, new TrapezoidProfile.Constraints(2, 1));
     }
 
     {
@@ -244,8 +244,8 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
             ).until(
                 new Trigger(
                 () -> (!RobotState.isTeleop())
-                    && MathUtil.isNear(targetPose.getX(), getPose().getX(), 0.01)
-                    && MathUtil.isNear(targetPose.getY(), getPose().getY(), 0.01)
+                    && MathUtil.isNear(targetPose.getX(), getPose().getX(), 0.025)//0.01
+                    && MathUtil.isNear(targetPose.getY(), getPose().getY(), 0.025)//0.01
                     && MathUtil.isNear(targetPose.getRotation().getDegrees(), getPose().getRotation().getDegrees(), 1))
                     .debounce(1)
             )).andThen(stop().withTimeout(0.1))

@@ -43,8 +43,8 @@ public final class ScoringConstants {
             // TODO: above
 
 
-            public static final double L2_Proportion = 0.28;
-            public static final double L3_Proportion = 0.481;
+            public static final double L2_Proportion = 0.285;//0.28
+            public static final double L3_Proportion = 0.491;//0.481
             public static final double L4_Proportion = 0.8625;
 
             // TODO: below
@@ -103,7 +103,7 @@ public final class ScoringConstants {
             public static final double Intake_L4_Speed = -0.5;
             public static final double Intake_L2_ALGAE_Speed = 1.0;
             public static final double Intake_L3_ALGAE_Speed = 1.0;
-            public static final double Intake_Barge_Speed = 0.2;
+            public static final double Intake_Barge_Speed = 0.1;//0.3
             public static final double Intake_Idle_Speed = 0.0;
         }
 
@@ -126,7 +126,7 @@ public final class ScoringConstants {
             // TODO: below
             public static final double Wrist_L2_ALGAE_Proportion = 0.82;
             public static final double Wrist_L3_ALGAE_Proportion = 0.763;
-            public static final double Wrist_Barge_Proportion = 0.534;
+            public static final double Wrist_Barge_Proportion = 0.465;//0.534
             public static final double Wrist_Transition_Proportion = 0.5;
 
             public static final Double Wrist_Ground_Intake_Proportion = 0.845;
