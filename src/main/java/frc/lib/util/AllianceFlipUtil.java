@@ -32,6 +32,10 @@ public class AllianceFlipUtil {
         return DriverStationUtil.getAlliance() != DriverStation.Alliance.Red;
     }
 
+    public static Pose2d applyIfShouldFlip(Pose2d pose){
+        return shouldFlip() ? apply(pose) : pose;
+    }
+
     /**
      * Always alliance-flips a pose without checking Driver Station. Useful when working with
      * a pose that is already alliance-normalized
