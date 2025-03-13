@@ -326,10 +326,21 @@ public class FieldConstants {
             return (Pose);
         }
 
+        /**
+         * Flips the pose such that it will appear on the Red side of the field, corresponding
+         * to an opposing side of the field in global Blue Alliance coordinate systems.
+         * @return the flipped pose, corresponding to the opposing side of the field.
+         */
         public Pose2d getOpponentAlliancePose() {
-            return AllianceFlipUtil.rawAllianceFlipPose(getAllianceRespectivePose());
+            return AllianceFlipUtil.rawAllianceFlipPose(getPose());
         }
 
+        /**
+         * Alliance Flips the pose such that it appears on the same side of the field as the
+         * current alliance. <b>Not recommended for global Blue Alliance coordinate systems.</b>
+         * @return a potentially flipped pose.
+         */
+        @Deprecated
         public Pose2d getAllianceRespectivePose() {
             return AllianceFlipUtil.applyIfShouldFlip(getPose());
         }

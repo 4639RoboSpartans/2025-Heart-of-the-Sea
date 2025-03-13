@@ -11,6 +11,7 @@ import frc.lib.limelight.data.PoseEstimate;
 import frc.lib.limelight.data.PoseEstimate.Botpose;
 import frc.lib.limelight.data.RawFiducial;
 import frc.lib.tunable.TunableNumber;
+import frc.lib.util.DriverStationUtil;
 import frc.lib.util.PoseUtil;
 import frc.robot.constants.Limelights;
 import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
@@ -22,6 +23,10 @@ import java.util.OptionalDouble;
 
 import com.ctre.phoenix6.Utils;
 
+/**
+ * Supporting a global Blue Alliance Coordinate Origin, all input values (which can be either based on Red Alliance or based on Blue Alliance)
+ * should be flipped to match what a Blue Alliance robot would see.
+ */
 public class Vision {
     public static TunableNumber distanceThreshold = new TunableNumber("distanceThresholdMeters").withDefaultValue(1);
     private static final Field2d visionMeasurements = new Field2d();
@@ -36,7 +41,9 @@ public class Vision {
         if ((RobotBase.isReal())) Arrays.stream(Limelights.values()).parallel().forEach(
                 limelight -> {
                     Optional<Pose2d> measurement = Optional.of(
-                            LimelightHelpers.getBotPose2d(limelight.getName(), Botpose.BLUE_MEGATAG1)
+                            DriverStationUtil.getAlliance()== DriverStation.Alliance.Blue
+                            ? LimelightHelpers.getBotPose2d(limelight.getName(), Botpose.BLUE_MEGATAG1)
+                                    : LimelightHelpers.getBotPose2d(limelight.getName(), Botpose.RED_MEGATAG1)
                     );
                     measurement = measurement.get().getX() == 0 && measurement.get().getY() == 0
                             ? Optional.empty()

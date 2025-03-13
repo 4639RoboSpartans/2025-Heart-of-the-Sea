@@ -19,30 +19,34 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * If all inputs are matching a Blue Alliance origin, then none of the poses in the internal logic should be alliance-flipped,
+ * rather, they should keep the same poses matching Blue Alliance origins.
+ */
+
 public class DriveCommands {
     private static final AbstractSwerveDrivetrain drivetrain = SubsystemManager.getInstance().getDrivetrain();
     public static Command pathfindToReefCommand(FieldConstants.TargetPositions targetPosition) {
         return Commands.sequence(
                 drivetrain.pathfindTo(
-                        AllianceFlipUtil.apply(
+
                                 targetPosition.getPose()
-                        )
+
                 ),
                 Commands.either(
                         drivetrain.directlyMoveTo(
-                                AllianceFlipUtil.apply(
+
                                         PoseUtil.ReefRelativeLeftOf(
                                                 targetPosition
-                                        )
-                                ),
+                                        ),
+
                                 drivetrain::getPose
                         ),
                         drivetrain.directlyMoveTo(
-                                AllianceFlipUtil.apply(
+
                                         PoseUtil.ReefRelativeRightOf(
                                                 targetPosition
-                                        )
-                                ),
+                                        ),
                                 drivetrain::getPose
                         ),
                         Controls.Driver.alignReefLeft
@@ -79,7 +83,7 @@ public class DriveCommands {
     }
 
     public static Command moveToReefPosition(TargetPositions position, Supplier<Pose2d> currentRobotPose) {
-        var desiredPose = AllianceFlipUtil.force(position.getPose(), DriverStation.Alliance.Red);
+        var desiredPose = position.getPose();
 
         return DriveCommands.drivetrain.directlyMoveTo(desiredPose, currentRobotPose)
                 .until(new Trigger(() -> PoseUtil.withinTolerance(desiredPose, currentRobotPose.get(), Units.inchesToMeters(2))).debounce(0.1));
@@ -153,10 +157,10 @@ public class DriveCommands {
      */
     public static Command moveToHexThenMoveToRLCommand(char reefLetter){
         return FieldConstants.TargetPositions.hexReefPoseFromChar(reefLetter)
-                .map(target -> (Command) drivetrain.directlyMoveTo(target.getAllianceRespectivePose(), drivetrain::getPose).until(() -> PoseUtil.withinTolerance(drivetrain.getPose(), target.getAllianceRespectivePose(), Units.inchesToMeters(2))))
+                .map(target -> (Command) drivetrain.directlyMoveTo(target.getPose(), drivetrain::getPose).until(() -> PoseUtil.withinTolerance(drivetrain.getPose(), target.getPose(), Units.inchesToMeters(2))))
                 .orElse(Commands.none())
-                .andThen(drivetrain.directlyMoveTo(FieldConstants.TargetPositions.RLReefPoseFromChar(reefLetter).getAllianceRespectivePose(), drivetrain::getPose))
-                .until(() -> PoseUtil.withinTolerance(drivetrain.getPose(), FieldConstants.TargetPositions.RLReefPoseFromChar(reefLetter).getAllianceRespectivePose(), Units.inchesToMeters(0.5)));
+                .andThen(drivetrain.directlyMoveTo(FieldConstants.TargetPositions.RLReefPoseFromChar(reefLetter).getPose(), drivetrain::getPose))
+                .until(() -> PoseUtil.withinTolerance(drivetrain.getPose(), FieldConstants.TargetPositions.RLReefPoseFromChar(reefLetter).getPose(), Units.inchesToMeters(0.5)));
 
     }
 }

@@ -7,6 +7,6 @@ public class DriverStationUtil {
     private static boolean defaultBlue = false;
 
     public static DriverStation.Alliance getAlliance() {
-        return DriverStation.getAlliance().get();
+        return DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue);
     }
 }
