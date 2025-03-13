@@ -2,10 +2,12 @@ package frc.robot.subsystems.drive;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.util.AllianceFlipUtil;
+import frc.lib.util.DriverStationUtil;
 import frc.lib.util.PoseUtil;
 import frc.robot.constants.Controls;
 import frc.robot.constants.FieldConstants;
@@ -77,7 +79,7 @@ public class DriveCommands {
     }
 
     public static Command moveToReefPosition(TargetPositions position, Supplier<Pose2d> currentRobotPose) {
-        var desiredPose = position.getAllianceRespectivePose();
+        var desiredPose = AllianceFlipUtil.force(position.getPose(), DriverStation.Alliance.Red);
 
         return DriveCommands.drivetrain.directlyMoveTo(desiredPose, currentRobotPose)
                 .until(new Trigger(() -> PoseUtil.withinTolerance(desiredPose, currentRobotPose.get(), Units.inchesToMeters(2))).debounce(0.1));

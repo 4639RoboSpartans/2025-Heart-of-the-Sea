@@ -101,7 +101,7 @@ public class AutoRoutines {
     public Auton TEST_A_B() {
         AutoRoutine routine = factory.newRoutine("COMP_A_B");
         AutoTrajectory traj1 = routine.trajectory("TEST-A-B", 0);
-        AutoTrajectory traj2 = routine.trajectory("TEST-A-B", 0);
+        AutoTrajectory traj2 = routine.trajectory("TEST-A-B", 1);
 
         routine.active().onTrue(
             Commands.sequence(
@@ -117,9 +117,9 @@ public class AutoRoutines {
     public Auton TEST_E_C() {
         AutoRoutine routine = factory.newRoutine("TEST_E_C");
         AutoTrajectory traj1 = routine.trajectory("TEST-E-C", 0);
-        AutoTrajectory traj2 = routine.trajectory("TEST-E-C", 0);
+        AutoTrajectory traj2 = routine.trajectory("TEST-E-C",1);
 
-        routine.active().onTrue(
+        /*routine.active().onTrue(
             Commands.sequence(
                 traj1.resetOdometry(),
                 traj1.cmd(),
@@ -127,7 +127,11 @@ public class AutoRoutines {
             )
         );
 
-        return new Auton(routine, "TESTING-E-C");
+        return new Auton(routine, "TESTING-E-C");*/
+        return compileAuton(false, false, 
+            new ScoringTarget('E', 4),
+            new ScoringTarget('C', 4)
+        );
     }
 
     public Auton SCORING_TEST() {
@@ -281,7 +285,8 @@ public class AutoRoutines {
             COMP_J_K(),
             COMP_G_C_D_B(),
             COMP_I_K_L(),
-            COMP_J_L()
+            COMP_J_L(), 
+            TEST_E_C()
         );
     }
 

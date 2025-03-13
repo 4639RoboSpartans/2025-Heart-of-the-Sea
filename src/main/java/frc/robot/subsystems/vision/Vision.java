@@ -53,6 +53,7 @@ public class Vision {
                             drivetrain.addVisionMeasurement(pose, Utils.getCurrentTimeSeconds());
                         }
                     );
+                    SmartDashboard.putNumber("LL Pitch", LimelightHelpers.getBotPose3d(limelight.getName()).getRotation().getMeasureY().baseUnitMagnitude());
                 }
         );
     }
