@@ -4,7 +4,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 
 public class DriverStationUtil {
     // in simulation, change this before starting the simulation as this is what choreo reads as whether to flip alliance.
-    private static final boolean defaultBlue = false;
+    private static final boolean defaultBlue = true;
 
     public static DriverStation.Alliance getAlliance() {
         return DriverStation.getAlliance().orElseGet(

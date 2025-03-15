@@ -6,13 +6,10 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.lib.oi.OI;
 import frc.lib.tunable.TunableNumber;
 import frc.robot.subsystems.SubsystemManager;
-import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
 import frc.robot.subsystems.scoring.constants.ScoringPIDs;
 
 import static frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConstants.*;

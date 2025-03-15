@@ -79,7 +79,7 @@ public class DriveCommands {
     }
 
     public static Command moveToReefPosition(TargetPositions position, Supplier<Pose2d> currentRobotPose) {
-        var desiredPose = AllianceFlipUtil.force(position.getPose(), DriverStation.Alliance.Red);
+        var desiredPose = position.getAllianceRespectivePose();
 
         return DriveCommands.drivetrain.directlyMoveTo(desiredPose, currentRobotPose)
                 .until(new Trigger(() -> PoseUtil.withinTolerance(desiredPose, currentRobotPose.get(), Units.inchesToMeters(2))).debounce(0.1));

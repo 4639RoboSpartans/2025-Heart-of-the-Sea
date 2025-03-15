@@ -3,21 +3,14 @@ package frc.robot.commands.auto;
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.lib.util.CommandsUtil;
-import frc.lib.util.DriverStationUtil;
-import frc.lib.util.PoseUtil;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.FieldConstants.TargetPositions;
 import frc.robot.robot.Robot;
 import frc.robot.subsystems.SubsystemManager;
-import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
 import frc.robot.subsystems.drive.DriveCommands;
 
 import java.util.ArrayList;
@@ -116,19 +109,6 @@ public class AutoRoutines {
     }
 
     public Auton TEST_E_C() {
-        AutoRoutine routine = factory.newRoutine("TEST_E_C");
-        AutoTrajectory traj1 = routine.trajectory("TEST-E-C", 0);
-        AutoTrajectory traj2 = routine.trajectory("TEST-E-C",1);
-
-        /*routine.active().onTrue(
-            Commands.sequence(
-                traj1.resetOdometry(),
-                traj1.cmd(),
-                traj2.cmd()
-            )
-        );
-
-        return new Auton(routine, "TESTING-E-C");*/
         return compileAuton(false, false, 
             new ScoringTarget('E', 4),
             new ScoringTarget('C', 4)
@@ -233,6 +213,7 @@ public class AutoRoutines {
         });
     }
 
+    @SuppressWarnings("unused")
     private void addHPLoadingSegment(List<Command> commands, AutoTrajectory path, boolean isStationLeft) {
         commands.add(new InstantCommand(() -> SubsystemManager.getInstance().getDrivetrain().setVisionStandardDeviations(100, 100, 100)));
         // Add path to intake
