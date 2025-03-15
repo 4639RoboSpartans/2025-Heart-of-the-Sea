@@ -9,6 +9,9 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.Controls;
 import frc.robot.robot.Robot;
 import frc.robot.subsystems.SubsystemManager;
+import frc.robot.subsystems.scoring.ScoringSuperstructure;
+import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
+import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
 
 import java.util.Objects;
@@ -158,7 +161,12 @@ public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
             targetWristRotationFraction = getTargetRotationFraction();
             intakeSpeed = this.intakeSpeed;
             if(Controls.Operator.ManualControlIntake.getAsDouble() != 0){
-                intakeSpeed = Controls.Operator.ManualControlIntake.getAsDouble();
+                if(SubsystemManager.getInstance().getScoringSuperstructure().getCurrentAction().equals(ScoringSuperstructureAction.SCORE_BARGE) && Controls.Operator.ManualControlIntake.getAsDouble() > 0){
+                    intakeSpeed = ScoringConstants.EndEffectorConstants.IntakeSpeeds.Intake_Barge_Speed;
+                }
+                else{
+                    intakeSpeed = Controls.Operator.ManualControlIntake.getAsDouble();
+                }
             }
         }
 
