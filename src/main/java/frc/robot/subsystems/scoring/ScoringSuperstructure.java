@@ -190,7 +190,8 @@ public final class ScoringSuperstructure extends SubsystemBase {
         double manualIntakeSpeed = Controls.Operator.ManualControlIntake.getAsDouble() * Math.abs(currentAction.intakeSpeed);
         double intakeSpeed = (
             RobotState.isTeleop() && currentAction.useManualControlInTeleop
-                ? manualIntakeSpeed
+                ? manualIntakeSpeed == 0
+                ? s
                 : manualIntakeSpeed == 0 ? currentState.getIntakeSpeed(currentAction) : manualIntakeSpeed
         );
 
@@ -262,6 +263,7 @@ public final class ScoringSuperstructure extends SubsystemBase {
         if (SubsystemManager.getInstance().getDrivetrain().getAccelerationInGs() >= 1.0 / elevator.getCurrentExtensionFraction() + 1) {
             setCurrentAction(ScoringSuperstructureAction.IDLE);
         }
+        runActionPeriodic();
         SmartDashboard.putNumber("Elevator Fraction", elevator.getCurrentExtensionFraction());
         SmartDashboard.putNumber("Target Elevator Fraction", elevator.getTargetExtensionFraction());
         SmartDashboard.putNumber("Wrist Position", endEffector.getCurrentMotorPosition());

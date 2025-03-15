@@ -6,6 +6,7 @@ import choreo.auto.AutoTrajectory;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -195,35 +196,41 @@ public class AutoRoutines {
         }
 
         // Activate the commands when the auton routine is active
-        routine.active().onTrue(CommandsUtil.sequence(commands));
+        routine.active().onTrue(
+                CommandsUtil.sequence(commands)
+        );
 
         return new Auton(routine, autonName);
     }
 
     private void addScoringSegment(List<Command> commands, AutoTrajectory path, ScoringTarget scoringTarget) {
-        commands.add(new InstantCommand(() -> SubsystemManager.getInstance().getDrivetrain().setVisionStandardDeviations(5, 5, 100)));
-        // Add path to scoring
+        // Add the path to scoring
         commands.add(path.cmd());
-        commands.add(new InstantCommand(() -> SubsystemManager.getInstance().getDrivetrain().setVisionStandardDeviations(0.5, 0.5, 10)));
-        // Add directly move to and fine tune stuff IDK
+        path.atTime("L4_UP").onTrue(
+                switch (scoringTarget.scoringHeight()) {
+                    case 1 -> AutoCommands.L1ScorePrep.get();
+                    case 2 -> AutoCommands.L2ScorePrep.get();
+                    case 3 -> AutoCommands.L3ScorePrep.get();
+                    case 4 -> AutoCommands.L4ScorePrep.get();
+                    default -> AutoCommands.HPLoad.get().withTimeout(1);
+                }
+        );
+
         if (AutoConstants.addVisionAlignToCommands) {
             TargetPositions targetPosition = scoringTarget.getTargetPosition();
             addDirectlyMoveToCommand(
                 commands, targetPosition
             );
         }
-        //commands.add(targetPosition.fineTuneTargetCommand.get());
 
         // Add scoring command
-        // if (Robot.isReal()) {
-            commands.add(switch (scoringTarget.scoringHeight()) {
-                case 1 -> AutoCommands.L1Score.get();
-                case 2 -> AutoCommands.L2Score.get();
-                case 3 -> AutoCommands.L3Score.get();
-                case 4 -> AutoCommands.L4Score.get();
-                default -> AutoCommands.HPLoad.get().withTimeout(1);
-            });
-        // }
+        commands.add(switch (scoringTarget.scoringHeight()) {
+            case 1 -> AutoCommands.L1Score.get();
+            case 2 -> AutoCommands.L2Score.get();
+            case 3 -> AutoCommands.L3Score.get();
+            case 4 -> AutoCommands.L4Score.get();
+            default -> AutoCommands.HPLoad.get().withTimeout(1);
+        });
     }
 
     private void addHPLoadingSegment(List<Command> commands, AutoTrajectory path, boolean isStationLeft) {

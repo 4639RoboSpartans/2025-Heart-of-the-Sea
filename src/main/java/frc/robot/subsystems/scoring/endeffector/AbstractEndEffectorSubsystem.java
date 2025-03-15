@@ -156,10 +156,10 @@ public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
             intakeSpeed = Controls.Operator.ManualControlIntake.getAsDouble();
         } else {
             targetWristRotationFraction = getTargetRotationFraction();
-            intakeSpeed = this.intakeSpeed;
-            if(Controls.Operator.ManualControlIntake.getAsDouble() != 0){
-                intakeSpeed = Controls.Operator.ManualControlIntake.getAsDouble();
+            if (Robot.isReal()) {
+                if ()
             }
+            intakeSpeed = this.intakeSpeed;
         }
 
         SmartDashboard.putNumber("Intake Speed", intakeSpeed);
