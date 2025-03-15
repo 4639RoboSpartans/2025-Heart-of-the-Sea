@@ -156,9 +156,6 @@ public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
             intakeSpeed = Controls.Operator.ManualControlIntake.getAsDouble();
         } else {
             targetWristRotationFraction = getTargetRotationFraction();
-            if (Robot.isReal()) {
-                if ()
-            }
             intakeSpeed = this.intakeSpeed;
         }
 

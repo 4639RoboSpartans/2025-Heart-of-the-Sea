@@ -189,10 +189,9 @@ public final class ScoringSuperstructure extends SubsystemBase {
             .orElseGet(endEffector::getTargetRotationFraction);
         double manualIntakeSpeed = Controls.Operator.ManualControlIntake.getAsDouble() * Math.abs(currentAction.intakeSpeed);
         double intakeSpeed = (
-            RobotState.isTeleop() && currentAction.useManualControlInTeleop
-                ? manualIntakeSpeed == 0
-                ? s
-                : manualIntakeSpeed == 0 ? currentState.getIntakeSpeed(currentAction) : manualIntakeSpeed
+            SubsystemManager.getInstance().getDrivetrain().isAligned()
+            ? currentAction.intakeSpeed
+            : manualIntakeSpeed
         );
 
         // Update fine-tuning offsets

@@ -18,9 +18,7 @@ import frc.robot.subsystems.scoring.constants.ScoringPIDs;
 import static frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConstants.*;
 
 public class SimEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
-    private final boolean prevSeenCoral = false;
-    private final double coralSeenStartTime = 0;
-    private final double coralEjectionTime = 2;
+    private double intakeSpeed = 0;
 
     private final ProfiledPIDController wristPID;
     private final SingleJointedArmSim pivotSim;
@@ -59,17 +57,15 @@ public class SimEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
 
     @Override
     public boolean hasCoral() {
-        if (RobotState.isAutonomous()
-            && SubsystemManager.getInstance().getScoringSuperstructure()
-            .getCurrentAction().toString()
-            .equals(ScoringSuperstructureAction.INTAKE_FROM_HP.toString())) return false;
-        ScoringSuperstructureAction currentAction
-            = SubsystemManager.getInstance().getScoringSuperstructure().getCurrentAction();
-        return currentAction.endOnGamePieceSeen;
+        var currentAction = SubsystemManager.getInstance().getScoringSuperstructure().getCurrentAction();
+        return currentAction.endOnGamePieceSeen || currentAction.endOnGamePieceNotSeen
+        ? intakeSpeed != 0
+        : true;
     }
 
     @Override
     protected void periodic(double targetWristRotationFraction, double intakeSpeed) {
+        this.intakeSpeed = intakeSpeed;
         pivotSim.update(0.020);
 
         double currentWristPosition = getCurrentMotorPosition();
