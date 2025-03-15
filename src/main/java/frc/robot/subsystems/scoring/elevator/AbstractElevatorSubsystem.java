@@ -93,7 +93,7 @@ public abstract class AbstractElevatorSubsystem extends SubsystemBase {
         return MathUtil.isNear(
             getCurrentPosition(),
             getTargetPosition(),
-            ELEVATOR_TOLERANCE * 25
+            ELEVATOR_TOLERANCE * 40
         );
     }
 
