@@ -31,7 +31,7 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
 
     private final ProfiledPIDController wristPID;
     private double encoderOffset;
-    private final static double DEFAULT_ENCODER_OFFSET = 0.020;
+    private final static double DEFAULT_ENCODER_OFFSET = -0.029;//0.020 -> new encoder swap+offsetted
 
 
     // given is frac 0.82, measured frac 0.556 => need to sub frac 0.264 from measurement
