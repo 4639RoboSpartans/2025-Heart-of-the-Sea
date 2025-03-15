@@ -3,8 +3,6 @@ package frc.robot.subsystems.vision;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.RobotState;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.lib.limelight.LimelightHelpers;
 import frc.lib.limelight.data.PoseEstimate;
@@ -24,7 +22,6 @@ import com.ctre.phoenix6.Utils;
 
 public class Vision {
     public static TunableNumber distanceThreshold = new TunableNumber("distanceThresholdMeters").withDefaultValue(1);
-    private static final Field2d visionMeasurements = new Field2d();
 
     static {
         LimelightHelpers.setFiducialIDFiltersOverride("limelight-left", new int[] {6,7,8,9,10,11,17,18,19,20,21,22});

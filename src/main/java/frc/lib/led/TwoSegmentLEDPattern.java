@@ -2,8 +2,6 @@ package frc.lib.led;
 
 import edu.wpi.first.wpilibj.util.Color;
 
-import java.util.stream.IntStream;
-
 public class TwoSegmentLEDPattern implements LEDPattern {
     private final LEDPattern pattern1;
     private final LEDPattern pattern2;
