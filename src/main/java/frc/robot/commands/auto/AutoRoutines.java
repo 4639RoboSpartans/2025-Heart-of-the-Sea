@@ -293,7 +293,8 @@ public class AutoRoutines {
             COMP_G_C_D_B(),
             COMP_I_K_L(),
             COMP_J_L(), 
-            TEST_E_C()
+            TEST_E_C(),
+            SCORING_TEST()
         );
     }
 

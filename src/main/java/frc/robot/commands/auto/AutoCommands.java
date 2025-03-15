@@ -18,10 +18,10 @@ public class AutoCommands {
     public static final Supplier<Command> L3Score = () -> getScoringSuperstructureCommand(ScoringSuperstructureAction.SCORE_L3_CORAL);
     public static final Supplier<Command> L2Score = () -> getScoringSuperstructureCommand(ScoringSuperstructureAction.SCORE_L2_CORAL);
     public static final Supplier<Command> L1Score = () -> getScoringSuperstructureCommand(ScoringSuperstructureAction.SCORE_L1_CORAL);
-    public static final Supplier<Command> L4ScorePrep = () -> getScoringSuperstructurePrepCommand(ScoringSuperstructureAction.SCORE_L4_CORAL.withNoIntakeUsage());
-    public static final Supplier<Command> L3ScorePrep = () -> getScoringSuperstructurePrepCommand(ScoringSuperstructureAction.SCORE_L3_CORAL.withNoIntakeUsage());
-    public static final Supplier<Command> L2ScorePrep = () -> getScoringSuperstructurePrepCommand(ScoringSuperstructureAction.SCORE_L2_CORAL.withNoIntakeUsage());
-    public static final Supplier<Command> L1ScorePrep = () -> getScoringSuperstructurePrepCommand(ScoringSuperstructureAction.SCORE_L1_CORAL.withNoIntakeUsage());
+    public static final Supplier<Command> L4ScorePrep = () -> getScoringSuperstructurePrepCommand(ScoringSuperstructureAction.SCORE_L4_CORAL);
+    public static final Supplier<Command> L3ScorePrep = () -> getScoringSuperstructurePrepCommand(ScoringSuperstructureAction.SCORE_L3_CORAL);
+    public static final Supplier<Command> L2ScorePrep = () -> getScoringSuperstructurePrepCommand(ScoringSuperstructureAction.SCORE_L2_CORAL);
+    public static final Supplier<Command> L1ScorePrep = () -> getScoringSuperstructurePrepCommand(ScoringSuperstructureAction.SCORE_L1_CORAL);
     public static final Supplier<Command> HPLoad = () -> getScoringSuperstructureCommand(ScoringSuperstructureAction.INTAKE_FROM_HP);
 
     public static final Supplier<Command> runScoring = superstructure::runScoringState;

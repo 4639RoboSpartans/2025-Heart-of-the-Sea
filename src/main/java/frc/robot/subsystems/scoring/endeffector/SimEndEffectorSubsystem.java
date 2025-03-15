@@ -74,7 +74,6 @@ public class SimEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
         double wristPIDOutput = -wristPID.calculate(currentWristPosition, targetWristPosition);
 
         pivotSim.setInputVoltage(wristPIDOutput);
-        SmartDashboard.putNumber("intake speed", intakeSpeed);
     }
 
     @Override

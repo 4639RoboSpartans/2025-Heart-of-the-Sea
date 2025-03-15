@@ -89,6 +89,14 @@ public abstract class AbstractElevatorSubsystem extends SubsystemBase {
         );
     }
 
+    public boolean isNearTarget() {
+        return MathUtil.isNear(
+            getCurrentPosition(),
+            getTargetPosition(),
+            ELEVATOR_TOLERANCE * 25
+        );
+    }
+
     /**
      * Set the target extension proportion of the elevator in the current state,
      * where 0 means fully retracted and 1 means fully extended

@@ -24,7 +24,7 @@ public enum ScoringSuperstructureState {
     ) {
         return switch (this) {
             case TRANSITION_BEFORE_ELEVATOR -> endEffector.isWristAtTarget();
-            case ELEVATOR_MOVE_WITH_TRANSITION -> elevator.isAtTarget();
+            case ELEVATOR_MOVE_WITH_TRANSITION -> elevator.isNearTarget();
             case TRANSITION_AFTER_ELEVATOR -> RobotState.isAutonomous() ? ScoringConstants.autonShouldAdvanceToOuttakeTrigger.getAsBoolean() : endEffector.isWristAtTarget();
             case ELEVATOR_MOVE_NO_TRANSITION -> elevator.isAtTarget();
             case EXECUTING_ACTION -> {
