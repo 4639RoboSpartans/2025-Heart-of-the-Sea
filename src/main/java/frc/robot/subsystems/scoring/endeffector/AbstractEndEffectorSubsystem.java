@@ -161,12 +161,8 @@ public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
             targetWristRotationFraction = getTargetRotationFraction();
             intakeSpeed = this.intakeSpeed;
             if(Controls.Operator.ManualControlIntake.getAsDouble() != 0){
-                if(SubsystemManager.getInstance().getScoringSuperstructure().getCurrentAction().equals(ScoringSuperstructureAction.SCORE_BARGE) && Controls.Operator.ManualControlIntake.getAsDouble() > 0){
-                    intakeSpeed = ScoringConstants.EndEffectorConstants.IntakeSpeeds.Intake_Barge_Speed;
-                }
-                else{
-                    intakeSpeed = Controls.Operator.ManualControlIntake.getAsDouble();
-                }
+                ScoringSuperstructure scoring = SubsystemManager.getInstance().getScoringSuperstructure();
+                intakeSpeed = Controls.Operator.ManualControlIntake.getAsDouble() * Math.abs(scoring.getCurrentAction().intakeSpeed);
             }
         }
 
