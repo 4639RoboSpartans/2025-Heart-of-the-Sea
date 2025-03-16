@@ -32,7 +32,7 @@ public class DummySwerveDrivetrain extends AbstractSwerveDrivetrain {
     }
 
     @Override
-    public Command directlyMoveTo(Pose2d targetPose, Supplier<Pose2d> currentPoseSupplier) {
+    public Command _directlyMoveTo(Pose2d targetPose, Supplier<Pose2d> currentPoseSupplier) {
         return new InstantCommand(() -> {
             currentPose = targetPose;
         });

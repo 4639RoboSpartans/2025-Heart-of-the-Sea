@@ -8,16 +8,13 @@ package frc.robot.robot;
 import au.grapplerobotics.CanBridge;
 import com.ctre.phoenix6.SignalLogger;
 import com.revrobotics.spark.config.SparkBaseConfig;
-
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.subsystems.led.LEDCommandFactory;
 import frc.lib.util.AllianceFlipUtil;
 import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
-
 import org.littletonrobotics.junction.LoggedRobot;
 
 
@@ -37,7 +34,6 @@ public class Robot extends LoggedRobot {
     public void robotInit() {
         SubsystemManager.getInstance().instantiateSubsystems();
         ScoringConstants.EndEffectorConstants.RotationStartingPosition = SubsystemManager.getInstance().getScoringSuperstructure().getEndEffectorSubsystem().getCurrentRotation();
-        LEDCommandFactory.setLEDCommand(LEDCommandFactory.defaultCommand());
     }
 
 

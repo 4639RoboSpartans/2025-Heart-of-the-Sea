@@ -14,6 +14,7 @@ import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.FunctionalTrigger;
 import frc.robot.commands.auto.AutoCommands;
 import frc.robot.commands.auto.AutoRoutines;
@@ -139,7 +140,7 @@ public class RobotContainer {
         }
 
         FunctionalTrigger.of(Controls.Driver.alignReefLeft)
-            .whileTrue(() -> DriveCommands.moveToClosestReefPositionWithTransformation((byte)0, SubsystemManager.getInstance().getDrivetrain()::getPose));
+            .whileTrue(() -> DriveCommands.moveToClosestReefPositionWithTransformation((byte) 0, SubsystemManager.getInstance().getDrivetrain()::getPose));
         FunctionalTrigger.of(Controls.Driver.alignReefRight)
             .whileTrue(() -> DriveCommands.moveToClosestReefPositionWithTransformation((byte) 1, SubsystemManager.getInstance().getDrivetrain()::getPose));
         FunctionalTrigger.of(Controls.Driver.reefAlign)
@@ -148,7 +149,7 @@ public class RobotContainer {
             .whileTrue(() -> DriveCommands.moveToClosestReefPositionWithTransformation((byte) 2, SubsystemManager.getInstance().getDrivetrain()::getPose));
 
         FunctionalTrigger.of(Controls.Driver.processorAlign)
-                .whileTrue(DriveCommands::moveToProcessor);
+            .whileTrue(DriveCommands::moveToProcessor);
 //        FunctionalTrigger.of(Controls.Driver.coralStationAlign)
 //            .and(Controls.Driver.targetLeft).whileTrue(() -> DriveCommands.moveToDesiredCoralStationPosition(true));
 //        FunctionalTrigger.of(Controls.Driver.coralStationAlign)
@@ -227,8 +228,8 @@ public class RobotContainer {
         );
     }
 
-    public void configureLEDs(){
-        FunctionalTrigger.of(scoringSuperstructure::isManualControlEnabled).whileTrue(LEDCommandFactory::LEDFlashPurple);
-        FunctionalTrigger.of(scoringSuperstructure.getEndEffectorSubsystem()::hasCoral).whileTrue(LEDCommandFactory::LEDThreeFlashThenSolidGreen);
+    public void configureLEDs() {
+        ledStrip.setDefaultCommand(LEDCommandFactory.defaultCommand());
+        new Trigger(scoringSuperstructure.getEndEffectorSubsystem()::hasCoral).onTrue(LEDCommandFactory.onCollectCoral());
     }
 }

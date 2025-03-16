@@ -26,8 +26,8 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -203,7 +203,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     }
 
     @Override
-    public Command directlyMoveTo(Pose2d targetPose, Supplier<Pose2d> currentPose) {
+    public Command _directlyMoveTo(Pose2d targetPose, Supplier<Pose2d> currentPose) {
         return new InstantCommand(() -> {
             pidXController.reset(getPose().getX(), getChassisSpeeds().vxMetersPerSecond);
             pidYController.reset(getPose().getY(), getChassisSpeeds().vyMetersPerSecond);
@@ -225,7 +225,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                             targetPose.getRotation()
                         )
                     );
-                    double directionMultiplier = 
+                    double directionMultiplier =
                         (DriverStationUtil.getAlliance() == DriverStation.Alliance.Red ? -1 : 1);
                     // if (RobotState.isAutonomous()) directionMultiplier = 1;
                     double pidXOutput = pidXController.calculate(currentPose.get().getX()) * directionMultiplier;
@@ -242,12 +242,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                         .withTargetDirection(targetPose.getRotation().plus(headingOffset));
                 }
             ).until(
-                new Trigger(
-                () -> (!RobotState.isTeleop())
-                    && MathUtil.isNear(targetPose.getX(), getPose().getX(), 0.025)//0.01
-                    && MathUtil.isNear(targetPose.getY(), getPose().getY(), 0.025)//0.01
-                    && MathUtil.isNear(targetPose.getRotation().getDegrees(), getPose().getRotation().getDegrees(), 1))
-                    .debounce(1)
+                RobotState.isTeleop() ? () -> false : getAtTargetPoseTrigger(targetPose)
             )).andThen(stop().withTimeout(0.1))
             .finallyDo(() -> {
                 setVisionStandardDeviations(5, 5, 10);
@@ -255,6 +250,16 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                 SmartDashboard.putBoolean("Aligned", true);
                 shouldUseMTSTDevs = false;
             });
+    }
+
+    public Trigger getAtTargetPoseTrigger(Pose2d targetPose) {
+        return new Trigger(() -> !RobotState.isTeleop() && atTargetPose(targetPose)).debounce(1);
+    }
+
+    public boolean atTargetPose(Pose2d targetPose) {
+        return MathUtil.isNear(targetPose.getX(), getPose().getX(), 0.025)//0.01
+            && MathUtil.isNear(targetPose.getY(), getPose().getY(), 0.025)//0.01
+            && MathUtil.isNear(targetPose.getRotation().getDegrees(), getPose().getRotation().getDegrees(), 1);
     }
 
     /**
@@ -270,6 +275,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
     @Override
     public void followPath(SwerveSample sample) {
+
         var pose = getPose();
 
         var targetSpeeds = sample.getChassisSpeeds();
@@ -326,11 +332,11 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         Arrays.stream(Limelights.values()).parallel().forEach(
             limelight -> {
                 LimelightHelpers.setRobotOrientation(
-                    limelight.getName(), 
+                    limelight.getName(),
                     getPose().getRotation().minus(fieldCentricZeroRotation).plus(
                         DriverStationUtil.getAlliance() == Alliance.Red
-                        ? Rotation2d.k180deg
-                        : Rotation2d.kZero
+                            ? Rotation2d.k180deg
+                            : Rotation2d.kZero
                     ).getDegrees()
                 );
             }
@@ -364,23 +370,6 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     public void addVisionMeasurement(Pose2d pose, double timestamp) {
         //field.getObject("Vision Measurement").setPose(pose);
         drivetrain.addVisionMeasurement(pose, timestamp);
-    }
-
-    @Override
-    public boolean atTargetPose(Pose2d targetPose) {
-        return MathUtil.isNear(
-            targetPose.getX(),
-            getPose().getX(),
-            0.025
-        ) && MathUtil.isNear(
-            targetPose.getY(),
-            getPose().getY(),
-            0.025
-        ) && MathUtil.isNear(
-            targetPose.getRotation().getDegrees(),
-            getPose().getRotation().getDegrees(),
-            2
-        );
     }
 
     @Override

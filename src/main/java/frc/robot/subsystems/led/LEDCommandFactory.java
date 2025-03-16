@@ -1,26 +1,103 @@
 package frc.robot.subsystems.led;
 
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.lib.led.*;
+import frc.lib.led.BreathingLEDPattern;
+import frc.lib.led.CycleBetweenLEDPattern;
+import frc.lib.led.LEDPattern;
+import frc.lib.led.SolidLEDPattern;
 import frc.lib.util.DriverStationUtil;
 import frc.robot.subsystems.SubsystemManager;
+import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
+import frc.robot.subsystems.scoring.ScoringSuperstructure;
+import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
+import frc.robot.subsystems.scoring.endeffector.AbstractEndEffectorSubsystem;
 
 public class LEDCommandFactory {
     static LEDStrip leds = SubsystemManager.getInstance().getLEDStripSubsystem();
 
-    public static Command LEDBreathingRed() {
-        return leds.usePattern(breathingRed);
+    private static LEDPattern disabledPattern() {
+        return (led, time) -> switch (DriverStationUtil.getAlliance()) {
+            case Red -> {
+                double x = led * 0.1 + time * 3;
+                double h = 8 * Math.pow(Math.sin(x / 2), 2);
+                yield Color.fromHSV((int) h, 255, 255);
+            }
+            case Blue -> {
+                time *= 2;
+                double x = led * 0.2 + time * 3;
+                double h = 20 * Math.pow(Math.sin(x), 2) + 90;
+                double v = Math.pow(Math.sin(time), 2) * 0.9 + 0.1;
+
+                yield Color.fromHSV((int) (h), 255, (int) (255 * v));
+            }
+        };
     }
 
-    public static Command LEDBreathingBlue() {
-        return leds.usePattern(breathingBlue);
+    public static Command defaultCommand() {
+        ScoringSuperstructure scoring = SubsystemManager.getInstance().getScoringSuperstructure();
+        AbstractEndEffectorSubsystem endEffector = scoring.getEndEffectorSubsystem();
+        AbstractSwerveDrivetrain drivetrain = SubsystemManager.getInstance().getDrivetrain();
+
+        return leds.usePattern(() -> {
+            // If disabled, use the disabled pattern (breathe red / blue)
+            if (RobotState.isDisabled()) {
+                return LEDCommandFactory.disabledPattern();
+            }
+            // If manual control enabled, blink purple
+            if (scoring.isManualControlEnabled()) {
+                return new CycleBetweenLEDPattern(7, Color.kPurple, Color.kBlack);
+            }
+            // If no coral, solid red
+            if (!endEffector.hasCoral()) return (_1, _2) -> Color.kRed;
+
+            // Figure out what colors to flash
+            Color alignColor = Color.kYellow;
+            Color scoringColor = Color.kOrange;
+
+            boolean isAligning = drivetrain.isAligning();
+            boolean isAligningFinished = isAligning && drivetrain.atTargetPose(drivetrain.currentAlignTarget);
+
+            boolean isScoringExecuting = switch (scoring.getCurrentState()) {
+                case EXECUTING_ACTION, DONE -> false;
+                default -> true;
+            };
+            boolean isScoring = scoring.getCurrentAction() != ScoringSuperstructureAction.IDLE;
+            boolean isPrepareScoringFinished = isScoring && isScoringExecuting;
+
+            // If we aren't doing anything, use green
+            if (!isAligning && !isScoring) {
+                return new SolidLEDPattern(Color.kGreen);
+            }
+
+            LEDPattern scoringPattern = isPrepareScoringFinished
+                ?
+                new SolidLEDPattern(scoringColor)
+                : isScoringExecuting
+                ?
+                new CycleBetweenLEDPattern(7,
+                    scoringColor, isAligningFinished ? alignColor : Color.kBlack
+                )
+                :
+                new SolidLEDPattern(Color.kBlack);
+            LEDPattern aligningPattern = isAligningFinished
+                ?
+                new SolidLEDPattern(alignColor)
+                : isAligning
+                ?
+                new CycleBetweenLEDPattern(7,
+                    alignColor, isPrepareScoringFinished ? scoringColor : Color.kBlack
+                )
+                :
+                new SolidLEDPattern(Color.kBlack);
+
+            return (led, time) -> (led / 2) % 2 == 0 ? scoringPattern.get(led, time) : aligningPattern.get(led, time);
+        }).ignoringDisable(true);
     }
 
-    public static Command LEDThreeFlashGreen() {
+    public static Command onCollectCoral() {
         return leds.resetTime().andThen(
             leds.usePattern(new CycleBetweenLEDPattern(
                 7, Color.kBlack, Color.kGreen
@@ -28,58 +105,17 @@ public class LEDCommandFactory {
         );
     }
 
-    public static Command LEDFlashRed() {
-        return leds.usePattern(new CycleBetweenLEDPattern(
-            2, Color.kRed, Color.kBlack
-        ));
-    }
-
-    public static Command LEDAlignFlashGold(){
-        return leds.usePattern(new CycleBetweenLEDPattern(
-            7, Color.kGold ,Color.kBlack
-        ));
-    }
-
-    public static Command LEDThreeFlashThenSolidGreen() {
-        return LEDThreeFlashGreen().andThen(leds.usePattern(new SolidLEDPattern(Color.kGreen)));
-    }
-
-    public static Command blueOrangeCycle() {
-        return leds.usePattern(new FadeBetweenLEDPattern(2, Color.kOrange, Color.kBlue));
-    }
-
-    public static Command LEDFlashPurple() {
-        return leds.usePattern(new CycleBetweenLEDPattern(3, Color.kPurple, Color.kBlack));
-    }
-
-    public static Command defaultCommand() {
-        return leds.usePattern(() -> {
-            if (RobotState.isDisabled()){
-                if (DriverStationUtil.getAlliance() == DriverStation.Alliance.Red) return breathingRed;
-                else return breathingBlue;
-            } else return new SolidLEDPattern(Color.kBlack);
-        });
-    }
-
-    public static LEDPattern breathingRed = new BreathingLEDPattern(
-        Color.kRed, 0.5, .1, .7
-    );
-
-    public static LEDPattern breathingBlue = new BreathingLEDPattern(
-        Color.kBlue, 0.5, .1, .7
-    );
+//    public static LEDPattern breathingRed = new BreathingLEDPattern(
+//        Color.kRed, 0.5, .1, .7
+//    );
+//
+//    public static LEDPattern breathingBlue = new BreathingLEDPattern(
+//        Color.kBlue, 0.5, .1, .7
+//    );
 
     public static void setLEDCommand(Command command) {
         if (command.getRequirements().contains(leds)) CommandScheduler.getInstance().schedule(command);
     }
-
-    public static LEDPattern redOrangeMovingWave = new MovingWaveLEDPattern(
-            Color.kRed, Color.kOrangeRed, 5
-    );
-
-    public static LEDPattern blueTealMovingWave = new MovingWaveLEDPattern(
-            Color.kBlue, Color.kLimeGreen, 5
-    );
 
     /*
         Intake coral - triple flash green -> solid green
