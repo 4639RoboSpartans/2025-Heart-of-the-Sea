@@ -217,10 +217,10 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         }).andThen(applyRequest(
                 () -> {
                     pidXController.setConstraints(
-                        new TrapezoidProfile.Constraints(2 * getSwerveSpeedMultiplier(), 1)
+                        new TrapezoidProfile.Constraints(1 * getSwerveSpeedMultiplier(), 1)
                     );
                     pidYController.setConstraints(
-                        new TrapezoidProfile.Constraints(2 * getSwerveSpeedMultiplier(), 1)
+                        new TrapezoidProfile.Constraints(1 * getSwerveSpeedMultiplier(), 1)
                     );
                     SmartDashboard.putNumber("Distance to Target", PoseUtil.distanceBetween(targetPose, currentPose.get()));
                     field.getObject("Setpoint Pose").setPose(
@@ -329,9 +329,8 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
         // Update field on dashboard
         SmartDashboard.putData("Field2D", field);
-        SignalLogger.writeDouble("Steer Velocity", drivetrain.getModule(0).getSteerMotor().getVelocity().getValueAsDouble());
-        SignalLogger.writeDouble("Steer Voltage", drivetrain.getModule(0).getSteerMotor().getMotorVoltage().getValueAsDouble());
-        SignalLogger.writeDouble("Steer Position", drivetrain.getModule(0).getSteerMotor().getPosition().getValueAsDouble());
+        SignalLogger.writeDouble("Rotate Velocity", drivetrain.getPigeon2().getAngularVelocityZDevice().getValueAsDouble());
+        SignalLogger.writeDouble("Rotate Position", drivetrain.getPigeon2().getYaw().getValueAsDouble());
 
         SmartDashboard.putNumber("Current heading", getPose().getRotation().getDegrees());
         SmartDashboard.putBoolean("use mt1 stdevs", shouldUseMTSTDevs);
