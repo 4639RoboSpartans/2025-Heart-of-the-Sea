@@ -1,4 +1,3 @@
-
 // Copyright (c) 2025 FRC 6328
 // http://github.com/Mechanical-Advantage
 //
@@ -15,7 +14,9 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.util.AllianceFlipUtil;
+import frc.lib.util.DriverStationUtil;
 import frc.lib.util.PoseUtil;
+import frc.robot.subsystems.SubsystemManager;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -248,7 +249,8 @@ public class FieldConstants {
 
         public final Pose2d Pose;
     }
-    //either 30.75 or 29.25
+
+    //change this to tune how far the align tries to go from the reef face
     static Transform2d fromReef = new Transform2d(Units.inchesToMeters(29.25), 0, Rotation2d.k180deg);
     static Transform2d fromProcessor = new Transform2d(Units.inchesToMeters(25), 0, Rotation2d.k180deg);
     //change this to tune how far the align tries to go from the intake station
@@ -326,11 +328,13 @@ public class FieldConstants {
         }
 
         public Pose2d getOpponentAlliancePose() {
-            return AllianceFlipUtil.rawAllianceFlipPose(getAllianceRespectivePose());
+            return AllianceFlipUtil.rawAllianceFlipPose(getPose());
         }
 
         public Pose2d getAllianceRespectivePose() {
-            return AllianceFlipUtil.applyIfShouldFlip(getPose());
+            return DriverStationUtil.getAlliance() == Alliance.Red
+                    ? getOpponentAlliancePose()
+                    : getPose();
         }
 
         public static TargetPositions RLReefPoseFromChar(Character character){
