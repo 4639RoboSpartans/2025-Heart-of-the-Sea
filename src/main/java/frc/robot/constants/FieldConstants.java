@@ -1,3 +1,4 @@
+
 // Copyright (c) 2025 FRC 6328
 // http://github.com/Mechanical-Advantage
 //
@@ -371,7 +372,7 @@ public class FieldConstants {
     }
 
     public static double reefForwardsDistance = 0;
-    public static double reefSidewaysDistance = 0.125 + Units.inchesToMeters(1.5);
+    public static double reefSidewaysDistance = 0.125 + Units.inchesToMeters(1.25);
 
     public static int[] kReefAprilTags = new int[] {6,7,8,9,10,11,17,18,19,20,21,22};
 }

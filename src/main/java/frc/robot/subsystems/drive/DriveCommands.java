@@ -59,11 +59,15 @@ public class DriveCommands {
                 FieldConstants.TargetPositions.REEF_KL
         );
 
+        // Pose2d nearestReefPose = currentRobotPose.get().nearest(
+        //         Stream.concat(
+        //                 allReefTargets.stream().map(FieldConstants.TargetPositions::getPose),
+        //                 allReefTargets.stream().map(FieldConstants.TargetPositions::getOpponentAlliancePose)
+        //         ).collect(Collectors.toList()));
+
         Pose2d nearestReefPose = currentRobotPose.get().nearest(
-                Stream.concat(
-                        allReefTargets.stream().map(FieldConstants.TargetPositions::getPose),
-                        allReefTargets.stream().map(FieldConstants.TargetPositions::getOpponentAlliancePose)
-                ).collect(Collectors.toList()));
+                        allReefTargets.stream().map(FieldConstants.TargetPositions::getAllianceRespectivePose)
+                        .collect(Collectors.toList()));
 
         var desiredPose =
                 (direction == 0

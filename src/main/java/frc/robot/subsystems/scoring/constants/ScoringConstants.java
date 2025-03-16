@@ -111,7 +111,7 @@ public final class ScoringConstants {
             public static final double Wrist_Hard_Stop_Proportion = 0.075;
 
             //Wrist Proportions
-            public static final double Wrist_IDLE_Proportion = 0.35;
+            public static final double Wrist_IDLE_Proportion = 0.414;
             public static final double Wrist_Lowest_Proportion = Wrist_Hard_Stop_Proportion; // 0.2;
             public static final double Wrist_ALGAESTOW_Proportion = 0.5;
             public static final double Wrist_HP_Proportion = 0.175;
@@ -126,7 +126,7 @@ public final class ScoringConstants {
             // TODO: below
             public static final double Wrist_L2_ALGAE_Proportion = 0.82;
             public static final double Wrist_L3_ALGAE_Proportion = 0.763;
-            public static final double Wrist_Barge_Proportion = 0.465;//0.534
+            public static final double Wrist_Barge_Proportion = 0.563;//0.534
             public static final double Wrist_Transition_Proportion = 0.5;
 
             public static final Double Wrist_Ground_Intake_Proportion = 0.845;
