@@ -16,116 +16,127 @@ import frc.robot.subsystems.drive.DriveCommands;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class AutoRoutines {
-    private final AutoFactory factory;
+    private final Supplier<AutoFactory> factory;
 
-    public AutoRoutines(AutoFactory factory) {
+    public AutoRoutines(Supplier<AutoFactory> factory) {
         this.factory = factory;
     }
 
-    public Auton COMP_J_K() {
-        return compileAuton(
-            true,
-            true,
-            new ScoringTarget('J', 4),
-            new ScoringTarget('K', 4)
+    public AutonSupplier COMP_J_K() {
+        return new AutonSupplier(
+            () -> compileAuton(
+                true,
+                true,
+                new ScoringTarget('J', 4),
+                new ScoringTarget('K', 4)
+            ),
+            getAutonName(
+                new ScoringTarget[] {
+                    new ScoringTarget('J', 4),
+                    new ScoringTarget('K', 4)
+                }, 
+                "COMP-"
+            )
         );
     }
 
-    public Auton COMP_J_L() {
-        return compileAuton(
-            true, 
-            true, 
-            new ScoringTarget('J', 4),
-            new ScoringTarget('L', 4)
+    public AutonSupplier COMP_J_L() {
+        return new AutonSupplier(
+            () -> compileAuton(
+                true, 
+                true, 
+                new ScoringTarget('J', 4),
+                new ScoringTarget('L', 4)
+            ),
+            getAutonName(
+                new ScoringTarget[] {
+                    new ScoringTarget('J', 4),
+                    new ScoringTarget('L', 4)
+                }, 
+                "COMP-"
+            )
         );
     }
 
-    public Auton COMP_H_G() {
-        return compileAuton(
-            true,
-            false,
-            new ScoringTarget('H', 4),
-            new ScoringTarget('G', 4)
+    public AutonSupplier COMP_H_G() {
+        return new AutonSupplier(
+            () -> compileAuton(
+                true, 
+                false, 
+                new ScoringTarget('H', 4),
+                new ScoringTarget('G', 4)
+            ),
+            getAutonName(
+                new ScoringTarget[] {
+                    new ScoringTarget('H', 4),
+                    new ScoringTarget('G', 4)
+                }, 
+                "COMP-"
+            )
         );
     }
 
-    public Auton COMP_A_B() {
-        return compileAuton(
-            true,
-            true,
-            new ScoringTarget('A', 4),
-            new ScoringTarget('B', 4)
+    public AutonSupplier COMP_A_B() {
+        return new AutonSupplier(
+            () -> compileAuton(
+                true, 
+                true, 
+                new ScoringTarget('A', 4),
+                new ScoringTarget('B', 4)
+            ),
+            getAutonName(
+                new ScoringTarget[] {
+                    new ScoringTarget('A', 4),
+                    new ScoringTarget('B', 4)
+                }, 
+                "COMP-"
+            )
         );
     }
 
-    public Auton COMP_H_A() {
-        return compileAuton(
-            true,
-            true,
-            new ScoringTarget('H', 4),
-            new ScoringTarget('A', 4)
+    public AutonSupplier COMP_H_A() {
+        return new AutonSupplier(
+            () -> compileAuton(
+                true, 
+                true, 
+                new ScoringTarget('H', 4),
+                new ScoringTarget('A', 4)
+            ),
+            getAutonName(
+                new ScoringTarget[] {
+                    new ScoringTarget('H', 4),
+                    new ScoringTarget('A', 4)
+                }, 
+                "COMP-"
+            )
         );
     }
 
-    public Auton COMP_G_C_D_B() {
-        return compileAuton(
+    public AutonSupplier COMP_G_C_D_B() {
+        return new AutonSupplier(
+            () -> compileAuton(
             true,
             false,
             new ScoringTarget('G', 4),
             new ScoringTarget('C', 4),
             new ScoringTarget('D', 4),
             new ScoringTarget('B', 4)
-        );
-    }
-
-    public Auton COMP_I_K_L() {
-        return compileAuton(
-            true,
-            true, 
-            new ScoringTarget('I', 4),
-            new ScoringTarget('K', 4),
-            new ScoringTarget('L', 4)
-        );
-    }
-
-    public Auton TEST_A_B() {
-        AutoRoutine routine = factory.newRoutine("COMP_A_B");
-        AutoTrajectory traj1 = routine.trajectory("TEST-A-B", 0);
-        AutoTrajectory traj2 = routine.trajectory("TEST-A-B", 1);
-
-        routine.active().onTrue(
-            Commands.sequence(
-                traj1.resetOdometry(),
-                traj1.cmd(),
-                traj2.cmd()
+            ),
+            getAutonName(
+                new ScoringTarget[] {
+                    new ScoringTarget('G', 4),
+                    new ScoringTarget('C', 4),
+                    new ScoringTarget('D', 4),
+                    new ScoringTarget('B', 4)
+                }, 
+                "COMP-"
             )
         );
-
-        return new Auton(routine, "TESTING-A-B");
-    }
-
-    public Auton TEST_E_C() {
-        return compileAuton(false, false, 
-            new ScoringTarget('E', 4),
-            new ScoringTarget('C', 4)
-        );
-    }
-
-    public Auton SCORING_TEST() {
-        AutoRoutine routine = factory.newRoutine("TESTING");
-
-        routine.active().onTrue(
-            Commands.sequence(
-                Commands.waitSeconds(0.5),
-                AutoCommands.L4Score.get()
-            )
-        );
-
-        return new Auton(routine, "TESTING");
     }
 
     private record ScoringTarget(char scoringLocation, int scoringHeight) {
@@ -147,7 +158,7 @@ public class AutoRoutines {
      *
      * @return a new routine with the specified characteristics
      */
-    private Auton compileAuton(
+    private AutoRoutine compileAuton(
         boolean isComp,
         boolean left,
         ScoringTarget... scoringTargets
@@ -160,7 +171,7 @@ public class AutoRoutines {
 
         // Create path segments
         int numPathSegments = (scoringTargets.length) + (scoringTargets.length - 1);     // Movements to HP station
-        AutoRoutine routine = factory.newRoutine(autonName);
+        AutoRoutine routine = factory.get().newRoutine(autonName);
         AutoTrajectory[] pathSegments = IntStream.range(0, numPathSegments)
             .mapToObj(i -> routine.trajectory(autonPathName, i))
             .toArray(AutoTrajectory[]::new);
@@ -178,7 +189,7 @@ public class AutoRoutines {
         // Activate the commands when the auton routine is active
         routine.active().onTrue(CommandsUtil.sequence(commands));
 
-        return new Auton(routine, autonName);
+        return routine;
     }
 
     private void addScoringSegment(List<Command> commands, AutoTrajectory path, ScoringTarget scoringTarget) {
@@ -259,12 +270,14 @@ public class AutoRoutines {
             .collect(Collectors.joining("-"));
     }
 
-    public List<Auton> getAllCompRoutines() {
+    public List<AutonSupplier> getAllCompRoutines() {
         return List.of(
             COMP_A_B(),
             COMP_H_A()
         );
     }
+
+    public record AutonSupplier(Supplier<AutoRoutine> routine, String name){}
 
     public record Auton(AutoRoutine routine, String name){}
 }

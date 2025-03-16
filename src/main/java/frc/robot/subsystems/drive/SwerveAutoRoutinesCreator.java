@@ -39,13 +39,15 @@ public final class SwerveAutoRoutinesCreator {
             drivetrain // Subsystem for requirements
         );
 
-        return new AutoRoutines(new AutoFactory(
-            drivetrain::getPose,
-            drivetrain::resetPose,
-            drivetrain::followPath,
-            DriverStationUtil.getAlliance() == DriverStation.Alliance.Red,
-            drivetrain,
-            (sample, isStart) -> {}
-        ));
+        return new AutoRoutines(
+            () -> new AutoFactory(
+                drivetrain::getPose,
+                drivetrain::resetPose,
+                drivetrain::followPath,
+                DriverStationUtil.getAlliance() == DriverStation.Alliance.Red,
+                drivetrain,
+                (sample, isStart) -> {}
+            )
+        );
     }
 }

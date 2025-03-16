@@ -20,6 +20,7 @@ import frc.lib.oi.OI;
 import frc.robot.commands.auto.AutoCommands;
 import frc.robot.commands.auto.AutoRoutines;
 import frc.robot.commands.auto.AutoRoutines.Auton;
+import frc.robot.commands.auto.AutoRoutines.AutonSupplier;
 import frc.robot.constants.Controls;
 import frc.robot.constants.FieldConstants;
 import frc.robot.subsystems.SubsystemManager;
@@ -44,7 +45,7 @@ public class RobotContainer {
     private final ScoringSuperstructure scoringSuperstructure = SubsystemManager.getInstance().getScoringSuperstructure();
     @SuppressWarnings("unused")
     private final RobotSim robotSim = new RobotSim();
-    private final SendableChooser<Command> autoChooser;
+    private final SendableChooser<AutonSupplier> autoChooser;
     private final SendableChooser<Pose2d> startPositionChooser = new SendableChooser<>();
     @SuppressWarnings("unused")
     private final LEDStrip ledStrip = SubsystemManager.getInstance().getLEDStripSubsystem();
@@ -62,7 +63,6 @@ public class RobotContainer {
 
         autoChooser = new SendableChooser<>();
         addAllCompAutons(autoChooser, swerveAutoRoutines);
-        autoChooser.addOption("TEST", AutoCommands.L4Score.get());
         SmartDashboard.putData("Auto Chooser", autoChooser);
 
         startPositionChooser.setDefaultOption("DEFAULT", new Pose2d());
@@ -175,13 +175,13 @@ public class RobotContainer {
         // OI.getInstance().driverController().A_BUTTON.onTrue(MiscellaneousCommands.ElevatorUpDownTest());
     }
 
-    private void addAllCompAutons(SendableChooser<Command> autoChooser, AutoRoutines swerveAutoRoutines) {
-        for (Auton a : swerveAutoRoutines.getAllCompRoutines()) {
-            autoChooser.addOption(a.name(), a.routine().cmd());
+    private void addAllCompAutons(SendableChooser<AutonSupplier> autoChooser, AutoRoutines swerveAutoRoutines) {
+        for (AutonSupplier a : swerveAutoRoutines.getAllCompRoutines()) {
+            autoChooser.addOption(a.name(), a);
         }
     }
 
-    public Command getAutonomousCommand() {
+    public AutonSupplier getAutonomousCommand() {
         return autoChooser.getSelected();
     }
 
