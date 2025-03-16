@@ -251,7 +251,7 @@ public class FieldConstants {
     }
 
     //change this to tune how far the align tries to go from the reef face
-    static Transform2d fromReef = new Transform2d(Units.inchesToMeters(30.75), 0, Rotation2d.k180deg);
+    static Transform2d fromReef = new Transform2d(Units.inchesToMeters(29.25), 0, Rotation2d.k180deg);//30.75
     static Transform2d fromProcessor = new Transform2d(Units.inchesToMeters(25), 0, Rotation2d.k180deg);
     //change this to tune how far the align tries to go from the intake station
     static Transform2d fromCoralStation = new Transform2d(Units.inchesToMeters(12), 0, Rotation2d.kZero);
