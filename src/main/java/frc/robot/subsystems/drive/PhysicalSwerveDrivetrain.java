@@ -213,6 +213,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
             field.getObject("Target Pose").setPose(targetPose);
             SmartDashboard.putBoolean("Aligned", false);
             shouldUseMTSTDevs = true;
+            Vision.addGlobalVisionMeasurements(this, shouldUseMTSTDevs);
         }).andThen(applyRequest(
                 () -> {
                     SmartDashboard.putNumber("Distance to Target", PoseUtil.distanceBetween(targetPose, currentPose.get()));

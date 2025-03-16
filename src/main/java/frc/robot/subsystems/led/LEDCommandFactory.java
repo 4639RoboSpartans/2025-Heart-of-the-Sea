@@ -55,7 +55,7 @@ public class LEDCommandFactory {
 
             // Figure out what colors to flash
             Color alignColor = Color.kYellow;
-            Color scoringColor = Color.kOrange;
+            Color scoringColor = new Color(1.0, 0.1, 0.0);
 
             boolean isAligning = drivetrain.isAligning();
             boolean isAligningFinished = isAligning && drivetrain.atTargetPose(drivetrain.currentAlignTarget);
@@ -64,7 +64,10 @@ public class LEDCommandFactory {
                 case EXECUTING_ACTION, DONE -> false;
                 default -> true;
             };
-            boolean isScoring = scoring.getCurrentAction() != ScoringSuperstructureAction.IDLE;
+            boolean isScoring = !(
+                scoring.getCurrentAction() == ScoringSuperstructureAction.IDLE ||
+                scoring.getCurrentAction() == ScoringSuperstructureAction.INTAKE_FROM_HP
+            );
             boolean isPrepareScoringFinished = isScoring && isScoringExecuting;
 
             // If we aren't doing anything, use green
@@ -75,13 +78,13 @@ public class LEDCommandFactory {
             LEDPattern scoringPattern = isPrepareScoringFinished
                 ?
                 new SolidLEDPattern(scoringColor)
-                : isScoringExecuting
+                : isScoring
                 ?
                 new CycleBetweenLEDPattern(7,
                     scoringColor, isAligningFinished ? alignColor : Color.kBlack
                 )
                 :
-                new SolidLEDPattern(Color.kBlack);
+                null;
             LEDPattern aligningPattern = isAligningFinished
                 ?
                 new SolidLEDPattern(alignColor)
@@ -91,7 +94,11 @@ public class LEDCommandFactory {
                     alignColor, isPrepareScoringFinished ? scoringColor : Color.kBlack
                 )
                 :
-                new SolidLEDPattern(Color.kBlack);
+                null;
+
+            if(aligningPattern == null && scoringPattern == null) return new SolidLEDPattern(Color.kBlack);
+            if(aligningPattern == null) return scoringPattern;
+            if(scoringPattern == null) return aligningPattern;
 
             return (led, time) -> (led / 2) % 2 == 0 ? scoringPattern.get(led, time) : aligningPattern.get(led, time);
         }).ignoringDisable(true);

@@ -262,13 +262,7 @@ public class AutoRoutines {
     public List<Auton> getAllCompRoutines() {
         return List.of(
             COMP_A_B(),
-            COMP_H_A(),
-            COMP_H_G(),
-            COMP_J_K(),
-            COMP_G_C_D_B(),
-            COMP_I_K_L(),
-            COMP_J_L(), 
-            TEST_E_C()
+            COMP_H_A()
         );
     }
 
