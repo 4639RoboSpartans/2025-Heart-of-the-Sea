@@ -216,6 +216,12 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
             Vision.addGlobalVisionMeasurements(this, shouldUseMTSTDevs);
         }).andThen(applyRequest(
                 () -> {
+                    pidXController.setConstraints(
+                        new TrapezoidProfile.Constraints(2 * getSwerveSpeedMultiplier(), 1)
+                    );
+                    pidYController.setConstraints(
+                        new TrapezoidProfile.Constraints(2 * getSwerveSpeedMultiplier(), 1)
+                    );
                     SmartDashboard.putNumber("Distance to Target", PoseUtil.distanceBetween(targetPose, currentPose.get()));
                     field.getObject("Setpoint Pose").setPose(
                         new Pose2d(
