@@ -53,9 +53,9 @@ public class Vision {
                             visionMeasurements.getObject(limelight.getName()).setPose(pose);
                         }
                     );
-                    SmartDashboard.putData(visionMeasurements);
                 }
         );
+        SmartDashboard.putData("Vision Measurement", visionMeasurements);
     }
 
     private static Pose2d filterRawMeasurement(PoseEstimate measurement) {
