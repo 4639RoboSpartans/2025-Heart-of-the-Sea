@@ -108,6 +108,8 @@ public class ConcreteElevatorSubsystem extends AbstractElevatorSubsystem {
         SmartDashboard.putNumber("Elevator Current", elevatorMotor.getTorqueCurrent().getValueAsDouble());
         SmartDashboard.putNumber("Elevator Motor RPS", elevatorMotor.getVelocity().getValueAsDouble());
         SmartDashboard.putNumber("Elevator Position", elevatorMotor.getPosition().getValueAsDouble());
+
+        SmartDashboard.putNumber("Elevator Duty Cycle", elevatorMotor.getDutyCycle().getValueAsDouble());
     }
 
     @Override

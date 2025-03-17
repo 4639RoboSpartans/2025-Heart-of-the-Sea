@@ -34,6 +34,7 @@ import frc.robot.subsystems.led.LEDStrip;
 import frc.robot.subsystems.scoring.ScoringSuperstructure;
 import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
+import frc.robot.subsystems.scoring.elevator.ElevatorSysID;
 
 import java.util.Arrays;
 
@@ -153,26 +154,20 @@ public class RobotContainer {
 
         FunctionalTrigger.of(Controls.Driver.processorAlign)
             .whileTrue(DriveCommands::moveToProcessor);
-//        FunctionalTrigger.of(Controls.Driver.coralStationAlign)
-//            .and(Controls.Driver.targetLeft).whileTrue(() -> DriveCommands.moveToDesiredCoralStationPosition(true));
-//        FunctionalTrigger.of(Controls.Driver.coralStationAlign)
-//            .and(Controls.Driver.targetRight).whileTrue(() -> DriveCommands.moveToDesiredCoralStationPosition(false));
 
 
         // OI.getInstance().driverController().Y_BUTTON.whileTrue(
-        //         DriveSysID.sysIdQuasistatic(SysIdRoutine.Direction.kForward)
+        //         ElevatorSysID.sysIdQuasistatic(SysIdRoutine.Direction.kForward)
         // );
         // OI.getInstance().driverController().A_BUTTON.whileTrue(
-        //         DriveSysID.sysIdQuasistatic(SysIdRoutine.Direction.kReverse)
+        //         ElevatorSysID.sysIdQuasistatic(SysIdRoutine.Direction.kReverse)
         // );
         // OI.getInstance().driverController().POV_UP.whileTrue(
-        //         DriveSysID.sysIdDynamic(SysIdRoutine.Direction.kForward)
+        //         ElevatorSysID.sysIdDynamic(SysIdRoutine.Direction.kForward)
         // );
         // OI.getInstance().driverController().POV_DOWN.whileTrue(
-        //         DriveSysID.sysIdDynamic(SysIdRoutine.Direction.kReverse)
+        //         ElevatorSysID.sysIdDynamic(SysIdRoutine.Direction.kReverse)
         // );
-
-        // OI.getInstance().driverController().A_BUTTON.onTrue(MiscellaneousCommands.ElevatorUpDownTest());
     }
 
     private void addAllCompAutons(SendableChooser<AutonSupplier> autoChooser, AutoRoutines swerveAutoRoutines) {
