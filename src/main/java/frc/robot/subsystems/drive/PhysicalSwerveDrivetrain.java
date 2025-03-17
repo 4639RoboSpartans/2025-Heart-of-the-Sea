@@ -408,8 +408,9 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
     @Override
     public void startWheelCharacterization() {
+        drivetrain.getPigeon2().setYaw(0);
         driveMotorPosition = drivetrain.getModules()[0].getDriveMotor().getRotorPosition().getValueAsDouble();
-        startDegrees = drivetrain.getPigeon2().getRotation2d().getDegrees();
+        startDegrees = drivetrain.getPigeon2().getRotation2d().getDegrees() % 360;
     }
 
     @Override
