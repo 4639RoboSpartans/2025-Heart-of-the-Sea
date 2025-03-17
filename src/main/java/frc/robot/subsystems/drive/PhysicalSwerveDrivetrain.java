@@ -13,6 +13,8 @@ import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.PathPlannerLogging;
 import com.pathplanner.lib.util.swerve.SwerveSetpoint;
 import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
+
+import au.grapplerobotics.LaserCan;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
@@ -85,6 +87,8 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
     private boolean shouldUseMTSTDevs = false;
 
+    private final LaserCan distanceLC;
+
     public PhysicalSwerveDrivetrain() {
         SwerveDrivetrainConstants drivetrainConstants = TunerConstants.DrivetrainConstants;
         SwerveModuleConstants<?, ?, ?>[] modules = {
@@ -118,6 +122,8 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
         RobotModeTriggers.autonomous().onTrue(new InstantCommand(() -> this.setVisionStandardDeviations(0.5, 0.5, 10)));
         RobotModeTriggers.teleop().onTrue(new InstantCommand(() -> this.setVisionStandardDeviations(10, 10, 1000)));
+
+        distanceLC = new LaserCan(DriveConstants.IDs.DistanceLaserCANID);
     }
 
     @Override
@@ -368,6 +374,23 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     }
 
     @Override
+    public double getDistanceFromReefFace() {
+        return getMeasurement();
+    }
+
+    public double getMeasurement() {
+        var measurement = distanceLC.getMeasurement();
+        if (measurement == null) {
+            return Integer.MAX_VALUE;
+        }
+        if (measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
+            return measurement.distance_mm;
+        } else {
+            return Integer.MAX_VALUE;
+        }
+    }
+
+    @Override
     public void resetPose(Pose2d pose) {
         drivetrain.resetPose(pose);
     }
@@ -381,5 +404,9 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     @Override
     public void setVisionStandardDeviations(double xStdDev, double yStdDev, double rotStdDev) {
         drivetrain.setVisionMeasurementStdDevs(new Matrix<N3, N1>(Nat.N3(), Nat.N1(), new double[]{xStdDev, yStdDev, rotStdDev}));
+    }
+
+    protected Field2d getField() {
+        return field;
     }
 }

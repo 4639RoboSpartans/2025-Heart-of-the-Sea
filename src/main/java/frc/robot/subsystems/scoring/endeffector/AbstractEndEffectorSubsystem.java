@@ -97,7 +97,7 @@ public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
     }
 
     public final double getActionTargetRotationFraction() {
-        return SubsystemManager.getInstance().getScoringSuperstructure().getCurrentAction().targetWristRotationFraction;
+        return SubsystemManager.getInstance().getScoringSuperstructure().getCurrentAction().targetWristRotationFraction.getAsDouble();
     }
 
     public final void setTargetWristRotationFraction(double targetRotationFraction) {

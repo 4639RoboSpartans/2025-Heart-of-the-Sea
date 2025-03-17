@@ -5,7 +5,8 @@ import frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConsta
 import frc.robot.subsystems.scoring.elevator.AbstractElevatorSubsystem;
 import frc.robot.subsystems.scoring.endeffector.AbstractEndEffectorSubsystem;
 
-import java.util.OptionalDouble;
+import java.util.Optional;
+import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.wpilibj.RobotState;
 
@@ -40,25 +41,25 @@ public enum ScoringSuperstructureState {
         };
     }
 
-    public OptionalDouble getTargetWristRotationFraction(ScoringSuperstructureAction action) {
+    public Optional<DoubleSupplier> getTargetWristRotationFraction(ScoringSuperstructureAction action) {
         return switch (this) {
             case TRANSITION_BEFORE_ELEVATOR,
-                 ELEVATOR_MOVE_WITH_TRANSITION -> OptionalDouble.of(WristSetpoints.Wrist_Transition_Proportion);
+                 ELEVATOR_MOVE_WITH_TRANSITION -> Optional.of(() -> WristSetpoints.Wrist_Transition_Proportion);
             case TRANSITION_AFTER_ELEVATOR,
                  ELEVATOR_MOVE_NO_TRANSITION,
-                 EXECUTING_ACTION -> OptionalDouble.of(action.targetWristRotationFraction);
-            case DONE -> OptionalDouble.empty();
+                 EXECUTING_ACTION -> Optional.of(action.targetWristRotationFraction);
+            case DONE -> Optional.empty();
         };
     }
 
-    public OptionalDouble getTargetElevatorExtensionFraction(ScoringSuperstructureAction action) {
+    public Optional<DoubleSupplier> getTargetElevatorExtensionFraction(ScoringSuperstructureAction action) {
         return switch (this) {
-            case TRANSITION_BEFORE_ELEVATOR -> OptionalDouble.empty();
+            case TRANSITION_BEFORE_ELEVATOR -> Optional.empty();
             case ELEVATOR_MOVE_WITH_TRANSITION,
                  TRANSITION_AFTER_ELEVATOR,
                  ELEVATOR_MOVE_NO_TRANSITION,
-                 EXECUTING_ACTION -> OptionalDouble.of(action.targetElevatorExtensionFraction);
-            case DONE -> OptionalDouble.empty();
+                 EXECUTING_ACTION -> Optional.of(action.targetElevatorExtensionFraction);
+            case DONE -> Optional.empty();
         };
     }
 

@@ -22,7 +22,7 @@ public class ScoringPIDs {
     public static TunableNumber simElevatorKp = new TunableNumber("Sim/Elevator kP").withDefaultValue(1);
     public static TunableNumber simElevatorKi = new TunableNumber("Sim/Elevator kI").withDefaultValue(0.0);
     public static TunableNumber simElevatorKd = new TunableNumber("Sim/Elevator kD").withDefaultValue(0.0);
-    public static TunableNumber simElevatorVelocity = new TunableNumber("Sim/Elevator Velocity").withDefaultValue(10.0);
+    public static TunableNumber simElevatorVelocity = new TunableNumber("Sim/Elevator Velocity").withDefaultValue(60.0);
     public static TunableNumber simElevatorAcceleration = new TunableNumber("Sim/Elevator Acceleration").withDefaultValue(100.0);
     public static TunableNumber simElevatorKs = new TunableNumber("Sim/Elevator Ks").withDefaultValue(0.0);
     public static TunableNumber simElevatorKg = new TunableNumber("Sim/Elevator Kg").withDefaultValue(0.63195475);

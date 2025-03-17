@@ -27,4 +27,8 @@ public class DriveConstants {
 
     public static final double TXTolerance = 0.01;
     public static final double TATolerance = 0.01;
+
+    public static class IDs {
+        public static final int DistanceLaserCANID = 0;
+    }
 }
