@@ -6,18 +6,17 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.lib.oi.OI;
 import frc.lib.tunable.TunableNumber;
 import frc.robot.subsystems.SubsystemManager;
-import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
 import frc.robot.subsystems.scoring.constants.ScoringPIDs;
 
 import static frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConstants.*;
 
 public class SimEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
+    private double intakeSpeed = 0;
+
     private final ProfiledPIDController wristPID;
     private final SingleJointedArmSim pivotSim;
 
@@ -55,17 +54,15 @@ public class SimEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
 
     @Override
     public boolean hasCoral() {
-        if (RobotState.isAutonomous()
-            && SubsystemManager.getInstance().getScoringSuperstructure()
-            .getCurrentAction().toString()
-            .equals(ScoringSuperstructureAction.INTAKE_FROM_HP.toString())) return false;
-        ScoringSuperstructureAction currentAction
-            = SubsystemManager.getInstance().getScoringSuperstructure().getCurrentAction();
-        return currentAction.endOnGamePieceSeen;
+        var currentAction = SubsystemManager.getInstance().getScoringSuperstructure().getCurrentAction();
+        return currentAction.endOnGamePieceSeen || currentAction.endOnGamePieceNotSeen
+        ? intakeSpeed != 0
+        : true;
     }
 
     @Override
     protected void periodic(double targetWristRotationFraction, double intakeSpeed) {
+        this.intakeSpeed = intakeSpeed;
         pivotSim.update(0.020);
 
         double currentWristPosition = getCurrentMotorPosition();
@@ -74,7 +71,6 @@ public class SimEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
         double wristPIDOutput = -wristPID.calculate(currentWristPosition, targetWristPosition);
 
         pivotSim.setInputVoltage(wristPIDOutput);
-        SmartDashboard.putNumber("intake speed", intakeSpeed);
     }
 
     @Override

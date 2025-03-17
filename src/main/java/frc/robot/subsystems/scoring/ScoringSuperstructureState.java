@@ -8,8 +8,6 @@ import frc.robot.subsystems.scoring.endeffector.AbstractEndEffectorSubsystem;
 import java.util.Optional;
 import java.util.function.DoubleSupplier;
 
-import edu.wpi.first.wpilibj.RobotState;
-
 public enum ScoringSuperstructureState {
     TRANSITION_BEFORE_ELEVATOR,
     ELEVATOR_MOVE_WITH_TRANSITION,
@@ -26,7 +24,7 @@ public enum ScoringSuperstructureState {
         return switch (this) {
             case TRANSITION_BEFORE_ELEVATOR -> endEffector.isWristAtTarget();
             case ELEVATOR_MOVE_WITH_TRANSITION -> elevator.isNearTarget();
-            case TRANSITION_AFTER_ELEVATOR -> (RobotState.isAutonomous() ? ScoringConstants.autonShouldAdvanceToOuttakeTrigger.getAsBoolean() : endEffector.isWristAtTarget()) && elevator.isAtTarget();
+            case TRANSITION_AFTER_ELEVATOR -> ScoringConstants.autonShouldAdvanceToOuttakeTrigger.getAsBoolean() && elevator.isAtTarget();
             case ELEVATOR_MOVE_NO_TRANSITION -> elevator.isAtTarget();
             case EXECUTING_ACTION -> {
                 if (action.endOnGamePieceNotSeen) {

@@ -89,4 +89,9 @@ public class DummySwerveDrivetrain extends AbstractSwerveDrivetrain {
     public double getDistanceFromReefFace() {
         return 0;
     }
+    
+    @Override
+    public boolean isAligned() {
+        return false;
+    }
 }

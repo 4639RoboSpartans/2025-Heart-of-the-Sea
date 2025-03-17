@@ -6,6 +6,7 @@ import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
 import frc.robot.subsystems.scoring.ScoringSuperstructure;
 import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
+import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 
 import java.util.function.Supplier;
 
@@ -17,17 +18,26 @@ public class AutoCommands {
     public static final Supplier<Command> L3Score = () -> getScoringSuperstructureCommand(ScoringSuperstructureAction.SCORE_L3_CORAL);
     public static final Supplier<Command> L2Score = () -> getScoringSuperstructureCommand(ScoringSuperstructureAction.SCORE_L2_CORAL);
     public static final Supplier<Command> L1Score = () -> getScoringSuperstructureCommand(ScoringSuperstructureAction.SCORE_L1_CORAL);
+    public static final Supplier<Command> L4ScorePrep = () -> getScoringSuperstructurePrepCommand(ScoringSuperstructureAction.SCORE_L4_CORAL);
+    public static final Supplier<Command> L3ScorePrep = () -> getScoringSuperstructurePrepCommand(ScoringSuperstructureAction.SCORE_L3_CORAL);
+    public static final Supplier<Command> L2ScorePrep = () -> getScoringSuperstructurePrepCommand(ScoringSuperstructureAction.SCORE_L2_CORAL);
+    public static final Supplier<Command> L1ScorePrep = () -> getScoringSuperstructurePrepCommand(ScoringSuperstructureAction.SCORE_L1_CORAL);
     public static final Supplier<Command> HPLoad = () -> getScoringSuperstructureCommand(ScoringSuperstructureAction.INTAKE_FROM_HP);
+
+    public static final Supplier<Command> runScoring = superstructure::runScoringState;
 
     private static Command getScoringSuperstructureCommand(ScoringSuperstructureAction action) {
         return Commands.deadline(
             superstructure.setAction(action).andThen(superstructure.runScoringState())
                     .until(
-                            () -> (superstructure.getCurrentAction().toString().equals("IDLE")
-                                    && superstructure.isAtActionPosition())
+                            () -> (superstructure.getCurrentState().equals(ScoringSuperstructureState.TRANSITION_AFTER_ELEVATOR))
                                     || (superstructure.hasCoral() && action.name.equals(ScoringSuperstructureAction.INTAKE_FROM_HP.name))
                     ),
             swerve.stop()
         );
+    }
+
+    private static Command getScoringSuperstructurePrepCommand(ScoringSuperstructureAction action) {
+        return superstructure.setAction(action);
     }
 }

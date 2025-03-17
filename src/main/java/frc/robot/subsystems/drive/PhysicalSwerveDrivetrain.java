@@ -86,6 +86,8 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     private static final double MAX_STEER_VELOCITY_RADS_PER_SEC = 12.49;
 
     private boolean shouldUseMTSTDevs = false;
+    
+    private boolean isAligning = false, isAligned = false;
 
     private final LaserCan distanceLC;
 
@@ -217,7 +219,8 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
             pidYController.setGoal(targetPose.getY());
             SmartDashboard.putNumber("distanceThresholdMeters", 10);
             field.getObject("Target Pose").setPose(targetPose);
-            SmartDashboard.putBoolean("Aligned", false);
+            isAligning = true;
+            isAligned = false;
             shouldUseMTSTDevs = true;
             Vision.addGlobalVisionMeasurements(this, shouldUseMTSTDevs);
         }).andThen(applyRequest(
@@ -229,6 +232,11 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                         new TrapezoidProfile.Constraints(1 * getSwerveSpeedMultiplier(), 1)
                     );
                     SmartDashboard.putNumber("Distance to Target", PoseUtil.distanceBetween(targetPose, currentPose.get()));
+                    if (MathUtil.isNear(targetPose.getX(), getPose().getX(), 0.1)
+                        && MathUtil.isNear(targetPose.getY(), getPose().getY(), 0.1)
+                        && MathUtil.isNear(targetPose.getRotation().getDegrees(), getPose().getRotation().getDegrees(), 5)) {
+                        isAligned = true;
+                    }
                     field.getObject("Setpoint Pose").setPose(
                         new Pose2d(
                             new Translation2d(
@@ -260,8 +268,9 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
             .finallyDo(() -> {
                 setVisionStandardDeviations(5, 5, 10);
                 SmartDashboard.putNumber("distanceThresholdMeters", 2);
-                SmartDashboard.putBoolean("Aligned", true);
                 shouldUseMTSTDevs = false;
+                isAligning = false;
+                isAligned = false;
             });
     }
 
@@ -341,6 +350,8 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         SmartDashboard.putNumber("Current heading", getPose().getRotation().getDegrees());
         SmartDashboard.putBoolean("use mt1 stdevs", shouldUseMTSTDevs);
 
+        SmartDashboard.putBoolean("Aligned", isAligned());
+
         Arrays.stream(Limelights.values()).parallel().forEach(
             limelight -> {
                 LimelightHelpers.setRobotOrientation(
@@ -408,5 +419,10 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
     protected Field2d getField() {
         return field;
+    }
+    
+    @Override
+    public boolean isAligned() {
+        return isAligning && isAligned;
     }
 }
