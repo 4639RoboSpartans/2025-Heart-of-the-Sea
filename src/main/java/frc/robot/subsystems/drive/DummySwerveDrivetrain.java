@@ -84,4 +84,23 @@ public class DummySwerveDrivetrain extends AbstractSwerveDrivetrain {
     public void setVisionStandardDeviations(double xStdDev, double yStdDev, double rotStdDev) {
        
     }
+
+    @Override
+    public void startWheelCharacterization() {
+    }
+
+    @Override
+    public double getWheelRotations() {
+        return 0;
+    }
+
+    @Override
+    public boolean isAtSameRotation() {
+        return true;
+    }
+
+    @Override
+    public Command rotateCommand() {
+        return null;
+    }
 }

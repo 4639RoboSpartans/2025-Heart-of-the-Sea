@@ -31,6 +31,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -44,6 +45,9 @@ import frc.robot.subsystems.drive.constants.DrivePIDs;
 import frc.robot.subsystems.drive.constants.TunerConstants;
 import frc.robot.subsystems.drive.constants.TunerConstants.TunerSwerveDrivetrain;
 import frc.robot.subsystems.vision.Vision;
+
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Seconds;
 
 import java.util.Arrays;
 import java.util.function.Supplier;
@@ -83,6 +87,9 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     private SwerveSetpoint prevSwerveSetpoint;
     private static final double MAX_STEER_VELOCITY_RADS_PER_SEC = 12.49;
 
+    private static double driveMotorPosition = 0;
+    private static double startDegrees = 0;
+    
     private boolean shouldUseMTSTDevs = false;
 
     public PhysicalSwerveDrivetrain() {
@@ -323,6 +330,17 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         SmartDashboard.putNumber("Current heading", getPose().getRotation().getDegrees());
         SmartDashboard.putBoolean("use mt1 stdevs", shouldUseMTSTDevs);
 
+        SmartDashboard.putBoolean("At Same Rotation", isAtSameRotation());
+        SmartDashboard.putNumber("Start Degrees", startDegrees);
+        SmartDashboard.putNumber("Current Degrees", drivetrain.getPigeon2().getRotation2d().getDegrees() % 360);
+        
+        double wheelRotations = getWheelRotations();
+        double wheelToCenterRadius = Math.hypot(TunerConstants.xFromCenterInches, TunerConstants.yFromCenterInches);
+        double distanceTravelled = 2 * Math.PI * wheelToCenterRadius;
+        double wheelRadius = distanceTravelled / 2 / Math.PI / wheelRotations;
+
+        SmartDashboard.putNumber("Calculate Wheel Radius", wheelRadius);
+
         Arrays.stream(Limelights.values()).parallel().forEach(
             limelight -> {
                 LimelightHelpers.setRobotOrientation(
@@ -386,5 +404,33 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     @Override
     public void setVisionStandardDeviations(double xStdDev, double yStdDev, double rotStdDev) {
         drivetrain.setVisionMeasurementStdDevs(new Matrix<N3, N1>(Nat.N3(), Nat.N1(), new double[]{xStdDev, yStdDev, rotStdDev}));
+    }
+
+    @Override
+    public void startWheelCharacterization() {
+        driveMotorPosition = drivetrain.getModules()[0].getDriveMotor().getRotorPosition().getValueAsDouble();
+        startDegrees = drivetrain.getPigeon2().getRotation2d().getDegrees();
+    }
+
+    @Override
+    public double getWheelRotations() {
+        double currentDriveMotorPosition = drivetrain.getModules()[0].getDriveMotor().getRotorPosition().getValueAsDouble();
+        double diff = currentDriveMotorPosition - driveMotorPosition;
+        return diff / TunerConstants.kDriveGearRatio;
+    }
+
+    @Override
+    public boolean isAtSameRotation() {
+        return drivetrain.getPigeon2().getRotation2d().getDegrees() >= startDegrees + 360 - 0.8;
+    }
+
+    @Override
+    public Command rotateCommand() {
+        return applyRequest(
+            () -> new SwerveRequest.RobotCentric()
+                .withRotationalRate(
+                    0.5
+                )
+        );
     }
 }

@@ -3,7 +3,6 @@ package frc.robot.subsystems.vision;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.lib.limelight.LimelightHelpers;
@@ -51,6 +50,8 @@ public class Vision {
                                 drivetrain.setVisionStandardDeviations(stdevs[0], stdevs[1], stdevs[3]);
                             }
                             drivetrain.addVisionMeasurement(pose, Utils.getCurrentTimeSeconds());
+                            visionMeasurements.getObject(limelight.getName()).setPose(pose);
+                            SmartDashboard.putData("Vision Measurements", visionMeasurements);
                         }
                     );
                     SmartDashboard.putNumber("LL Pitch", LimelightHelpers.getBotPose3d(limelight.getName()).getRotation().getMeasureY().baseUnitMagnitude());

@@ -24,6 +24,7 @@ import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
 import frc.robot.subsystems.drive.DriveCommands;
 import frc.robot.subsystems.drive.SwerveAutoRoutinesCreator;
+import frc.robot.subsystems.drive.WheelCharacterization;
 import frc.robot.subsystems.led.LEDCommandFactory;
 import frc.robot.subsystems.led.LEDStrip;
 import frc.robot.subsystems.scoring.ScoringSuperstructure;
@@ -70,8 +71,8 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-        swerve.setDefaultCommand(swerve.manualControl());
-        scoringSuperstructure.setDefaultCommand(scoringSuperstructure.runScoringState());
+        // swerve.setDefaultCommand(swerve.manualControl());
+        // scoringSuperstructure.setDefaultCommand(scoringSuperstructure.runScoringState());
 
         //Scoring Controls
         {
@@ -178,7 +179,8 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return autoChooser.getSelected();
+        // return autoChooser.getSelected();
+        return WheelCharacterization.runWheelCharacterization(swerve);
     }
 
     public void add3DComponentPoses() {
