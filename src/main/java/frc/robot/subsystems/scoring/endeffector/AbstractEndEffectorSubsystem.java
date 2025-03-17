@@ -167,6 +167,8 @@ public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
             "current fraction = " + currentWristRotationFraction
                 + " target fraction = " + targetWristRotationFraction
         );
+        
+        SmartDashboard.putBoolean("Has Coral", hasCoral());
     }
 
     public abstract void setWristMotorIdleMode(SparkBaseConfig.IdleMode mode);

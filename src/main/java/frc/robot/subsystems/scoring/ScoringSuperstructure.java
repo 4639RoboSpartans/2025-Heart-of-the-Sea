@@ -174,6 +174,7 @@ public final class ScoringSuperstructure extends SubsystemBase {
     }
 
     private void runActionPeriodic() {
+        SmartDashboard.putNumber("Commanded Intake Speed", currentAction.intakeSpeed);
         // Update maybeNeedsTransition
         switch (currentState) {
             case TRANSITION_AFTER_ELEVATOR, EXECUTING_ACTION, DONE -> {

@@ -68,7 +68,7 @@ public class DriveCommands {
         var desiredPose = position.getAllianceRespectivePose();
 
         return DriveCommands.drivetrain.directlyMoveTo(desiredPose, currentRobotPose)
-                .until(new Trigger(() -> PoseUtil.withinTolerance(desiredPose, currentRobotPose.get(), Units.inchesToMeters(2))).debounce(0.5));
+                .until(new Trigger(() -> PoseUtil.withinTolerance(desiredPose, currentRobotPose.get(), Units.inchesToMeters(2))).debounce(0.1));
     }
 
     public static Command moveToClosestReefPositionHardcoded(byte direction) {

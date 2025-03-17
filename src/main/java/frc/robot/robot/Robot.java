@@ -8,6 +8,8 @@ package frc.robot.robot;
 import au.grapplerobotics.CanBridge;
 import com.ctre.phoenix6.SignalLogger;
 import com.revrobotics.spark.config.SparkBaseConfig;
+
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -42,6 +44,7 @@ public class Robot extends LoggedRobot {
         CommandScheduler.getInstance().run();
         robotContainer.add3DComponentPoses();
         SmartDashboard.putBoolean("DS Alliance", AllianceFlipUtil.shouldFlip());
+        SmartDashboard.putNumber("Match Time", Timer.getMatchTime());
     }
 
     @Override

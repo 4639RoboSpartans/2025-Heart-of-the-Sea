@@ -93,6 +93,8 @@ public class ScoringSuperstructureAction {
             a.endOnGamePieceNotSeen = false;
             a.endOnGamePieceSeen = false;
             a.intakeSpeed = 0;
+            a.requiresWristTransition = false;
+            a.name += "NO_INTAKE";
         });
     }
 
@@ -115,28 +117,28 @@ public class ScoringSuperstructureAction {
             .withStateAfter(IDLE)
             .useManualControlInTeleop(false),
         SCORE_L1_CORAL = new ScoringSuperstructureAction("SCORE_L1_CORAL")
-            .withTargetElevatorExtensionFraction(() -> ElevatorSetpoints.L1_Proportion + (drivetrain.getDistanceFromReefFace() - 0.832) * 0.1)
+            .withTargetElevatorExtensionFraction(() -> ElevatorSetpoints.L1_Proportion + (drivetrain.getDistanceFromReefFace() - 0.832) * 0.25 * (drivetrain.isAligning()? 1 : 0))
             .withTargetWristRotationFraction(() -> WristSetpoints.Wrist_L1_Proportion)
             .withIntakeSpeed(IntakeSpeeds.Intake_L1_Speed)
             .stopIntakeOnGamePieceNotSeen()
             .requireWristTransition()
             .withStateAfter(IDLE),
         SCORE_L2_CORAL = new ScoringSuperstructureAction("SCORE_L2_CORAL")
-            .withTargetElevatorExtensionFraction(() -> ElevatorSetpoints.L2_Proportion + (drivetrain.getDistanceFromReefFace() - 0.832) * 0.1)
+            .withTargetElevatorExtensionFraction(() -> ElevatorSetpoints.L2_Proportion + (drivetrain.getDistanceFromReefFace() - 0.832) * 0.25 * (drivetrain.isAligning()? 1 : 0))
             .withTargetWristRotationFraction(() -> WristSetpoints.Wrist_L2_Proportion)
             .withIntakeSpeed(IntakeSpeeds.Intake_L2_Speed)
             .stopIntakeOnGamePieceNotSeen()
             .requireWristTransition()
             .withStateAfter(IDLE),
         SCORE_L3_CORAL = new ScoringSuperstructureAction("SCORE_L3_CORAL")
-            .withTargetElevatorExtensionFraction(() -> ElevatorSetpoints.L3_Proportion + (drivetrain.getDistanceFromReefFace() - 0.832) * 0.1)
+            .withTargetElevatorExtensionFraction(() -> ElevatorSetpoints.L3_Proportion + (drivetrain.getDistanceFromReefFace() - 0.832) * 0.25 * (drivetrain.isAligning()? 1 : 0))
             .withTargetWristRotationFraction(() -> WristSetpoints.Wrist_L3_Proportion)
             .withIntakeSpeed(IntakeSpeeds.Intake_L3_Speed)
             .stopIntakeOnGamePieceNotSeen()
             .requireWristTransition()
             .withStateAfter(IDLE),
         SCORE_L4_CORAL = new ScoringSuperstructureAction("SCORE_L4_CORAL")
-            .withTargetElevatorExtensionFraction(() -> ElevatorSetpoints.L4_Proportion + (drivetrain.getDistanceFromReefFace() - 0.832) * 0.1)
+            .withTargetElevatorExtensionFraction(() -> ElevatorSetpoints.L4_Proportion + (drivetrain.getDistanceFromReefFace() - 0.832) * 0.25 * (drivetrain.isAligning()? 1 : 0))
             .withTargetWristRotationFraction(() -> WristSetpoints.Wrist_L4_Proportion)
             .withIntakeSpeed(IntakeSpeeds.Intake_L4_Speed)
             .stopIntakeOnGamePieceNotSeen()
