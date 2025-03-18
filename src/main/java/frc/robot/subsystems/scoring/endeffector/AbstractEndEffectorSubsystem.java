@@ -97,7 +97,7 @@ public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
     }
 
     public final double getActionTargetRotationFraction() {
-        return SubsystemManager.getInstance().getScoringSuperstructure().getCurrentAction().targetWristRotationFraction;
+        return SubsystemManager.getInstance().getScoringSuperstructure().getCurrentAction().targetWristRotationFraction.getAsDouble();
     }
 
     public final void setTargetWristRotationFraction(double targetRotationFraction) {
@@ -157,9 +157,6 @@ public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
         } else {
             targetWristRotationFraction = getTargetRotationFraction();
             intakeSpeed = this.intakeSpeed;
-            if(Controls.Operator.ManualControlIntake.getAsDouble() != 0){
-                intakeSpeed = Controls.Operator.ManualControlIntake.getAsDouble();
-            }
         }
 
         SmartDashboard.putNumber("Intake Speed", intakeSpeed);
@@ -170,6 +167,8 @@ public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
             "current fraction = " + currentWristRotationFraction
                 + " target fraction = " + targetWristRotationFraction
         );
+        
+        SmartDashboard.putBoolean("Has Coral", hasCoral());
     }
 
     public abstract void setWristMotorIdleMode(SparkBaseConfig.IdleMode mode);

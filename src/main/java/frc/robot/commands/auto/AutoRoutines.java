@@ -12,6 +12,8 @@ import frc.robot.constants.FieldConstants.TargetPositions;
 import frc.robot.robot.Robot;
 import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.drive.DriveCommands;
+import frc.robot.subsystems.scoring.ScoringSuperstructure;
+import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,6 +24,8 @@ import java.util.stream.IntStream;
 
 public class AutoRoutines {
     private final Supplier<AutoFactory> factory;
+
+    private final ScoringSuperstructure scoringSuperstructure = SubsystemManager.getInstance().getScoringSuperstructure();
 
     public AutoRoutines(Supplier<AutoFactory> factory) {
         this.factory = factory;
@@ -139,6 +143,45 @@ public class AutoRoutines {
         );
     }
 
+    public AutonSupplier COMP_I_K_L() {
+        return new AutonSupplier(
+            () -> compileAuton(
+            true,
+            true,
+            new ScoringTarget('I', 4),
+            new ScoringTarget('K', 4),
+            new ScoringTarget('L', 4)
+            ),
+            getAutonName(
+                new ScoringTarget[] {
+                    new ScoringTarget('I', 4),
+                    new ScoringTarget('K', 4),
+                    new ScoringTarget('L', 4)
+                }, 
+                "COMP-"
+            )
+        );
+    }
+
+    
+    public AutonSupplier TEST_E_C() {
+        return new AutonSupplier(
+            () -> compileAuton(
+                false, 
+                false, 
+                new ScoringTarget('E', 4),
+                new ScoringTarget('C', 4)
+            ),
+            getAutonName(
+                new ScoringTarget[] {
+                    new ScoringTarget('E', 4),
+                    new ScoringTarget('C', 4)
+                }, 
+                "COMP-"
+            )
+        );
+    }
+
     private record ScoringTarget(char scoringLocation, int scoringHeight) {
         @Override
         public String toString() {
@@ -187,35 +230,40 @@ public class AutoRoutines {
         }
 
         // Activate the commands when the auton routine is active
-        routine.active().onTrue(CommandsUtil.sequence(commands));
+        routine.active().onTrue(
+                CommandsUtil.sequence(commands)
+        );
 
         return routine;
     }
 
     private void addScoringSegment(List<Command> commands, AutoTrajectory path, ScoringTarget scoringTarget) {
-        commands.add(new InstantCommand(() -> SubsystemManager.getInstance().getDrivetrain().setVisionStandardDeviations(5, 5, 100)));
-        // Add path to scoring
+        // Add the path to scoring
         commands.add(path.cmd());
-        commands.add(new InstantCommand(() -> SubsystemManager.getInstance().getDrivetrain().setVisionStandardDeviations(0.5, 0.5, 10)));
-        // Add directly move to and fine tune stuff IDK
+        path.atTime("L4_UP").onTrue(
+                switch (scoringTarget.scoringHeight()) {
+                    case 1 -> AutoCommands.L1Score.get();
+                    case 2 -> AutoCommands.L2Score.get();
+                    case 3 -> AutoCommands.L3Score.get();
+                    case 4 -> AutoCommands.L4Score.get();
+                    default -> AutoCommands.HPLoad.get().withTimeout(1);
+                }
+        );
+
         if (AutoConstants.addVisionAlignToCommands) {
             TargetPositions targetPosition = scoringTarget.getTargetPosition();
             addDirectlyMoveToCommand(
                 commands, targetPosition
             );
         }
-        //commands.add(targetPosition.fineTuneTargetCommand.get());
 
-        // Add scoring command
-        // if (Robot.isReal()) {
-            commands.add(switch (scoringTarget.scoringHeight()) {
-                case 1 -> AutoCommands.L1Score.get();
-                case 2 -> AutoCommands.L2Score.get();
-                case 3 -> AutoCommands.L3Score.get();
-                case 4 -> AutoCommands.L4Score.get();
-                default -> AutoCommands.HPLoad.get().withTimeout(1);
-            });
-        // }
+        commands.add(
+            Commands.deadline(
+                Commands.waitUntil(() -> scoringSuperstructure.getCurrentState() == ScoringSuperstructureState.EXECUTING_ACTION)
+                    .andThen(Commands.waitUntil(() -> !scoringSuperstructure.hasCoral())),
+                AutoCommands.SwerveStop.get()
+            )
+        );
     }
 
     @SuppressWarnings("unused")
@@ -234,9 +282,7 @@ public class AutoRoutines {
         }
 
         // Add HP load command
-        if (Robot.isReal()) {
-            commands.add(AutoCommands.HPLoad.get());
-        }
+        commands.add(AutoCommands.HPLoad.get());
     }
 
     private static void addDirectlyMoveToCommand(List<Command> commands, FieldConstants.TargetPositions targetPose) {
@@ -273,7 +319,10 @@ public class AutoRoutines {
     public List<AutonSupplier> getAllCompRoutines() {
         return List.of(
             COMP_A_B(),
-            COMP_H_A()
+            COMP_H_A(),
+            COMP_G_C_D_B(),
+            COMP_I_K_L(),
+            TEST_E_C()
         );
     }
 

@@ -222,6 +222,6 @@
   "splits":[0,71,115]
  },
  "events":[
-   {"name":"L4_UP", "from":{"target":2, "targetTimestamp":null, "offset":{"exp":"0 s", "val":0.0}}, "event":null},
-   {"name":"L4_UP", "from":{"target":6, "targetTimestamp":null, "offset":{"exp":"0 s", "val":0.0}}, "event":null}]
+   {"name":"L4_UP", "from":{"target":2, "targetTimestamp":1.58988, "offset":{"exp":"0 s", "val":0.0}}, "event":null},
+   {"name":"L4_UP", "from":{"target":6, "targetTimestamp":4.1802, "offset":{"exp":"0 s", "val":0.0}}, "event":null}]
 }

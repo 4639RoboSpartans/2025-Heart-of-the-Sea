@@ -50,24 +50,8 @@ public class DriveCommands {
 
     public static Command moveToClosestReefPositionWithTransformation(byte direction, Supplier<Pose2d> currentRobotPose) {
         drivetrain.setVisionStandardDeviations(0.1, 0.1, 10);
-        List<FieldConstants.TargetPositions> allReefTargets = List.of(
-            FieldConstants.TargetPositions.REEF_AB,
-            FieldConstants.TargetPositions.REEF_CD,
-            FieldConstants.TargetPositions.REEF_EF,
-            FieldConstants.TargetPositions.REEF_GH,
-            FieldConstants.TargetPositions.REEF_IJ,
-            FieldConstants.TargetPositions.REEF_KL
-        );
 
-        // Pose2d nearestReefPose = currentRobotPose.get().nearest(
-        //         Stream.concat(
-        //                 allReefTargets.stream().map(FieldConstants.TargetPositions::getPose),
-        //                 allReefTargets.stream().map(FieldConstants.TargetPositions::getOpponentAlliancePose)
-        //         ).collect(Collectors.toList()));
-
-        Pose2d nearestReefPose = currentRobotPose.get().nearest(
-            allReefTargets.stream().map(FieldConstants.TargetPositions::getAllianceRespectivePose)
-                .collect(Collectors.toList()));
+        var nearestReefPose = getClosestTarget(currentRobotPose);
 
         var desiredPose =
             (direction == 0
@@ -84,7 +68,7 @@ public class DriveCommands {
         var desiredPose = position.getAllianceRespectivePose();
 
         return DriveCommands.drivetrain.directlyMoveTo(desiredPose, currentRobotPose)
-            .until(new Trigger(() -> PoseUtil.withinTolerance(desiredPose, currentRobotPose.get(), Units.inchesToMeters(2))).debounce(0.1));
+                .until(new Trigger(() -> PoseUtil.withinTolerance(desiredPose, currentRobotPose.get(), Units.inchesToMeters(2))).debounce(0.1));
     }
 
     public static Command moveToClosestReefPositionHardcoded(byte direction) {
@@ -162,5 +146,23 @@ public class DriveCommands {
             .andThen(drivetrain.directlyMoveTo(FieldConstants.TargetPositions.RLReefPoseFromChar(reefLetter).getAllianceRespectivePose(), drivetrain::getPose))
             .until(() -> PoseUtil.withinTolerance(drivetrain.getPose(), FieldConstants.TargetPositions.RLReefPoseFromChar(reefLetter).getAllianceRespectivePose(), Units.inchesToMeters(0.5)));
 
+    }
+
+    public static Pose2d getClosestTarget(Supplier<Pose2d> currentRobotPose) {
+        
+        List<FieldConstants.TargetPositions> allReefTargets = List.of(
+            FieldConstants.TargetPositions.REEF_AB,
+            FieldConstants.TargetPositions.REEF_CD,
+            FieldConstants.TargetPositions.REEF_EF,
+            FieldConstants.TargetPositions.REEF_GH,
+            FieldConstants.TargetPositions.REEF_IJ,
+            FieldConstants.TargetPositions.REEF_KL
+        );
+
+        Pose2d nearestReefPose = currentRobotPose.get().nearest(
+            allReefTargets.stream().map(FieldConstants.TargetPositions::getAllianceRespectivePose)
+                .collect(Collectors.toList()));
+
+        return nearestReefPose;
     }
 }

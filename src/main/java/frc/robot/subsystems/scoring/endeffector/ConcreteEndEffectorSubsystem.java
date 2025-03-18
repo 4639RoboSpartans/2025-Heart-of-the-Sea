@@ -153,12 +153,10 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
 
         SmartDashboard.putNumber("Wrist raw position", wristAbsoluteEncoder.get());
         SmartDashboard.putNumber("LC Measurement", getMeasurement());
-        SmartDashboard.putBoolean("Has Coral", hasCoral());
 
         SmartDashboard.putNumber("Wrist Relative Measurement", relativeEncoderMeasurementToAbsoluteMeasurement.convert(wristAbsoluteEncoder.get()) + PositionToRotation.convertBackwards(RotationStartingPosition));
         wristMotor.setVoltage(wristPIDOutput);
         intakeMotor.set(intakeSpeed);
-        SmartDashboard.putNumber("Intake Speed", intakeSpeed);
     }
 
     @Override

@@ -13,6 +13,8 @@ import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.PathPlannerLogging;
 import com.pathplanner.lib.util.swerve.SwerveSetpoint;
 import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
+
+import au.grapplerobotics.LaserCan;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
@@ -84,6 +86,10 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     private static final double MAX_STEER_VELOCITY_RADS_PER_SEC = 12.49;
 
     private boolean shouldUseMTSTDevs = false;
+    
+    private boolean isAligning = false, isAligned = false;
+
+    private final LaserCan distanceLC;
 
     public PhysicalSwerveDrivetrain() {
         SwerveDrivetrainConstants drivetrainConstants = TunerConstants.DrivetrainConstants;
@@ -118,6 +124,8 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
         RobotModeTriggers.autonomous().onTrue(new InstantCommand(() -> this.setVisionStandardDeviations(0.5, 0.5, 10)));
         RobotModeTriggers.teleop().onTrue(new InstantCommand(() -> this.setVisionStandardDeviations(10, 10, 1000)));
+
+        distanceLC = new LaserCan(DriveConstants.IDs.DistanceLaserCANID);
     }
 
     @Override
@@ -211,7 +219,8 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
             pidYController.setGoal(targetPose.getY());
             SmartDashboard.putNumber("distanceThresholdMeters", 10);
             field.getObject("Target Pose").setPose(targetPose);
-            SmartDashboard.putBoolean("Aligned", false);
+            isAligning = true;
+            isAligned = false;
             shouldUseMTSTDevs = true;
             Vision.addGlobalVisionMeasurements(this, shouldUseMTSTDevs);
         }).andThen(applyRequest(
@@ -223,6 +232,11 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                         new TrapezoidProfile.Constraints(1 * getSwerveSpeedMultiplier(), 1)
                     );
                     SmartDashboard.putNumber("Distance to Target", PoseUtil.distanceBetween(targetPose, currentPose.get()));
+                    if (MathUtil.isNear(targetPose.getX(), getPose().getX(), 0.1)
+                        && MathUtil.isNear(targetPose.getY(), getPose().getY(), 0.1)
+                        && MathUtil.isNear(targetPose.getRotation().getDegrees(), getPose().getRotation().getDegrees(), 5)) {
+                        isAligned = true;
+                    }
                     field.getObject("Setpoint Pose").setPose(
                         new Pose2d(
                             new Translation2d(
@@ -254,8 +268,9 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
             .finallyDo(() -> {
                 setVisionStandardDeviations(5, 5, 10);
                 SmartDashboard.putNumber("distanceThresholdMeters", 2);
-                SmartDashboard.putBoolean("Aligned", true);
                 shouldUseMTSTDevs = false;
+                isAligning = false;
+                isAligned = false;
             });
     }
 
@@ -355,6 +370,8 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         SmartDashboard.putNumber("Current heading", getPose().getRotation().getDegrees());
         SmartDashboard.putBoolean("use mt1 stdevs", shouldUseMTSTDevs);
 
+        SmartDashboard.putBoolean("Aligned", isAligned());
+
         Arrays.stream(Limelights.values()).parallel().forEach(
             limelight -> {
                 LimelightHelpers.setRobotOrientation(
@@ -388,6 +405,23 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     }
 
     @Override
+    public double getDistanceFromReefFace() {
+        return getMeasurement();
+    }
+
+    public double getMeasurement() {
+        var measurement = distanceLC.getMeasurement();
+        if (measurement == null) {
+            return Integer.MAX_VALUE;
+        }
+        if (measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
+            return measurement.distance_mm;
+        } else {
+            return Integer.MAX_VALUE;
+        }
+    }
+
+    @Override
     public void resetPose(Pose2d pose) {
         drivetrain.resetPose(pose);
     }
@@ -401,5 +435,14 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     @Override
     public void setVisionStandardDeviations(double xStdDev, double yStdDev, double rotStdDev) {
         drivetrain.setVisionMeasurementStdDevs(new Matrix<N3, N1>(Nat.N3(), Nat.N1(), new double[]{xStdDev, yStdDev, rotStdDev}));
+    }
+
+    protected Field2d getField() {
+        return field;
+    }
+    
+    @Override
+    public boolean isAligned() {
+        return isAligning && isAligned;
     }
 }

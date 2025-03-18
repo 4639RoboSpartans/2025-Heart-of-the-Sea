@@ -84,4 +84,14 @@ public class DummySwerveDrivetrain extends AbstractSwerveDrivetrain {
     public void setVisionStandardDeviations(double xStdDev, double yStdDev, double rotStdDev) {
        
     }
+
+    @Override
+    public double getDistanceFromReefFace() {
+        return 0;
+    }
+    
+    @Override
+    public boolean isAligned() {
+        return false;
+    }
 }
