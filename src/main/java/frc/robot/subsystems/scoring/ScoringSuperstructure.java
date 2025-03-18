@@ -70,6 +70,10 @@ public final class ScoringSuperstructure extends SubsystemBase {
         wristAdjustment = 0;
     }
 
+    public boolean hasCoral() {
+        return endEffector.hasCoral();
+    }
+
     /**
      * @param state the new state to set the scoring superstructure to.
      *
@@ -133,8 +137,8 @@ public final class ScoringSuperstructure extends SubsystemBase {
 
     public Command elevatorHomingCommand() {
         double ELEVATOR_HOMING_INITIAL_OFFSET = 0.01;
-        double ELEVATOR_HOMING_SPEED = 0.007;
-        double ELEVATOR_HOMING_MAX_OFFSET = 0.01;
+        double ELEVATOR_HOMING_SPEED = 0.04;
+        double ELEVATOR_HOMING_MAX_OFFSET = 0.02;
         return startRun(
             () -> {
                 elevator.setTargetExtensionFraction(elevator.getCurrentExtensionFraction() + ELEVATOR_HOMING_INITIAL_OFFSET);
@@ -255,10 +259,11 @@ public final class ScoringSuperstructure extends SubsystemBase {
     @Override
     public void periodic() {
         // Sets scoring mechanisms to IDLE in case robot acceleration is high.
-        if (SubsystemManager.getInstance().getDrivetrain().getAccelerationInGs() >= 1.0 / elevator.getCurrentExtensionFraction()) {
+        if (SubsystemManager.getInstance().getDrivetrain().getAccelerationInGs() >= 1.0 / elevator.getCurrentExtensionFraction() + 1) {
             setCurrentAction(ScoringSuperstructureAction.IDLE);
         }
         SmartDashboard.putNumber("Elevator Fraction", elevator.getCurrentExtensionFraction());
+        SmartDashboard.putNumber("Target Elevator Fraction", elevator.getTargetExtensionFraction());
         SmartDashboard.putNumber("Wrist Position", endEffector.getCurrentMotorPosition());
         SmartDashboard.putString("State", currentState.name());
         SmartDashboard.putString("Action", currentAction.toString());

@@ -21,17 +21,19 @@ public class AllianceFlipUtil {
     }
 
     public static Rotation2d apply(Rotation2d rotation) {
-        return shouldFlip() ? rotation.rotateBy(Rotation2d.kPi) : rotation;
+        return rotation.rotateBy(Rotation2d.kPi);
     }
 
     public static Pose2d apply(Pose2d pose) {
-        return shouldFlip()
-                ? new Pose2d(apply(pose.getTranslation()), apply(pose.getRotation()))
-                : pose;
+        return new Pose2d(apply(pose.getTranslation()), apply(pose.getRotation()));
     }
 
     public static boolean shouldFlip() {
-        return DriverStationUtil.getAlliance() != DriverStation.Alliance.Red;
+        return DriverStationUtil.getAlliance() == DriverStation.Alliance.Red;
+    }
+
+    public static Pose2d applyIfShouldFlip(Pose2d pose){
+        return shouldFlip() ? apply(pose) : pose;
     }
 
     /**
@@ -43,5 +45,13 @@ public class AllianceFlipUtil {
      */
     public static Pose2d rawAllianceFlipPose(Pose2d pose) {
         return new Pose2d(apply(pose.getTranslation()), apply(pose.getRotation()));
+    }
+
+    public static Pose2d force(Pose2d pose, DriverStation.Alliance alliance){
+        boolean onBlueSide = pose.getX() <= FieldConstants.fieldLength/2;
+        boolean desiredBlueSide = alliance.equals(DriverStation.Alliance.Blue);
+
+        if(onBlueSide != desiredBlueSide) return AllianceFlipUtil.rawAllianceFlipPose(pose);
+        return pose;
     }
 }

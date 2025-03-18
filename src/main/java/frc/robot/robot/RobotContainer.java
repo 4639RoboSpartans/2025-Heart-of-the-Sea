@@ -14,21 +14,27 @@ import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.FunctionalTrigger;
-import frc.robot.commands.AutoCommands;
-import frc.robot.commands.AutoRoutines;
-import frc.robot.commands.AutoRoutines.Auton;
+import frc.lib.oi.OI;
+import frc.robot.commands.auto.AutoCommands;
+import frc.robot.commands.auto.AutoRoutines;
+import frc.robot.commands.auto.AutoRoutines.Auton;
+import frc.robot.commands.auto.AutoRoutines.AutonSupplier;
 import frc.robot.constants.Controls;
 import frc.robot.constants.FieldConstants;
 import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
 import frc.robot.subsystems.drive.DriveCommands;
+import frc.robot.subsystems.drive.DriveSysID;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.subsystems.drive.SwerveAutoRoutinesCreator;
 import frc.robot.subsystems.led.LEDCommandFactory;
 import frc.robot.subsystems.led.LEDStrip;
 import frc.robot.subsystems.scoring.ScoringSuperstructure;
 import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
+import frc.robot.subsystems.scoring.elevator.ElevatorSysID;
 
 import java.util.Arrays;
 
@@ -40,7 +46,7 @@ public class RobotContainer {
     private final ScoringSuperstructure scoringSuperstructure = SubsystemManager.getInstance().getScoringSuperstructure();
     @SuppressWarnings("unused")
     private final RobotSim robotSim = new RobotSim();
-    private final SendableChooser<Command> autoChooser;
+    private final SendableChooser<AutonSupplier> autoChooser;
     private final SendableChooser<Pose2d> startPositionChooser = new SendableChooser<>();
     @SuppressWarnings("unused")
     private final LEDStrip ledStrip = SubsystemManager.getInstance().getLEDStripSubsystem();
@@ -58,7 +64,6 @@ public class RobotContainer {
 
         autoChooser = new SendableChooser<>();
         addAllCompAutons(autoChooser, swerveAutoRoutines);
-        autoChooser.addOption("TEST", AutoCommands.L4Score.get());
         SmartDashboard.putData("Auto Chooser", autoChooser);
 
         startPositionChooser.setDefaultOption("DEFAULT", new Pose2d());
@@ -70,7 +75,7 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-        swerve.setDefaultCommand(swerve.manualControl());
+        swerve.setDefaultCommand(swerve.manualControl());    
         scoringSuperstructure.setDefaultCommand(scoringSuperstructure.runScoringState());
 
         //Scoring Controls
@@ -139,45 +144,39 @@ public class RobotContainer {
         }
 
         FunctionalTrigger.of(Controls.Driver.alignReefLeft)
-            .whileTrue(() -> DriveCommands.moveToClosestReefPositionWithTransformation((byte) 0));
+            .whileTrue(() -> DriveCommands.moveToClosestReefPositionWithTransformation((byte) 0, SubsystemManager.getInstance().getDrivetrain()::getPose));
         FunctionalTrigger.of(Controls.Driver.alignReefRight)
-            .whileTrue(() -> DriveCommands.moveToClosestReefPositionWithTransformation((byte) 1));
+            .whileTrue(() -> DriveCommands.moveToClosestReefPositionWithTransformation((byte) 1, SubsystemManager.getInstance().getDrivetrain()::getPose));
         FunctionalTrigger.of(Controls.Driver.reefAlign)
             .and(Controls.Driver.alignReefLeft.negate())
             .and(Controls.Driver.alignReefRight.negate())
-            .whileTrue(() -> DriveCommands.moveToClosestReefPositionWithTransformation((byte) 2));
+            .whileTrue(() -> DriveCommands.moveToClosestReefPositionWithTransformation((byte) 2, SubsystemManager.getInstance().getDrivetrain()::getPose));
 
         FunctionalTrigger.of(Controls.Driver.processorAlign)
-                .whileTrue(DriveCommands::moveToProcessor);
-//        FunctionalTrigger.of(Controls.Driver.coralStationAlign)
-//            .and(Controls.Driver.targetLeft).whileTrue(() -> DriveCommands.moveToDesiredCoralStationPosition(true));
-//        FunctionalTrigger.of(Controls.Driver.coralStationAlign)
-//            .and(Controls.Driver.targetRight).whileTrue(() -> DriveCommands.moveToDesiredCoralStationPosition(false));
+            .whileTrue(DriveCommands::moveToProcessor);
 
 
         // OI.getInstance().driverController().Y_BUTTON.whileTrue(
-        //         DriveSysID.sysIdQuasistatic(SysIdRoutine.Direction.kForward)
+        //         ElevatorSysID.sysIdQuasistatic(SysIdRoutine.Direction.kForward)
         // );
         // OI.getInstance().driverController().A_BUTTON.whileTrue(
-        //         DriveSysID.sysIdQuasistatic(SysIdRoutine.Direction.kReverse)
+        //         ElevatorSysID.sysIdQuasistatic(SysIdRoutine.Direction.kReverse)
         // );
         // OI.getInstance().driverController().POV_UP.whileTrue(
-        //         DriveSysID.sysIdDynamic(SysIdRoutine.Direction.kForward)
+        //         ElevatorSysID.sysIdDynamic(SysIdRoutine.Direction.kForward)
         // );
         // OI.getInstance().driverController().POV_DOWN.whileTrue(
-        //         DriveSysID.sysIdDynamic(SysIdRoutine.Direction.kReverse)
+        //         ElevatorSysID.sysIdDynamic(SysIdRoutine.Direction.kReverse)
         // );
-
-        // OI.getInstance().driverController().A_BUTTON.onTrue(MiscellaneousCommands.ElevatorUpDownTest());
     }
 
-    private void addAllCompAutons(SendableChooser<Command> autoChooser, AutoRoutines swerveAutoRoutines) {
-        for (Auton a : swerveAutoRoutines.getAllCompRoutines()) {
-            autoChooser.addOption(a.name(), a.routine().cmd());
+    private void addAllCompAutons(SendableChooser<AutonSupplier> autoChooser, AutoRoutines swerveAutoRoutines) {
+        for (AutonSupplier a : swerveAutoRoutines.getAllCompRoutines()) {
+            autoChooser.addOption(a.name(), a);
         }
     }
 
-    public Command getAutonomousCommand() {
+    public AutonSupplier getAutonomousCommand() {
         return autoChooser.getSelected();
     }
 
@@ -227,9 +226,8 @@ public class RobotContainer {
         );
     }
 
-    public void configureLEDs(){
-        FunctionalTrigger.of(scoringSuperstructure::isManualControlEnabled).whileTrue(LEDCommandFactory::LEDFlashPurple);
-        FunctionalTrigger.of(scoringSuperstructure.getEndEffectorSubsystem()::hasCoral).whileTrue(LEDCommandFactory::LEDThreeFlashThenSolidGreen);
-
+    public void configureLEDs() {
+        ledStrip.setDefaultCommand(LEDCommandFactory.defaultCommand());
+        new Trigger(scoringSuperstructure.getEndEffectorSubsystem()::hasCoral).onTrue(LEDCommandFactory.onCollectCoral());
     }
 }

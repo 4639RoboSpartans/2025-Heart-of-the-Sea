@@ -6,10 +6,12 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
-import frc.robot.commands.AutoRoutines;
+import edu.wpi.first.wpilibj.DriverStation;
+import frc.lib.util.DriverStationUtil;
+import frc.robot.commands.auto.AutoRoutines;
 
 public final class SwerveAutoRoutinesCreator {
-    private static final PIDConstants AUTON_TRANSLATION_PID_CONSTANTS = new PIDConstants(10, 0, 0);
+    private static final PIDConstants AUTON_TRANSLATION_PID_CONSTANTS = new PIDConstants(2, 0, 0);
     private static final PIDConstants AUTON_ROTATION_PID_CONSTANTS = new PIDConstants(7, 0, 0);
 
     public static AutoRoutines createAutoRoutines(AbstractSwerveDrivetrain drivetrain) {
@@ -37,13 +39,15 @@ public final class SwerveAutoRoutinesCreator {
             drivetrain // Subsystem for requirements
         );
 
-        return new AutoRoutines(new AutoFactory(
-            drivetrain::getPose,
-            drivetrain::resetPose,
-            drivetrain::followPath,
-            false,
-            drivetrain,
-            (sample, isStart) -> {}
-        ));
+        return new AutoRoutines(
+            () -> new AutoFactory(
+                drivetrain::getPose,
+                drivetrain::resetPose,
+                drivetrain::followPath,
+                DriverStationUtil.getAlliance() == DriverStation.Alliance.Red,
+                drivetrain,
+                (sample, isStart) -> {}
+            )
+        );
     }
 }

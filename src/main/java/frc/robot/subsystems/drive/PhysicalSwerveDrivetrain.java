@@ -20,24 +20,32 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.lib.limelight.LimelightHelpers;
 import frc.lib.util.DriverStationUtil;
+import frc.lib.util.PoseUtil;
 import frc.robot.constants.Controls;
+import frc.robot.constants.Limelights;
 import frc.robot.subsystems.drive.constants.DriveConstants;
 import frc.robot.subsystems.drive.constants.DrivePIDs;
 import frc.robot.subsystems.drive.constants.TunerConstants;
 import frc.robot.subsystems.drive.constants.TunerConstants.TunerSwerveDrivetrain;
-import frc.robot.subsystems.scoring.Vision;
+import frc.robot.subsystems.vision.Vision;
 
+import java.util.Arrays;
 import java.util.function.Supplier;
 
 public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
@@ -55,11 +63,11 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     protected ProfiledPIDController pidYController = constructPIDYController();
 
     public static ProfiledPIDController constructPIDYController() {
-        return new ProfiledPIDController(16, 0, 0, new TrapezoidProfile.Constraints(8, 12));
+        return new ProfiledPIDController(3, 0, 0, new TrapezoidProfile.Constraints(2, 1));
     }
 
     public static ProfiledPIDController constructPIDXController() {
-        return new ProfiledPIDController(16, 0, 0, new TrapezoidProfile.Constraints(8, 12));
+        return new ProfiledPIDController(3, 0, 0, new TrapezoidProfile.Constraints(2, 1));
     }
 
     {
@@ -74,6 +82,8 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     private final SwerveSetpointGenerator swerveSetpointGenerator;
     private SwerveSetpoint prevSwerveSetpoint;
     private static final double MAX_STEER_VELOCITY_RADS_PER_SEC = 12.49;
+
+    private boolean shouldUseMTSTDevs = false;
 
     public PhysicalSwerveDrivetrain() {
         SwerveDrivetrainConstants drivetrainConstants = TunerConstants.DrivetrainConstants;
@@ -105,6 +115,9 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
         headingController.enableContinuousInput(-Math.PI, Math.PI);
         drivetrain.setVisionMeasurementStdDevs(new Matrix<N3, N1>(Nat.N3(), Nat.N1(), new double[]{5, 5, 10}));
+
+        RobotModeTriggers.autonomous().onTrue(new InstantCommand(() -> this.setVisionStandardDeviations(0.5, 0.5, 10)));
+        RobotModeTriggers.teleop().onTrue(new InstantCommand(() -> this.setVisionStandardDeviations(10, 10, 1000)));
     }
 
     @Override
@@ -161,7 +174,11 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
     @Override
     public Command resetHeadingToZero() {
-        return runOnce(() -> fieldCentricZeroRotation = getPose().getRotation());
+        return runOnce(
+            () -> {
+                fieldCentricZeroRotation = getPose().getRotation();
+            }
+        );
     }
 
     @Override
@@ -186,19 +203,40 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     }
 
     @Override
-    public Command directlyMoveTo(Pose2d targetPose) {
+    public Command _directlyMoveTo(Pose2d targetPose, Supplier<Pose2d> currentPose) {
         return new InstantCommand(() -> {
             pidXController.reset(getPose().getX(), getChassisSpeeds().vxMetersPerSecond);
             pidYController.reset(getPose().getY(), getChassisSpeeds().vyMetersPerSecond);
             pidXController.setGoal(targetPose.getX());
             pidYController.setGoal(targetPose.getY());
-            setVisionStandardDeviations(1, 1, 10);
+            SmartDashboard.putNumber("distanceThresholdMeters", 10);
+            field.getObject("Target Pose").setPose(targetPose);
+            SmartDashboard.putBoolean("Aligned", false);
+            shouldUseMTSTDevs = true;
+            Vision.addGlobalVisionMeasurements(this, shouldUseMTSTDevs);
         }).andThen(applyRequest(
                 () -> {
-                    field.getObject("Target Pose").setPose(pidXController.getSetpoint().position, pidYController.getSetpoint().position, targetPose.getRotation());
-                    double directionMultiplier = DriverStationUtil.getAlliance() == DriverStation.Alliance.Red ? -1 : 1;
-                    double pidXOutput = pidXController.calculate(getPose().getX()) * directionMultiplier;
-                    double pidYOutput = pidYController.calculate(getPose().getY()) * directionMultiplier;
+                    pidXController.setConstraints(
+                        new TrapezoidProfile.Constraints(1 * getSwerveSpeedMultiplier(), 1)
+                    );
+                    pidYController.setConstraints(
+                        new TrapezoidProfile.Constraints(1 * getSwerveSpeedMultiplier(), 1)
+                    );
+                    SmartDashboard.putNumber("Distance to Target", PoseUtil.distanceBetween(targetPose, currentPose.get()));
+                    field.getObject("Setpoint Pose").setPose(
+                        new Pose2d(
+                            new Translation2d(
+                                pidXController.getSetpoint().position,
+                                pidYController.getSetpoint().position
+                            ),
+                            targetPose.getRotation()
+                        )
+                    );
+                    double directionMultiplier =
+                        (DriverStationUtil.getAlliance() == DriverStation.Alliance.Red ? -1 : 1);
+                    // if (RobotState.isAutonomous()) directionMultiplier = 1;
+                    double pidXOutput = pidXController.calculate(currentPose.get().getX()) * directionMultiplier;
+                    double pidYOutput = pidYController.calculate(currentPose.get().getY()) * directionMultiplier;
 
                     var request = new SwerveRequest.FieldCentricFacingAngle();
                     request.HeadingController = new PhoenixPIDController(16, 0, 0);
@@ -206,16 +244,29 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                     Rotation2d headingOffset = DriverStationUtil.getAlliance() == Alliance.Red ? Rotation2d.k180deg : new Rotation2d();
 
                     return request
-                        .withVelocityX(frc.lib.util.MathUtil.clamp(pidXOutput, -1.0, 1.0))
-                        .withVelocityY(frc.lib.util.MathUtil.clamp(pidYOutput, -1.0, 1.0))
+                        .withVelocityX(pidXOutput)
+                        .withVelocityY(pidYOutput)
                         .withTargetDirection(targetPose.getRotation().plus(headingOffset));
                 }
             ).until(
-                () -> MathUtil.isNear(targetPose.getX(), getPose().getX(), 0.01)
-                    && MathUtil.isNear(targetPose.getY(), getPose().getY(), 0.01)
-                    && MathUtil.isNear(targetPose.getRotation().getDegrees(), getPose().getRotation().getDegrees(), 2)
+                RobotState.isTeleop() ? () -> false : getAtTargetPoseTrigger(targetPose)
             )).andThen(stop().withTimeout(0.1))
-            .andThen(() -> setVisionStandardDeviations(5, 5, 10));
+            .finallyDo(() -> {
+                setVisionStandardDeviations(5, 5, 10);
+                SmartDashboard.putNumber("distanceThresholdMeters", 2);
+                SmartDashboard.putBoolean("Aligned", true);
+                shouldUseMTSTDevs = false;
+            });
+    }
+
+    public Trigger getAtTargetPoseTrigger(Pose2d targetPose) {
+        return new Trigger(() -> !RobotState.isTeleop() && atTargetPose(targetPose)).debounce(1);
+    }
+
+    public boolean atTargetPose(Pose2d targetPose) {
+        return MathUtil.isNear(targetPose.getX(), getPose().getX(), 0.025)//0.01
+            && MathUtil.isNear(targetPose.getY(), getPose().getY(), 0.025)//0.01
+            && MathUtil.isNear(targetPose.getRotation().getDegrees(), getPose().getRotation().getDegrees(), 1);
     }
 
     public Command fineTuneUsingLaserCANCommand(Pose2d targetPose) {
@@ -251,6 +302,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
     @Override
     public void followPath(SwerveSample sample) {
+
         var pose = getPose();
 
         var targetSpeeds = sample.getChassisSpeeds();
@@ -290,18 +342,31 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
             });
         }
 
-        Vision.addGlobalVisionMeasurements(this);
+        Vision.addGlobalVisionMeasurements(this, shouldUseMTSTDevs);
 
         // Update robot pose
         field.setRobotPose(getPose());
 
         // Update field on dashboard
         SmartDashboard.putData("Field2D", field);
-        SignalLogger.writeDouble("Steer Velocity", drivetrain.getModule(0).getSteerMotor().getVelocity().getValueAsDouble());
-        SignalLogger.writeDouble("Steer Voltage", drivetrain.getModule(0).getSteerMotor().getMotorVoltage().getValueAsDouble());
-        SignalLogger.writeDouble("Steer Position", drivetrain.getModule(0).getSteerMotor().getPosition().getValueAsDouble());
+        SignalLogger.writeDouble("Rotate Velocity", drivetrain.getPigeon2().getAngularVelocityZDevice().getValueAsDouble());
+        SignalLogger.writeDouble("Rotate Position", drivetrain.getPigeon2().getYaw().getValueAsDouble());
 
         SmartDashboard.putNumber("Current heading", getPose().getRotation().getDegrees());
+        SmartDashboard.putBoolean("use mt1 stdevs", shouldUseMTSTDevs);
+
+        Arrays.stream(Limelights.values()).parallel().forEach(
+            limelight -> {
+                LimelightHelpers.setRobotOrientation(
+                    limelight.getName(),
+                    getPose().getRotation().minus(fieldCentricZeroRotation).plus(
+                        DriverStationUtil.getAlliance() == Alliance.Red
+                            ? Rotation2d.k180deg
+                            : Rotation2d.kZero
+                    ).getDegrees()
+                );
+            }
+        );
     }
 
     @Override
@@ -334,112 +399,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     }
 
     @Override
-    public boolean atTargetPose(Pose2d targetPose) {
-        return MathUtil.isNear(
-            targetPose.getX(),
-            getPose().getX(),
-            0.025
-        ) && MathUtil.isNear(
-            targetPose.getY(),
-            getPose().getY(),
-            0.025
-        ) && MathUtil.isNear(
-            targetPose.getRotation().getDegrees(),
-            getPose().getRotation().getDegrees(),
-            2
-        );
-    }
-
-    @Override
     public void setVisionStandardDeviations(double xStdDev, double yStdDev, double rotStdDev) {
         drivetrain.setVisionMeasurementStdDevs(new Matrix<N3, N1>(Nat.N3(), Nat.N1(), new double[]{xStdDev, yStdDev, rotStdDev}));
-    }
-
-    public SwerveRequest targetToRightReef() {
-        double rawForwards = (frc.lib.util.MathUtil.withinTolerance(Vision.getTX().orElse(0), DriveConstants.rightTargetTA, DriveConstants.TATolerance)
-            ? 0
-            : ((Vision.getTX().orElse(0) - DriveConstants.rightTargetTA) > 0 ? -1 : 1))
-            * 0.1 * DriveConstants.CURRENT_MAX_ROBOT_MPS;
-        double rawStrafe = (frc.lib.util.MathUtil.withinTolerance(Vision.getTX().orElse(0), DriveConstants.rightTargetTX, DriveConstants.TXTolerance)
-            ? 0
-            : ((Vision.getTX().orElse(0) - DriveConstants.rightTargetTX) > 0 ? -1 : 1))
-            * 0.1 * DriveConstants.CURRENT_MAX_ROBOT_MPS;
-        double rawRotation = 0;
-        ChassisSpeeds chassisSpeeds = new ChassisSpeeds(
-            rawForwards,
-            rawStrafe,
-            rawRotation
-        );
-
-        if (rawForwards == 0 && rawStrafe == 0) return new SwerveRequest.SwerveDriveBrake();
-
-        SwerveSetpoint setpoint = swerveSetpointGenerator.generateSetpoint(
-            prevSwerveSetpoint,
-            chassisSpeeds,
-            0.02
-        );
-        prevSwerveSetpoint = setpoint;
-
-        return new SwerveRequest.ApplyRobotSpeeds()
-            .withDesaturateWheelSpeeds(true)
-            .withSpeeds(
-                chassisSpeeds
-            )
-            .withWheelForceFeedforwardsX(setpoint.feedforwards().robotRelativeForcesX())
-            .withWheelForceFeedforwardsY(setpoint.feedforwards().robotRelativeForcesY());
-    }
-
-    public SwerveRequest targetToLeftReef() {
-        double rawForwards = (frc.lib.util.MathUtil.withinTolerance(Vision.getTX().orElse(0), DriveConstants.leftTargetTA, DriveConstants.TATolerance)
-            ? 0
-            : ((Vision.getTX().orElse(0) - DriveConstants.leftTargetTA) > 0 ? -1 : 1))
-            * 0.1 * DriveConstants.CURRENT_MAX_ROBOT_MPS;
-        double rawStrafe = (frc.lib.util.MathUtil.withinTolerance(Vision.getTX().orElse(0), DriveConstants.leftTargetTX, DriveConstants.TXTolerance)
-            ? 0
-            : ((Vision.getTX().orElse(0) - DriveConstants.leftTargetTX) > 0 ? -1 : 1))
-            * 0.1 * DriveConstants.CURRENT_MAX_ROBOT_MPS;
-        double rawRotation = 0;
-        ChassisSpeeds chassisSpeeds = new ChassisSpeeds(
-            rawForwards,
-            rawStrafe,
-            rawRotation
-        );
-
-        if (rawForwards == 0 && rawStrafe == 0) return new SwerveRequest.SwerveDriveBrake();
-
-        SwerveSetpoint setpoint = swerveSetpointGenerator.generateSetpoint(
-            prevSwerveSetpoint,
-            chassisSpeeds,
-            0.02
-        );
-        prevSwerveSetpoint = setpoint;
-
-        return new SwerveRequest.ApplyRobotSpeeds()
-            .withDesaturateWheelSpeeds(true)
-            .withSpeeds(
-                chassisSpeeds
-            )
-            .withWheelForceFeedforwardsX(setpoint.feedforwards().robotRelativeForcesX())
-            .withWheelForceFeedforwardsY(setpoint.feedforwards().robotRelativeForcesY());
-    }
-
-    public boolean atRightTarget() {
-        return frc.lib.util.MathUtil.withinTolerance(Vision.getTX().orElse(0), DriveConstants.rightTargetTA, DriveConstants.TATolerance) && frc.lib.util.MathUtil.withinTolerance(Vision.getTX().orElse(0), DriveConstants.rightTargetTA, DriveConstants.TXTolerance);
-    }
-
-    @Override
-    @Deprecated
-    public Command targetToRightReefCommand() {
-        return applyRequest(this::targetToRightReef).until(this::atRightTarget);
-    }
-
-    public boolean atLeftTarget() {
-        return frc.lib.util.MathUtil.withinTolerance(Vision.getTX().orElse(0), DriveConstants.leftTargetTA, DriveConstants.TATolerance) && frc.lib.util.MathUtil.withinTolerance(Vision.getTX().orElse(0), DriveConstants.leftTargetTX, DriveConstants.TXTolerance);
-    }
-
-    @Override
-    @Deprecated
-    public Command targetToLeftReefCommand() {
-        return applyRequest(this::targetToLeftReef).until(this::atLeftTarget);
     }
 }

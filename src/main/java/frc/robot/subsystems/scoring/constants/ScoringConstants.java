@@ -3,7 +3,9 @@ package frc.robot.subsystems.scoring.constants;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.UnitConvertor;
+import frc.robot.subsystems.SubsystemManager;
 
 import static edu.wpi.first.units.Units.Inches;
 
@@ -34,16 +36,16 @@ public final class ScoringConstants {
 
         public static final class ElevatorSetpoints {
             //Elevator proportions
-            public static final double IDLE_Proportion = 0.02; // TODO: figure out how to fix
-            public static final double HP_Proportion = 0.02;
+            public static final double IDLE_Proportion = 0.00;
+            public static final double HP_Proportion = 0.00;//0.0
             public static final double Processor_Proportion = ProportionToPosition.convertBackwards(2.620); // TODO: tune
             public static final double L1_Proportion = 0.15; // TODO: tune
             // TODO: above
 
 
-            public static final double L2_Proportion = 0.28;
-            public static final double L3_Proportion = 0.481;
-            public static final double L4_Proportion = 0.85;
+            public static final double L2_Proportion = 0.285;//0.28
+            public static final double L3_Proportion = 0.491;//0.481
+            public static final double L4_Proportion = 0.8625;
 
             // TODO: below
             public static final double L2_ALGAE_Proportion = 0.32; // MAYBE
@@ -80,6 +82,7 @@ public final class ScoringConstants {
         );
 
         public static final double WRIST_TOLERANCE = 0.03;
+        public static final double WRIST_VELOCITY_TOLERANCE = 0.1;
 
         //Limits for Intake
         public static final double IntakeForwardSoftLimit = 40;
@@ -100,18 +103,18 @@ public final class ScoringConstants {
             public static final double Intake_L4_Speed = -0.5;
             public static final double Intake_L2_ALGAE_Speed = 1.0;
             public static final double Intake_L3_ALGAE_Speed = 1.0;
-            public static final double Intake_Barge_Speed = 0.4;
-            public static final double Intake_Idle_Speed = 0.5;
+            public static final double Intake_Barge_Speed = 0.1;//0.3
+            public static final double Intake_Idle_Speed = 0.0;
         }
 
         public static final class WristSetpoints {
             public static final double Wrist_Hard_Stop_Proportion = 0.075;
 
             //Wrist Proportions
-            public static final double Wrist_IDLE_Proportion = 0.35;
+            public static final double Wrist_IDLE_Proportion = 0.414;
             public static final double Wrist_Lowest_Proportion = Wrist_Hard_Stop_Proportion; // 0.2;
             public static final double Wrist_ALGAESTOW_Proportion = 0.5;
-            public static final double Wrist_HP_Proportion = 0.2;
+            public static final double Wrist_HP_Proportion = 0.175;
             public static final double Wrist_Processor_Proportion = 0.709;
             public static final double Wrist_L1_Proportion = 1.0;
             // TODO: above
@@ -123,7 +126,7 @@ public final class ScoringConstants {
             // TODO: below
             public static final double Wrist_L2_ALGAE_Proportion = 0.82;
             public static final double Wrist_L3_ALGAE_Proportion = 0.763;
-            public static final double Wrist_Barge_Proportion = 0.534;
+            public static final double Wrist_Barge_Proportion = 0.563;//0.534
             public static final double Wrist_Transition_Proportion = 0.5;
 
             public static final Double Wrist_Ground_Intake_Proportion = 0.845;
@@ -149,4 +152,8 @@ public final class ScoringConstants {
 
         public static final int LaserCANID = 56;
     }
+
+    public static Trigger autonShouldAdvanceToOuttakeTrigger = 
+        new Trigger(SubsystemManager.getInstance().getScoringSuperstructure().getEndEffectorSubsystem()::isWristAtTarget)
+            .debounce(0.1);
 }

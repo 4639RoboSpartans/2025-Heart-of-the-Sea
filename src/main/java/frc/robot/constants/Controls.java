@@ -95,7 +95,7 @@ public class Controls {
 
         public static final Trigger ScoringIdleTrigger = operatorController.Y_BUTTON;
 
-        public static final Trigger FunnelTrigger = operatorController.RIGHT_STICK;
+        // public static final Trigger FunnelTrigger = operatorController.RIGHT_STICK;
 
         // Micro adjustment controls
         public static final DoubleSupplier MicroElevatorAdjustment = () -> operatorController.POV_UP() - operatorController.POV_DOWN();
@@ -104,11 +104,11 @@ public class Controls {
         //Manual override controls
         public static Trigger ToggleManualControlTrigger = operatorController.LEFT_STICK;
         public static Trigger HomingCommandTrigger = operatorController.RIGHT_STICK;
-        public static Trigger homingWristCommandTrigger = operatorController.XBOX_START_BUTTON;
+        public static Trigger homingWristCommandTrigger = operatorController.A_BUTTON.and(operatorController.B_BUTTON);
 
         public static final DoubleSupplier ManualControlWrist = () -> operatorController.rightStickY() * 0.5 + 0.5;
         public static final DoubleSupplier ManualControlElevator = operatorController::leftStickY;
-        public static final DoubleSupplier ManualControlIntake = () -> operatorController.A_BUTTON() - operatorController.B_BUTTON();
+        public static final DoubleSupplier ManualControlIntake = () -> (operatorController.A_BUTTON() - operatorController.B_BUTTON()) * 0.75;
 
         public static final DoubleSupplier ManualControlFunnel = () -> operatorController.rightStickX();
     }

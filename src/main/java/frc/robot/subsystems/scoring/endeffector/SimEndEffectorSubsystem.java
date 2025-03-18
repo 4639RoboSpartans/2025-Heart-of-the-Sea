@@ -18,10 +18,6 @@ import frc.robot.subsystems.scoring.constants.ScoringPIDs;
 import static frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConstants.*;
 
 public class SimEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
-    private boolean prevSeenCoral = false;
-    private double coralSeenStartTime = 0;
-    private final double coralEjectionTime = 2;
-
     private final ProfiledPIDController wristPID;
     private final SingleJointedArmSim pivotSim;
 

@@ -39,6 +39,8 @@ public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
 
     private double intakeSpeed = 0;
     private double targetRotationFraction = 0;
+    private double previousMotorPosition = 0;
+    private double currentMotorVelocity = 0;
 
     /**
      * Gets the current rotation of the wrist.
@@ -54,6 +56,10 @@ public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
      */
     public final double getCurrentMotorPosition() {
         return PositionToRotation.convertBackwards(getCurrentRotation());
+    }
+
+    public final double getCurrentMotorVelocity() {
+        return currentMotorVelocity;
     }
 
     public double getCurrentRotationFraction() {
@@ -107,7 +113,7 @@ public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
             getTargetPosition(),
             getCurrentMotorPosition(),
             ScoringConstants.EndEffectorConstants.WRIST_TOLERANCE
-        );
+        ) && getCurrentMotorVelocity() <= ScoringConstants.EndEffectorConstants.WRIST_VELOCITY_TOLERANCE;
     }
 
     public final boolean isWristAtActionTarget() {
@@ -142,12 +148,18 @@ public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
         double targetWristRotationFraction;
         double intakeSpeed;
 
+        currentMotorVelocity = getCurrentMotorPosition() - previousMotorPosition;
+        previousMotorPosition = getCurrentMotorPosition();
+
         if (SubsystemManager.getInstance().getScoringSuperstructure().isManualControlEnabled()) {
             targetWristRotationFraction = Controls.Operator.ManualControlWrist.getAsDouble();
             intakeSpeed = Controls.Operator.ManualControlIntake.getAsDouble();
         } else {
             targetWristRotationFraction = getTargetRotationFraction();
             intakeSpeed = this.intakeSpeed;
+            if(Controls.Operator.ManualControlIntake.getAsDouble() != 0){
+                intakeSpeed = Controls.Operator.ManualControlIntake.getAsDouble();
+            }
         }
 
         SmartDashboard.putNumber("Intake Speed", intakeSpeed);

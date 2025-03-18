@@ -1,11 +1,13 @@
 package frc.robot.subsystems.drive;
 
 import choreo.trajectory.SwerveSample;
+
+import java.util.function.Supplier;
+
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 
 public class DummySwerveDrivetrain extends AbstractSwerveDrivetrain {
@@ -30,7 +32,7 @@ public class DummySwerveDrivetrain extends AbstractSwerveDrivetrain {
     }
 
     @Override
-    public Command directlyMoveTo(Pose2d targetPose) {
+    public Command _directlyMoveTo(Pose2d targetPose, Supplier<Pose2d> currentPoseSupplier) {
         return new InstantCommand(() -> {
             currentPose = targetPose;
         });
@@ -81,15 +83,5 @@ public class DummySwerveDrivetrain extends AbstractSwerveDrivetrain {
     @Override
     public void setVisionStandardDeviations(double xStdDev, double yStdDev, double rotStdDev) {
        
-    }
-
-    @Override
-    public Command targetToRightReefCommand() {
-        return Commands.none();
-    }
-
-    @Override
-    public Command targetToLeftReefCommand() {
-        return Commands.none();
     }
 }

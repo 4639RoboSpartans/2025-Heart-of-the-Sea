@@ -12,12 +12,9 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.tunable.TunableNumber;
-import frc.robot.subsystems.SubsystemManager;
-import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
 import frc.robot.subsystems.scoring.constants.ScoringPIDs;
 
@@ -34,7 +31,7 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
 
     private final ProfiledPIDController wristPID;
     private double encoderOffset;
-    private final static double DEFAULT_ENCODER_OFFSET = 0.92 + 0.05;
+    private final static double DEFAULT_ENCODER_OFFSET = -0.029;
 
 
     // given is frac 0.82, measured frac 0.556 => need to sub frac 0.264 from measurement
@@ -101,7 +98,7 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
             System.out.println("Configuration failed! " + e);
         }
         hasCoral = new Trigger(this::hasCoral);
-        hasCoral.debounce(1.5);
+        hasCoral.debounce(3);
         wristMotor.configure(
             new SparkFlexConfig().idleMode(SparkBaseConfig.IdleMode.kCoast),
             SparkBase.ResetMode.kNoResetSafeParameters,
@@ -130,10 +127,6 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
 
     @Override
     public boolean hasCoral() {
-        if (RobotState.isAutonomous()
-            && SubsystemManager.getInstance().getScoringSuperstructure()
-            .getCurrentAction().toString()
-            .equals(ScoringSuperstructureAction.INTAKE_FROM_HP.toString())) return false;
         return Optional.ofNullable(laserCAN.getMeasurement()).map(measurement ->
             measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT && measurement.distance_mm <= 50
         ).orElse(false);

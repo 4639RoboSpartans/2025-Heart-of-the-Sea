@@ -10,9 +10,16 @@ import frc.robot.robot.Robot;
 import frc.robot.subsystems.SubsystemManager;
 
 import java.util.Objects;
+import java.util.function.Supplier;
 
 public abstract class AbstractSwerveDrivetrain extends SubsystemBase {
     private static AbstractSwerveDrivetrain instance;
+
+    public Pose2d currentAlignTarget = null;
+
+    public final boolean isAligning() {
+        return currentAlignTarget != null;
+    }
 
     /**
      * This method should only be accessed from the SubsystemManager class. In other places, use
@@ -23,7 +30,7 @@ public abstract class AbstractSwerveDrivetrain extends SubsystemBase {
 
         boolean dummy = false;
         //dummy = true;
-        if(dummy) return new DummySwerveDrivetrain();
+        if (dummy) return new DummySwerveDrivetrain();
 
         return instance = Objects.requireNonNullElseGet(instance,
             Robot.isReal() ? PhysicalSwerveDrivetrain::new : SimSwerveDrivetrain::new
@@ -57,14 +64,22 @@ public abstract class AbstractSwerveDrivetrain extends SubsystemBase {
      * Returns a command that moves the robot to the specified pose under PID control, without pathfinding
      *
      * @param targetPose The pose to move to
+     *
      * @return Command to run
      */
-    public abstract Command directlyMoveTo(Pose2d targetPose);
+    protected abstract Command _directlyMoveTo(Pose2d targetPose, Supplier<Pose2d> currentPose);
+
+    public Command directlyMoveTo(Pose2d targetPose, Supplier<Pose2d> currentPose) {
+        return _directlyMoveTo(targetPose, currentPose)
+            .beforeStarting(() -> currentAlignTarget = targetPose)
+            .finallyDo(() -> currentAlignTarget = null);
+    }
 
     /**
      * Returns a command that makes the robot pathfind to the specified pose
      *
      * @param targetPose The pose to move to
+     *
      * @return Command to run
      */
     public abstract Command pathfindTo(Pose2d targetPose);
@@ -113,9 +128,4 @@ public abstract class AbstractSwerveDrivetrain extends SubsystemBase {
     public abstract void addVisionMeasurement(Pose2d pose, double timestamp);
 
     public abstract void setVisionStandardDeviations(double xStdDev, double yStdDev, double rotStdDev);
-
-
-    public abstract Command targetToRightReefCommand();
-
-    public abstract Command targetToLeftReefCommand();
 }

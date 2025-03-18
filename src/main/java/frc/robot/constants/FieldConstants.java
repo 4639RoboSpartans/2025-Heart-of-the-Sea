@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.util.AllianceFlipUtil;
+import frc.lib.util.DriverStationUtil;
 import frc.lib.util.PoseUtil;
 import frc.robot.subsystems.SubsystemManager;
 
@@ -249,9 +250,11 @@ public class FieldConstants {
         public final Pose2d Pose;
     }
 
-    static Transform2d fromReef = new Transform2d(Units.inchesToMeters(31.5), 0, Rotation2d.k180deg);
+    //change this to tune how far the align tries to go from the reef face
+    static Transform2d fromReef = new Transform2d(Units.inchesToMeters(29.25), 0, Rotation2d.k180deg);
     static Transform2d fromProcessor = new Transform2d(Units.inchesToMeters(25), 0, Rotation2d.k180deg);
-    static Transform2d fromCoralStation = new Transform2d(Units.inchesToMeters(13), 0, Rotation2d.kZero);
+    //change this to tune how far the align tries to go from the intake station
+    static Transform2d fromCoralStation = new Transform2d(Units.inchesToMeters(12), 0, Rotation2d.kZero);
     static Transform2d fromBarge = new Transform2d(Units.inchesToMeters(-15), 0, Rotation2d.kZero);
 
     public enum TargetPositions {
@@ -275,18 +278,18 @@ public class FieldConstants {
                 FieldConstants.Reef.centerFaces[1].transformBy((FieldConstants.fromReef))
         ),
 
-        REEF_A(PoseUtil.ReefRelativeLeftOf(REEF_AB.getPose()), SubsystemManager.getInstance().getDrivetrain()::targetToLeftReefCommand),
-        REEF_B(PoseUtil.ReefRelativeRightOf(REEF_AB.getPose()), SubsystemManager.getInstance().getDrivetrain()::targetToRightReefCommand),
-        REEF_C(PoseUtil.ReefRelativeLeftOf(REEF_CD.getPose()), SubsystemManager.getInstance().getDrivetrain()::targetToLeftReefCommand),
-        REEF_D(PoseUtil.ReefRelativeRightOf(REEF_CD.getPose()), SubsystemManager.getInstance().getDrivetrain()::targetToRightReefCommand),
-        REEF_E(PoseUtil.ReefRelativeLeftOf(REEF_EF.getPose()), SubsystemManager.getInstance().getDrivetrain()::targetToLeftReefCommand),
-        REEF_F(PoseUtil.ReefRelativeRightOf(REEF_EF.getPose()), SubsystemManager.getInstance().getDrivetrain()::targetToRightReefCommand),
-        REEF_G(PoseUtil.ReefRelativeLeftOf(REEF_GH.getPose()), SubsystemManager.getInstance().getDrivetrain()::targetToLeftReefCommand),
-        REEF_H(PoseUtil.ReefRelativeRightOf(REEF_GH.getPose()), SubsystemManager.getInstance().getDrivetrain()::targetToRightReefCommand),
-        REEF_I(PoseUtil.ReefRelativeLeftOf(REEF_IJ.getPose()), SubsystemManager.getInstance().getDrivetrain()::targetToLeftReefCommand),
-        REEF_J(PoseUtil.ReefRelativeRightOf(REEF_IJ.getPose()), SubsystemManager.getInstance().getDrivetrain()::targetToRightReefCommand),
-        REEF_K(PoseUtil.ReefRelativeLeftOf(REEF_KL.getPose()), SubsystemManager.getInstance().getDrivetrain()::targetToLeftReefCommand),
-        REEF_L(PoseUtil.ReefRelativeRightOf(REEF_KL.getPose()), SubsystemManager.getInstance().getDrivetrain()::targetToRightReefCommand),
+        REEF_A(PoseUtil.ReefRelativeLeftOf(REEF_AB.getPose())),
+        REEF_B(PoseUtil.ReefRelativeRightOf(REEF_AB.getPose())),
+        REEF_C(PoseUtil.ReefRelativeLeftOf(REEF_CD.getPose())),
+        REEF_D(PoseUtil.ReefRelativeRightOf(REEF_CD.getPose())),
+        REEF_E(PoseUtil.ReefRelativeLeftOf(REEF_EF.getPose())),
+        REEF_F(PoseUtil.ReefRelativeRightOf(REEF_EF.getPose())),
+        REEF_G(PoseUtil.ReefRelativeLeftOf(REEF_GH.getPose())),
+        REEF_H(PoseUtil.ReefRelativeRightOf(REEF_GH.getPose())),
+        REEF_I(PoseUtil.ReefRelativeLeftOf(REEF_IJ.getPose())),
+        REEF_J(PoseUtil.ReefRelativeRightOf(REEF_IJ.getPose())),
+        REEF_K(PoseUtil.ReefRelativeLeftOf(REEF_KL.getPose())),
+        REEF_L(PoseUtil.ReefRelativeRightOf(REEF_KL.getPose())),
 
         PROCESSOR(FieldConstants.Processor.centerFace.transformBy(FieldConstants.fromProcessor)),
 
@@ -328,6 +331,12 @@ public class FieldConstants {
             return AllianceFlipUtil.rawAllianceFlipPose(getPose());
         }
 
+        public Pose2d getAllianceRespectivePose() {
+            return DriverStationUtil.getAlliance() == Alliance.Red
+                    ? getOpponentAlliancePose()
+                    : getPose();
+        }
+
         public static TargetPositions RLReefPoseFromChar(Character character){
             return valueOf("REEF_"+character);
         }
@@ -367,5 +376,7 @@ public class FieldConstants {
     }
 
     public static double reefForwardsDistance = 0;
-    public static double reefSidewaysDistance = 0.125 + Units.inchesToMeters(1.5);
+    public static double reefSidewaysDistance = 0.125 + Units.inchesToMeters(1.75);
+
+    public static int[] kReefAprilTags = new int[] {6,7,8,9,10,11,17,18,19,20,21,22};
 }
