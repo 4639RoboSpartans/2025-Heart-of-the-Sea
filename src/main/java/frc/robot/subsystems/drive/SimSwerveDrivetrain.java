@@ -1,17 +1,12 @@
 package frc.robot.subsystems.drive;
 
-import org.ejml.equation.MatrixConstructor;
-
 import com.ctre.phoenix6.Utils;
-
-import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N2;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
@@ -64,6 +59,7 @@ public class SimSwerveDrivetrain extends PhysicalSwerveDrivetrain {
     public void periodic() {
         super.periodic();
         SmartDashboard.putNumber("Distance to Closest Reef", getDistanceFromReefFace());
-        SmartDashboard.putNumber("Elevator Distance Adjustment", getDistanceFromReefFace() - 0.832722);
+        SmartDashboard.putNumber("Left LaserCAN Distance", LasercanAlign.getSimMeasurement(true));
+        SmartDashboard.putNumber("Right LaserCAN Distance", LasercanAlign.getSimMeasurement(false));
     }
 }

@@ -2,15 +2,22 @@ package frc.robot.subsystems.drive;
 
 import au.grapplerobotics.LaserCan;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.robot.Robot;
+import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.drive.constants.DriveConstants;
 
 import java.util.Objects;
 
+import static edu.wpi.first.units.Units.Millimeters;
+
 public class LasercanAlign extends SubsystemBase {
     private static LasercanAlign instance;
-    private static final double alignDistance_mm = 300;
+    private static final double alignDistance_mm = 500;
 
     public static LasercanAlign getInstance() {
         return Objects.requireNonNullElseGet(instance, LasercanAlign::new);
@@ -44,11 +51,24 @@ public class LasercanAlign extends SubsystemBase {
         }
     }
 
+    public static double getSimMeasurement(boolean left) {
+        Pose2d pose = SubsystemManager.getInstance().getDrivetrain().getPose();
+        Pose2d nearestReefPose = DriveCommands.getClosestTarget(() -> pose).transformBy(new Transform2d(0.8, 0, new Rotation2d()));
+        Rotation2d rotationDiff = nearestReefPose.getRotation().minus(pose.getRotation());
+        double centerDist = SubsystemManager.getInstance().getDrivetrain().getDistanceFromReefFace() * 1000;
+        double lasercanDistance = DriveConstants.laserCanDistanceMM.in(Millimeters);
+        double lasercanCenterDistance = lasercanDistance / 2.0;
+        double distanceAdjustment = rotationDiff.getTan() * lasercanCenterDistance;
+        return (left? -distanceAdjustment : distanceAdjustment) + centerDist + 150;
+    }
+
     public double getLeftMeasurement() {
+        if (Robot.isSimulation()) return getSimMeasurement(true);
         return getMeasurement(leftLaserCan);
     }
 
     public double getRightMeasurement() {
+        if (Robot.isSimulation()) return getSimMeasurement(false);
         return getMeasurement(rightLaserCan);
     }
 

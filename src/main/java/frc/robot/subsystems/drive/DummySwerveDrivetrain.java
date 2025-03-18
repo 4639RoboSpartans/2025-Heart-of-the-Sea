@@ -1,14 +1,15 @@
 package frc.robot.subsystems.drive;
 
 import choreo.trajectory.SwerveSample;
-
-import java.util.function.Supplier;
-
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+
+import java.util.Optional;
+import java.util.function.Supplier;
 
 public class DummySwerveDrivetrain extends AbstractSwerveDrivetrain {
     Pose2d currentPose = new Pose2d();
@@ -88,6 +89,11 @@ public class DummySwerveDrivetrain extends AbstractSwerveDrivetrain {
     @Override
     public double getDistanceFromReefFace() {
         return 0;
+    }
+
+    @Override
+    public Optional<Rotation2d> getCalculatedRotationFromAlign() {
+        return Optional.empty();
     }
     
     @Override

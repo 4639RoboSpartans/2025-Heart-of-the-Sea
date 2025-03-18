@@ -13,28 +13,21 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.FunctionalTrigger;
-import frc.lib.oi.OI;
-import frc.robot.commands.auto.AutoCommands;
 import frc.robot.commands.auto.AutoRoutines;
-import frc.robot.commands.auto.AutoRoutines.Auton;
 import frc.robot.commands.auto.AutoRoutines.AutonSupplier;
 import frc.robot.constants.Controls;
 import frc.robot.constants.FieldConstants;
 import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
 import frc.robot.subsystems.drive.DriveCommands;
-import frc.robot.subsystems.drive.DriveSysID;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.subsystems.drive.SwerveAutoRoutinesCreator;
 import frc.robot.subsystems.led.LEDCommandFactory;
 import frc.robot.subsystems.led.LEDStrip;
 import frc.robot.subsystems.scoring.ScoringSuperstructure;
 import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
-import frc.robot.subsystems.scoring.elevator.ElevatorSysID;
 
 import java.util.Arrays;
 

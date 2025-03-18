@@ -2,9 +2,14 @@ package frc.robot.subsystems.drive.constants;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.measure.Distance;
+
+import static edu.wpi.first.units.Units.Millimeters;
 
 public class DriveConstants {
     public static final double centerToWheel = 0.245;
+
+    public static final Distance laserCanDistanceMM = Millimeters.of(500);
 
     // Change MOVEMENT_SPEED to 1.0 for max speed
     public static final double CURRENT_MAX_ROBOT_MPS = 3.5;

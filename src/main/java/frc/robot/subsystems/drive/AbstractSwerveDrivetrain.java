@@ -3,6 +3,7 @@ package frc.robot.subsystems.drive;
 import choreo.trajectory.SwerveSample;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -10,6 +11,7 @@ import frc.robot.robot.Robot;
 import frc.robot.subsystems.SubsystemManager;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 public abstract class AbstractSwerveDrivetrain extends SubsystemBase {
@@ -120,6 +122,8 @@ public abstract class AbstractSwerveDrivetrain extends SubsystemBase {
     public double getSwerveSpeedMultiplier() {
         return 1 - Math.pow(SubsystemManager.getInstance().getScoringSuperstructure().getElevatorSubsystem().getCurrentExtensionFraction(), 2) * (1.0 - 0.2);
     }
+
+    public abstract Optional<Rotation2d> getCalculatedRotationFromAlign();
 
     public abstract void resetPose(Pose2d pose);
 

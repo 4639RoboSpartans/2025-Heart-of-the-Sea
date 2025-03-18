@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.lib.util.AllianceFlipUtil;
 import frc.robot.subsystems.SubsystemManager;
+import frc.robot.subsystems.drive.DriveCommands;
 import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -69,7 +70,11 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void autonomousInit() {
-        autonomousCommand = robotContainer.getAutonomousCommand().routine().get().cmd();
+//        autonomousCommand = robotContainer.getAutonomousCommand().routine().get().cmd();
+        autonomousCommand = DriveCommands.moveToClosestReefPositionWithTransformation(
+                (byte)(0),
+                SubsystemManager.getInstance().getDrivetrain()::getPose
+        );
         if (autonomousCommand != null) {
             autonomousCommand.schedule();
         }
