@@ -37,6 +37,7 @@ import frc.lib.limelight.LimelightHelpers;
 import frc.lib.util.DriverStationUtil;
 import frc.robot.constants.Controls;
 import frc.robot.constants.Limelights;
+import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.drive.constants.DriveConstants;
 import frc.robot.subsystems.drive.constants.DrivePIDs;
 import frc.robot.subsystems.drive.constants.TunerConstants;
@@ -64,11 +65,11 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     protected ProfiledPIDController pidYController = constructPIDYController();
 
     public static ProfiledPIDController constructPIDYController() {
-        return new ProfiledPIDController(3, 0, 0, new TrapezoidProfile.Constraints(0.05, 1));
+        return new ProfiledPIDController(3, 0, 0, new TrapezoidProfile.Constraints(2, 1));
     }
 
     public static ProfiledPIDController constructPIDXController() {
-        return new ProfiledPIDController(3, 0, 0, new TrapezoidProfile.Constraints(0.05, 1));
+        return new ProfiledPIDController(3, 0, 0, new TrapezoidProfile.Constraints(2, 1));
     }
 
     {
@@ -76,6 +77,34 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         // Set up tunable numbers for drive pids
         DrivePIDs.pidToPoseXkP.onChange(pidXController::setP);
         DrivePIDs.pidToPoseYkP.onChange(pidYController::setP);
+        DrivePIDs.pidToPoseVelocity.onChange(
+                value -> {
+                    pidXController.setConstraints(
+                            new TrapezoidProfile.Constraints(
+                                    value, pidXController.getConstraints().maxAcceleration
+                            )
+                    );
+                    pidYController.setConstraints(
+                            new TrapezoidProfile.Constraints(
+                                    value, pidYController.getConstraints().maxAcceleration
+                            )
+                    );
+                }
+        );
+        DrivePIDs.pidToPoseAcceleration.onChange(
+                value -> {
+                    pidXController.setConstraints(
+                            new TrapezoidProfile.Constraints(
+                                    pidXController.getConstraints().maxVelocity, value
+                            )
+                    );
+                    pidYController.setConstraints(
+                            new TrapezoidProfile.Constraints(
+                                    pidYController.getConstraints().maxVelocity, value
+                            )
+                    );
+                }
+        );
     }
 
     protected final Field2d field = new Field2d();
@@ -125,7 +154,13 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
     @Override
     public Command manualControl() {
-        return applyRequest(this::getFieldCentricRequest);
+        return applyRequest(
+                () -> {
+                    boolean shouldFaceReef = SubsystemManager.getInstance().getScoringSuperstructure().hasCoral();
+                    if (shouldFaceReef) return getFieldCentricFacingClosestReefRequest();
+                    return getFieldCentricRequest();
+                }
+        );
     }
 
     private Rotation2d fieldCentricZeroRotation = Rotation2d.kZero;
@@ -173,6 +208,34 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                 )
                 .withWheelForceFeedforwardsX(setpoint.feedforwards().robotRelativeForcesX())
                 .withWheelForceFeedforwardsY(setpoint.feedforwards().robotRelativeForcesY());
+    }
+
+    private SwerveRequest getFieldCentricFacingClosestReefRequest() {
+        double rawForwards = Controls.Driver.SwerveForwardAxis.getAsDouble() * DriveConstants.CURRENT_MAX_ROBOT_MPS;
+        double rawStrafe = -Controls.Driver.SwerveStrafeAxis.getAsDouble() * DriveConstants.CURRENT_MAX_ROBOT_MPS;
+        double rawRotation = Controls.Driver.SwerveRotationAxis.getAsDouble() * DriveConstants.TELOP_ROTATION_SPEED;
+        ChassisSpeeds chassisSpeeds = new ChassisSpeeds(
+                rawForwards,
+                rawStrafe,
+                rawRotation
+        );
+
+        if (rawForwards == 0 && rawStrafe == 0 && rawRotation == 0) return new SwerveRequest.SwerveDriveBrake();
+
+        if (Controls.Driver.precisionTrigger.getAsBoolean()) {
+            chassisSpeeds = chassisSpeeds.div(4.0);
+        } else {
+            chassisSpeeds = chassisSpeeds.times(getSwerveSpeedMultiplier());
+        }
+
+        Pose2d nearestReefPose = DriveCommands.getClosestTarget(this::getPose);
+        Rotation2d nearestReefPoseRotation = nearestReefPose.getRotation();
+
+        return new SwerveRequest.FieldCentricFacingAngle()
+                .withDesaturateWheelSpeeds(true)
+                .withVelocityX(chassisSpeeds.vxMetersPerSecond)
+                .withVelocityY(chassisSpeeds.vyMetersPerSecond)
+                .withTargetDirection(nearestReefPoseRotation);
     }
 
     @Override
