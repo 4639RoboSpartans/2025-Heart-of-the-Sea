@@ -50,7 +50,7 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import static edu.wpi.first.units.Units.Millimeters;
+import static edu.wpi.first.units.Units.*;
 
 public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     protected final TunerSwerveDrivetrain drivetrain;
@@ -222,8 +222,6 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                 rawRotation
         );
 
-        if (rawForwards == 0 && rawStrafe == 0 && rawRotation == 0) return new SwerveRequest.SwerveDriveBrake();
-
         if (Controls.Driver.precisionTrigger.getAsBoolean()) {
             chassisSpeeds = chassisSpeeds.div(4.0);
         } else {
@@ -240,6 +238,10 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                 .withTargetDirection(nearestReefPoseRotation.plus(Rotation2d.k180deg));
         request.HeadingController = new PhoenixPIDController(28.48, 0, 1.1466);
         request.HeadingController.enableContinuousInput(-Math.PI, Math.PI);
+        request.HeadingController.setTolerance(Radians.convertFrom(1, Degrees));
+        if (rawForwards == 0 && rawStrafe == 0 && request.HeadingController.atSetpoint()) {
+            return new SwerveRequest.SwerveDriveBrake();
+        }
         return request;
     }
 
