@@ -137,4 +137,6 @@ public abstract class AbstractSwerveDrivetrain extends SubsystemBase {
     public abstract double getDistanceFromReefFace();
 
     public abstract boolean isAligned();
+
+    public abstract Command toggleAutoHeading();
 }

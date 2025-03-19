@@ -31,6 +31,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -39,7 +40,6 @@ import frc.lib.util.DriverStationUtil;
 import frc.robot.constants.Controls;
 import frc.robot.constants.Limelights;
 import frc.robot.robot.Robot;
-import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.drive.constants.DriveConstants;
 import frc.robot.subsystems.drive.constants.DrivePIDs;
 import frc.robot.subsystems.drive.constants.TunerConstants;
@@ -119,6 +119,8 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
     private boolean isAligning = false, isAligned = false;
 
+    private boolean shouldAutoSetHeading = false;
+
     public PhysicalSwerveDrivetrain() {
         SwerveDrivetrainConstants drivetrainConstants = TunerConstants.DrivetrainConstants;
         SwerveModuleConstants<?, ?, ?>[] modules = {
@@ -158,8 +160,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     public Command manualControl() {
         return applyRequest(
                 () -> {
-                    boolean shouldFaceReef = SubsystemManager.getInstance().getScoringSuperstructure().hasCoral();
-                    if (shouldFaceReef) return getFieldCentricFacingClosestReefRequest();
+                    if (shouldAutoSetHeading) return getFieldCentricFacingClosestReefRequest();
                     return getFieldCentricRequest();
                 }
         );
@@ -573,5 +574,12 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     @Override
     public boolean isAligned() {
         return isAligning && isAligned;
+    }
+
+    @Override
+    public Command toggleAutoHeading() {
+        return Commands.runOnce(
+                () -> shouldAutoSetHeading = !shouldAutoSetHeading
+        );
     }
 }

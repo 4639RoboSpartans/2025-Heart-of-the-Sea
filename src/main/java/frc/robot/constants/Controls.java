@@ -56,20 +56,6 @@ public class Controls {
 
         public static final Trigger rotationResetTrigger = driverController.A_BUTTON.and(driverController.B_BUTTON);
 
-        /*public static final Trigger reefLeftPoses = driverController.RIGHT_BUMPER;
-        public static final Trigger reefRightPoses = driverController.LEFT_BUMPER;
-
-        public static final Trigger reefRight = driverController.LEFT_TRIGGER;
-        public static final Trigger reefLeft = driverController.RIGHT_TRIGGER;
-
-        public static final Trigger PathfindReef_0 = reefLeftPoses.and(reefLeft.or(reefRight)).and(driverController.Y_BUTTON);
-        public static final Trigger PathfindReef_1 = reefLeftPoses.and(reefLeft.or(reefRight)).and(driverController.B_BUTTON);
-        public static final Trigger PathfindReef_2 = reefLeftPoses.and(reefLeft.or(reefRight)).and(driverController.A_BUTTON);
-        public static final Trigger PathfindReef_3 = reefRightPoses.and(reefLeft.or(reefRight)).and(driverController.Y_BUTTON);
-        public static final Trigger PathfindReef_4 = reefRightPoses.and(reefLeft.or(reefRight)).and(driverController.X_BUTTON);
-        public static final Trigger PathfindReef_5 = reefRightPoses.and(reefLeft.or(reefRight)).and(driverController.A_BUTTON);*/
-
-        //these need to be changed over to driver controller
         public static final Trigger L2AlgaeTrigger = driverController.POV_DOWN;
         public static final Trigger L3AlgaeTrigger = driverController.POV_UP;
         public static final Trigger ProcessorTrigger = driverController.Y_BUTTON;
@@ -79,7 +65,7 @@ public class Controls {
         public static final Trigger alignReefLeft = driverController.LEFT_BUMPER;
 
         public static final Trigger reefAlign = driverController.RIGHT_TRIGGER;
-        public static final Trigger coralStationAlign = driverController.B_BUTTON;
+        public static final Trigger toggleAutoHeadingButton = driverController.A_BUTTON;
         public static final Trigger bargeScoringAlign = driverController.XBOX_START_BUTTON;
         public static final Trigger processorAlign = driverController.XBOX_BACK_BUTTON;
     }

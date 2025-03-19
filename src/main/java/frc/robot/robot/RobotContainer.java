@@ -148,6 +148,7 @@ public class RobotContainer {
         FunctionalTrigger.of(Controls.Driver.processorAlign)
             .whileTrue(DriveCommands::moveToProcessor);
 
+        Controls.Driver.toggleAutoHeadingButton.onTrue(swerve.toggleAutoHeading());
 
         // OI.getInstance().driverController().Y_BUTTON.whileTrue(
         //         ElevatorSysID.sysIdQuasistatic(SysIdRoutine.Direction.kForward)
