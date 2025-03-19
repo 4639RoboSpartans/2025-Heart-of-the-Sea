@@ -35,7 +35,7 @@ public abstract class AbstractSwerveDrivetrain extends SubsystemBase {
         if (dummy) return new DummySwerveDrivetrain();
 
         return instance = Objects.requireNonNullElseGet(instance,
-            Robot.isReal() ? PhysicalSwerveDrivetrain::new : SimSwerveDrivetrain::new
+                Robot.isReal() ? PhysicalSwerveDrivetrain::new : SimSwerveDrivetrain::new
         );
     }
 
@@ -66,25 +66,26 @@ public abstract class AbstractSwerveDrivetrain extends SubsystemBase {
      * Returns a command that moves the robot to the specified pose under PID control, without pathfinding
      *
      * @param targetPose The pose to move to
-     *
      * @return Command to run
      */
     protected abstract Command _directlyMoveTo(Pose2d targetPose, Supplier<Pose2d> currentPose);
 
     public Command directlyMoveTo(Pose2d targetPose, Supplier<Pose2d> currentPose) {
         return _directlyMoveTo(targetPose, currentPose)
-            .beforeStarting(() -> currentAlignTarget = targetPose)
-            .finallyDo(() -> currentAlignTarget = null);
+                .andThen(fineTuneUsingLaserCANCommand(targetPose))
+                .beforeStarting(() -> currentAlignTarget = targetPose)
+                .finallyDo(() -> currentAlignTarget = null);
     }
 
     /**
      * Returns a command that makes the robot pathfind to the specified pose
      *
      * @param targetPose The pose to move to
-     *
      * @return Command to run
      */
     public abstract Command pathfindTo(Pose2d targetPose);
+
+    public abstract Command fineTuneUsingLaserCANCommand(Pose2d targetPose);
 
     /**
      * Follows the given field-centric path sample with PID.

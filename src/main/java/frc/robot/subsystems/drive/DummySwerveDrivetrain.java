@@ -47,6 +47,13 @@ public class DummySwerveDrivetrain extends AbstractSwerveDrivetrain {
     }
 
     @Override
+    public Command fineTuneUsingLaserCANCommand(Pose2d targetPose) {
+        return new InstantCommand(() -> {
+            currentPose = targetPose;
+        });
+    }
+
+    @Override
     public void followPath(SwerveSample sample) {
         currentPose = sample.getPose();
     }

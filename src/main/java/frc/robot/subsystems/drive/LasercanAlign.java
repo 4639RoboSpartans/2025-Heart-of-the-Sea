@@ -1,11 +1,10 @@
 package frc.robot.subsystems.drive;
 
 import au.grapplerobotics.LaserCan;
-import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.robot.Robot;
 import frc.robot.subsystems.SubsystemManager;
@@ -17,26 +16,24 @@ import static edu.wpi.first.units.Units.Millimeters;
 
 public class LasercanAlign extends SubsystemBase {
     private static LasercanAlign instance;
-    private static final double alignDistance_mm = 500;
+    private static final double alignDistance_mm = 237;
 
     public static LasercanAlign getInstance() {
         return Objects.requireNonNullElseGet(instance, LasercanAlign::new);
     }
 
     private final LaserCan leftLaserCan, rightLaserCan;
-    private final ProfiledPIDController distanceController;
+    private final PIDController distanceController;
     private double previousDistance = alignDistance_mm;
 
     public LasercanAlign() {
         leftLaserCan = new LaserCan(DriveConstants.IDs.LEFT_LASERCAN_ID);
         rightLaserCan = new LaserCan(DriveConstants.IDs.RIGHT_LASERCAN_ID);
-        distanceController = new ProfiledPIDController(
-                1, 0, 0,
-                new TrapezoidProfile.Constraints(
-                        10, 10
-                )
+        distanceController = new PIDController(
+                0.015, 0, 0.00001
         );
-        distanceController.setGoal(alignDistance_mm);
+        distanceController.setTolerance(1);
+        distanceController.setSetpoint(alignDistance_mm);
     }
 
     private double getMeasurement(LaserCan laserCAN) {
@@ -59,7 +56,7 @@ public class LasercanAlign extends SubsystemBase {
         double lasercanDistance = DriveConstants.laserCanDistanceMM.in(Millimeters);
         double lasercanCenterDistance = lasercanDistance / 2.0;
         double distanceAdjustment = rotationDiff.getTan() * lasercanCenterDistance;
-        return (left? -distanceAdjustment : distanceAdjustment) + centerDist + 150;
+        return (left? -distanceAdjustment : distanceAdjustment) + centerDist - 573.9;
     }
 
     public double getLeftMeasurement() {
