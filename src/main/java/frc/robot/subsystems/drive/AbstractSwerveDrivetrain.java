@@ -77,15 +77,9 @@ public abstract class AbstractSwerveDrivetrain extends SubsystemBase {
                 .finallyDo(() -> currentAlignTarget = null);
     }
 
-    /**
-     * Returns a command that makes the robot pathfind to the specified pose
-     *
-     * @param targetPose The pose to move to
-     * @return Command to run
-     */
-    public abstract Command pathfindTo(Pose2d targetPose);
-
     public abstract Command fineTuneUsingLaserCANCommand(Pose2d targetPose);
+
+    public abstract Command pathToPoseCommand(Pose2d targetPose);
 
     /**
      * Follows the given field-centric path sample with PID.

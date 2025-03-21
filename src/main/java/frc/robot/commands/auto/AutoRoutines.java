@@ -268,10 +268,10 @@ public class AutoRoutines {
 
     @SuppressWarnings("unused")
     private void addHPLoadingSegment(List<Command> commands, AutoTrajectory path, boolean isStationLeft) {
-        commands.add(new InstantCommand(() -> SubsystemManager.getInstance().getDrivetrain().setVisionStandardDeviations(100, 100, 100)));
+        commands.add(Commands.runOnce(() -> SubsystemManager.getInstance().getDrivetrain().setVisionStandardDeviations(100, 100, 100)));
         // Add path to intake
         commands.add(path.cmd());
-        commands.add(new InstantCommand(() -> SubsystemManager.getInstance().getDrivetrain().setVisionStandardDeviations(0.1, 0.1, 1)));
+        commands.add(Commands.runOnce(() -> SubsystemManager.getInstance().getDrivetrain().setVisionStandardDeviations(0.1, 0.1, 1)));
 
         // Add directly move to stuff IDK
         if (AutoConstants.addVisionAlignToCommands && AutoConstants.addHPVisionAlignToCommands) {

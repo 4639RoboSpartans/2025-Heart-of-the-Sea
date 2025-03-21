@@ -7,7 +7,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -17,12 +16,12 @@ public class DummySwerveDrivetrain extends AbstractSwerveDrivetrain {
 
     @Override
     public Command resetHeadingToZero() {
-        return new InstantCommand(() -> {});
+        return Commands.none();
     }
 
     @Override
     public Command stop() {
-        return new InstantCommand(() -> {});
+        return Commands.none();
     }
 
     @Override
@@ -30,28 +29,26 @@ public class DummySwerveDrivetrain extends AbstractSwerveDrivetrain {
 
     @Override
     public Command manualControl() {
-        return new InstantCommand(() -> {});
+        return Commands.none();
     }
 
     @Override
     public Command _directlyMoveTo(Pose2d targetPose, Supplier<Pose2d> currentPoseSupplier) {
-        return new InstantCommand(() -> {
-            currentPose = targetPose;
-        });
-    }
-
-    @Override
-    public Command pathfindTo(Pose2d targetPose) {
-        return new InstantCommand(() -> {
+        return Commands.runOnce(() -> {
             currentPose = targetPose;
         });
     }
 
     @Override
     public Command fineTuneUsingLaserCANCommand(Pose2d targetPose) {
-        return new InstantCommand(() -> {
+        return Commands.runOnce(() -> {
             currentPose = targetPose;
         });
+    }
+
+    @Override
+    public Command pathToPoseCommand(Pose2d targetPose) {
+        return Commands.none();
     }
 
     @Override

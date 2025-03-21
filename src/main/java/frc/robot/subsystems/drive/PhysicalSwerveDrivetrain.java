@@ -8,7 +8,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.utility.PhoenixPIDController;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.RobotConfig;
-import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.path.*;
 import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.PathPlannerLogging;
 import com.pathplanner.lib.util.swerve.SwerveSetpoint;
@@ -24,6 +24,7 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N2;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotState;
@@ -32,7 +33,6 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.limelight.LimelightHelpers;
@@ -40,6 +40,7 @@ import frc.lib.util.DriverStationUtil;
 import frc.robot.constants.Controls;
 import frc.robot.constants.Limelights;
 import frc.robot.robot.Robot;
+import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.drive.constants.DriveConstants;
 import frc.robot.subsystems.drive.constants.DrivePIDs;
 import frc.robot.subsystems.drive.constants.TunerConstants;
@@ -47,6 +48,7 @@ import frc.robot.subsystems.drive.constants.TunerConstants.TunerSwerveDrivetrain
 import frc.robot.subsystems.vision.Vision;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -152,15 +154,16 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         headingController.enableContinuousInput(-Math.PI, Math.PI);
         drivetrain.setVisionMeasurementStdDevs(new Matrix<N3, N1>(Nat.N3(), Nat.N1(), new double[]{5, 5, 10}));
 
-        RobotModeTriggers.autonomous().onTrue(new InstantCommand(() -> this.setVisionStandardDeviations(0.5, 0.5, 10)));
-        RobotModeTriggers.teleop().onTrue(new InstantCommand(() -> this.setVisionStandardDeviations(10, 10, 1000)));
+        RobotModeTriggers.autonomous().onTrue(Commands.runOnce(() -> this.setVisionStandardDeviations(0.5, 0.5, 10)));
+        RobotModeTriggers.teleop().onTrue(Commands.runOnce(() -> this.setVisionStandardDeviations(10, 10, 1000)));
     }
 
     @Override
     public Command manualControl() {
         return applyRequest(
                 () -> {
-                    if (shouldAutoSetHeading) return getFieldCentricFacingClosestReefRequest();
+                    if (shouldAutoSetHeading && SubsystemManager.getInstance().getScoringSuperstructure().hasCoral())
+                        return getFieldCentricFacingClosestReefRequest();
                     return getFieldCentricRequest();
                 }
         );
@@ -261,24 +264,8 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     }
 
     @Override
-    public Command pathfindTo(Pose2d targetPose) {
-        double driveBaseRadius = 0;
-        for (var moduleLocation : drivetrain.getModuleLocations()) {
-            driveBaseRadius = Math.max(driveBaseRadius, moduleLocation.getNorm());
-        }
-        PathConstraints constraints = new PathConstraints(
-                1, 2,
-                2 * Math.PI, 2 * Math.PI
-        );
-        return AutoBuilder.pathfindToPoseFlipped(
-                targetPose,
-                constraints
-        );
-    }
-
-    @Override
     public Command _directlyMoveTo(Pose2d targetPose, Supplier<Pose2d> currentPose) {
-        return new InstantCommand(() -> {
+        return Commands.runOnce(() -> {
             Vector<N2> translationVector = getTranslationVector(super.currentAlignTarget);
             pidXController.reset(translationVector.get(0));
             pidYController.reset(translationVector.get(1));
@@ -386,9 +373,10 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
     @Override
     public Command fineTuneUsingLaserCANCommand(Pose2d targetPose) {
-        return new InstantCommand(() -> {
+        return Commands.runOnce(() -> {
             Vector<N2> translationVector = getTranslationVector(super.currentAlignTarget);
             pidYController.reset(translationVector.get(1));
+            shouldUseMTSTDevs = true;
         }).andThen(
                 applyRequest(
                         () -> {
@@ -411,7 +399,53 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                                     .withRotationalRate(rotationOutput);
                         }
                 )
+        ).finallyDo(
+                () -> shouldUseMTSTDevs = false
         );
+    }
+
+    @Override
+    public Command pathToPoseCommand(Pose2d targetPose) {
+        return Commands.runOnce(
+                () -> shouldUseMTSTDevs = true
+        ).andThen(
+                getPathFromWaypoint(targetPose)
+        ).finallyDo(
+                () -> shouldUseMTSTDevs = false
+        );
+    }
+
+    private Command getPathFromWaypoint(Pose2d waypoint) {
+        List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(
+                new Pose2d(getPose().getTranslation(), getPathVelocityHeading(getChassisSpeeds(), waypoint)),
+                waypoint
+        );
+        PathConstraints constraints = new PathConstraints(
+                1, 2,
+                2 * Math.PI, 2 * Math.PI
+        );
+        PathPlannerPath path = new PathPlannerPath(
+                waypoints,
+                constraints,
+                new IdealStartingState(getVelocityMagnitude(getChassisSpeeds()), getPose().getRotation()),
+                new GoalEndState(0.0, waypoint.getRotation())
+        );
+
+        path.preventFlipping = true;
+
+        return AutoBuilder.followPath(path);
+    }
+
+    private Rotation2d getPathVelocityHeading(ChassisSpeeds chassisSpeeds, Pose2d targetPose){
+        if (getVelocityMagnitude(chassisSpeeds).in(MetersPerSecond) < 0.25) {
+            var diff = targetPose.minus(getPose()).getTranslation();
+            return (diff.getNorm() < 0.01) ? targetPose.getRotation() : diff.getAngle();
+        }
+        return new Rotation2d(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond);
+    }
+
+    private LinearVelocity getVelocityMagnitude(ChassisSpeeds chassisSpeeds){
+        return MetersPerSecond.of(new Translation2d(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond).getNorm());
     }
 
     /**
