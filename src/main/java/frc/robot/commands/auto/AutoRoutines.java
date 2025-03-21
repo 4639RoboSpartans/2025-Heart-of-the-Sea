@@ -265,7 +265,8 @@ public class AutoRoutines {
         commands.add(
             Commands.deadline(
                 Commands.waitUntil(() -> scoringSuperstructure.getCurrentState() == ScoringSuperstructureState.EXECUTING_ACTION)
-                    .andThen(Commands.waitUntil(() -> !scoringSuperstructure.hasCoral())),
+                    .andThen(Commands.waitUntil(() -> !scoringSuperstructure.hasCoral()))
+                            .andThen(Commands.waitUntil(scoringSuperstructure::elevatorLowThreshold)),
                 AutoCommands.SwerveStop.get()
             )
         );

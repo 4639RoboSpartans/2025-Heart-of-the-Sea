@@ -75,6 +75,10 @@ public final class ScoringSuperstructure extends SubsystemBase {
         return endEffector.hasCoral();
     }
 
+    public boolean elevatorLowThreshold() {
+        return elevator.getCurrentExtensionFraction() <= 0.8;
+    }
+
     /**
      * @param state the new state to set the scoring superstructure to.
      *
