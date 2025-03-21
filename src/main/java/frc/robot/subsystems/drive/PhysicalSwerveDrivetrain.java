@@ -309,7 +309,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                             return request
                                     .withVelocityX(-pidXController.calculate(translationVector.get(0)))
                                     .withVelocityY(-pidYController.calculate(translationVector.get(1)))
-                                    .withRotationalRate(0);
+                                    .withRotationalRate(rotationalRate);
                         }
                 ).until(
                         getAtTargetPoseTrigger(targetPose)
@@ -374,13 +374,13 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     @Override
     public Command fineTuneUsingLaserCANCommand(Pose2d targetPose) {
         return Commands.runOnce(() -> {
-            Vector<N2> translationVector = getTranslationVector(super.currentAlignTarget);
+            Vector<N2> translationVector = getTranslationVector(targetPose);
             pidYController.reset(translationVector.get(1));
             shouldUseMTSTDevs = true;
         }).andThen(
                 applyRequest(
                         () -> {
-                            Vector<N2> translationVector = getTranslationVector(super.currentAlignTarget);
+                            Vector<N2> translationVector = getTranslationVector(targetPose);
                             double laserCANAlignOutput = LasercanAlign.getInstance().getOutput();
                             double rotationRadians = getCalculatedRotationFromAlign().orElseGet(
                                     Rotation2d::new

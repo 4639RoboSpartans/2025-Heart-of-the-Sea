@@ -38,10 +38,21 @@ public class DriveCommands {
                 .until(new Trigger(() -> PoseUtil.withinTolerance(desiredPose, currentRobotPose.get(), Units.inchesToMeters(2))).debounce(0.1));
     }
 
+    public static Command moveToClosestReefPositionWithLC(TargetPositions.Direction direction, Supplier<Pose2d> currentRobotPose) {
+        drivetrain.setVisionStandardDeviations(0.1, 0.1, 10);
+
+        var nearestReefPose = getClosestTarget(currentRobotPose);
+
+        var desiredPose = PoseUtil.ReefRelativeFromDirection(nearestReefPose, direction);
+
+        return DriveCommands.drivetrain.fineTuneUsingLaserCANCommand(desiredPose)
+                .until(new Trigger(() -> PoseUtil.withinTolerance(desiredPose, currentRobotPose.get(), Units.inchesToMeters(2))).debounce(0.1));
+    }
+
     public static Command moveToReefPosition(TargetPositions position, Supplier<Pose2d> currentRobotPose) {
         var desiredPose = position.getAllianceRespectivePose();
 
-        return DriveCommands.drivetrain.directlyMoveTo(desiredPose, currentRobotPose)
+        return DriveCommands.drivetrain.fineTuneUsingLaserCANCommand(desiredPose)
                 .until(new Trigger(() -> PoseUtil.withinTolerance(desiredPose, currentRobotPose.get(), Units.inchesToMeters(2))).debounce(0.1));
     }
 

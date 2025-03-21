@@ -165,6 +165,7 @@ public class RobotContainer {
         for (AutonSupplier a : swerveAutoRoutines.getAllCompRoutines()) {
             autoChooser.addOption(a.name(), a);
         }
+        autoChooser.setDefaultOption("NONE", swerveAutoRoutines.NONE());
     }
 
     public AutonSupplier getAutonomousCommand() {
