@@ -59,7 +59,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
     private boolean didApplyOperatorPerspective = false;
 
-    private final PhoenixPIDController headingController = new PhoenixPIDController(28.48, 0, 1.1466);
+    private final PhoenixPIDController headingController = new PhoenixPIDController(5.1995, 0, 0.048711);
     protected final PIDController
             pathXController = new PIDController(18, 0, 0),
             pathYController = new PIDController(18, 0, 0),
@@ -284,8 +284,8 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                             var request = new SwerveRequest.RobotCentric();
                             double rotationalRate =
                                     headingController.calculate(
-                                            getPose().getRotation().getRadians(),
-                                            super.currentAlignTarget.getRotation().getRadians(),
+                                            SubsystemManager.getInstance().getLasercanAlign().getCalculatedRotationFromAlign().orElseGet(() -> new Rotation2d()).getRadians(),
+                                            0,
                                             Timer.getFPGATimestamp()
                                     );
 
@@ -362,13 +362,13 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     }
 
     public Trigger getAtTargetPoseTrigger(Pose2d targetPose) {
-        return new Trigger(() -> !RobotState.isTeleop() && atTargetPose(targetPose));
+        return new Trigger(() -> atTargetPose(targetPose));
     }
 
     public boolean atTargetPose(Pose2d targetPose) {
-        return MathUtil.isNear(targetPose.getX(), getPose().getX(), 1)//0.01
-                && MathUtil.isNear(targetPose.getY(), getPose().getY(), 1)//0.01
-                && MathUtil.isNear(targetPose.getRotation().getDegrees(), getPose().getRotation().getDegrees(), 20);
+        return MathUtil.isNear(targetPose.getX(), getPose().getX(), 0.01)//0.01
+                && MathUtil.isNear(targetPose.getY(), getPose().getY(), 0.01)//0.01
+                && MathUtil.isNear(targetPose.getRotation().getDegrees(), getPose().getRotation().getDegrees(), 1);
     }
 
     @Override
@@ -381,8 +381,8 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                 applyRequest(
                         () -> {
                             Vector<N2> translationVector = getTranslationVector(targetPose);
-                            double laserCANAlignOutput = LasercanAlign.getInstance().getOutput();
-                            double rotationRadians = getCalculatedRotationFromAlign().orElseGet(
+                            double laserCANAlignOutput = SubsystemManager.getInstance().getLasercanAlign().getOutput();
+                            double rotationRadians = SubsystemManager.getInstance().getLasercanAlign().getCalculatedRotationFromAlign().orElseGet(
                                     Rotation2d::new
                             ).getRadians();
                             double rotationOutput =
@@ -517,11 +517,11 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
         getTranslationVector(DriveCommands.getClosestTarget(this::getPose));
 
-        getCalculatedRotationFromAlign().ifPresent(
+        SubsystemManager.getInstance().getLasercanAlign().getCalculatedRotationFromAlign().ifPresent(
                 rotation -> SmartDashboard.putNumber("Reef Rotation Degrees", rotation.getDegrees())
         );
 
-        double rotationRadians = getCalculatedRotationFromAlign().orElseGet(
+        double rotationRadians = SubsystemManager.getInstance().getLasercanAlign().getCalculatedRotationFromAlign().orElseGet(
                 Rotation2d::new
         ).getRadians();
         double rotationOutput =
@@ -562,29 +562,9 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
     @Override
     public double getDistanceFromReefFace() {
-        return LasercanAlign.getInstance().getDistance_mm();
+        return SubsystemManager.getInstance().getLasercanAlign().getDistance_mm();
     }
 
-    @Override
-    public Optional<Rotation2d> getCalculatedRotationFromAlign() {
-        double leftMeasurement, rightMeasurement;
-        if (Robot.isSimulation()) {
-            leftMeasurement = LasercanAlign.getSimMeasurement(true);
-            rightMeasurement = LasercanAlign.getSimMeasurement(false);
-        } else {
-            leftMeasurement = LasercanAlign.getInstance().getLeftMeasurement();
-            rightMeasurement = LasercanAlign.getInstance().getRightMeasurement();
-        }
-        if (leftMeasurement == -1 || rightMeasurement == -1) {
-            return Optional.empty();
-        } else {
-            return Optional.of(
-                    Rotation2d.fromRadians(
-                            Math.tan((leftMeasurement - rightMeasurement) / DriveConstants.laserCanDistanceMM.in(Millimeters))
-                    )
-            );
-        }
-    }
 
     @Override
     public void resetPose(Pose2d pose) {

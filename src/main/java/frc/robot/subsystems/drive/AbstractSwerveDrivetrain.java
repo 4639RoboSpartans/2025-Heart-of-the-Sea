@@ -118,8 +118,6 @@ public abstract class AbstractSwerveDrivetrain extends SubsystemBase {
         return 1 - Math.pow(SubsystemManager.getInstance().getScoringSuperstructure().getElevatorSubsystem().getCurrentExtensionFraction(), 2) * (1.0 - 0.2);
     }
 
-    public abstract Optional<Rotation2d> getCalculatedRotationFromAlign();
-
     public abstract void resetPose(Pose2d pose);
 
     public abstract boolean atTargetPose(Pose2d targetPose);

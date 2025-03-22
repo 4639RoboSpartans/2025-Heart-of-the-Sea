@@ -14,7 +14,9 @@ import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.lib.FunctionalTrigger;
+import frc.lib.oi.OI;
 import frc.robot.commands.auto.AutoRoutines;
 import frc.robot.commands.auto.AutoRoutines.AutonSupplier;
 import frc.robot.constants.Controls;
@@ -22,12 +24,14 @@ import frc.robot.constants.FieldConstants;
 import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
 import frc.robot.subsystems.drive.DriveCommands;
+import frc.robot.subsystems.drive.DriveSysID;
 import frc.robot.subsystems.drive.SwerveAutoRoutinesCreator;
 import frc.robot.subsystems.led.LEDCommandFactory;
 import frc.robot.subsystems.led.LEDStrip;
 import frc.robot.subsystems.scoring.ScoringSuperstructure;
 import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
+import frc.robot.subsystems.scoring.elevator.ElevatorSysID;
 
 import java.util.Arrays;
 
@@ -71,7 +75,7 @@ public class RobotContainer {
         swerve.setDefaultCommand(swerve.manualControl());    
         scoringSuperstructure.setDefaultCommand(scoringSuperstructure.runScoringState());
 
-        //Scoring Controls
+        // Scoring Controls
         {
             Controls.Driver.rotationResetTrigger.whileTrue(
                 swerve.resetHeadingToZero()
@@ -148,16 +152,16 @@ public class RobotContainer {
         Controls.Driver.toggleAutoHeadingButton.onTrue(swerve.toggleAutoHeading());
 
         // OI.getInstance().driverController().Y_BUTTON.whileTrue(
-        //         ElevatorSysID.sysIdQuasistatic(SysIdRoutine.Direction.kForward)
+        //         DriveSysID.sysIdQuasistatic(SysIdRoutine.Direction.kForward)
         // );
         // OI.getInstance().driverController().A_BUTTON.whileTrue(
-        //         ElevatorSysID.sysIdQuasistatic(SysIdRoutine.Direction.kReverse)
+        //         DriveSysID.sysIdQuasistatic(SysIdRoutine.Direction.kReverse)
         // );
-        // OI.getInstance().driverController().POV_UP.whileTrue(
-        //         ElevatorSysID.sysIdDynamic(SysIdRoutine.Direction.kForward)
+        // OI.getInstance().driverController().X_BUTTON.whileTrue(
+        //         DriveSysID.sysIdDynamic(SysIdRoutine.Direction.kForward)
         // );
-        // OI.getInstance().driverController().POV_DOWN.whileTrue(
-        //         ElevatorSysID.sysIdDynamic(SysIdRoutine.Direction.kReverse)
+        // OI.getInstance().driverController().B_BUTTON.whileTrue(
+        //         DriveSysID.sysIdDynamic(SysIdRoutine.Direction.kReverse)
         // );
     }
 

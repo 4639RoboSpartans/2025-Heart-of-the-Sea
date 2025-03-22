@@ -59,7 +59,7 @@ public class DriveSysID {
             new SysIdRoutine.Mechanism(
                     output -> {
                         drivetrain.setControl(m_rotationCharacterization.withRotationalRate(output.in(Volts)));
-                        SignalLogger.writeDouble("Rotational_Rate", output.in(Volts));
+                        SignalLogger.writeDouble("Rotation Volts", output.in(Volts));
                     },
                     null,
                     drivetrain

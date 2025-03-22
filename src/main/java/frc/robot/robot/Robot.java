@@ -8,6 +8,8 @@ package frc.robot.robot;
 import au.grapplerobotics.CanBridge;
 import com.ctre.phoenix6.SignalLogger;
 import com.revrobotics.spark.config.SparkBaseConfig;
+
+import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -16,10 +18,9 @@ import frc.lib.util.AllianceFlipUtil;
 import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
-import org.littletonrobotics.junction.LoggedRobot;
 
 
-public class Robot extends LoggedRobot {
+public class Robot extends TimedRobot {
     private Command autonomousCommand;
 
     private final RobotContainer robotContainer;

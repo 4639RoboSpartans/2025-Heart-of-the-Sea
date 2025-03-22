@@ -95,11 +95,6 @@ public class DummySwerveDrivetrain extends AbstractSwerveDrivetrain {
     public double getDistanceFromReefFace() {
         return 0;
     }
-
-    @Override
-    public Optional<Rotation2d> getCalculatedRotationFromAlign() {
-        return Optional.empty();
-    }
     
     @Override
     public boolean isAligned() {

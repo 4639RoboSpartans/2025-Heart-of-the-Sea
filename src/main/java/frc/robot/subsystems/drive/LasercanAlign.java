@@ -5,12 +5,14 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.robot.Robot;
 import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.drive.constants.DriveConstants;
 
 import java.util.Objects;
+import java.util.Optional;
 
 import static edu.wpi.first.units.Units.Millimeters;
 
@@ -18,7 +20,8 @@ public class LasercanAlign extends SubsystemBase {
     private static LasercanAlign instance;
     private static final double alignDistance_mm = 237;
 
-    public static LasercanAlign getInstance() {
+    public static LasercanAlign getInstance(SubsystemManager.GetInstanceAccess access) {
+        Objects.requireNonNull(access);
         return Objects.requireNonNullElseGet(instance, LasercanAlign::new);
     }
 
@@ -96,5 +99,27 @@ public class LasercanAlign extends SubsystemBase {
 
     public double getOutput() {
         return distanceController.calculate(getDistance_mm());
+    }
+
+    public Optional<Rotation2d> getCalculatedRotationFromAlign() {
+        double leftMeasurement, rightMeasurement;
+        if (Robot.isSimulation()) {
+            leftMeasurement = getSimMeasurement(true);
+            rightMeasurement = getSimMeasurement(false);
+        } else {
+            leftMeasurement = getLeftMeasurement();
+            rightMeasurement = getRightMeasurement();
+        }
+        if (leftMeasurement == -1 || rightMeasurement == -1) {
+            return Optional.empty();
+        } else {
+            SmartDashboard.putNumber("Left LC", leftMeasurement);
+            SmartDashboard.putNumber("Right LC", rightMeasurement);
+            SmartDashboard.putNumber("Diff LC", leftMeasurement - rightMeasurement);
+            SmartDashboard.putNumber("Dist MM", DriveConstants.laserCanDistanceMM.in(Millimeters));
+            return Optional.of(
+                    new Rotation2d(DriveConstants.laserCanDistanceMM.in(Millimeters), leftMeasurement - rightMeasurement)
+            );
+        }
     }
 }
