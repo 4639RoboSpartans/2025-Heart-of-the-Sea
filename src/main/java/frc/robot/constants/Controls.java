@@ -65,7 +65,7 @@ public class Controls {
         public static final Trigger alignReefLeft = driverController.LEFT_BUMPER;
 
         public static final Trigger reefAlign = driverController.RIGHT_TRIGGER;
-        public static final Trigger toggleAutoHeadingButton = driverController.A_BUTTON;
+        public static final Trigger toggleAutoHeadingButton = driverController.RIGHT_STICK;
         public static final Trigger bargeScoringAlign = driverController.XBOX_START_BUTTON;
         public static final Trigger processorAlign = driverController.XBOX_BACK_BUTTON;
     }

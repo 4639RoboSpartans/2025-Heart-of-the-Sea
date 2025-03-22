@@ -58,21 +58,21 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
     private boolean didApplyOperatorPerspective = false;
 
-    private final PhoenixPIDController headingController = new PhoenixPIDController(5, 0, 0);
+    private final PhoenixPIDController headingController = new PhoenixPIDController(6, 0, 0);
     protected final PIDController
-            pathXController = new PIDController(18, 0, 0),
-            pathYController = new PIDController(18, 0, 0),
-            pathHeadingController = new PIDController(7, 0, 0);
+            pathXController = new PIDController(1, 0, 0),
+            pathYController = new PIDController(1, 0, 0),
+            pathHeadingController = new PIDController(5, 0, 0);
     protected ProfiledPIDController
             pidXController = constructPIDXController();
     protected ProfiledPIDController pidYController = constructPIDYController();
 
     public static ProfiledPIDController constructPIDYController() {
-        return new ProfiledPIDController(DrivePIDs.pidToPoseXkP.get(), 0, 0, new TrapezoidProfile.Constraints(2, 1));
+        return new ProfiledPIDController(DrivePIDs.pidToPoseXkP.get(), 0, 0, new TrapezoidProfile.Constraints(4, 2));
     }
 
     public static ProfiledPIDController constructPIDXController() {
-        return new ProfiledPIDController(DrivePIDs.pidToPoseYkP.get(), 0, 0, new TrapezoidProfile.Constraints(2, 1));
+        return new ProfiledPIDController(DrivePIDs.pidToPoseYkP.get(), 0, 0, new TrapezoidProfile.Constraints(4, 2));
     }
 
     {
@@ -161,7 +161,9 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     public Command manualControl() {
         return applyRequest(
                 () -> {
-                    if (shouldAutoSetHeading && SubsystemManager.getInstance().getScoringSuperstructure().hasCoral())
+                    if (shouldAutoSetHeading
+                //      && SubsystemManager.getInstance().getScoringSuperstructure().hasCoral()
+                     )
                         return getFieldCentricFacingClosestReefRequest();
                     return getFieldCentricRequest();
                 }
@@ -236,10 +238,10 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
         var request = new SwerveRequest.FieldCentricFacingAngle()
                 .withDesaturateWheelSpeeds(true)
-                .withVelocityX(-chassisSpeeds.vxMetersPerSecond)
-                .withVelocityY(-chassisSpeeds.vyMetersPerSecond)
+                .withVelocityX(chassisSpeeds.vxMetersPerSecond)
+                .withVelocityY(chassisSpeeds.vyMetersPerSecond)
                 .withTargetDirection(nearestReefPoseRotation.plus(Rotation2d.k180deg));
-        request.HeadingController = new PhoenixPIDController(28.48, 0, 1.1466);
+        request.HeadingController = new PhoenixPIDController(headingController.getP(), 0, 0);
         request.HeadingController.enableContinuousInput(-Math.PI, Math.PI);
         request.HeadingController.setTolerance(Radians.convertFrom(1, Degrees));
         if (rawForwards == 0 && rawStrafe == 0 && request.HeadingController.atSetpoint()) {
@@ -278,6 +280,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                     Vision.addGlobalVisionMeasurements(this, true);
                 }).andThen(applyRequest(
                         () -> {
+                                Vision.addGlobalVisionMeasurements(this, shouldUseMTSTDevs);
                             Vector<N2> translationVector = getTranslationVector(targetPose);
 
                             var request = new SwerveRequest.RobotCentric();
@@ -332,7 +335,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                                     .withRotationalRate(rotationalRate);
                         }
                 ).until(
-                        getAtTargetPoseTrigger(targetPose)
+                        getNearTargetPoseTrigger(targetPose)
                 )).andThen(stop().withTimeout(0.1))
                 .finallyDo(() -> {
                     setVisionStandardDeviations(5, 5, 10);
@@ -380,13 +383,13 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         return translationVector;
     }
 
-    public Trigger getAtTargetPoseTrigger(Pose2d targetPose) {
-        return new Trigger(() -> !RobotState.isTeleop() && atTargetPose(targetPose));
+    public Trigger getNearTargetPoseTrigger(Pose2d targetPose) {
+        return new Trigger(() -> nearTargetPose(targetPose));
     }
 
-    public boolean atTargetPose(Pose2d targetPose) {
-        return MathUtil.isNear(targetPose.getX(), getPose().getX(), 1)//0.01
-                && MathUtil.isNear(targetPose.getY(), getPose().getY(), 1)//0.01
+    public boolean nearTargetPose(Pose2d targetPose) {
+        return MathUtil.isNear(targetPose.getX(), getPose().getX(), 0.5)//0.01
+                && MathUtil.isNear(targetPose.getY(), getPose().getY(), 0.5)//0.01
                 && MathUtil.isNear(targetPose.getRotation().getDegrees(), getPose().getRotation().getDegrees(), 20);
     }
 
@@ -395,6 +398,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         return Commands.runOnce(() -> {
             Vector<N2> translationVector = getTranslationVector(targetPose);
             pidYController.reset(translationVector.get(1));
+            pidYController.setTolerance(0.075);
             shouldUseMTSTDevs = true;
         }).andThen(
                 applyRequest(
@@ -418,6 +422,20 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                                     .withRotationalRate(rotationOutput);
                         }
                 )
+        ).until(
+                new Trigger(() -> {
+                        boolean res = MathUtil.isNear(
+                                getDistanceFromReefFace(), 
+                                LasercanAlign.alignDistance_mm, 
+                                15      
+                        ) && MathUtil.isNear(
+                                getCalculatedRotationFromAlign().orElseGet(() -> new Rotation2d()).getDegrees(), 
+                                0, 
+                                1
+                        ) && pidYController.atGoal();
+                        SmartDashboard.putBoolean("PIDY at setpoint", pidYController.atGoal());
+                        return res;
+                }).debounce(0.25)
         ).finallyDo(
                 () -> shouldUseMTSTDevs = false
         );
@@ -539,6 +557,8 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         getCalculatedRotationFromAlign().ifPresent(
                 rotation -> SmartDashboard.putNumber("Reef Rotation Degrees", rotation.getDegrees())
         );
+        SmartDashboard.putNumber("Left LC", SubsystemManager.getInstance().getLasercanAlign().getLeftMeasurement());
+        SmartDashboard.putNumber("Right LC", SubsystemManager.getInstance().getLasercanAlign().getRightMeasurement());
 
         double rotationRadians = getCalculatedRotationFromAlign().orElseGet(
                 Rotation2d::new
@@ -546,6 +566,8 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         double rotationOutput =
                 headingController.calculate(rotationRadians, 0, Timer.getFPGATimestamp());
         SmartDashboard.putNumber("Rotation Output", rotationOutput);
+        SmartDashboard.putNumber("Distance from Reef Face", getDistanceFromReefFace());
+        SmartDashboard.putBoolean("Snap to Reef", shouldAutoSetHeading);
 
         Arrays.stream(Limelights.values()).parallel().forEach(
                 limelight -> {

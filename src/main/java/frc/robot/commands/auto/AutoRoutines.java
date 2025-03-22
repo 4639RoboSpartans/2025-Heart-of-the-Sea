@@ -187,6 +187,23 @@ public class AutoRoutines {
         );
     }
 
+    public AutonSupplier TEST_PATH() {
+        return new AutonSupplier(
+            () -> {
+                AutoRoutine routine = factory.get().newRoutine("TEST_PATH");
+                AutoTrajectory traj = routine.trajectory("Test Path");
+                routine.active().onTrue(
+                    Commands.sequence(
+                        traj.resetOdometry(),
+                        traj.cmd()
+                    )
+                );
+                return routine;
+            },
+            "TEST PATH"
+        );
+    }
+
     private record ScoringTarget(char scoringLocation, int scoringHeight) {
         @Override
         public String toString() {
@@ -263,31 +280,24 @@ public class AutoRoutines {
         }
 
         commands.add(
-            Commands.deadline(
-                Commands.waitUntil(() -> scoringSuperstructure.getCurrentState() == ScoringSuperstructureState.EXECUTING_ACTION)
-                    .andThen(Commands.waitUntil(() -> !scoringSuperstructure.hasCoral()))
-                            .andThen(Commands.waitUntil(scoringSuperstructure::elevatorLowThreshold)),
-                AutoCommands.SwerveStop.get()
+            Commands.sequence(
+                Commands.deadline(
+                    Commands.sequence(
+                        Commands.waitUntil(() -> scoringSuperstructure.getCurrentState() == ScoringSuperstructureState.EXECUTING_ACTION),
+                        AutoCommands.setAutoOuttake.apply(true),
+                        Commands.waitUntil(() -> !scoringSuperstructure.hasCoral())
+                                    .andThen(Commands.waitUntil(scoringSuperstructure::elevatorLowThreshold))
+                    ),
+                    AutoCommands.SwerveStop.get()
+                ),
+                AutoCommands.setAutoOuttake.apply(false)
             )
         );
     }
 
-    @SuppressWarnings("unused")
     private void addHPLoadingSegment(List<Command> commands, AutoTrajectory path, boolean isStationLeft) {
-        commands.add(Commands.runOnce(() -> SubsystemManager.getInstance().getDrivetrain().setVisionStandardDeviations(100, 100, 100)));
-        // Add path to intake
-        commands.add(path.cmd());
-        commands.add(Commands.runOnce(() -> SubsystemManager.getInstance().getDrivetrain().setVisionStandardDeviations(0.1, 0.1, 1)));
-
-        // Add directly move to stuff IDK
-        if (AutoConstants.addVisionAlignToCommands && AutoConstants.addHPVisionAlignToCommands) {
-            addHPMoveToCommand(
-                commands,
-                isStationLeft
-            );
-        }
-
         // Add HP load command
+        commands.add(path.cmd());
         commands.add(AutoCommands.HPLoad.get());
     }
 
@@ -299,14 +309,6 @@ public class AutoRoutines {
                         return SubsystemManager.getInstance().getDrivetrain().getPose();
                     }
                 )
-//                DriveCommands.moveToHexThenMoveToRLCommand(targetPose.toString().charAt(targetPose.toString().length() - 1))
-        );
-    }
-
-    private static void addHPMoveToCommand(List<Command> commands, boolean isLeft){
-        addDirectlyMoveToCommand(
-                commands,
-                isLeft? TargetPositions.CORALSTATION_LEFT : TargetPositions.CORALSTATION_RIGHT
         );
     }
 
@@ -328,7 +330,8 @@ public class AutoRoutines {
             COMP_H_A(),
             COMP_G_C_D_B(),
             COMP_I_K_L(),
-            TEST_E_C()
+            TEST_E_C(),
+            TEST_PATH()
         );
     }
 

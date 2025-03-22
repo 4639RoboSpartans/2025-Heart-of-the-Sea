@@ -56,8 +56,12 @@ public class SimEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
     @Override
     public boolean hasCoral() {
         var currentAction = SubsystemManager.getInstance().getScoringSuperstructure().getCurrentAction();
-        return (currentAction.endOnGamePieceSeen || currentAction.endOnGamePieceNotSeen)
-                && (intakeSpeed != 0 || currentAction == ScoringSuperstructureAction.INTAKE_FROM_HP);
+        if (currentAction.endOnGamePieceNotSeen) {
+            return intakeSpeed == 0;
+        } else if (currentAction.endOnGamePieceSeen) {
+            return true;
+        }
+        return false;
     }
 
     @Override

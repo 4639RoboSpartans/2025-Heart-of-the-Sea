@@ -82,7 +82,7 @@ public class DummySwerveDrivetrain extends AbstractSwerveDrivetrain {
     }
 
     @Override
-    public boolean atTargetPose(Pose2d targetPose) {
+    public boolean nearTargetPose(Pose2d targetPose) {
         return true;
     }
 

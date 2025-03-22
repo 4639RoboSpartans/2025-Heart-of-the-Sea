@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.robot.Robot;
 import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.drive.constants.DriveConstants;
+import frc.robot.subsystems.drive.constants.DrivePIDs;
 
 import java.util.Objects;
 
@@ -16,7 +17,7 @@ import static edu.wpi.first.units.Units.Millimeters;
 
 public class LasercanAlign extends SubsystemBase {
     private static LasercanAlign instance;
-    private static final double alignDistance_mm = 237;
+    public static final double alignDistance_mm = 387.5;
 
     public static LasercanAlign getInstance(SubsystemManager.GetInstanceAccess getInstanceAccess) {
         Objects.requireNonNull(getInstanceAccess);
@@ -31,7 +32,7 @@ public class LasercanAlign extends SubsystemBase {
         leftLaserCan = new LaserCan(DriveConstants.IDs.LEFT_LASERCAN_ID);
         rightLaserCan = new LaserCan(DriveConstants.IDs.RIGHT_LASERCAN_ID);
         distanceController = new PIDController(
-                3, 0, 0
+                DrivePIDs.lasercanXkP.get(), 0, 0
         );
         distanceController.setTolerance(0.01);
         distanceController.setSetpoint(alignDistance_mm / 1000);
@@ -88,6 +89,7 @@ public class LasercanAlign extends SubsystemBase {
 
     @Override
     public void periodic() {
+        distanceController.setP(DrivePIDs.lasercanXkP.get());
         double currentMeasurement = getDistance_mm();
         if (currentMeasurement == -1) {
             distanceController.calculate(previousDistance / 1000);

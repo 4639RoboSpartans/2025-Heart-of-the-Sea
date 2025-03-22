@@ -73,11 +73,13 @@ public abstract class AbstractSwerveDrivetrain extends SubsystemBase {
     public Command directlyMoveTo(Pose2d targetPose, Supplier<Pose2d> currentPose) {
         return _directlyMoveTo(targetPose, currentPose)
                 .andThen(fineTuneUsingLaserCANCommand(targetPose))
+        // return fineTuneUsingLaserCANCommand(targetPose)
                 .beforeStarting(() -> currentAlignTarget = targetPose)
                 .finallyDo(() -> currentAlignTarget = null);
     }
 
-    public abstract Command fineTuneUsingLaserCANCommand(Pose2d targetPose);
+    public abstract Command 
+    fineTuneUsingLaserCANCommand(Pose2d targetPose);
 
     public abstract Command pathToPoseCommand(Pose2d targetPose);
 
@@ -122,7 +124,7 @@ public abstract class AbstractSwerveDrivetrain extends SubsystemBase {
 
     public abstract void resetPose(Pose2d pose);
 
-    public abstract boolean atTargetPose(Pose2d targetPose);
+    public abstract boolean nearTargetPose(Pose2d targetPose);
 
     public abstract void addVisionMeasurement(Pose2d pose, double timestamp);
 

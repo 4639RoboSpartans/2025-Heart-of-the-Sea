@@ -50,6 +50,7 @@ public final class ScoringSuperstructure extends SubsystemBase {
     }
 
     private boolean maybeNeedsTransition = false;
+    private boolean autoShouldOuttake = false;
 
     private void setCurrentAction(ScoringSuperstructureAction action) {
         if (action != this.currentAction) {
@@ -76,7 +77,7 @@ public final class ScoringSuperstructure extends SubsystemBase {
     }
 
     public boolean elevatorLowThreshold() {
-        return elevator.getCurrentExtensionFraction() <= 0.8;
+        return elevator.getCurrentExtensionFraction() <= 0.5;
     }
 
     /**
@@ -195,7 +196,7 @@ public final class ScoringSuperstructure extends SubsystemBase {
             .orElseGet(() -> endEffector::getTargetRotationFraction);
         double manualIntakeSpeed = Controls.Operator.ManualControlIntake.getAsDouble() * Math.abs(currentAction.intakeSpeed);
         double intakeSpeed = (
-            SubsystemManager.getInstance().getDrivetrain().isAligned()
+            (autoShouldOuttake && RobotState.isAutonomous()) || currentAction.name.equals(ScoringSuperstructureAction.INTAKE_FROM_HP.name)
             ? currentAction.intakeSpeed
             : manualIntakeSpeed
         );
@@ -332,5 +333,11 @@ public final class ScoringSuperstructure extends SubsystemBase {
 
     public ScoringSuperstructureState getCurrentState() {
         return currentState;
+    }
+
+    public Command setAutoOuttake(boolean shouldOuttake) {
+        return Commands.runOnce(
+            () -> autoShouldOuttake = shouldOuttake
+        );
     }
 }
