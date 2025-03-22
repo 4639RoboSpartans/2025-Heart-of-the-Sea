@@ -39,7 +39,6 @@ import frc.lib.limelight.LimelightHelpers;
 import frc.lib.util.DriverStationUtil;
 import frc.robot.constants.Controls;
 import frc.robot.constants.Limelights;
-import frc.robot.robot.Robot;
 import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.drive.constants.DriveConstants;
 import frc.robot.subsystems.drive.constants.DrivePIDs;
@@ -266,18 +265,18 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     @Override
     public Command _directlyMoveTo(Pose2d targetPose, Supplier<Pose2d> currentPose) {
         return Commands.runOnce(() -> {
-            Vector<N2> translationVector = getTranslationVector(super.currentAlignTarget);
-            pidXController.reset(translationVector.get(0));
-            pidYController.reset(translationVector.get(1));
-            pidXController.setGoal(0);
-            pidYController.setGoal(0);
-            SmartDashboard.putNumber("distanceThresholdMeters", 10);
-            field.getObject("Target Pose").setPose(super.currentAlignTarget);
-            isAligning = true;
-            isAligned = false;
-            shouldUseMTSTDevs = true;
-            Vision.addGlobalVisionMeasurements(this, true);
-        }).andThen(applyRequest(
+                    Vector<N2> translationVector = getTranslationVector(super.currentAlignTarget);
+                    pidXController.reset(translationVector.get(0));
+                    pidYController.reset(translationVector.get(1));
+                    pidXController.setGoal(0);
+                    pidYController.setGoal(0);
+                    SmartDashboard.putNumber("distanceThresholdMeters", 10);
+                    field.getObject("Target Pose").setPose(super.currentAlignTarget);
+                    isAligning = true;
+                    isAligned = false;
+                    shouldUseMTSTDevs = true;
+                    Vision.addGlobalVisionMeasurements(this, true);
+                }).andThen(applyRequest(
                         () -> {
                             Vector<N2> translationVector = getTranslationVector(super.currentAlignTarget);
 
@@ -381,7 +380,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                 applyRequest(
                         () -> {
                             Vector<N2> translationVector = getTranslationVector(targetPose);
-                            double laserCANAlignOutput = LasercanAlign.getInstance().getOutput();
+                            double laserCANAlignOutput = SubsystemManager.getInstance().getLasercanAlign().getOutput();
                             double rotationRadians = getCalculatedRotationFromAlign().orElseGet(
                                     Rotation2d::new
                             ).getRadians();
@@ -436,7 +435,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         return AutoBuilder.followPath(path);
     }
 
-    private Rotation2d getPathVelocityHeading(ChassisSpeeds chassisSpeeds, Pose2d targetPose){
+    private Rotation2d getPathVelocityHeading(ChassisSpeeds chassisSpeeds, Pose2d targetPose) {
         if (getVelocityMagnitude(chassisSpeeds).in(MetersPerSecond) < 0.25) {
             var diff = targetPose.minus(getPose()).getTranslation();
             return (diff.getNorm() < 0.01) ? targetPose.getRotation() : diff.getAngle();
@@ -444,7 +443,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         return new Rotation2d(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond);
     }
 
-    private LinearVelocity getVelocityMagnitude(ChassisSpeeds chassisSpeeds){
+    private LinearVelocity getVelocityMagnitude(ChassisSpeeds chassisSpeeds) {
         return MetersPerSecond.of(new Translation2d(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond).getNorm());
     }
 
@@ -562,19 +561,14 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
     @Override
     public double getDistanceFromReefFace() {
-        return LasercanAlign.getInstance().getDistance_mm();
+        return SubsystemManager.getInstance().getLasercanAlign().getDistance_mm();
     }
 
     @Override
     public Optional<Rotation2d> getCalculatedRotationFromAlign() {
         double leftMeasurement, rightMeasurement;
-        if (Robot.isSimulation()) {
-            leftMeasurement = LasercanAlign.getSimMeasurement(true);
-            rightMeasurement = LasercanAlign.getSimMeasurement(false);
-        } else {
-            leftMeasurement = LasercanAlign.getInstance().getLeftMeasurement();
-            rightMeasurement = LasercanAlign.getInstance().getRightMeasurement();
-        }
+        leftMeasurement = SubsystemManager.getInstance().getLasercanAlign().getLeftMeasurement();
+        rightMeasurement = SubsystemManager.getInstance().getLasercanAlign().getRightMeasurement();
         if (leftMeasurement == -1 || rightMeasurement == -1) {
             return Optional.empty();
         } else {

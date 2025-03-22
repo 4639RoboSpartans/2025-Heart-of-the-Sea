@@ -18,7 +18,8 @@ public class LasercanAlign extends SubsystemBase {
     private static LasercanAlign instance;
     private static final double alignDistance_mm = 237;
 
-    public static LasercanAlign getInstance() {
+    public static LasercanAlign getInstance(SubsystemManager.GetInstanceAccess getInstanceAccess) {
+        Objects.requireNonNull(getInstanceAccess);
         return Objects.requireNonNullElseGet(instance, LasercanAlign::new);
     }
 
@@ -30,10 +31,10 @@ public class LasercanAlign extends SubsystemBase {
         leftLaserCan = new LaserCan(DriveConstants.IDs.LEFT_LASERCAN_ID);
         rightLaserCan = new LaserCan(DriveConstants.IDs.RIGHT_LASERCAN_ID);
         distanceController = new PIDController(
-                0.015, 0, 0.00001
+                3, 0, 0
         );
-        distanceController.setTolerance(1);
-        distanceController.setSetpoint(alignDistance_mm);
+        distanceController.setTolerance(0.01);
+        distanceController.setSetpoint(alignDistance_mm / 1000);
     }
 
     private double getMeasurement(LaserCan laserCAN) {
@@ -87,14 +88,14 @@ public class LasercanAlign extends SubsystemBase {
     public void periodic() {
         double currentMeasurement = getDistance_mm();
         if (currentMeasurement == -1) {
-            distanceController.calculate(previousDistance);
+            distanceController.calculate(previousDistance / 1000);
         } else {
-            distanceController.calculate(currentMeasurement);
+            distanceController.calculate(currentMeasurement / 1000);
             previousDistance = currentMeasurement;
         }
     }
 
     public double getOutput() {
-        return distanceController.calculate(getDistance_mm());
+        return distanceController.calculate(getDistance_mm() / 1000);
     }
 }
