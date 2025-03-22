@@ -58,7 +58,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
     private boolean didApplyOperatorPerspective = false;
 
-    private final PhoenixPIDController headingController = new PhoenixPIDController(28.48, 0, 1.1466);
+    private final PhoenixPIDController headingController = new PhoenixPIDController(5, 0, 0);
     protected final PIDController
             pathXController = new PIDController(18, 0, 0),
             pathYController = new PIDController(18, 0, 0),
@@ -278,7 +278,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                     Vision.addGlobalVisionMeasurements(this, true);
                 }).andThen(applyRequest(
                         () -> {
-                            Vector<N2> translationVector = getTranslationVector(super.currentAlignTarget);
+                            Vector<N2> translationVector = getTranslationVector(targetPose);
 
                             var request = new SwerveRequest.RobotCentric();
                             double rotationalRate;
@@ -303,7 +303,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                                             pidXController.getSetpoint().position,
                                             pidYController.getSetpoint().position
                                     ),
-                                    super.currentAlignTarget
+                                    super.currentAlignTarget.getRotation()
                             );
                             Translation2d toSetpointTranslation = new Translation2d(
                                     -setpointVector.get(0),
@@ -315,9 +315,20 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                             );
                             field.getObject("Setpoint Pose").setPose(setpointPose);
 
+                            ChassisSpeeds reefRelativeSpeeds = new ChassisSpeeds(
+                                -pidXController.calculate(translationVector.get(0)),
+                                -pidYController.calculate(translationVector.get(1)),
+                                rotationalRate
+                            );
+
+                            ChassisSpeeds robotRelativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+                                reefRelativeSpeeds, 
+                                getPose().getRotation().minus(targetPose.getRotation())
+                            );
+
                             return request
-                                    .withVelocityX(-pidXController.calculate(translationVector.get(0)))
-                                    .withVelocityY(-pidYController.calculate(translationVector.get(1)))
+                                    .withVelocityX(robotRelativeSpeeds.vxMetersPerSecond)
+                                    .withVelocityY(robotRelativeSpeeds.vyMetersPerSecond)
                                     .withRotationalRate(rotationalRate);
                         }
                 ).until(
@@ -352,8 +363,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         return translationVector;
     }
 
-    private Vector<N2> invertTranslationVector(Vector<N2> vector, Pose2d targetPose) {
-        Rotation2d rotation = targetPose.getRotation();
+    private Vector<N2> invertTranslationVector(Vector<N2> vector, Rotation2d rotation) {
         Matrix<N2, N2> rotationMatrix = new Matrix<>(
                 Nat.N2(),
                 Nat.N2(),
