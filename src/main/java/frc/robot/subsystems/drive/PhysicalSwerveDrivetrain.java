@@ -281,12 +281,22 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                             Vector<N2> translationVector = getTranslationVector(super.currentAlignTarget);
 
                             var request = new SwerveRequest.RobotCentric();
-                            double rotationalRate =
-                                    headingController.calculate(
-                                            getPose().getRotation().getRadians(),
-                                            super.currentAlignTarget.getRotation().getRadians(),
-                                            Timer.getFPGATimestamp()
-                                    );
+                            double rotationalRate;
+                            if (getCalculatedRotationFromAlign().isEmpty()) {
+                                rotationalRate =
+                                        headingController.calculate(
+                                                getPose().getRotation().getRadians(),
+                                                super.currentAlignTarget.getRotation().getRadians(),
+                                                Timer.getFPGATimestamp()
+                                        );
+                            } else {
+                                rotationalRate =
+                                        headingController.calculate(
+                                                getCalculatedRotationFromAlign().get().getRadians(),
+                                                0,
+                                                Timer.getFPGATimestamp()
+                                        );
+                            }
 
                             Vector<N2> setpointVector = invertTranslationVector(
                                     VecBuilder.fill(

@@ -57,7 +57,9 @@ public class LasercanAlign extends SubsystemBase {
         double lasercanDistance = DriveConstants.laserCanDistanceMM.in(Millimeters);
         double lasercanCenterDistance = lasercanDistance / 2.0;
         double distanceAdjustment = rotationDiff.getTan() * lasercanCenterDistance;
-        return (left? -distanceAdjustment : distanceAdjustment) + centerDist - 573.9;
+        double res = (left? -distanceAdjustment : distanceAdjustment) + centerDist - 573.9;
+        if (res >= 2000) return -1;
+        return res;
     }
 
     public double getLeftMeasurement() {
