@@ -62,7 +62,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     protected final PIDController
             pathXController = new PIDController(1, 0, 0),
             pathYController = new PIDController(1, 0, 0),
-            pathHeadingController = new PIDController(5, 0, 0);
+            pathHeadingController = new PIDController(10, 0, 0);
     protected ProfiledPIDController
             pidXController = constructPIDXController();
     protected ProfiledPIDController pidYController = constructPIDYController();
@@ -398,7 +398,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         return Commands.runOnce(() -> {
             Vector<N2> translationVector = getTranslationVector(targetPose);
             pidYController.reset(translationVector.get(1));
-            pidYController.setTolerance(0.075);
+            pidYController.setTolerance(0.05);
             shouldUseMTSTDevs = true;
         }).andThen(
                 applyRequest(
@@ -427,7 +427,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                         boolean res = MathUtil.isNear(
                                 getDistanceFromReefFace(), 
                                 LasercanAlign.alignDistance_mm, 
-                                15      
+                                10      
                         ) && MathUtil.isNear(
                                 getCalculatedRotationFromAlign().orElseGet(() -> new Rotation2d()).getDegrees(), 
                                 0, 
@@ -435,7 +435,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                         ) && pidYController.atGoal();
                         SmartDashboard.putBoolean("PIDY at setpoint", pidYController.atGoal());
                         return res;
-                }).debounce(0.25)
+                }).debounce(0.375)
         ).finallyDo(
                 () -> shouldUseMTSTDevs = false
         );

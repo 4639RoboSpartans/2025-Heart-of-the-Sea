@@ -77,7 +77,7 @@ public final class ScoringSuperstructure extends SubsystemBase {
     }
 
     public boolean elevatorLowThreshold() {
-        return elevator.getCurrentExtensionFraction() <= 0.5;
+        return elevator.getCurrentExtensionFraction() <= 0.7;
     }
 
     /**
