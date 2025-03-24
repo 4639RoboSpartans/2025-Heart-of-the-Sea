@@ -32,7 +32,6 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.limelight.LimelightHelpers;
 import frc.lib.util.DriverStationUtil;
@@ -151,9 +150,6 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
         headingController.enableContinuousInput(-Math.PI, Math.PI);
         drivetrain.setVisionMeasurementStdDevs(new Matrix<N3, N1>(Nat.N3(), Nat.N1(), new double[]{5, 5, 10}));
-
-        RobotModeTriggers.autonomous().onTrue(Commands.runOnce(() -> this.setVisionStandardDeviations(0.5, 0.5, 10)));
-        RobotModeTriggers.teleop().onTrue(Commands.runOnce(() -> this.setVisionStandardDeviations(10, 10, 1000)));
     }
 
     @Override
@@ -345,7 +341,6 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                         getNearTargetPoseTrigger(targetPose)
                 )).andThen(stop().withTimeout(0.1))
                 .finallyDo(() -> {
-                    setVisionStandardDeviations(5, 5, 10);
                     shouldUseMTSTDevs = false;
                     isAligning = false;
                     isAligned = false;

@@ -17,7 +17,6 @@ public class DriveCommands {
     private static final AbstractSwerveDrivetrain drivetrain = SubsystemManager.getInstance().getDrivetrain();
 
     public static Command moveToClosestReefPositionWithPID(TargetPositions.Direction direction, Supplier<Pose2d> currentRobotPose) {
-        drivetrain.setVisionStandardDeviations(0.1, 0.1, 10);
 
         var nearestReefPose = getClosestTarget(currentRobotPose);
 
@@ -28,8 +27,6 @@ public class DriveCommands {
     }
 
     public static Command moveToClosestReefPositionWithPathPlanner(TargetPositions.Direction direction, Supplier<Pose2d> currentRobotPose) {
-        drivetrain.setVisionStandardDeviations(0.1, 0.1, 10);
-
         var nearestReefPose = getClosestTarget(currentRobotPose);
 
         var desiredPose = PoseUtil.ReefRelativeFromDirection(nearestReefPose, direction);
@@ -39,7 +36,6 @@ public class DriveCommands {
     }
 
     public static Command moveToClosestReefPositionWithLC(TargetPositions.Direction direction, Supplier<Pose2d> currentRobotPose) {
-        drivetrain.setVisionStandardDeviations(0.1, 0.1, 10);
 
         var nearestReefPose = getClosestTarget(currentRobotPose);
 
