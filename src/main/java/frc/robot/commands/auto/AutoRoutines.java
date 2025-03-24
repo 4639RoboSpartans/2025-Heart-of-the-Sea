@@ -304,10 +304,7 @@ public class AutoRoutines {
     private static void addDirectlyMoveToCommand(List<Command> commands, FieldConstants.TargetPositions targetPose) {
         commands.add(
                 DriveCommands.moveToReefPosition(
-                    targetPose,
-                    () -> {
-                        return SubsystemManager.getInstance().getDrivetrain().getPose();
-                    }
+                    targetPose
                 )
         );
     }

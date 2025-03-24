@@ -254,29 +254,15 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     }
 
     @Override
-    public Command resetHeadingToZero() {
-        return runOnce(
-                () -> {
-                    fieldCentricZeroRotation = getPose().getRotation();
-                }
-        );
-    }
-
-    @Override
-    public Command stop() {
-        return applyRequest(SwerveRequest.SwerveDriveBrake::new);
-    }
-
-    @Override
     public Command _directlyMoveTo(Pose2d targetPose, Supplier<Pose2d> currentPose) {
         return Commands.runOnce(() -> {
-                    Vector<N2> translationVector = getTranslationVector(super.currentAlignTarget);
+                    Vector<N2> translationVector = getTranslationVector(targetPose);
                     pidXController.reset(translationVector.get(0));
                     pidYController.reset(translationVector.get(1));
                     pidXController.setGoal(0);
                     pidYController.setGoal(0);
                     SmartDashboard.putNumber("distanceThresholdMeters", 10);
-                    field.getObject("Target Pose").setPose(super.currentAlignTarget);
+                    field.getObject("Target Pose").setPose(targetPose);
                     isAligning = true;
                     isAligned = false;
                     shouldUseMTSTDevs = true;
@@ -292,7 +278,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                                 rotationalRate =
                                         headingController.calculate(
                                                 getPose().getRotation().getRadians(),
-                                                super.currentAlignTarget.getRotation().getRadians(),
+                                                targetPose.getRotation().getRadians(),
                                                 Timer.getFPGATimestamp()
                                         );
                             } else {
@@ -309,7 +295,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                                             pidXController.getSetpoint().position,
                                             pidYController.getSetpoint().position
                                     ),
-                                    super.currentAlignTarget.getRotation()
+                                    targetPose.getRotation()
                             );
                             Translation2d toSetpointTranslation = new Translation2d(
                                     -setpointVector.get(0),
@@ -431,7 +417,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                             LasercanAlign.alignDistance_mm,
                             10
                     ) && MathUtil.isNear(
-                            getCalculatedRotationFromAlign().orElseGet(() -> new Rotation2d()).getDegrees(),
+                            getCalculatedRotationFromAlign().orElseGet(Rotation2d::new).getDegrees(),
                             0,
                             1
                     ) && pidYController.atGoal();
@@ -653,5 +639,27 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         return Commands.runOnce(
                 () -> shouldAutoSetHeading = !shouldAutoSetHeading
         );
+    }
+
+    @Override
+    public Command resetHeadingToZero() {
+        return runOnce(
+                () -> {
+                    fieldCentricZeroRotation = getPose().getRotation();
+                    resetPose(
+                            new Pose2d(
+                                    getPose().getTranslation(),
+                                    DriverStationUtil.getAlliance() == Alliance.Red
+                                            ? Rotation2d.k180deg
+                                            : Rotation2d.kZero
+                            )
+                    );
+                }
+        );
+    }
+
+    @Override
+    public Command stop() {
+        return applyRequest(SwerveRequest.SwerveDriveBrake::new);
     }
 }

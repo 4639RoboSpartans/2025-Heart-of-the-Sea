@@ -78,8 +78,7 @@ public abstract class AbstractSwerveDrivetrain extends SubsystemBase {
                 .finallyDo(() -> currentAlignTarget = null);
     }
 
-    public abstract Command 
-    fineTuneUsingLaserCANCommand(Pose2d targetPose);
+    public abstract Command fineTuneUsingLaserCANCommand(Pose2d targetPose);
 
     public abstract Command pathToPoseCommand(Pose2d targetPose);
 

@@ -45,7 +45,7 @@ public class DriveCommands {
                 .until(new Trigger(() -> PoseUtil.withinTolerance(desiredPose, currentRobotPose.get(), Units.inchesToMeters(2))).debounce(0.1));
     }
 
-    public static Command moveToReefPosition(TargetPositions position, Supplier<Pose2d> currentRobotPose) {
+    public static Command moveToReefPosition(TargetPositions position) {
         var desiredPose = position.getAllianceRespectivePose();
 
         return DriveCommands.drivetrain.fineTuneUsingLaserCANCommand(desiredPose);
