@@ -35,8 +35,7 @@ public class SubsystemManager {
     private SubsystemManager() {}
 
     public void instantiateSubsystems() {
-        //TODO: the climber doesnt exist so i will probably dummy it out
-        //climberSubsystem = AbstractClimberSubsystem.getInstance();
+        climberSubsystem = AbstractClimberSubsystem.getInstance();
         drivetrain = AbstractSwerveDrivetrain.getInstance(getInstanceAccess);
         scoringSuperstructure = ScoringSuperstructure.getInstance(getInstanceAccess);
         ledStripSubsystem = LEDStrip.getInstance(getInstanceAccess);

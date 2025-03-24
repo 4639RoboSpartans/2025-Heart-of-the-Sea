@@ -1,25 +1,70 @@
 package frc.robot.subsystems.climber;
-
-import java.util.Objects;
-import java.util.function.DoubleSupplier;
-
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.lib.annotation.ForSubsystemManagerUseOnly;
-import frc.robot.subsystems.SubsystemManager;
+import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public abstract class AbstractClimberSubsystem extends SubsystemBase {
-    private static AbstractClimberSubsystem instance;
+    abstract void setClimberSpeed(double speed);
+    abstract ClimberState getClimberState();
+    abstract void setClimberState(ClimberState state);
+    abstract void setServoPosition(double servoPosition);
+    abstract double getServoPosition();
 
-    /**
-     * This method should only be accessed from the SubsystemManager class. In other places, use
-     * {@link SubsystemManager#getClimberSubsystem()} instead.
-     */
-    @ForSubsystemManagerUseOnly
-    public static AbstractClimberSubsystem getInstance(SubsystemManager.GetInstanceAccess access) {
-        Objects.requireNonNull(access);
-        return instance = Objects.requireNonNullElseGet(instance, ConcreteClimberSubsystem::new);
+    static enum ClimberState{
+        IDLE,
+        READY,
+        CLIMBING;
     }
 
-    public abstract Command runClimber(DoubleSupplier speedSupplier);
+    void init(){
+        //reset state to idle when auto or teleop starts
+        RobotModeTriggers.autonomous().onTrue(setState(ClimberState.IDLE));
+        RobotModeTriggers.teleop().onTrue(setState(ClimberState.IDLE));
+
+        //put override on Smart Dashboard
+        SmartDashboard.putBoolean("Climber Override", false);
+    }
+
+    public static AbstractClimberSubsystem getInstance(){
+        return RobotBase.isReal() ? ConcreteClimberSubsystem.getInstance() : SimClimberSubsystem.getInstance();
+    }
+
+    public void stopClimber() {
+        setClimberSpeed(0);
+    }
+
+    public Command climberUp(){
+        return runOnce(() -> setClimberSpeed(ClimberConstants.climberSpeed.get()))
+                .andThen(setState(ClimberState.CLIMBING))
+                .andThen(Commands.idle(this))
+                .finallyDo(this::stopClimber);
+    }
+
+    public Command climberDown(){
+        return runOnce(() -> setClimberSpeed(-ClimberConstants.climberSpeed.get()))
+                .andThen(setState(ClimberState.READY))
+                .andThen(Commands.idle(this))
+                .finallyDo(this::stopClimber);
+    }
+
+    public Command dropFunnel(){
+        return runOnce(() -> setServoPosition(ClimberConstants.ServoSetpoints.dropPosition.get()))
+                .andThen(setState(ClimberState.READY));
+    }
+
+    Command setState(ClimberState state){
+        return runOnce(() -> setClimberState(state));
+    }
+
+    public static boolean validateClimbScenario(){
+        return DriverStation.getMatchTime() <= 30 || SmartDashboard.getBoolean("Climber Override", false);
+    }
+
+    public static Trigger allowClimb = new Trigger(AbstractClimberSubsystem::validateClimbScenario);
+    public static Trigger noAllowClimb = allowClimb.negate();
 }
