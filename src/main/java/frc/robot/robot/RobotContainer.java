@@ -24,6 +24,7 @@ import frc.robot.commands.auto.AutoRoutines.AutonSupplier;
 import frc.robot.constants.Controls;
 import frc.robot.constants.FieldConstants;
 import frc.robot.subsystems.SubsystemManager;
+import frc.robot.subsystems.climber.AbstractClimberSubsystem;
 import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
 import frc.robot.subsystems.drive.DriveCommands;
 import frc.robot.subsystems.drive.DriveSysID;
@@ -154,6 +155,10 @@ public class RobotContainer {
 
         FunctionalTrigger.of(Controls.Driver.processorAlign)
             .whileTrue(DriveCommands::moveToProcessor);
+
+        Controls.Driver.dropFunnelTrigger.onTrue(SubsystemManager.getInstance().getClimberSubsystem().dropFunnel());
+        Controls.Driver.unspoolCimberTrigger.whileTrue(SubsystemManager.getInstance().getClimberSubsystem().climberUp());
+        Controls.Driver.spoolCimberTrigger.whileTrue(SubsystemManager.getInstance().getClimberSubsystem().climberDown());
 
 
         // OI.getInstance().driverController().Y_BUTTON.whileTrue(

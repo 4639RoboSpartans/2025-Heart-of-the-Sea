@@ -6,7 +6,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public abstract class AbstractClimberSubsystem extends SubsystemBase {
     abstract void setClimberSpeed(double speed);
@@ -27,7 +26,7 @@ public abstract class AbstractClimberSubsystem extends SubsystemBase {
         RobotModeTriggers.teleop().onTrue(setState(ClimberState.IDLE));
 
         //put override on Smart Dashboard
-        SmartDashboard.putBoolean("Climber Override", false);
+        SmartDashboard.putBoolean("climber/Climber Override", false);
     }
 
     public static AbstractClimberSubsystem getInstance(){
@@ -61,10 +60,11 @@ public abstract class AbstractClimberSubsystem extends SubsystemBase {
         return runOnce(() -> setClimberState(state));
     }
 
-    public static boolean validateClimbScenario(){
-        return DriverStation.getMatchTime() <= 30 || SmartDashboard.getBoolean("Climber Override", false);
+    public static boolean funnelDropAllowed(){
+        return getInstance().getClimberState().equals(ClimberState.IDLE) && (DriverStation.getMatchTime() <= 30 || SmartDashboard.getBoolean("climber/Climber Override", false));
     }
 
-    public static Trigger allowClimb = new Trigger(AbstractClimberSubsystem::validateClimbScenario);
-    public static Trigger noAllowClimb = allowClimb.negate();
+    public static boolean readyToClimb() {
+        return getInstance().getClimberState().equals(ClimberState.READY) || getInstance().getClimberState().equals(ClimberState.CLIMBING);
+    }
 }
