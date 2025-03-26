@@ -6,13 +6,10 @@ import frc.robot.subsystems.scoring.constants.ScoringConstants.ElevatorConstants
 import frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConstants.IntakeSpeeds;
 import frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConstants.WristSetpoints;
 
-import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
 
 public class ScoringSuperstructureAction {
-    private static BooleanSupplier shouldUseInterpolatingSetpoints = SubsystemManager.getInstance()
-            .getScoringSuperstructure()::shouldUseInterpolatingSetpoints;
 
     public DoubleSupplier targetElevatorExtensionFraction = () -> 0;
     public DoubleSupplier targetWristRotationFraction = () -> 0;
@@ -122,8 +119,10 @@ public class ScoringSuperstructureAction {
             .useManualControlInTeleop(false),
         SCORE_L1_CORAL = new ScoringSuperstructureAction("SCORE_L1_CORAL")
             .withTargetElevatorExtensionFraction(() -> {
+                boolean shouldUseInterpolatingSetpoints = SubsystemManager.getInstance()
+                        .getScoringSuperstructure().shouldUseInterpolatingSetpoints();
                 double res = ElevatorSetpoints.L1_Proportion + (drivetrain.getDistanceFromReefFace() - 387.5) * 0.00025;
-                return res < 1 &&  shouldUseInterpolatingSetpoints.getAsBoolean()
+                return res < 1 &&  shouldUseInterpolatingSetpoints
                         ? res
                         : ElevatorSetpoints.L1_Proportion;
             })
@@ -134,8 +133,10 @@ public class ScoringSuperstructureAction {
             .withStateAfter(IDLE),
         SCORE_L2_CORAL = new ScoringSuperstructureAction("SCORE_L2_CORAL")
             .withTargetElevatorExtensionFraction(() -> {
+                boolean shouldUseInterpolatingSetpoints = SubsystemManager.getInstance()
+                        .getScoringSuperstructure().shouldUseInterpolatingSetpoints();
                 double res = ElevatorSetpoints.L2_Proportion + (drivetrain.getDistanceFromReefFace() - 387.5) * 0.00025;
-                return res < 1 &&  shouldUseInterpolatingSetpoints.getAsBoolean()
+                return res < 1 &&  shouldUseInterpolatingSetpoints
                         ? res
                         : ElevatorSetpoints.L2_Proportion;
             })
@@ -146,8 +147,10 @@ public class ScoringSuperstructureAction {
             .withStateAfter(IDLE),
         SCORE_L3_CORAL = new ScoringSuperstructureAction("SCORE_L3_CORAL")
             .withTargetElevatorExtensionFraction(() -> {
+                boolean shouldUseInterpolatingSetpoints = SubsystemManager.getInstance()
+                        .getScoringSuperstructure().shouldUseInterpolatingSetpoints();
                 double res = ElevatorSetpoints.L3_Proportion + (drivetrain.getDistanceFromReefFace() - 387.5) * 0.00025;
-                return res < 1 &&  shouldUseInterpolatingSetpoints.getAsBoolean()
+                return res < 1 &&  shouldUseInterpolatingSetpoints
                         ? res
                         : ElevatorSetpoints.L3_Proportion;
             })
@@ -158,8 +161,10 @@ public class ScoringSuperstructureAction {
             .withStateAfter(IDLE),
         SCORE_L4_CORAL = new ScoringSuperstructureAction("SCORE_L4_CORAL")
             .withTargetElevatorExtensionFraction(() -> {
+                boolean shouldUseInterpolatingSetpoints = SubsystemManager.getInstance()
+                        .getScoringSuperstructure().shouldUseInterpolatingSetpoints();
                 double res = ElevatorSetpoints.L4_Proportion + (drivetrain.getDistanceFromReefFace() - 387.5) * 0.00025;
-                return res < 1 &&  shouldUseInterpolatingSetpoints.getAsBoolean()
+                return res < 1 &&  shouldUseInterpolatingSetpoints
                         ? res
                         : ElevatorSetpoints.L4_Proportion;
             })
