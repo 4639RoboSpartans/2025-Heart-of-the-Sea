@@ -59,8 +59,5 @@ public class SimSwerveDrivetrain extends PhysicalSwerveDrivetrain {
     @Override
     public void periodic() {
         super.periodic();
-        SmartDashboard.putNumber("Distance to Closest Reef", getDistanceFromReefFace());
-        SmartDashboard.putNumber("Left LaserCAN Distance", SubsystemManager.getInstance().getLasercanAlign().getLeftMeasurement());
-        SmartDashboard.putNumber("Right LaserCAN Distance", SubsystemManager.getInstance().getLasercanAlign().getRightMeasurement());
     }
 }

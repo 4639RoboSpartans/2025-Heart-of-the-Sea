@@ -151,10 +151,6 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
 
         double wristPIDOutput = -wristPID.calculate(currentWristPosition, targetWristPosition);
 
-        SmartDashboard.putNumber("Wrist raw position", wristAbsoluteEncoder.get());
-        SmartDashboard.putNumber("LC Measurement", getMeasurement());
-
-        SmartDashboard.putNumber("Wrist Relative Measurement", relativeEncoderMeasurementToAbsoluteMeasurement.convert(wristAbsoluteEncoder.get()) + PositionToRotation.convertBackwards(RotationStartingPosition));
         wristMotor.setVoltage(wristPIDOutput);
         intakeMotor.set(intakeSpeed);
     }

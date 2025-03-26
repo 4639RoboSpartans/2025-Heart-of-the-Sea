@@ -73,7 +73,6 @@ public class SimElevatorSubsystem extends AbstractElevatorSubsystem {
 
             elevatorSim.setInputVoltage(output);
         }
-        SmartDashboard.putBoolean("Is manual", isManualControlEnabled);
 
         elevatorSim.update(0.020);
         elevatorSim.setState(elevatorSim.getPositionMeters(), elevatorSim.getVelocityMetersPerSecond());

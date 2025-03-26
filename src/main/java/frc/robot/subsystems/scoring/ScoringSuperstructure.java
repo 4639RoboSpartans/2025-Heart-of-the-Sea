@@ -46,7 +46,6 @@ public final class ScoringSuperstructure extends SubsystemBase {
     public ScoringSuperstructure(SubsystemManager.GetInstanceAccess access) {
         this.elevator = AbstractElevatorSubsystem.getInstance(access);
         this.endEffector = AbstractEndEffectorSubsystem.getInstance(access);
-        SmartDashboard.putBoolean("isManualControlEnabled", isManualControlEnabled);
     }
 
     private boolean maybeNeedsTransition = false;
@@ -179,7 +178,6 @@ public final class ScoringSuperstructure extends SubsystemBase {
     }
 
     private void runActionPeriodic() {
-        SmartDashboard.putNumber("Commanded Intake Speed", currentAction.intakeSpeed);
         // Update maybeNeedsTransition
         switch (currentState) {
             case TRANSITION_AFTER_ELEVATOR, EXECUTING_ACTION, DONE -> {
@@ -219,7 +217,6 @@ public final class ScoringSuperstructure extends SubsystemBase {
         endEffector.setIntakeSpeed(intakeSpeed);
 
         // Advance the state if necessary
-        SmartDashboard.putBoolean("Should Advance State", currentState.shouldAdvanceState(currentAction, endEffector, elevator));
         if (currentState.shouldAdvanceState(currentAction, endEffector, elevator)) {
             currentState = currentState.next();
             resetAdjustments();
@@ -270,13 +267,8 @@ public final class ScoringSuperstructure extends SubsystemBase {
             setCurrentAction(ScoringSuperstructureAction.IDLE);
         }
         runActionPeriodic();
-        SmartDashboard.putNumber("Elevator Fraction", elevator.getCurrentExtensionFraction());
-        SmartDashboard.putNumber("Target Elevator Fraction", elevator.getTargetExtensionFraction());
-        SmartDashboard.putNumber("Wrist Position", endEffector.getCurrentMotorPosition());
         SmartDashboard.putString("State", currentState.name());
         SmartDashboard.putString("Action", currentAction.toString());
-
-        SmartDashboard.putBoolean("is in auton", RobotState.isAutonomous());
     }
 
     /**

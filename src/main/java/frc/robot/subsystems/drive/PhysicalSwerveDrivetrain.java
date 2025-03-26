@@ -173,10 +173,6 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         ChassisSpeeds chassisSpeeds = getRawFieldSpeeds();
 
         Rotation2d currentRobotRotation = getPose().getRotation();
-
-        SmartDashboard.putNumber("robot rotation", currentRobotRotation.getDegrees());
-        SmartDashboard.putNumber("robot rotation offset", fieldCentricZeroRotation.getDegrees());
-
         SwerveSetpoint setpoint = swerveSetpointGenerator.generateSetpoint(
                 prevSwerveSetpoint,
                 ChassisSpeeds.fromFieldRelativeSpeeds(
@@ -261,7 +257,6 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                     pidYController.reset(translationVector.get(1));
                     pidXController.setGoal(0);
                     pidYController.setGoal(0);
-                    SmartDashboard.putNumber("distanceThresholdMeters", 10);
                     field.getObject("Target Pose").setPose(targetPose);
                     isAligning = true;
                     isAligned = false;
@@ -349,8 +344,6 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                 }
         );
         Vector<N2> translationVector = new Vector<>(rotationMatrix.times(poseDiff));
-        SmartDashboard.putNumber("Translation Forwards", translationVector.get(0));
-        SmartDashboard.putNumber("Translation Side", translationVector.get(1));
         return translationVector;
     }
 
@@ -366,8 +359,6 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                 }
         );
         Vector<N2> translationVector = new Vector<>(rotationMatrix.times(vector));
-        SmartDashboard.putNumber("Translation Forwards", translationVector.get(0));
-        SmartDashboard.putNumber("Translation Side", translationVector.get(1));
         return translationVector;
     }
 
@@ -403,7 +394,6 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                                     -pidYController.calculate(translationVector.get(1)),
                                     rotationOutput
                             );
-                            SmartDashboard.putNumber("Rotation Output", rotationOutput);
                             return new SwerveRequest.RobotCentric()
                                     .withVelocityX(robotCentricSpeeds.vxMetersPerSecond)
                                     .withVelocityY(robotCentricSpeeds.vyMetersPerSecond)
