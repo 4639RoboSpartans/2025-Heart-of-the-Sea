@@ -123,7 +123,8 @@ public class RobotContainer {
             );
 
             Controls.Operator.HomingCommandTrigger.whileTrue(scoringSuperstructure.elevatorHomingCommand());
-            // Controls.Operator.homingWristCommandTrigger.whileTrue(scoringSuperstructure.wristHomingCommand());
+
+            Controls.Operator.UseInterpolatingSetpoints.onTrue(scoringSuperstructure.toggleUseInterpolatingSetpoints());
         }
 
         FunctionalTrigger.of(Controls.Driver.alignReefLeft)

@@ -76,11 +76,6 @@ public class Robot extends LoggedRobot {
 
 
     @Override
-    public void autonomousExit() {
-    }
-
-
-    @Override
     public void teleopInit() {
         SignalLogger.start();
         if (autonomousCommand != null) {
@@ -103,15 +98,5 @@ public class Robot extends LoggedRobot {
     @Override
     public void testInit() {
         CommandScheduler.getInstance().cancelAll();
-    }
-
-
-    @Override
-    public void testPeriodic() {
-    }
-
-
-    @Override
-    public void testExit() {
     }
 }

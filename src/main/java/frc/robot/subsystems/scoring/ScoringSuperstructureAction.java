@@ -6,12 +6,14 @@ import frc.robot.subsystems.scoring.constants.ScoringConstants.ElevatorConstants
 import frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConstants.IntakeSpeeds;
 import frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConstants.WristSetpoints;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
 public class ScoringSuperstructureAction {
+    private static BooleanSupplier shouldUseInterpolatingSetpoints = SubsystemManager.getInstance()
+            .getScoringSuperstructure()::shouldUseInterpolatingSetpoints;
+
     public DoubleSupplier targetElevatorExtensionFraction = () -> 0;
     public DoubleSupplier targetWristRotationFraction = () -> 0;
     public double intakeSpeed = 0;
@@ -121,7 +123,9 @@ public class ScoringSuperstructureAction {
         SCORE_L1_CORAL = new ScoringSuperstructureAction("SCORE_L1_CORAL")
             .withTargetElevatorExtensionFraction(() -> {
                 double res = ElevatorSetpoints.L1_Proportion + (drivetrain.getDistanceFromReefFace() - 387.5) * 0.00025;
-                return res > 1 ? ElevatorSetpoints.L1_Proportion : res;
+                return res < 1 &&  shouldUseInterpolatingSetpoints.getAsBoolean()
+                        ? res
+                        : ElevatorSetpoints.L1_Proportion;
             })
             .withTargetWristRotationFraction(() -> WristSetpoints.Wrist_L1_Proportion)
             .withIntakeSpeed(IntakeSpeeds.Intake_L1_Speed)
@@ -131,7 +135,9 @@ public class ScoringSuperstructureAction {
         SCORE_L2_CORAL = new ScoringSuperstructureAction("SCORE_L2_CORAL")
             .withTargetElevatorExtensionFraction(() -> {
                 double res = ElevatorSetpoints.L2_Proportion + (drivetrain.getDistanceFromReefFace() - 387.5) * 0.00025;
-                return res > 1 ? ElevatorSetpoints.L2_Proportion : res;
+                return res < 1 &&  shouldUseInterpolatingSetpoints.getAsBoolean()
+                        ? res
+                        : ElevatorSetpoints.L2_Proportion;
             })
             .withTargetWristRotationFraction(() -> WristSetpoints.Wrist_L2_Proportion)
             .withIntakeSpeed(IntakeSpeeds.Intake_L2_Speed)
@@ -141,7 +147,9 @@ public class ScoringSuperstructureAction {
         SCORE_L3_CORAL = new ScoringSuperstructureAction("SCORE_L3_CORAL")
             .withTargetElevatorExtensionFraction(() -> {
                 double res = ElevatorSetpoints.L3_Proportion + (drivetrain.getDistanceFromReefFace() - 387.5) * 0.00025;
-                return res > 1 ? ElevatorSetpoints.L3_Proportion : res;
+                return res < 1 &&  shouldUseInterpolatingSetpoints.getAsBoolean()
+                        ? res
+                        : ElevatorSetpoints.L3_Proportion;
             })
             .withTargetWristRotationFraction(() -> WristSetpoints.Wrist_L3_Proportion)
             .withIntakeSpeed(IntakeSpeeds.Intake_L3_Speed)
@@ -151,7 +159,9 @@ public class ScoringSuperstructureAction {
         SCORE_L4_CORAL = new ScoringSuperstructureAction("SCORE_L4_CORAL")
             .withTargetElevatorExtensionFraction(() -> {
                 double res = ElevatorSetpoints.L4_Proportion + (drivetrain.getDistanceFromReefFace() - 387.5) * 0.00025;
-                return res > 1 ? ElevatorSetpoints.L4_Proportion : res;
+                return res < 1 &&  shouldUseInterpolatingSetpoints.getAsBoolean()
+                        ? res
+                        : ElevatorSetpoints.L4_Proportion;
             })
             .withTargetWristRotationFraction(() -> WristSetpoints.Wrist_L4_Proportion)
             .withIntakeSpeed(IntakeSpeeds.Intake_L4_Speed)

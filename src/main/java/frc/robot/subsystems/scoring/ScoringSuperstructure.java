@@ -42,6 +42,7 @@ public final class ScoringSuperstructure extends SubsystemBase {
     private double wristAdjustment = 0;
 
     private boolean isManualControlEnabled = false;
+    private boolean useInterpolatingSetpoints = true;
 
     public ScoringSuperstructure(SubsystemManager.GetInstanceAccess access) {
         this.elevator = AbstractElevatorSubsystem.getInstance(access);
@@ -77,6 +78,10 @@ public final class ScoringSuperstructure extends SubsystemBase {
 
     public boolean elevatorLowThreshold() {
         return elevator.getCurrentExtensionFraction() <= 0.7;
+    }
+
+    public boolean shouldUseInterpolatingSetpoints() {
+        return useInterpolatingSetpoints;
     }
 
     /**
@@ -330,6 +335,12 @@ public final class ScoringSuperstructure extends SubsystemBase {
     public Command setAutoOuttake(boolean shouldOuttake) {
         return Commands.runOnce(
             () -> autoShouldOuttake = shouldOuttake
+        );
+    }
+
+    public Command toggleUseInterpolatingSetpoints() {
+        return Commands.runOnce(
+                () -> useInterpolatingSetpoints = !useInterpolatingSetpoints
         );
     }
 }
