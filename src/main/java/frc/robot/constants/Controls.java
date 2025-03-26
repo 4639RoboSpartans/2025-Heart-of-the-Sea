@@ -62,6 +62,8 @@ public class Controls {
         public static final Trigger unspoolCimberTrigger = driverController.POV_LEFT.and(AbstractClimberSubsystem::readyToClimb);
         public static final Trigger spoolCimberTrigger = driverController.POV_RIGHT.and(AbstractClimberSubsystem::readyToClimb);
 
+        public static final Trigger bindFunneltrigger = driverController.XBOX_START_BUTTON;
+
         public static final Trigger L2AlgaeTrigger = driverController.POV_DOWN;
         public static final Trigger L3AlgaeTrigger = driverController.POV_UP;
         public static final Trigger ProcessorTrigger = driverController.Y_BUTTON;

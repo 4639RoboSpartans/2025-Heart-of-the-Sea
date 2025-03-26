@@ -56,6 +56,11 @@ public abstract class AbstractClimberSubsystem extends SubsystemBase {
                 .andThen(setState(ClimberState.READY));
     }
 
+    public Command bindFunnel(){
+        return runOnce(() -> setServoPosition(ClimberConstants.ServoSetpoints.holdingPosition.get()))
+                .andThen(setState(ClimberState.IDLE));
+    }
+
     Command setState(ClimberState state){
         return runOnce(() -> setClimberState(state));
     }
