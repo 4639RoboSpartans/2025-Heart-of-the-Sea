@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.robot.Robot;
 import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.drive.constants.DriveConstants;
+import frc.robot.subsystems.drive.constants.DrivePIDs;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -18,10 +19,10 @@ import static edu.wpi.first.units.Units.Millimeters;
 
 public class LasercanAlign extends SubsystemBase {
     private static LasercanAlign instance;
-    private static final double alignDistance_mm = 237;
+    public static final double alignDistance_mm = 387.5;
 
-    public static LasercanAlign getInstance(SubsystemManager.GetInstanceAccess access) {
-        Objects.requireNonNull(access);
+    public static LasercanAlign getInstance(SubsystemManager.GetInstanceAccess getInstanceAccess) {
+        Objects.requireNonNull(getInstanceAccess);
         return Objects.requireNonNullElseGet(instance, LasercanAlign::new);
     }
 
@@ -33,10 +34,10 @@ public class LasercanAlign extends SubsystemBase {
         leftLaserCan = new LaserCan(DriveConstants.IDs.LEFT_LASERCAN_ID);
         rightLaserCan = new LaserCan(DriveConstants.IDs.RIGHT_LASERCAN_ID);
         distanceController = new PIDController(
-                0.015, 0, 0.00001
+                DrivePIDs.lasercanXkP.get(), 0, 0
         );
-        distanceController.setTolerance(1);
-        distanceController.setSetpoint(alignDistance_mm);
+        distanceController.setTolerance(0.01);
+        distanceController.setSetpoint(alignDistance_mm / 1000);
     }
 
     private double getMeasurement(LaserCan laserCAN) {
@@ -59,7 +60,9 @@ public class LasercanAlign extends SubsystemBase {
         double lasercanDistance = DriveConstants.laserCanDistanceMM.in(Millimeters);
         double lasercanCenterDistance = lasercanDistance / 2.0;
         double distanceAdjustment = rotationDiff.getTan() * lasercanCenterDistance;
-        return (left? -distanceAdjustment : distanceAdjustment) + centerDist - 573.9;
+        double res = (left? -distanceAdjustment : distanceAdjustment) + centerDist - 573.9;
+        if (res >= 2000) return -1;
+        return res;
     }
 
     public double getLeftMeasurement() {
@@ -88,17 +91,18 @@ public class LasercanAlign extends SubsystemBase {
 
     @Override
     public void periodic() {
+        distanceController.setP(DrivePIDs.lasercanXkP.get());
         double currentMeasurement = getDistance_mm();
         if (currentMeasurement == -1) {
-            distanceController.calculate(previousDistance);
+            distanceController.calculate(previousDistance / 1000);
         } else {
-            distanceController.calculate(currentMeasurement);
+            distanceController.calculate(currentMeasurement / 1000);
             previousDistance = currentMeasurement;
         }
     }
 
     public double getOutput() {
-        return distanceController.calculate(getDistance_mm());
+        return distanceController.calculate(getDistance_mm() / 1000);
     }
 
     public Optional<Rotation2d> getCalculatedRotationFromAlign() {

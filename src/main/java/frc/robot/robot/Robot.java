@@ -14,7 +14,6 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.lib.util.AllianceFlipUtil;
 import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
@@ -43,7 +42,6 @@ public class Robot extends TimedRobot {
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
         robotContainer.add3DComponentPoses();
-        SmartDashboard.putBoolean("DS Alliance", AllianceFlipUtil.shouldFlip());
         SmartDashboard.putNumber("Match Time", Timer.getMatchTime());
     }
 
@@ -51,7 +49,6 @@ public class Robot extends TimedRobot {
     public void disabledInit() {
         SubsystemManager.getInstance().getScoringSuperstructure().setAction(ScoringSuperstructureAction.IDLE);
         SubsystemManager.getInstance().getScoringSuperstructure().getEndEffectorSubsystem().setWristMotorIdleMode(SparkBaseConfig.IdleMode.kCoast);
-        SmartDashboard.putNumber("distanceThresholdMeters", 100);
     }
 
 
@@ -63,7 +60,6 @@ public class Robot extends TimedRobot {
     @Override
     public void disabledExit() {
         SubsystemManager.getInstance().getScoringSuperstructure().getEndEffectorSubsystem().setWristMotorIdleMode(SparkBaseConfig.IdleMode.kBrake);
-        SmartDashboard.putNumber("distanceThresholdMeters", 2);
     }
 
 
@@ -73,17 +69,10 @@ public class Robot extends TimedRobot {
         if (autonomousCommand != null) {
             autonomousCommand.schedule();
         }
-        SmartDashboard.putNumber("distanceThresholdMeters", 100);
     }
 
     @Override
     public void autonomousPeriodic() {
-    }
-
-
-    @Override
-    public void autonomousExit() {
-        SmartDashboard.putNumber("distanceThresholdMeters", 2);
     }
 
 
@@ -110,15 +99,5 @@ public class Robot extends TimedRobot {
     @Override
     public void testInit() {
         CommandScheduler.getInstance().cancelAll();
-    }
-
-
-    @Override
-    public void testPeriodic() {
-    }
-
-
-    @Override
-    public void testExit() {
     }
 }

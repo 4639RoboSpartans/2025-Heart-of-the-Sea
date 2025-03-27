@@ -10,6 +10,7 @@ import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
 
 public class ScoringSuperstructureAction {
+
     public DoubleSupplier targetElevatorExtensionFraction = () -> 0;
     public DoubleSupplier targetWristRotationFraction = () -> 0;
     public double intakeSpeed = 0;
@@ -117,28 +118,56 @@ public class ScoringSuperstructureAction {
             .withStateAfter(IDLE)
             .useManualControlInTeleop(false),
         SCORE_L1_CORAL = new ScoringSuperstructureAction("SCORE_L1_CORAL")
-            .withTargetElevatorExtensionFraction(() -> ElevatorSetpoints.L1_Proportion + (drivetrain.getDistanceFromReefFace() - 0.832) * 0.25 * (drivetrain.isAligning()? 1 : 0))
+            .withTargetElevatorExtensionFraction(() -> {
+                boolean shouldUseInterpolatingSetpoints = SubsystemManager.getInstance()
+                        .getScoringSuperstructure().shouldUseInterpolatingSetpoints();
+                double res = ElevatorSetpoints.L1_Proportion + (drivetrain.getDistanceFromReefFace() - 387.5) * 0.00025;
+                return res < 1 &&  shouldUseInterpolatingSetpoints
+                        ? res
+                        : ElevatorSetpoints.L1_Proportion;
+            })
             .withTargetWristRotationFraction(() -> WristSetpoints.Wrist_L1_Proportion)
             .withIntakeSpeed(IntakeSpeeds.Intake_L1_Speed)
             .stopIntakeOnGamePieceNotSeen()
             .requireWristTransition()
             .withStateAfter(IDLE),
         SCORE_L2_CORAL = new ScoringSuperstructureAction("SCORE_L2_CORAL")
-            .withTargetElevatorExtensionFraction(() -> ElevatorSetpoints.L2_Proportion + (drivetrain.getDistanceFromReefFace() - 0.832) * 0.25 * (drivetrain.isAligning()? 1 : 0))
+            .withTargetElevatorExtensionFraction(() -> {
+                boolean shouldUseInterpolatingSetpoints = SubsystemManager.getInstance()
+                        .getScoringSuperstructure().shouldUseInterpolatingSetpoints();
+                double res = ElevatorSetpoints.L2_Proportion + (drivetrain.getDistanceFromReefFace() - 387.5) * 0.00025;
+                return res < 1 &&  shouldUseInterpolatingSetpoints
+                        ? res
+                        : ElevatorSetpoints.L2_Proportion;
+            })
             .withTargetWristRotationFraction(() -> WristSetpoints.Wrist_L2_Proportion)
             .withIntakeSpeed(IntakeSpeeds.Intake_L2_Speed)
             .stopIntakeOnGamePieceNotSeen()
             .requireWristTransition()
             .withStateAfter(IDLE),
         SCORE_L3_CORAL = new ScoringSuperstructureAction("SCORE_L3_CORAL")
-            .withTargetElevatorExtensionFraction(() -> ElevatorSetpoints.L3_Proportion + (drivetrain.getDistanceFromReefFace() - 0.832) * 0.25 * (drivetrain.isAligning()? 1 : 0))
+            .withTargetElevatorExtensionFraction(() -> {
+                boolean shouldUseInterpolatingSetpoints = SubsystemManager.getInstance()
+                        .getScoringSuperstructure().shouldUseInterpolatingSetpoints();
+                double res = ElevatorSetpoints.L3_Proportion + (drivetrain.getDistanceFromReefFace() - 387.5) * 0.00025;
+                return res < 1 &&  shouldUseInterpolatingSetpoints
+                        ? res
+                        : ElevatorSetpoints.L3_Proportion;
+            })
             .withTargetWristRotationFraction(() -> WristSetpoints.Wrist_L3_Proportion)
             .withIntakeSpeed(IntakeSpeeds.Intake_L3_Speed)
             .stopIntakeOnGamePieceNotSeen()
             .requireWristTransition()
             .withStateAfter(IDLE),
         SCORE_L4_CORAL = new ScoringSuperstructureAction("SCORE_L4_CORAL")
-            .withTargetElevatorExtensionFraction(() -> ElevatorSetpoints.L4_Proportion + (drivetrain.getDistanceFromReefFace() - 0.832) * 0.25 * (drivetrain.isAligning()? 1 : 0))
+            .withTargetElevatorExtensionFraction(() -> {
+                boolean shouldUseInterpolatingSetpoints = SubsystemManager.getInstance()
+                        .getScoringSuperstructure().shouldUseInterpolatingSetpoints();
+                double res = ElevatorSetpoints.L4_Proportion + (drivetrain.getDistanceFromReefFace() - 387.5) * 0.00025;
+                return res < 1 &&  shouldUseInterpolatingSetpoints
+                        ? res
+                        : ElevatorSetpoints.L4_Proportion;
+            })
             .withTargetWristRotationFraction(() -> WristSetpoints.Wrist_L4_Proportion)
             .withIntakeSpeed(IntakeSpeeds.Intake_L4_Speed)
             .stopIntakeOnGamePieceNotSeen()

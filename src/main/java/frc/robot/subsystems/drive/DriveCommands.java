@@ -17,7 +17,6 @@ public class DriveCommands {
     private static final AbstractSwerveDrivetrain drivetrain = SubsystemManager.getInstance().getDrivetrain();
 
     public static Command moveToClosestReefPositionWithPID(TargetPositions.Direction direction, Supplier<Pose2d> currentRobotPose) {
-        drivetrain.setVisionStandardDeviations(0.1, 0.1, 10);
 
         var nearestReefPose = getClosestTarget(currentRobotPose);
 
@@ -28,8 +27,6 @@ public class DriveCommands {
     }
 
     public static Command moveToClosestReefPositionWithPathPlanner(TargetPositions.Direction direction, Supplier<Pose2d> currentRobotPose) {
-        drivetrain.setVisionStandardDeviations(0.1, 0.1, 10);
-
         var nearestReefPose = getClosestTarget(currentRobotPose);
 
         var desiredPose = PoseUtil.ReefRelativeFromDirection(nearestReefPose, direction);
@@ -39,7 +36,6 @@ public class DriveCommands {
     }
 
     public static Command moveToClosestReefPositionWithLC(TargetPositions.Direction direction, Supplier<Pose2d> currentRobotPose) {
-        drivetrain.setVisionStandardDeviations(0.1, 0.1, 10);
 
         var nearestReefPose = getClosestTarget(currentRobotPose);
 
@@ -49,11 +45,10 @@ public class DriveCommands {
                 .until(new Trigger(() -> PoseUtil.withinTolerance(desiredPose, currentRobotPose.get(), Units.inchesToMeters(2))).debounce(0.1));
     }
 
-    public static Command moveToReefPosition(TargetPositions position, Supplier<Pose2d> currentRobotPose) {
+    public static Command moveToReefPosition(TargetPositions position) {
         var desiredPose = position.getAllianceRespectivePose();
 
-        return DriveCommands.drivetrain.fineTuneUsingLaserCANCommand(desiredPose)
-                .until(new Trigger(() -> PoseUtil.withinTolerance(desiredPose, currentRobotPose.get(), Units.inchesToMeters(2))).debounce(0.1));
+        return DriveCommands.drivetrain.fineTuneUsingLaserCANCommand(desiredPose);
     }
 
     public static Pose2d getClosestTarget(Supplier<Pose2d> currentRobotPose) {

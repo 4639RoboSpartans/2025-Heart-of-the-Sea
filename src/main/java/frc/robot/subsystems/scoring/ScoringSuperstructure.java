@@ -42,14 +42,15 @@ public final class ScoringSuperstructure extends SubsystemBase {
     private double wristAdjustment = 0;
 
     private boolean isManualControlEnabled = false;
+    private boolean useInterpolatingSetpoints = true;
 
     public ScoringSuperstructure(SubsystemManager.GetInstanceAccess access) {
         this.elevator = AbstractElevatorSubsystem.getInstance(access);
         this.endEffector = AbstractEndEffectorSubsystem.getInstance(access);
-        SmartDashboard.putBoolean("isManualControlEnabled", isManualControlEnabled);
     }
 
     private boolean maybeNeedsTransition = false;
+    private boolean autoShouldOuttake = false;
 
     private void setCurrentAction(ScoringSuperstructureAction action) {
         if (action != this.currentAction) {
@@ -76,7 +77,11 @@ public final class ScoringSuperstructure extends SubsystemBase {
     }
 
     public boolean elevatorLowThreshold() {
-        return elevator.getCurrentExtensionFraction() <= 0.8;
+        return elevator.getCurrentExtensionFraction() <= 0.7;
+    }
+
+    public boolean shouldUseInterpolatingSetpoints() {
+        return useInterpolatingSetpoints;
     }
 
     /**
@@ -178,7 +183,6 @@ public final class ScoringSuperstructure extends SubsystemBase {
     }
 
     private void runActionPeriodic() {
-        SmartDashboard.putNumber("Commanded Intake Speed", currentAction.intakeSpeed);
         // Update maybeNeedsTransition
         switch (currentState) {
             case TRANSITION_AFTER_ELEVATOR, EXECUTING_ACTION, DONE -> {
@@ -195,7 +199,7 @@ public final class ScoringSuperstructure extends SubsystemBase {
             .orElseGet(() -> endEffector::getTargetRotationFraction);
         double manualIntakeSpeed = Controls.Operator.ManualControlIntake.getAsDouble() * Math.abs(currentAction.intakeSpeed);
         double intakeSpeed = (
-            SubsystemManager.getInstance().getDrivetrain().isAligned()
+            (autoShouldOuttake && RobotState.isAutonomous()) || currentAction.name.equals(ScoringSuperstructureAction.INTAKE_FROM_HP.name)
             ? currentAction.intakeSpeed
             : manualIntakeSpeed
         );
@@ -218,7 +222,6 @@ public final class ScoringSuperstructure extends SubsystemBase {
         endEffector.setIntakeSpeed(intakeSpeed);
 
         // Advance the state if necessary
-        SmartDashboard.putBoolean("Should Advance State", currentState.shouldAdvanceState(currentAction, endEffector, elevator));
         if (currentState.shouldAdvanceState(currentAction, endEffector, elevator)) {
             currentState = currentState.next();
             resetAdjustments();
@@ -269,13 +272,8 @@ public final class ScoringSuperstructure extends SubsystemBase {
             setCurrentAction(ScoringSuperstructureAction.IDLE);
         }
         runActionPeriodic();
-        SmartDashboard.putNumber("Elevator Fraction", elevator.getCurrentExtensionFraction());
-        SmartDashboard.putNumber("Target Elevator Fraction", elevator.getTargetExtensionFraction());
-        SmartDashboard.putNumber("Wrist Position", endEffector.getCurrentMotorPosition());
         SmartDashboard.putString("State", currentState.name());
         SmartDashboard.putString("Action", currentAction.toString());
-
-        SmartDashboard.putBoolean("is in auton", RobotState.isAutonomous());
     }
 
     /**
@@ -332,5 +330,17 @@ public final class ScoringSuperstructure extends SubsystemBase {
 
     public ScoringSuperstructureState getCurrentState() {
         return currentState;
+    }
+
+    public Command setAutoOuttake(boolean shouldOuttake) {
+        return Commands.runOnce(
+            () -> autoShouldOuttake = shouldOuttake
+        );
+    }
+
+    public Command toggleUseInterpolatingSetpoints() {
+        return Commands.runOnce(
+                () -> useInterpolatingSetpoints = !useInterpolatingSetpoints
+        );
     }
 }

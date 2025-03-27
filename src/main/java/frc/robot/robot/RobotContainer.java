@@ -5,7 +5,6 @@
 
 package frc.robot.robot;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -33,8 +32,6 @@ import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
 import frc.robot.subsystems.scoring.elevator.ElevatorSysID;
 
-import java.util.Arrays;
-
 import static edu.wpi.first.units.Units.Meters;
 
 
@@ -44,7 +41,6 @@ public class RobotContainer {
     @SuppressWarnings("unused")
     private final RobotSim robotSim = new RobotSim();
     private final SendableChooser<AutonSupplier> autoChooser;
-    private final SendableChooser<Pose2d> startPositionChooser = new SendableChooser<>();
     @SuppressWarnings("unused")
     private final LEDStrip ledStrip = SubsystemManager.getInstance().getLEDStripSubsystem();
 
@@ -62,12 +58,6 @@ public class RobotContainer {
         autoChooser = new SendableChooser<>();
         addAllCompAutons(autoChooser, swerveAutoRoutines);
         SmartDashboard.putData("Auto Chooser", autoChooser);
-
-        startPositionChooser.setDefaultOption("DEFAULT", new Pose2d());
-        Arrays.stream(FieldConstants.AutonStartingPositions.values()).forEach(
-            position -> startPositionChooser.addOption(position.name(), position.Pose)
-        );
-        SmartDashboard.putData("Selected Reset Position", startPositionChooser);
         configureLEDs();
     }
 
@@ -137,7 +127,8 @@ public class RobotContainer {
             );
 
             Controls.Operator.HomingCommandTrigger.whileTrue(scoringSuperstructure.elevatorHomingCommand());
-            // Controls.Operator.homingWristCommandTrigger.whileTrue(scoringSuperstructure.wristHomingCommand());
+
+            Controls.Operator.UseInterpolatingSetpoints.onTrue(scoringSuperstructure.toggleUseInterpolatingSetpoints());
         }
 
         FunctionalTrigger.of(Controls.Driver.alignReefLeft)
