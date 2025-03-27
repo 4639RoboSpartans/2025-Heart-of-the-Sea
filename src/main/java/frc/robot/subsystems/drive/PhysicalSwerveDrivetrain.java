@@ -269,7 +269,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
                             var request = new SwerveRequest.RobotCentric();
                             double rotationalRate;
-                            if (getCalculatedRotationFromAlign().isEmpty()) {
+                            if (SubsystemManager.getInstance().getLasercanAlign().getCalculatedRotationFromAlign().isEmpty()) {
                                 rotationalRate =
                                         headingController.calculate(
                                                 getPose().getRotation().getRadians(),
@@ -279,7 +279,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                             } else {
                                 rotationalRate =
                                         headingController.calculate(
-                                                getCalculatedRotationFromAlign().get().getRadians(),
+                                                SubsystemManager.getInstance().getLasercanAlign().getCalculatedRotationFromAlign().get().getRadians(),
                                                 0,
                                                 Timer.getFPGATimestamp()
                                         );
@@ -407,7 +407,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                             LasercanAlign.alignDistance_mm,
                             10
                     ) && MathUtil.isNear(
-                            getCalculatedRotationFromAlign().orElseGet(Rotation2d::new).getDegrees(),
+                            SubsystemManager.getInstance().getLasercanAlign().getCalculatedRotationFromAlign().orElseGet(Rotation2d::new).getDegrees(),
                             0,
                             1
                     ) && pidYController.atGoal();
