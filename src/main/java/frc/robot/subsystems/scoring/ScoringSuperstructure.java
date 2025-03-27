@@ -42,7 +42,7 @@ public final class ScoringSuperstructure extends SubsystemBase {
     private double wristAdjustment = 0;
 
     private boolean isManualControlEnabled = false;
-    private boolean useInterpolatingSetpoints = true;
+    private boolean useInterpolatingSetpoints = false;
 
     public ScoringSuperstructure(SubsystemManager.GetInstanceAccess access) {
         this.elevator = AbstractElevatorSubsystem.getInstance(access);

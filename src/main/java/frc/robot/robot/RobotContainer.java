@@ -128,7 +128,7 @@ public class RobotContainer {
 
             Controls.Operator.HomingCommandTrigger.whileTrue(scoringSuperstructure.elevatorHomingCommand());
 
-            Controls.Operator.UseInterpolatingSetpoints.onTrue(scoringSuperstructure.toggleUseInterpolatingSetpoints());
+            Controls.Driver.UseInterpolatingSetpoints.onTrue(scoringSuperstructure.toggleUseInterpolatingSetpoints());
         }
 
         FunctionalTrigger.of(Controls.Driver.alignReefLeft)

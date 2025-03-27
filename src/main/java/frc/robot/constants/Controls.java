@@ -68,6 +68,9 @@ public class Controls {
         public static final Trigger toggleAutoHeadingButton = driverController.RIGHT_STICK;
         public static final Trigger bargeScoringAlign = driverController.XBOX_START_BUTTON;
         public static final Trigger processorAlign = driverController.XBOX_BACK_BUTTON;
+    
+
+        public static final Trigger UseInterpolatingSetpoints = operatorController.LEFT_STICK;
     }
 
     public static class Operator {
@@ -95,7 +98,5 @@ public class Controls {
         public static final DoubleSupplier ManualControlWrist = () -> operatorController.rightStickY() * 0.5 + 0.5;
         public static final DoubleSupplier ManualControlElevator = operatorController::leftStickY;
         public static final DoubleSupplier ManualControlIntake = () -> (operatorController.A_BUTTON() - operatorController.B_BUTTON()) * 0.75;
-
-        public static final Trigger UseInterpolatingSetpoints = operatorController.RIGHT_STICK;
     }
 }
