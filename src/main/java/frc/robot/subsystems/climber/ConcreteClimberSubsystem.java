@@ -1,5 +1,6 @@
 package frc.robot.subsystems.climber;
 
+import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.spark.SparkLowLevel;
 import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.wpilibj.Servo;
@@ -8,8 +9,12 @@ import java.util.Objects;
 
 public class ConcreteClimberSubsystem extends AbstractClimberSubsystem {
     SparkMax climberMotor;
-    ClimberState climberState = ClimberState.IDLE;
+    ClimberState climberState = ClimberState.STOWED;
     Servo funnelServo = new Servo(ClimberConstants.SERVO_ID);
+    {
+        funnelServo.setBoundsMicroseconds(2000, 1800, 1500, 1200, 1000);
+    }
+    AbsoluteEncoder encoder;
 
     private static volatile ConcreteClimberSubsystem instance;
 
@@ -20,6 +25,7 @@ public class ConcreteClimberSubsystem extends AbstractClimberSubsystem {
     public ConcreteClimberSubsystem() {
         init();
         this.climberMotor = new SparkMax(ClimberConstants.CLIMBER_ID, SparkLowLevel.MotorType.kBrushed);
+        this.encoder = climberMotor.getAbsoluteEncoder();
     }
 
     @Override
@@ -40,6 +46,11 @@ public class ConcreteClimberSubsystem extends AbstractClimberSubsystem {
     @Override
     void setServoPosition(double servoPosition) {
         funnelServo.set(servoPosition);
+    }
+
+    @Override
+    double getEncoderPosition() {
+        return AbstractClimberSubsystem.reMap(ClimberConstants.Setpoints.encoderZero.get(), encoder.getPosition());
     }
 
     @Override

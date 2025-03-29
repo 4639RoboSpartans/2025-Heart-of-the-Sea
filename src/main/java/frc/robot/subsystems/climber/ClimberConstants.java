@@ -8,8 +8,18 @@ public class ClimberConstants {
 
     public static final int SERVO_ID = 0;
 
-    public static final class ServoSetpoints {
+    public static final class Setpoints {
         public static final TunableNumber holdingPosition = new TunableNumber("servo/holdingPosition").withDefaultValue(1.0);
         public static final TunableNumber dropPosition = new TunableNumber("servo/dropPosition").withDefaultValue(0.0);
+
+        public static final TunableNumber climbPosition = new TunableNumber("climb/Climb Position").withDefaultValue(0);
+        public static final TunableNumber stowedPosition = new TunableNumber("climbPosition/Stowed Position").withDefaultValue(0);
+        public static final TunableNumber readyToClimbPosition = new TunableNumber("climb/Ready to Climb Position").withDefaultValue(0);
+
+        public static final TunableNumber encoderZero = new TunableNumber("climb/Encoder Zero").withDefaultValue(0);
+    }
+
+    public static final class PIDs {
+        public static final TunableNumber climbKp = new TunableNumber("climb/Climb Kp").withDefaultValue(0.25);
     }
 }

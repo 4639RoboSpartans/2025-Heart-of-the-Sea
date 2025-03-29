@@ -1,4 +1,7 @@
 package frc.robot.subsystems.climber;
+import com.pathplanner.lib.config.PIDConstants;
+
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -13,23 +16,29 @@ public abstract class AbstractClimberSubsystem extends SubsystemBase {
     abstract void setClimberState(ClimberState state);
     abstract void setServoPosition(double servoPosition);
     abstract double getServoPosition();
+    abstract double getEncoderPosition();
 
-    static enum ClimberState{
-        IDLE,
+    private final PIDController climberPID = new PIDController(ClimberConstants.PIDs.climbKp.get(), 0, 0);
+
+    static enum ClimberState {
+        STOWED,
+        CLIMBER_READY,
+        FUNNEL_READY,
         READY,
         CLIMBING;
     }
 
     void init(){
         //reset state to idle when auto or teleop starts
-        RobotModeTriggers.autonomous().onTrue(setState(ClimberState.IDLE));
-        RobotModeTriggers.teleop().onTrue(setState(ClimberState.IDLE));
+        RobotModeTriggers.autonomous().onTrue(setState(ClimberState.STOWED));
+        RobotModeTriggers.teleop().onTrue(setState(ClimberState.STOWED));
 
         //put override on Smart Dashboard
         SmartDashboard.putBoolean("climber/Climber Override", false);
+        climberPID.enableContinuousInput(0, 1);
     }
 
-    public static AbstractClimberSubsystem getInstance(){
+    public static AbstractClimberSubsystem getInstance() {
         return RobotBase.isReal() ? ConcreteClimberSubsystem.getInstance() : SimClimberSubsystem.getInstance();
     }
 
@@ -37,39 +46,64 @@ public abstract class AbstractClimberSubsystem extends SubsystemBase {
         setClimberSpeed(0);
     }
 
-    public Command climberUp(){
-        return runOnce(() -> setClimberSpeed(ClimberConstants.climberSpeed.get()))
-                .andThen(setState(ClimberState.CLIMBING))
-                .andThen(Commands.idle(this))
-                .finallyDo(this::stopClimber);
+    public Command climbCommand() {
+        return setState(ClimberState.CLIMBING)
+        .andThen(run(
+            () -> 
+                {
+                    climberPID.setSetpoint(ClimberConstants.Setpoints.climbPosition.get());
+                    setClimberSpeed(climberPID.calculate(getEncoderPosition()));
+                }
+        ));
     }
 
-    public Command climberDown(){
-        return runOnce(() -> setClimberSpeed(-ClimberConstants.climberSpeed.get()))
-                .andThen(setState(ClimberState.READY))
-                .andThen(Commands.idle(this))
-                .finallyDo(this::stopClimber);
+    public Command prepClimbCommand() {
+        return setState(getClimberState() == ClimberState.FUNNEL_READY ? ClimberState.READY : ClimberState.CLIMBER_READY)
+        .andThen(run(
+            () -> 
+                {
+                    climberPID.setSetpoint(ClimberConstants.Setpoints.readyToClimbPosition.get());
+                    setClimberSpeed(climberPID.calculate(getEncoderPosition()));
+                }
+        )).until(() -> climberPID.atSetpoint())
+        .andThen(Commands.idle(this))
+        .finallyDo(this::stopClimber);
+    }
+
+    public Command idleClimbCommand() {
+        return run(
+            () -> 
+                {
+                    climberPID.setSetpoint(getEncoderPosition());
+                    setClimberSpeed(climberPID.calculate(getEncoderPosition()));
+                }
+        );
     }
 
     public Command dropFunnel(){
-        return runOnce(() -> setServoPosition(ClimberConstants.ServoSetpoints.dropPosition.get()))
-                .andThen(setState(ClimberState.READY));
+        return runOnce(() -> setServoPosition(ClimberConstants.Setpoints.dropPosition.get()))
+                .andThen(setState(getClimberState() == ClimberState.CLIMBER_READY ? ClimberState.READY : ClimberState.FUNNEL_READY));
     }
 
-    public Command bindFunnel(){
-        return runOnce(() -> setServoPosition(ClimberConstants.ServoSetpoints.holdingPosition.get()))
-                .andThen(setState(ClimberState.IDLE));
+    public Command bindFunnel() {
+        return runOnce(() -> setServoPosition(ClimberConstants.Setpoints.holdingPosition.get()))
+                .andThen(setState(ClimberState.STOWED));
     }
 
-    Command setState(ClimberState state){
+    Command setState(ClimberState state) {
         return runOnce(() -> setClimberState(state));
     }
 
-    public static boolean funnelDropAllowed(){
-        return getInstance().getClimberState().equals(ClimberState.IDLE) && (DriverStation.getMatchTime() <= 30 || SmartDashboard.getBoolean("climber/Climber Override", false));
+    public static boolean funnelDropAllowed() {
+        return getInstance().getClimberState().equals(ClimberState.STOWED) && (DriverStation.getMatchTime() <= 30 || SmartDashboard.getBoolean("climber/Climber Override", false));
     }
 
     public static boolean readyToClimb() {
         return getInstance().getClimberState().equals(ClimberState.READY) || getInstance().getClimberState().equals(ClimberState.CLIMBING);
+    }
+
+    public static double reMap(double zero, double input) {
+        if (input < zero) return 1 + input - zero;
+        else return input - zero;
     }
 }

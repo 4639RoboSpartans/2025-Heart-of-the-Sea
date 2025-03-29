@@ -151,8 +151,8 @@ public class RobotContainer {
 
         Controls.Driver.toggleAutoHeadingButton.onTrue(swerve.toggleAutoHeading());
         Controls.Driver.dropFunnelTrigger.onTrue(SubsystemManager.getInstance().getClimberSubsystem().dropFunnel());
-        Controls.Driver.unspoolCimberTrigger.whileTrue(SubsystemManager.getInstance().getClimberSubsystem().climberUp());
-        Controls.Driver.spoolCimberTrigger.whileTrue(SubsystemManager.getInstance().getClimberSubsystem().climberDown());
+        Controls.Driver.unspoolCimberTrigger.whileTrue(SubsystemManager.getInstance().getClimberSubsystem().climbCommand());
+        Controls.Driver.spoolCimberTrigger.whileTrue(SubsystemManager.getInstance().getClimberSubsystem().prepClimbCommand());
 
 
         // OI.getInstance().driverController().Y_BUTTON.whileTrue(
