@@ -58,7 +58,7 @@ public class Controls {
 
         public static final Trigger rotationResetTrigger = driverController.A_BUTTON.and(driverController.B_BUTTON);
 
-        public static final Trigger dropFunnelTrigger = ((driverController).POV_UP.or(driverController.POV_RIGHT)).and(AbstractClimberSubsystem::funnelDropAllowed);
+        public static final Trigger dropFunnelTrigger = ((driverController).POV_LEFT.or(driverController.POV_RIGHT)).and(AbstractClimberSubsystem::funnelDropAllowed);
         public static final Trigger unspoolCimberTrigger = driverController.POV_LEFT.and(AbstractClimberSubsystem::readyToClimb);
         public static final Trigger spoolCimberTrigger = driverController.POV_RIGHT.and(AbstractClimberSubsystem::readyToClimb);
 

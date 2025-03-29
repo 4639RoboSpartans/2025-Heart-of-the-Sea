@@ -4,6 +4,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.annotation.PackagePrivate;
 
 import java.util.Objects;
@@ -53,8 +54,8 @@ public class SimClimberSubsystem extends AbstractClimberSubsystem{
     }
 
     @Override
-    void setServoPosition(double servoPosition) {
-        SmartDashboard.putNumber("servo position", servoPosition);
+    Command setServoPosition(double servoPosition) {
+        return runOnce(() -> SmartDashboard.putNumber("servo position", servoPosition));
     }
 
     @Override

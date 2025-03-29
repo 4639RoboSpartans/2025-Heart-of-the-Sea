@@ -11,7 +11,7 @@ public abstract class AbstractClimberSubsystem extends SubsystemBase {
     abstract void setClimberSpeed(double speed);
     abstract ClimberState getClimberState();
     abstract void setClimberState(ClimberState state);
-    abstract void setServoPosition(double servoPosition);
+    abstract Command setServoPosition(double servoPosition);
     abstract double getServoPosition();
 
     static enum ClimberState{

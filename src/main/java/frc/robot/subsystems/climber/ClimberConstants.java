@@ -12,4 +12,9 @@ public class ClimberConstants {
         public static final TunableNumber holdingPosition = new TunableNumber("servo/holdingPosition").withDefaultValue(1.0);
         public static final TunableNumber dropPosition = new TunableNumber("servo/dropPosition").withDefaultValue(0.0);
     }
+
+    public static final class ClimberSetpoints {
+        public static final TunableNumber outPosition = new TunableNumber("climber/outPosition").withDefaultValue(0.0);
+        public static final TunableNumber inPosition = new TunableNumber("climber/outPosition").withDefaultValue(0.0);
+    }
 }

@@ -9,30 +9,18 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class ServoSubsystem extends SubsystemBase {
     Servo servo = new Servo(ClimberConstants.SERVO_ID);
-    double goal;
 
-    //this is super scuffed but this is the only way to guarantee consistent movement with the servo
-    public ProfiledPIDController controller = new ProfiledPIDController(0, 0, 0,
-            new TrapezoidProfile.Constraints(3, 1.7) //values from tuesday test
-    );
-
-    public Command setServoPosition(double position) {
-        return runOnce(() -> controller.setGoal(position))
-                .andThen(() -> {
-                    controller.calculate(servo.getPosition());
-                    servo.setPosition(controller.getSetpoint().position);
-                }).until(this::atGoal);
+    public ServoSubsystem() {
+        servo.setBoundsMicroseconds(2000, 1800, 1500, 1200, 1000);
     }
 
-    public Command runServoPosition(double position) {
-        return runOnce(() -> controller.setGoal(position))
-                .andThen(() -> {
-                    controller.calculate(servo.getPosition());
-                    servo.setPosition(controller.getSetpoint().position);
+    public Command setServoPosition(double position) {
+        return run(() -> {
+                    servo.setPosition(position);
                 });
     }
 
-    public boolean atGoal() {
-        return MathUtil.isNear(goal, servo.getPosition(), 0.05);
+    public double getServoPosition() {
+        return servo.getPosition();
     }
 }
