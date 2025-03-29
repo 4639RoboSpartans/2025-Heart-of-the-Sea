@@ -20,7 +20,7 @@ import frc.robot.commands.auto.AutoRoutines.AutonSupplier;
 import frc.robot.constants.Controls;
 import frc.robot.constants.FieldConstants;
 import frc.robot.subsystems.SubsystemManager;
-import frc.robot.subsystems.climber.ServoTestSubsystem;
+import frc.robot.subsystems.climber.ServoSubsystem;
 import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
 import frc.robot.subsystems.drive.DriveCommands;
 import frc.robot.subsystems.drive.SwerveAutoRoutinesCreator;
@@ -38,7 +38,7 @@ import static edu.wpi.first.units.Units.Meters;
 public class RobotContainer {
     private final AbstractSwerveDrivetrain swerve = SubsystemManager.getInstance().getDrivetrain();
     private final ScoringSuperstructure scoringSuperstructure = SubsystemManager.getInstance().getScoringSuperstructure();
-    private final ServoTestSubsystem servoTestSubsystem = SubsystemManager.getInstance().getServoTestSubsystem();
+    private final ServoSubsystem servoSubsystem = SubsystemManager.getInstance().getServoTestSubsystem();
     @SuppressWarnings("unused")
     private final RobotSim robotSim = new RobotSim();
     private final SendableChooser<AutonSupplier> autoChooser;
@@ -147,11 +147,8 @@ public class RobotContainer {
             .and(Controls.Driver.alignReefRight.negate())
             .whileTrue(() -> DriveCommands.moveToClosestReefPositionWithPID(FieldConstants.TargetPositions.Direction.ALGAE, SubsystemManager.getInstance().getDrivetrain()::getPose));
 
-        servoTestSubsystem.setDefaultCommand(
-                servoTestSubsystem.runServo(Controls.Driver.servoSupplier)
-        );
         Controls.Driver.toggleAutoHeadingButton.onTrue(swerve.toggleAutoHeading());
-        Controls.Driver.dropFunnelTrigger.onTrue(SubsystemManager.getInstance().getClimberSubsystem().dropFunnel());
+        Controls.Driver.dropFunnelTrigger.onTrue(SubsystemManager.getInstance().getServoTestSubsystem().retractServo());
         Controls.Driver.unspoolCimberTrigger.whileTrue(SubsystemManager.getInstance().getClimberSubsystem().climbCommand());
         Controls.Driver.spoolCimberTrigger.whileTrue(SubsystemManager.getInstance().getClimberSubsystem().prepClimbCommand());
 

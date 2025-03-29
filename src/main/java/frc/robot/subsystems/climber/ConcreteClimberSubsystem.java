@@ -10,10 +10,6 @@ import java.util.Objects;
 public class ConcreteClimberSubsystem extends AbstractClimberSubsystem {
     SparkMax climberMotor;
     ClimberState climberState = ClimberState.STOWED;
-    Servo funnelServo = new Servo(ClimberConstants.SERVO_ID);
-    {
-        funnelServo.setBoundsMicroseconds(2000, 1800, 1500, 1200, 1000);
-    }
     AbsoluteEncoder encoder;
 
     private static volatile ConcreteClimberSubsystem instance;
@@ -44,17 +40,7 @@ public class ConcreteClimberSubsystem extends AbstractClimberSubsystem {
     }
 
     @Override
-    void setServoPosition(double servoSpeed) {
-        funnelServo.setSpeed(servoSpeed);
-    }
-
-    @Override
     double getEncoderPosition() {
-        return AbstractClimberSubsystem.reMap(ClimberConstants.Setpoints.encoderZero.get(), encoder.getPosition());
-    }
-
-    @Override
-    double getServoPosition() {
-        return funnelServo.getPosition();
+        return encoder.getPosition();
     }
 }

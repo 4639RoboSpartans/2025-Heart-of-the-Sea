@@ -56,16 +56,6 @@ public class SimClimberSubsystem extends AbstractClimberSubsystem{
     }
 
     @Override
-    void setServoPosition(double servoPosition) {
-        SmartDashboard.putNumber("servo position", servoPosition);
-    }
-
-    @Override
-    double getServoPosition() {
-        return SmartDashboard.getNumber("servo position", 0);
-    }
-
-    @Override
     double getEncoderPosition() {
         return Rotation2d.fromRadians(climberSim.getAngleRads()).getRotations();
     }

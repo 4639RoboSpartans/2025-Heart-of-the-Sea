@@ -9,13 +9,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
+import frc.robot.subsystems.SubsystemManager;
 
 public abstract class AbstractClimberSubsystem extends SubsystemBase {
     abstract void setClimberSpeed(double speed);
     abstract ClimberState getClimberState();
     abstract void setClimberState(ClimberState state);
-    abstract void setServoPosition(double servoPosition);
-    abstract double getServoPosition();
     abstract double getEncoderPosition();
 
     private final PIDController climberPID = new PIDController(ClimberConstants.PIDs.climbKp.get(), 0, 0);
@@ -80,16 +79,6 @@ public abstract class AbstractClimberSubsystem extends SubsystemBase {
         );
     }
 
-    public Command dropFunnel(){
-        return runOnce(() -> setServoPosition(ClimberConstants.Setpoints.dropPosition.get()))
-                .andThen(setState(getClimberState() == ClimberState.CLIMBER_READY ? ClimberState.READY : ClimberState.FUNNEL_READY));
-    }
-
-    public Command bindFunnel() {
-        return runOnce(() -> setServoPosition(ClimberConstants.Setpoints.holdingPosition.get()))
-                .andThen(setState(ClimberState.STOWED));
-    }
-
     Command setState(ClimberState state) {
         return runOnce(() -> setClimberState(state));
     }
@@ -102,8 +91,16 @@ public abstract class AbstractClimberSubsystem extends SubsystemBase {
         return getInstance().getClimberState().equals(ClimberState.READY) || getInstance().getClimberState().equals(ClimberState.CLIMBING);
     }
 
-    public static double reMap(double zero, double input) {
-        if (input < zero) return 1 + input - zero;
-        else return input - zero;
+    @Override
+    public void periodic() {
+        if (getClimberState() == ClimberState.STOWED) {
+            if (SubsystemManager.getInstance().getServoTestSubsystem().getServoPosition() == -1.0) {
+                setClimberState(ClimberState.FUNNEL_READY);
+            }
+        } else if (getClimberState() == ClimberState.CLIMBER_READY) {
+            if (SubsystemManager.getInstance().getServoTestSubsystem().getServoPosition() == -1.0) {
+                setClimberState(ClimberState.READY);
+            }
+        }
     }
 }
