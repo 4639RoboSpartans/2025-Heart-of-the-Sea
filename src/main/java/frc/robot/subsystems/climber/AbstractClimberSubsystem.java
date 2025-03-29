@@ -1,6 +1,9 @@
 package frc.robot.subsystems.climber;
+import java.util.function.DoubleSupplier;
+
 import com.pathplanner.lib.config.PIDConstants;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -17,8 +20,6 @@ public abstract class AbstractClimberSubsystem extends SubsystemBase {
     abstract void setClimberState(ClimberState state);
     abstract double getEncoderPosition();
 
-    private final PIDController climberPID = new PIDController(ClimberConstants.PIDs.climbKp.get(), 0, 0);
-
     static enum ClimberState {
         STOWED,
         CLIMBER_READY,
@@ -34,15 +35,17 @@ public abstract class AbstractClimberSubsystem extends SubsystemBase {
 
         //put override on Smart Dashboard
         SmartDashboard.putBoolean("climber/Climber Override", false);
-        climberPID.enableContinuousInput(0, 1);
     }
 
     public static AbstractClimberSubsystem getInstance() {
         return RobotBase.isReal() ? ConcreteClimberSubsystem.getInstance() : SimClimberSubsystem.getInstance();
     }
 
-    public void stopClimber() {
-        setClimberSpeed(0);
+    public Command stopClimber() {
+        return Commands.run(
+            () -> setClimberSpeed(0),
+            this
+        );
     }
 
     public Command climbCommand() {
@@ -50,8 +53,21 @@ public abstract class AbstractClimberSubsystem extends SubsystemBase {
         .andThen(run(
             () -> 
                 {
-                    climberPID.setSetpoint(ClimberConstants.Setpoints.climbPosition.get());
-                    setClimberSpeed(climberPID.calculate(getEncoderPosition()));
+                    if (ClimberConstants.Setpoints.climbPosition.get() > getEncoderPosition()) {
+                        setClimberSpeed(0);
+                    } else {
+                        setClimberSpeed(ClimberConstants.climberSpeed.get());
+                    }
+                }
+        ));
+    }
+
+    public Command deClimbCommand() {
+        return setState(ClimberState.CLIMBING)
+        .andThen(run(
+            () -> 
+                {
+                    setClimberSpeed(-ClimberConstants.climberSpeed.get());
                 }
         ));
     }
@@ -61,21 +77,19 @@ public abstract class AbstractClimberSubsystem extends SubsystemBase {
         .andThen(run(
             () -> 
                 {
-                    climberPID.setSetpoint(ClimberConstants.Setpoints.readyToClimbPosition.get());
-                    setClimberSpeed(climberPID.calculate(getEncoderPosition()));
+                    if (ClimberConstants.Setpoints.readyToClimbPosition.get() > getEncoderPosition()) {
+                        setClimberSpeed(0);
+                    } else {
+                        setClimberSpeed(ClimberConstants.climberSpeed.get());
+                    }
                 }
-        )).until(() -> climberPID.atSetpoint())
-        .andThen(Commands.idle(this))
-        .finallyDo(this::stopClimber);
+        ));
     }
 
-    public Command idleClimbCommand() {
-        return run(
-            () -> 
-                {
-                    climberPID.setSetpoint(getEncoderPosition());
-                    setClimberSpeed(climberPID.calculate(getEncoderPosition()));
-                }
+    public Command testClimbCommand(DoubleSupplier speed) {
+        return Commands.run(
+            () -> setClimberSpeed(speed.getAsDouble() * ClimberConstants.climberSpeed.get()),
+            this
         );
     }
 
@@ -94,13 +108,14 @@ public abstract class AbstractClimberSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         if (getClimberState() == ClimberState.STOWED) {
-            if (SubsystemManager.getInstance().getServoTestSubsystem().getServoPosition() == -1.0) {
+            if (SubsystemManager.getInstance().getServoSubsystem().getServoPosition() == -1.0) {
                 setClimberState(ClimberState.FUNNEL_READY);
             }
         } else if (getClimberState() == ClimberState.CLIMBER_READY) {
-            if (SubsystemManager.getInstance().getServoTestSubsystem().getServoPosition() == -1.0) {
+            if (SubsystemManager.getInstance().getServoSubsystem().getServoPosition() == -1.0) {
                 setClimberState(ClimberState.READY);
             }
         }
+        SmartDashboard.putNumber("climb/encoder", getEncoderPosition());
     }
 }

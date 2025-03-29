@@ -4,7 +4,7 @@ import frc.lib.tunable.TunableNumber;
 
 public class ClimberConstants {
     public static final int CLIMBER_ID = 50;
-    public static final TunableNumber climberSpeed = new TunableNumber("climber/climberSpeed").withDefaultValue(0.5);
+    public static final TunableNumber climberSpeed = new TunableNumber("climber/climberSpeed").withDefaultValue(-0.25);
 
     public static final int SERVO_ID = 0;
 
@@ -13,13 +13,13 @@ public class ClimberConstants {
         public static final TunableNumber dropPosition = new TunableNumber("servo/dropPosition").withDefaultValue(-1.0);
 
         public static final TunableNumber climbPosition = new TunableNumber("climb/Climb Position").withDefaultValue(0);
-        public static final TunableNumber stowedPosition = new TunableNumber("climbPosition/Stowed Position").withDefaultValue(0);
+        public static final TunableNumber stowedPosition = new TunableNumber("climb/Stowed Position").withDefaultValue(0);
         public static final TunableNumber readyToClimbPosition = new TunableNumber("climb/Ready to Climb Position").withDefaultValue(0);
 
         public static final TunableNumber encoderZero = new TunableNumber("climb/Encoder Zero").withDefaultValue(0);
     }
 
     public static final class PIDs {
-        public static final TunableNumber climbKp = new TunableNumber("climb/Climb Kp").withDefaultValue(0.25);
+        public static final TunableNumber climbSpeed = new TunableNumber("climb/Climb Speed").withDefaultValue(0.25);
     }
 }

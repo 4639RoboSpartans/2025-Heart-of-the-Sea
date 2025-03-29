@@ -20,6 +20,7 @@ import frc.robot.commands.auto.AutoRoutines.AutonSupplier;
 import frc.robot.constants.Controls;
 import frc.robot.constants.FieldConstants;
 import frc.robot.subsystems.SubsystemManager;
+import frc.robot.subsystems.climber.AbstractClimberSubsystem;
 import frc.robot.subsystems.climber.ServoSubsystem;
 import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
 import frc.robot.subsystems.drive.DriveCommands;
@@ -38,7 +39,8 @@ import static edu.wpi.first.units.Units.Meters;
 public class RobotContainer {
     private final AbstractSwerveDrivetrain swerve = SubsystemManager.getInstance().getDrivetrain();
     private final ScoringSuperstructure scoringSuperstructure = SubsystemManager.getInstance().getScoringSuperstructure();
-    private final ServoSubsystem servoSubsystem = SubsystemManager.getInstance().getServoTestSubsystem();
+    private final ServoSubsystem servoSubsystem = SubsystemManager.getInstance().getServoSubsystem();
+    private final AbstractClimberSubsystem climber = SubsystemManager.getInstance().getClimberSubsystem();
     @SuppressWarnings("unused")
     private final RobotSim robotSim = new RobotSim();
     private final SendableChooser<AutonSupplier> autoChooser;
@@ -148,10 +150,14 @@ public class RobotContainer {
             .whileTrue(() -> DriveCommands.moveToClosestReefPositionWithPID(FieldConstants.TargetPositions.Direction.ALGAE, SubsystemManager.getInstance().getDrivetrain()::getPose));
 
         Controls.Driver.toggleAutoHeadingButton.onTrue(swerve.toggleAutoHeading());
-        Controls.Driver.dropFunnelTrigger.onTrue(SubsystemManager.getInstance().getServoTestSubsystem().retractServo());
-        Controls.Driver.unspoolCimberTrigger.whileTrue(SubsystemManager.getInstance().getClimberSubsystem().climbCommand());
-        Controls.Driver.spoolCimberTrigger.whileTrue(SubsystemManager.getInstance().getClimberSubsystem().prepClimbCommand());
 
+        servoSubsystem.setDefaultCommand(servoSubsystem.stopServo());
+        Controls.Driver.bindFunneltrigger.whileTrue(servoSubsystem.extendServo());
+        Controls.Driver.dropFunnelTrigger.whileTrue(servoSubsystem.retractServo());
+        Controls.Driver.climbTrigger.whileTrue(climber.climbCommand());
+        Controls.Driver.prepClimbTrigger.whileTrue(climber.deClimbCommand());
+        climber.setDefaultCommand(climber.testClimbCommand(Controls.Driver.testClimbSpeedSupplier));
+        
 
         // OI.getInstance().driverController().Y_BUTTON.whileTrue(
         //         ElevatorSysID.sysIdQuasistatic(SysIdRoutine.Direction.kForward)

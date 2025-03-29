@@ -57,12 +57,12 @@ public class Controls {
 
         public static final Trigger rotationResetTrigger = driverController.A_BUTTON.and(driverController.B_BUTTON);
 
-        public static final DoubleSupplier servoSupplier = driverController::rightStickY;
+        public static final DoubleSupplier testClimbSpeedSupplier = driverController::rightStickY;
         public static final Trigger dropFunnelTrigger = driverController.LEFT_STICK;//.and(AbstractClimberSubsystem::funnelDropAllowed);
-        public static final Trigger unspoolCimberTrigger = driverController.POV_LEFT;//.and(AbstractClimberSubsystem::readyToClimb);
-        public static final Trigger spoolCimberTrigger = driverController.POV_RIGHT;//.and(AbstractClimberSubsystem::readyToClimb);
+        public static final Trigger climbTrigger = driverController.POV_LEFT;//.and(AbstractClimberSubsystem::readyToClimb);
+        public static final Trigger prepClimbTrigger = driverController.POV_RIGHT;//.and(AbstractClimberSubsystem::readyToClimb);
 
-        public static final Trigger bindFunneltrigger = driverController.XBOX_START_BUTTON;
+        public static final Trigger bindFunneltrigger = driverController.B_BUTTON;
 
         public static final Trigger L2AlgaeTrigger = driverController.POV_DOWN;
         public static final Trigger L3AlgaeTrigger = driverController.POV_UP;
@@ -74,8 +74,6 @@ public class Controls {
 
         public static final Trigger reefAlign = driverController.RIGHT_TRIGGER;
         public static final Trigger toggleAutoHeadingButton = driverController.RIGHT_STICK;
-        public static final Trigger bargeScoringAlign = driverController.XBOX_START_BUTTON;
-        public static final Trigger processorAlign = driverController.XBOX_BACK_BUTTON;
     }
 
     public static class Operator {

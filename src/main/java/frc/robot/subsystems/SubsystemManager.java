@@ -67,7 +67,7 @@ public class SubsystemManager {
         return lasercanAlignSubsystem;
     }
 
-    public ServoSubsystem getServoTestSubsystem() {
+    public ServoSubsystem getServoSubsystem() {
         return servoSubsystem;
     }
 }
