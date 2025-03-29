@@ -3,7 +3,6 @@ package frc.robot.constants;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.oi.Controller;
 import frc.lib.oi.OI;
-import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.climber.AbstractClimberSubsystem;
 
 import java.util.function.DoubleSupplier;
@@ -58,6 +57,7 @@ public class Controls {
 
         public static final Trigger rotationResetTrigger = driverController.A_BUTTON.and(driverController.B_BUTTON);
 
+        public static final DoubleSupplier servoSupplier = driverController::rightStickY;
         public static final Trigger dropFunnelTrigger = driverController.POV_UP.or(driverController.POV_RIGHT);//.and(AbstractClimberSubsystem::funnelDropAllowed);
         public static final Trigger unspoolCimberTrigger = driverController.POV_LEFT.and(AbstractClimberSubsystem::readyToClimb);
         public static final Trigger spoolCimberTrigger = driverController.POV_RIGHT.and(AbstractClimberSubsystem::readyToClimb);

@@ -13,7 +13,6 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.FunctionalTrigger;
 import frc.robot.commands.auto.AutoRoutines;
@@ -21,7 +20,7 @@ import frc.robot.commands.auto.AutoRoutines.AutonSupplier;
 import frc.robot.constants.Controls;
 import frc.robot.constants.FieldConstants;
 import frc.robot.subsystems.SubsystemManager;
-import frc.robot.subsystems.climber.AbstractClimberSubsystem;
+import frc.robot.subsystems.climber.ServoTestSubsystem;
 import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
 import frc.robot.subsystems.drive.DriveCommands;
 import frc.robot.subsystems.drive.SwerveAutoRoutinesCreator;
@@ -33,14 +32,13 @@ import frc.robot.subsystems.scoring.constants.ScoringConstants;
 
 import java.util.Arrays;
 
-import com.pathplanner.lib.auto.AutoBuilder;
-
 import static edu.wpi.first.units.Units.Meters;
 
 
 public class RobotContainer {
     private final AbstractSwerveDrivetrain swerve = SubsystemManager.getInstance().getDrivetrain();
     private final ScoringSuperstructure scoringSuperstructure = SubsystemManager.getInstance().getScoringSuperstructure();
+    private final ServoTestSubsystem servoTestSubsystem = SubsystemManager.getInstance().getServoTestSubsystem();
     @SuppressWarnings("unused")
     private final RobotSim robotSim = new RobotSim();
     private final SendableChooser<AutonSupplier> autoChooser;
@@ -149,6 +147,9 @@ public class RobotContainer {
             .and(Controls.Driver.alignReefRight.negate())
             .whileTrue(() -> DriveCommands.moveToClosestReefPositionWithPID(FieldConstants.TargetPositions.Direction.ALGAE, SubsystemManager.getInstance().getDrivetrain()::getPose));
 
+        servoTestSubsystem.setDefaultCommand(
+                servoTestSubsystem.runServo(Controls.Driver.servoSupplier)
+        );
         Controls.Driver.toggleAutoHeadingButton.onTrue(swerve.toggleAutoHeading());
         Controls.Driver.dropFunnelTrigger.onTrue(SubsystemManager.getInstance().getClimberSubsystem().dropFunnel());
         Controls.Driver.unspoolCimberTrigger.whileTrue(SubsystemManager.getInstance().getClimberSubsystem().climbCommand());
