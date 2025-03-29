@@ -10,7 +10,7 @@ public class ClimberConstants {
 
     public static final class Setpoints {
         public static final TunableNumber holdingPosition = new TunableNumber("servo/holdingPosition").withDefaultValue(1.0);
-        public static final TunableNumber dropPosition = new TunableNumber("servo/dropPosition").withDefaultValue(0.0);
+        public static final TunableNumber dropPosition = new TunableNumber("servo/dropPosition").withDefaultValue(-1.0);
 
         public static final TunableNumber climbPosition = new TunableNumber("climb/Climb Position").withDefaultValue(0);
         public static final TunableNumber stowedPosition = new TunableNumber("climbPosition/Stowed Position").withDefaultValue(0);

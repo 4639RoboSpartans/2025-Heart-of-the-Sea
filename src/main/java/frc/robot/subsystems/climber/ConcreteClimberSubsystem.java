@@ -44,8 +44,8 @@ public class ConcreteClimberSubsystem extends AbstractClimberSubsystem {
     }
 
     @Override
-    void setServoPosition(double servoPosition) {
-        funnelServo.set(servoPosition);
+    void setServoPosition(double servoSpeed) {
+        funnelServo.setSpeed(servoSpeed);
     }
 
     @Override
