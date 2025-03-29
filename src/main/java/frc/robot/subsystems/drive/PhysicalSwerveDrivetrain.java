@@ -233,12 +233,13 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
             chassisSpeeds = chassisSpeeds.times(getSwerveSpeedMultiplier());
         }
 
-        if (DriverStationUtil.getAlliance() == Alliance.Blue) {
-            chassisSpeeds.times(-1);
-        }
-
         Pose2d nearestReefPose = DriveCommands.getClosestTarget(this::getPose);
         Rotation2d nearestReefPoseRotation = nearestReefPose.getRotation();
+        
+        if (DriverStationUtil.getAlliance() == Alliance.Blue) {
+            chassisSpeeds.times(-1);
+            nearestReefPoseRotation = nearestReefPoseRotation.plus(Rotation2d.k180deg);
+        }
 
         var request = new SwerveRequest.FieldCentricFacingAngle()
                 .withDesaturateWheelSpeeds(true)
