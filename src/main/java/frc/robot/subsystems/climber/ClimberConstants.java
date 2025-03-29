@@ -1,8 +1,15 @@
 package frc.robot.subsystems.climber;
 
+import frc.lib.tunable.TunableNumber;
+
 public class ClimberConstants {
-    public static class IDs {
-        public static final int CLIMBER_MOTOR = 13;
-        public static final int CLIMBER_RATCHET_DIO_PORT = 0; // TODO: get the right value once wired
+    public static final int CLIMBER_ID = 50;
+    public static final TunableNumber climberSpeed = new TunableNumber("climber/climberSpeed").withDefaultValue(0.5);
+
+    public static final int SERVO_ID = 0;
+
+    public static final class ServoSetpoints {
+        public static final TunableNumber holdingPosition = new TunableNumber("servo/holdingPosition").withDefaultValue(1.0);
+        public static final TunableNumber dropPosition = new TunableNumber("servo/dropPosition").withDefaultValue(0.0);
     }
 }
