@@ -281,6 +281,7 @@ public final class ScoringSuperstructure extends SubsystemBase {
         }
         // runActionPeriodic();
         SmartDashboard.putNumber("Elevator Fraction", elevator.getCurrentExtensionFraction());
+        SmartDashboard.putBoolean("Elevator Low Threshold", elevatorLowThreshold());
         SmartDashboard.putString("State", currentState.name());
         SmartDashboard.putString("Action", currentAction.toString());
     }

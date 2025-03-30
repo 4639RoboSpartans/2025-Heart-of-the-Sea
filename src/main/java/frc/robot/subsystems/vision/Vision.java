@@ -44,14 +44,14 @@ public class Vision {
 
                     measurement.ifPresent(
                         pose -> {
+                            double[] prevStandardDevs = drivetrain.getVisionStandardDeviations();
                             if (shouldUseMT1STDevs) {
                                 double[] stdevs = LimelightHelpers.getStDevs_MT1(limelight.getName());
                                 drivetrain.setVisionStandardDeviations(stdevs[0], stdevs[1], stdevs[3]);
-                            } else {
-                                drivetrain.setVisionStandardDeviations(1, 1, 99999);
                             }
                             drivetrain.addVisionMeasurement(pose, Utils.getCurrentTimeSeconds());
                             visionMeasurements.getObject(limelight.getName()).setPose(pose);
+                            drivetrain.setVisionStandardDeviations(prevStandardDevs[0], prevStandardDevs[1], prevStandardDevs[2]);
                         }
                     );
                 }

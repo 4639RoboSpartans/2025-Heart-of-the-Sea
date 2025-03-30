@@ -108,6 +108,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     }
 
     protected final Field2d field = new Field2d();
+    private double[] previousVisionStDevs = {0, 0, 0};
 
     private final SwerveSetpointGenerator swerveSetpointGenerator;
     private SwerveSetpoint prevSwerveSetpoint;
@@ -388,7 +389,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         return Commands.runOnce(() -> {
             Vector<N2> translationVector = getTranslationVector(targetPose);
             pidYController.reset(translationVector.get(1));
-            pidYController.setTolerance(0.05);
+            pidYController.setTolerance(0.1);
             shouldUseMTSTDevs = true;
         }).andThen(
                 applyRequest(
@@ -412,18 +413,15 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                         }
                 )
         ).until(
-                new Trigger(() -> {
-                        boolean res = MathUtil.isNear(
-                                getDistanceFromReefFace(), 
-                                LasercanAlign.alignDistance_mm, 
-                                10      
-                        ) && MathUtil.isNear(
-                                getCalculatedRotationFromAlign().orElseGet(Rotation2d::new).getDegrees(),
-                                0, 
-                                1
-                        ) && pidYController.atGoal();
-                        return res;
-                }).debounce(0.375)
+                new Trigger(() -> MathUtil.isNear(
+                        getDistanceFromReefFace(),
+                        LasercanAlign.alignDistance_mm,
+                        15
+                ) && MathUtil.isNear(
+                        getCalculatedRotationFromAlign().orElseGet(Rotation2d::new).getDegrees(),
+                        0,
+                        2
+                ) && pidYController.atGoal()).debounce(0.375)
         ).finallyDo(
                 () -> shouldUseMTSTDevs = false
         );
@@ -613,7 +611,13 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
     @Override
     public void setVisionStandardDeviations(double xStdDev, double yStdDev, double rotStdDev) {
-        drivetrain.setVisionMeasurementStdDevs(new Matrix<N3, N1>(Nat.N3(), Nat.N1(), new double[]{xStdDev, yStdDev, rotStdDev}));
+        previousVisionStDevs = new double[]{xStdDev, yStdDev, rotStdDev};
+        drivetrain.setVisionMeasurementStdDevs(new Matrix<>(Nat.N3(), Nat.N1(), new double[]{xStdDev, yStdDev, rotStdDev}));
+    }
+
+    @Override
+    public double[] getVisionStandardDeviations() {
+        return previousVisionStDevs;
     }
 
     protected Field2d getField() {

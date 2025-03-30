@@ -1,5 +1,6 @@
 package frc.robot.subsystems.scoring;
 
+import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
 import frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConstants.WristSetpoints;
 import frc.robot.subsystems.scoring.elevator.AbstractElevatorSubsystem;
@@ -22,7 +23,10 @@ public enum ScoringSuperstructureState {
         AbstractElevatorSubsystem elevator
     ) {
         return switch (this) {
-            case TRANSITION_BEFORE_ELEVATOR -> endEffector.isWristAtTarget();
+            case TRANSITION_BEFORE_ELEVATOR -> {
+                if (SubsystemManager.getInstance().getScoringSuperstructure().elevatorLowThreshold()) yield endEffector.isWristAtTarget();
+                else yield true;
+            }
             case ELEVATOR_MOVE_WITH_TRANSITION -> elevator.isNearTarget();
             case TRANSITION_AFTER_ELEVATOR -> ScoringConstants.autonShouldAdvanceToOuttakeTrigger.getAsBoolean() && elevator.isAtTarget();
             case ELEVATOR_MOVE_NO_TRANSITION -> elevator.isAtTarget();

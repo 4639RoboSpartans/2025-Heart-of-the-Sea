@@ -92,6 +92,11 @@ public class DummySwerveDrivetrain extends AbstractSwerveDrivetrain {
     }
 
     @Override
+    public double[] getVisionStandardDeviations() {
+        return new double[]{0, 0, 0};
+    }
+
+    @Override
     public double getDistanceFromReefFace() {
         return 0;
     }

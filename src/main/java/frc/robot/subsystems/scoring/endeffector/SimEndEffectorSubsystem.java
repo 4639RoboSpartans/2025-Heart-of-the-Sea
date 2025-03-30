@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import frc.lib.oi.OI;
 import frc.lib.tunable.TunableNumber;
 import frc.robot.subsystems.SubsystemManager;
-import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
 import frc.robot.subsystems.scoring.constants.ScoringPIDs;
 
 import static frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConstants.*;
@@ -57,11 +56,8 @@ public class SimEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
     public boolean hasCoral() {
         var currentAction = SubsystemManager.getInstance().getScoringSuperstructure().getCurrentAction();
         if (currentAction.endOnGamePieceNotSeen) {
-            return intakeSpeed == 0;
-        } else if (currentAction.endOnGamePieceSeen) {
-            return true;
-        }
-        return false;
+            return false;
+        } else return currentAction.endOnGamePieceSeen;
     }
 
     @Override

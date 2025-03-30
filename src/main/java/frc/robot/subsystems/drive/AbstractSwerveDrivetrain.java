@@ -78,8 +78,7 @@ public abstract class AbstractSwerveDrivetrain extends SubsystemBase {
                 .finallyDo(() -> currentAlignTarget = null);
     }
 
-    public abstract Command 
-    fineTuneUsingLaserCANCommand(Pose2d targetPose);
+    public abstract Command fineTuneUsingLaserCANCommand(Pose2d targetPose);
 
     public abstract Command pathToPoseCommand(Pose2d targetPose);
 
@@ -129,6 +128,8 @@ public abstract class AbstractSwerveDrivetrain extends SubsystemBase {
     public abstract void addVisionMeasurement(Pose2d pose, double timestamp);
 
     public abstract void setVisionStandardDeviations(double xStdDev, double yStdDev, double rotStdDev);
+
+    public abstract double[] getVisionStandardDeviations();
 
     public abstract double getDistanceFromReefFace();
 
