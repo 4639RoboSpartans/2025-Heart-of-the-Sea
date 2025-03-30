@@ -250,7 +250,7 @@ public class AutoRoutines {
 
         // Create commands
         List<Command> commands = new ArrayList<>();
-        commands.add(pathSegments[0].resetOdometry());
+//        commands.add(pathSegments[0].resetOdometry());
         for (int targetIndex = 0; targetIndex < scoringTargets.length; targetIndex++) {
             addScoringSegment(commands, pathSegments[targetIndex * 2], scoringTargets[targetIndex]);
             if (targetIndex != scoringTargets.length - 1) {

@@ -6,7 +6,6 @@
 package frc.robot.robot;
 
 import au.grapplerobotics.CanBridge;
-import com.ctre.phoenix6.SignalLogger;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.Timer;
@@ -30,7 +29,6 @@ public class Robot extends LoggedRobot {
 
 
     public Robot() {
-        SignalLogger.enableAutoLogging(true);
         robotContainer = new RobotContainer();
         CanBridge.runTCP();
         SubsystemManager.getInstance().getDrivetrain().setVisionStandardDeviations(1, 1, 1);
@@ -96,7 +94,6 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void teleopInit() {
-        SignalLogger.start();
         if (autonomousCommand != null) {
             autonomousCommand.cancel();
         }
@@ -110,7 +107,6 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void teleopExit() {
-        SignalLogger.stop();
     }
 
 
