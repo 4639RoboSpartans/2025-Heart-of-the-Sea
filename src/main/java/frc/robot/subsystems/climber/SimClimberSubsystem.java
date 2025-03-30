@@ -1,16 +1,18 @@
 package frc.robot.subsystems.climber;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.annotation.PackagePrivate;
+
+import static edu.wpi.first.units.Units.Rotation;
 
 import java.util.Objects;
 
 public class SimClimberSubsystem extends AbstractClimberSubsystem{
-    ClimberState state = ClimberState.IDLE;
+    ClimberState state = ClimberState.STOWED;
     private final SingleJointedArmSim climberSim;
     private final DCMotor gearbox = DCMotor.getVex775Pro(1);
 
@@ -54,13 +56,8 @@ public class SimClimberSubsystem extends AbstractClimberSubsystem{
     }
 
     @Override
-    Command setServoPosition(double servoPosition) {
-        return runOnce(() -> SmartDashboard.putNumber("servo position", servoPosition));
-    }
-
-    @Override
-    double getServoPosition() {
-        return SmartDashboard.getNumber("servo position", 0);
+    double getEncoderPosition() {
+        return Rotation2d.fromRadians(climberSim.getAngleRads()).getRotations();
     }
 
     @Override

@@ -4,15 +4,13 @@ import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.spark.SparkLowLevel;
 import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.wpilibj.Servo;
-import edu.wpi.first.wpilibj2.command.Command;
 
 import java.util.Objects;
 
 public class ConcreteClimberSubsystem extends AbstractClimberSubsystem {
     SparkMax climberMotor;
-    AbsoluteEncoder climberEncoder;
-    ClimberState climberState = ClimberState.IDLE;
-    ServoSubsystem servoSubsystem = new ServoSubsystem();
+    ClimberState climberState = ClimberState.STOWED;
+    AbsoluteEncoder encoder;
 
     private static volatile ConcreteClimberSubsystem instance;
 
@@ -23,7 +21,7 @@ public class ConcreteClimberSubsystem extends AbstractClimberSubsystem {
     public ConcreteClimberSubsystem() {
         init();
         this.climberMotor = new SparkMax(ClimberConstants.CLIMBER_ID, SparkLowLevel.MotorType.kBrushed);
-        climberEncoder = climberMotor.getAbsoluteEncoder();
+        this.encoder = climberMotor.getAbsoluteEncoder();
     }
 
     @Override
@@ -42,12 +40,7 @@ public class ConcreteClimberSubsystem extends AbstractClimberSubsystem {
     }
 
     @Override
-    Command setServoPosition(double servoPosition) {
-        return servoSubsystem.setServoPosition(servoPosition);
-    }
-
-    @Override
-    double getServoPosition() {
-        return servoSubsystem.getServoPosition();
+    double getEncoderPosition() {
+        return encoder.getPosition();
     }
 }

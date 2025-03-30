@@ -25,6 +25,7 @@ import frc.robot.constants.Controls;
 import frc.robot.constants.FieldConstants;
 import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.climber.AbstractClimberSubsystem;
+import frc.robot.subsystems.climber.ServoSubsystem;
 import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
 import frc.robot.subsystems.drive.DriveCommands;
 import frc.robot.subsystems.drive.DriveSysID;
@@ -51,6 +52,8 @@ public class RobotContainer {
     private final SendableChooser<Pose2d> startPositionChooser = new SendableChooser<>();
     @SuppressWarnings("unused")
     private final LEDStrip ledStrip = SubsystemManager.getInstance().getLEDStripSubsystem();
+    private final ServoSubsystem servoSubsystem = SubsystemManager.getInstance().getServoSubsystem();
+    private final AbstractClimberSubsystem climber = SubsystemManager.getInstance().getClimberSubsystem();
 
     private final StructArrayPublisher<Pose3d> componentPoses = NetworkTableInstance.getDefault()
         .getStructArrayTopic("zeroed component poses", Pose3d.struct).publish();
@@ -156,9 +159,11 @@ public class RobotContainer {
         FunctionalTrigger.of(Controls.Driver.processorAlign)
             .whileTrue(DriveCommands::moveToProcessor);
 
-        Controls.Driver.dropFunnelTrigger.onTrue(SubsystemManager.getInstance().getClimberSubsystem().dropFunnel());
-        Controls.Driver.unspoolCimberTrigger.whileTrue(SubsystemManager.getInstance().getClimberSubsystem().climberUp());
-        Controls.Driver.spoolCimberTrigger.whileTrue(SubsystemManager.getInstance().getClimberSubsystem().climberDown());
+        servoSubsystem.setDefaultCommand(servoSubsystem.stopServo());
+        Controls.Driver.bindFunneltrigger.whileTrue(servoSubsystem.extendServo());
+        Controls.Driver.dropFunnelTrigger.whileTrue(servoSubsystem.retractServo());
+        Controls.Driver.climbTrigger.whileTrue(climber.climbCommand());
+        Controls.Driver.prepClimbTrigger.whileTrue(climber.deClimbCommand());
 
 
         // OI.getInstance().driverController().Y_BUTTON.whileTrue(
