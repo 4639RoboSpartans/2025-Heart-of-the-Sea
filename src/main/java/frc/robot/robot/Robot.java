@@ -29,6 +29,7 @@ public class Robot extends LoggedRobot {
         SignalLogger.enableAutoLogging(true);
         robotContainer = new RobotContainer();
         CanBridge.runTCP();
+        SubsystemManager.getInstance().getDrivetrain().setVisionStandardDeviations(1, 1, 99999);
     }
 
     @Override

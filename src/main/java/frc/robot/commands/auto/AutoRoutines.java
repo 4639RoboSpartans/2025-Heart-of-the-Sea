@@ -167,6 +167,27 @@ public class AutoRoutines {
             )
         );
     }
+    
+
+    public AutonSupplier COMP_F_D_C() {
+        return new AutonSupplier(
+            () -> compileAuton(
+            true,
+            true,
+            new ScoringTarget('F', 4),
+            new ScoringTarget('D', 4),
+            new ScoringTarget('C', 4)
+            ),
+            getAutonName(
+                new ScoringTarget[] {
+                    new ScoringTarget('F', 4),
+                    new ScoringTarget('D', 4),
+                    new ScoringTarget('C', 4)
+                }, 
+                "COMP-"
+            )
+        );
+    }
 
     
     public AutonSupplier TEST_E_C() {
@@ -330,6 +351,7 @@ public class AutoRoutines {
             COMP_H_A(),
             COMP_G_C_D_B(),
             COMP_I_K_L(),
+            COMP_F_D_C(),
             TEST_E_C(),
             TEST_PATH()
         );

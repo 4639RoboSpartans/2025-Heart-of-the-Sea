@@ -53,11 +53,11 @@ public abstract class AbstractClimberSubsystem extends SubsystemBase {
         .andThen(run(
             () -> 
                 {
-                    if (ClimberConstants.Setpoints.climbPosition.get() > getEncoderPosition()) {
-                        setClimberSpeed(0);
-                    } else {
+                    // if (ClimberConstants.Setpoints.climbPosition.get() < getEncoderPosition()) {
+                    //     setClimberSpeed(0);
+                    // } else {
                         setClimberSpeed(ClimberConstants.climberSpeed.get());
-                    }
+                    // }
                 }
         ));
     }

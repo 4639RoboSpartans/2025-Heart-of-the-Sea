@@ -120,7 +120,7 @@ public class ScoringSuperstructureAction {
             .useManualControlInTeleop(false),
         SCORE_L1_CORAL = new ScoringSuperstructureAction("SCORE_L1_CORAL")
             .withTargetElevatorExtensionFraction(() -> {
-                double res = ElevatorSetpoints.L1_Proportion + (drivetrain.getDistanceFromReefFace() - 387.5) * 0.00025;
+                double res = ElevatorSetpoints.L1_Proportion + (drivetrain.getDistanceFromReefFace() - 387.5) * 0.0001;
                 return res > 1 ? ElevatorSetpoints.L1_Proportion : res;
             })
             .withTargetWristRotationFraction(() -> WristSetpoints.Wrist_L1_Proportion)
@@ -130,7 +130,7 @@ public class ScoringSuperstructureAction {
             .withStateAfter(IDLE),
         SCORE_L2_CORAL = new ScoringSuperstructureAction("SCORE_L2_CORAL")
             .withTargetElevatorExtensionFraction(() -> {
-                double res = ElevatorSetpoints.L2_Proportion + (drivetrain.getDistanceFromReefFace() - 387.5) * 0.00025;
+                double res = ElevatorSetpoints.L2_Proportion + (drivetrain.getDistanceFromReefFace() - 387.5) * 0.0001;
                 return res > 1 ? ElevatorSetpoints.L2_Proportion : res;
             })
             .withTargetWristRotationFraction(() -> WristSetpoints.Wrist_L2_Proportion)
@@ -140,7 +140,7 @@ public class ScoringSuperstructureAction {
             .withStateAfter(IDLE),
         SCORE_L3_CORAL = new ScoringSuperstructureAction("SCORE_L3_CORAL")
             .withTargetElevatorExtensionFraction(() -> {
-                double res = ElevatorSetpoints.L3_Proportion + (drivetrain.getDistanceFromReefFace() - 387.5) * 0.00025;
+                double res = ElevatorSetpoints.L3_Proportion + (drivetrain.getDistanceFromReefFace() - 387.5) * 0.0001;
                 return res > 1 ? ElevatorSetpoints.L3_Proportion : res;
             })
             .withTargetWristRotationFraction(() -> WristSetpoints.Wrist_L3_Proportion)
@@ -150,7 +150,7 @@ public class ScoringSuperstructureAction {
             .withStateAfter(IDLE),
         SCORE_L4_CORAL = new ScoringSuperstructureAction("SCORE_L4_CORAL")
             .withTargetElevatorExtensionFraction(() -> {
-                double res = ElevatorSetpoints.L4_Proportion + (drivetrain.getDistanceFromReefFace() - 387.5) * 0.00025;
+                double res = ElevatorSetpoints.L4_Proportion + (drivetrain.getDistanceFromReefFace() - 387.5) * 0.0001;
                 SmartDashboard.putNumber("Adjusted ELevator Setpoint", res);
                 return res > 1 ? ElevatorSetpoints.L4_Proportion : res;
             })

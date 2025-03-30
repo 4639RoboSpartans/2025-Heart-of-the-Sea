@@ -36,16 +36,16 @@ public final class ScoringConstants {
 
         public static final class ElevatorSetpoints {
             //Elevator proportions
-            public static final double IDLE_Proportion = 0.00;
-            public static final double HP_Proportion = 0.026;//0.0
+            public static final double IDLE_Proportion = 0.04;
+            public static final double HP_Proportion = 0.058;//0.0
             public static final double Processor_Proportion = ProportionToPosition.convertBackwards(2.620); // TODO: tune
             public static final double L1_Proportion = 0.15; // TODO: tune
             // TODO: above
 
 
-            public static final double L2_Proportion = 0.285;//0.28
-            public static final double L3_Proportion = 0.491;//0.481
-            public static final double L4_Proportion = 0.8625;
+            public static final double L2_Proportion = 0.272;//0.28
+            public static final double L3_Proportion = 0.450;//0.481
+            public static final double L4_Proportion = 0.835;
 
             // TODO: below
             public static final double L2_ALGAE_Proportion = 0.32; // MAYBE
@@ -53,7 +53,7 @@ public final class ScoringConstants {
             public static final double Barge_Proportion = .95;
 
             public static final double Ground_Intake_Proportion = 0.0;
-            public static final double Homing_Proportion = -0.04;
+            public static final double Homing_Proportion = 0.0;
             public static final double ELEVATOR_LOWEST_PROPORTION = 0.0;
         }
     }
@@ -98,9 +98,9 @@ public final class ScoringConstants {
             public static final double Intake_HP_Speed = 0.5;
             public static final double Intake_Processor_Speed = 0.5;
             public static final double Intake_L1_Speed = 0.2;
-            public static final double Intake_L2_Speed = -0.5;
-            public static final double Intake_L3_Speed = -0.5;
-            public static final double Intake_L4_Speed = -0.5;
+            public static final double Intake_L2_Speed = -0.875;
+            public static final double Intake_L3_Speed = -0.875;
+            public static final double Intake_L4_Speed = -0.875;
             public static final double Intake_L2_ALGAE_Speed = 1.0;
             public static final double Intake_L3_ALGAE_Speed = 1.0;
             public static final double Intake_Barge_Speed = 0.1;//0.3
