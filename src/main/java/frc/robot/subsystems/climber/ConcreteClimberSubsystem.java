@@ -1,42 +1,46 @@
 package frc.robot.subsystems.climber;
 
-import com.revrobotics.spark.SparkBase;
-import com.revrobotics.spark.SparkFlex;
+import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.spark.SparkLowLevel;
-import com.revrobotics.spark.config.SparkBaseConfig;
-import com.revrobotics.spark.config.SparkFlexConfig;
-import edu.wpi.first.wpilibj.motorcontrol.MotorController;
-import edu.wpi.first.wpilibj2.command.Command;
-import frc.lib.annotation.PackagePrivate;
-import frc.robot.subsystems.climber.ClimberConstants.IDs;
+import com.revrobotics.spark.SparkMax;
+import edu.wpi.first.wpilibj.Servo;
 
-import java.util.function.DoubleSupplier;
+import java.util.Objects;
 
-@PackagePrivate
-class ConcreteClimberSubsystem extends AbstractClimberSubsystem {
-    private final MotorController motor;
+public class ConcreteClimberSubsystem extends AbstractClimberSubsystem {
+    SparkMax climberMotor;
+    ClimberState climberState = ClimberState.STOWED;
+    AbsoluteEncoder encoder;
+
+    private static volatile ConcreteClimberSubsystem instance;
+
+    public static synchronized ConcreteClimberSubsystem getInstance() {
+        return instance = Objects.requireNonNullElseGet(instance, ConcreteClimberSubsystem::new);
+    }
 
     public ConcreteClimberSubsystem() {
-        SparkFlex motor = new SparkFlex(IDs.CLIMBER_MOTOR, SparkLowLevel.MotorType.kBrushless);
-        SparkBaseConfig cfg = new SparkFlexConfig()
-            .idleMode(SparkBaseConfig.IdleMode.kBrake)
-            .smartCurrentLimit(30);
-        motor.configure(cfg, SparkBase.ResetMode.kNoResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
-
-        this.motor = motor;
-//        this.motor = new RatchetMotor(motor, IDs.CLIMBER_RATCHET_DIO_PORT, RatchetMotor.RatchetDirection.Forwards);
+        init();
+        this.climberMotor = new SparkMax(ClimberConstants.CLIMBER_ID, SparkLowLevel.MotorType.kBrushed);
+        this.encoder = climberMotor.getAbsoluteEncoder();
     }
 
     @Override
-    public Command runClimber(DoubleSupplier speedSupplier) {
-        return run(
-            () -> setMotor(speedSupplier.getAsDouble())
-        ).finallyDo(
-            () -> setMotor(0)
-        );
+    void setClimberSpeed(double speed) {
+        climberMotor.set(speed);
     }
 
-    private void setMotor(double speed) {
-        motor.set(speed);
+    @Override
+    ClimberState getClimberState() {
+        return climberState;
+    }
+
+    @Override
+    void setClimberState(ClimberState state) {
+        climberState = state;
+    }
+
+    @Override
+    double getEncoderPosition() {
+        return encoder.getPosition();
     }
 }
