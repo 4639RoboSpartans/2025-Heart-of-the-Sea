@@ -50,7 +50,7 @@ public final class ScoringSuperstructure extends SubsystemBase {
     }
 
     private boolean maybeNeedsTransition = false;
-    private boolean autoShouldOuttake = false;
+    private boolean useIntakeSpeed = false;
 
     private void setCurrentAction(ScoringSuperstructureAction action) {
         if (action != this.currentAction) {
@@ -76,7 +76,7 @@ public final class ScoringSuperstructure extends SubsystemBase {
         return endEffector.hasCoral();
     }
 
-    public boolean elevatorAutonMoveThreshold() {
+    public boolean elevatorMoveThreshold() {
         return elevator.getCurrentExtensionFraction() <= 0.8;
     }
 
@@ -204,7 +204,7 @@ public final class ScoringSuperstructure extends SubsystemBase {
             .orElseGet(() -> endEffector::getTargetRotationFraction);
         double manualIntakeSpeed = Controls.Operator.ManualControlIntake.getAsDouble() * Math.abs(currentAction.intakeSpeed);
         double intakeSpeed;
-        if (autoShouldOuttake && RobotState.isAutonomous()) {
+        if (useIntakeSpeed) {
             intakeSpeed = currentAction.intakeSpeed;
         } else if (currentAction.name.equals(ScoringSuperstructureAction.INTAKE_FROM_HP.name)) {
             if (manualIntakeSpeed != 0) {
@@ -240,7 +240,7 @@ public final class ScoringSuperstructure extends SubsystemBase {
         }
 
         // If the state is finished and, go to the next action, requires IDLE trigger to go down to IDLE
-        if (currentState == ScoringSuperstructureState.DONE && RobotState.isAutonomous()) {
+        if (currentState == ScoringSuperstructureState.DONE) {
             setCurrentAction(currentAction.nextAction);
         }
     }
@@ -285,7 +285,7 @@ public final class ScoringSuperstructure extends SubsystemBase {
         }
         // runActionPeriodic();
         SmartDashboard.putNumber("Elevator Fraction", elevator.getCurrentExtensionFraction());
-        SmartDashboard.putBoolean("Elevator Low Threshold", elevatorAutonMoveThreshold());
+        SmartDashboard.putBoolean("Elevator Low Threshold", elevatorMoveThreshold());
         SmartDashboard.putString("State", currentState.name());
         SmartDashboard.putString("Action", currentAction.toString());
     }
@@ -346,9 +346,9 @@ public final class ScoringSuperstructure extends SubsystemBase {
         return currentState;
     }
 
-    public Command setAutoOuttake(boolean shouldOuttake) {
+    public Command setUseIntakeSpeed(boolean useIntakeSpeed) {
         return Commands.runOnce(
-            () -> autoShouldOuttake = shouldOuttake
+            () -> this.useIntakeSpeed = useIntakeSpeed
         );
     }
 }

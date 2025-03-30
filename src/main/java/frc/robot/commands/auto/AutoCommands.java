@@ -25,7 +25,7 @@ public class AutoCommands {
             SwerveStop.get()
         );
 
-    public static final Function<Boolean, Command> setAutoOuttake = shouldOuttake -> superstructure.setAutoOuttake(shouldOuttake);
+    public static final Function<Boolean, Command> setAutoOuttake = shouldOuttake -> superstructure.setUseIntakeSpeed(shouldOuttake);
 
     public static final Supplier<Command> runScoring = superstructure::runScoringState;
 

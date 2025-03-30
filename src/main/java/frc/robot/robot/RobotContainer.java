@@ -12,12 +12,15 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.FunctionalTrigger;
+import frc.robot.commands.CommandFactory;
 import frc.robot.commands.auto.AutoRoutines;
 import frc.robot.commands.auto.AutoRoutines.AutonSupplier;
 import frc.robot.constants.Controls;
 import frc.robot.constants.FieldConstants;
+import frc.robot.constants.FieldConstants.TargetPositions.Direction;
 import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.climber.AbstractClimberSubsystem;
 import frc.robot.subsystems.climber.ServoSubsystem;
@@ -87,34 +90,22 @@ public class RobotContainer {
                 )
             );
             Controls.Operator.L1Trigger.onTrue(
-                scoringSuperstructure.setAction(
-                    ScoringSuperstructureAction.SCORE_L1_CORAL
-                )
+                Commands.runOnce(() -> {Controls.Operator.lastScoringHeight = 1;})
             );
             Controls.Operator.L2Trigger.onTrue(
-                scoringSuperstructure.setAction(
-                    ScoringSuperstructureAction.SCORE_L2_CORAL
-                )
+                Commands.runOnce(() -> {Controls.Operator.lastScoringHeight = 2;})
             );
             Controls.Operator.L3Trigger.onTrue(
-                scoringSuperstructure.setAction(
-                    ScoringSuperstructureAction.SCORE_L3_CORAL
-                )
+                Commands.runOnce(() -> {Controls.Operator.lastScoringHeight = 3;})
             );
             Controls.Operator.L4Trigger.onTrue(
-                scoringSuperstructure.setAction(
-                    ScoringSuperstructureAction.SCORE_L4_CORAL
-                )
+                Commands.runOnce(() -> {Controls.Operator.lastScoringHeight = 4;})
             );
             Controls.Driver.L2AlgaeTrigger.onTrue(
-                scoringSuperstructure.setAction(
-                    ScoringSuperstructureAction.INTAKE_L2_ALGAE
-                )
+                Commands.runOnce(() -> {Controls.Driver.lastAlgaeHeight = 2;})
             );
             Controls.Driver.L3AlgaeTrigger.onTrue(
-                scoringSuperstructure.setAction(
-                    ScoringSuperstructureAction.INTAKE_L3_ALGAE
-                )
+                Commands.runOnce(() -> {Controls.Driver.lastAlgaeHeight = 3;})
             );
             Controls.Operator.ScoringIdleTrigger.onTrue(
                 scoringSuperstructure.setAction(
@@ -131,13 +122,13 @@ public class RobotContainer {
         }
 
         FunctionalTrigger.of(Controls.Driver.alignReefLeft)
-            .whileTrue(() -> DriveCommands.moveToClosestReefPositionWithPID(FieldConstants.TargetPositions.Direction.LEFT, SubsystemManager.getInstance().getDrivetrain()::getPose));
+            .whileTrue(() -> CommandFactory.autoScoreCoral(Direction.LEFT));
         FunctionalTrigger.of(Controls.Driver.alignReefRight)
-            .whileTrue(() -> DriveCommands.moveToClosestReefPositionWithPID(FieldConstants.TargetPositions.Direction.RIGHT, SubsystemManager.getInstance().getDrivetrain()::getPose));
+            .whileTrue(() -> CommandFactory.autoScoreCoral(Direction.RIGHT));
         FunctionalTrigger.of(Controls.Driver.reefAlign)
             .and(Controls.Driver.alignReefLeft.negate())
             .and(Controls.Driver.alignReefRight.negate())
-            .whileTrue(() -> DriveCommands.moveToClosestReefPositionWithPID(FieldConstants.TargetPositions.Direction.ALGAE, SubsystemManager.getInstance().getDrivetrain()::getPose));
+            .whileTrue(() -> CommandFactory.autoDeAlgae());
 
         Controls.Driver.toggleAutoHeadingButton.onTrue(swerve.toggleAutoHeading());
 

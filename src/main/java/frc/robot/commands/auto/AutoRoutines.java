@@ -5,12 +5,14 @@ import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.util.CommandsUtil;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.FieldConstants.TargetPositions;
 import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.drive.DriveCommands;
 import frc.robot.subsystems.scoring.ScoringSuperstructure;
+import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -284,22 +286,22 @@ public class AutoRoutines {
             );
         }
 
-//        commands.add(
-//                Commands.sequence(
-//                        Commands.deadline(
-//                                Commands.sequence(
-//                                        Commands.waitUntil(() -> scoringSuperstructure.getCurrentState() == ScoringSuperstructureState.EXECUTING_ACTION),
-//                                        AutoCommands.setAutoOuttake.apply(true),
-//                                        Commands.waitUntil(
-//                                                () -> !scoringSuperstructure.hasCoral()
-//                                        )
-//                                                .andThen(Commands.waitUntil(scoringSuperstructure::elevatorLowThreshold))
-//                                ),
-//                                AutoCommands.SwerveStop.get()
-//                        ),
-//                        AutoCommands.setAutoOuttake.apply(false)
-//                )
-//        );
+        commands.add(
+                Commands.sequence(
+                        Commands.deadline(
+                                Commands.sequence(
+                                        Commands.waitUntil(() -> scoringSuperstructure.getCurrentState() == ScoringSuperstructureState.EXECUTING_ACTION),
+                                        AutoCommands.setAutoOuttake.apply(true),
+                                        Commands.waitUntil(
+                                                () -> !scoringSuperstructure.hasCoral()
+                                        )
+                                                .andThen(Commands.waitUntil(scoringSuperstructure::elevatorMoveThreshold))
+                                ),
+                                AutoCommands.SwerveStop.get()
+                        ),
+                        AutoCommands.setAutoOuttake.apply(false)
+                )
+        );
     }
 
     private void addHPLoadingSegment(List<Command> commands, AutoTrajectory path, boolean isStationLeft) {

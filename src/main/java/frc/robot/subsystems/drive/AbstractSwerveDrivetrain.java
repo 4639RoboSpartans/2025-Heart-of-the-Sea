@@ -2,13 +2,17 @@ package frc.robot.subsystems.drive;
 
 import choreo.trajectory.SwerveSample;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.robot.Robot;
 import frc.robot.subsystems.SubsystemManager;
+import frc.robot.util.PoseUtil;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -73,9 +77,29 @@ public abstract class AbstractSwerveDrivetrain extends SubsystemBase {
     public Command directlyMoveTo(Pose2d targetPose, Supplier<Pose2d> currentPose) {
         return _directlyMoveTo(targetPose, currentPose)
                 .andThen(fineTuneUsingLaserCANCommand(targetPose))
-        // return fineTuneUsingLaserCANCommand(targetPose)
                 .beforeStarting(() -> currentAlignTarget = targetPose)
                 .finallyDo(() -> currentAlignTarget = null);
+    }
+
+    public boolean shouldStartScoring() {
+        if (currentAlignTarget == null) return false;
+        return PoseUtil.withinTolerance(
+            currentAlignTarget,
+            getPose(), 
+            0.5
+        );
+    }
+
+    public boolean getAtTargetPose() {
+        if (currentAlignTarget == null) return false;
+        return PoseUtil.withinTolerance(
+            currentAlignTarget,
+            getPose(), 
+            0.025
+        ) && MathUtil.isNear(
+            currentAlignTarget.getRotation().getDegrees(), 
+            getPose().getRotation().getDegrees(), 
+            1);
     }
 
     public abstract Command fineTuneUsingLaserCANCommand(Pose2d targetPose);

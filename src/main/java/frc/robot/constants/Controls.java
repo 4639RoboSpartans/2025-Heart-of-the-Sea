@@ -3,7 +3,6 @@ package frc.robot.constants;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.oi.Controller;
 import frc.lib.oi.OI;
-import frc.robot.subsystems.climber.AbstractClimberSubsystem;
 
 import java.util.function.DoubleSupplier;
 /*
@@ -66,6 +65,9 @@ public class Controls {
 
         public static final Trigger L2AlgaeTrigger = driverController.POV_DOWN;
         public static final Trigger L3AlgaeTrigger = driverController.POV_UP;
+
+        public static int lastAlgaeHeight = 2;
+
         public static final Trigger ProcessorTrigger = driverController.Y_BUTTON;
         public static final Trigger BargeScoringTrigger = driverController.X_BUTTON;
 
@@ -82,6 +84,8 @@ public class Controls {
         public static final Trigger L2Trigger = operatorController.LEFT_BUMPER;
         public static final Trigger L3Trigger = operatorController.RIGHT_BUMPER;
         public static final Trigger L4Trigger = operatorController.RIGHT_TRIGGER;
+
+        public static int lastScoringHeight = 4;
 
         public static final Trigger HPLoadingTrigger = operatorController.X_BUTTON;
 
