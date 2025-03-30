@@ -1,5 +1,6 @@
 package frc.robot.subsystems.vision;
 
+import com.ctre.phoenix6.Utils;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -10,16 +11,14 @@ import frc.lib.limelight.data.PoseEstimate;
 import frc.lib.limelight.data.PoseEstimate.Botpose;
 import frc.lib.limelight.data.RawFiducial;
 import frc.lib.tunable.TunableNumber;
-import frc.robot.util.PoseUtil;
 import frc.robot.constants.Limelights;
 import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
+import frc.robot.util.PoseUtil;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalDouble;
-
-import com.ctre.phoenix6.Utils;
 
 public class Vision {
     public static TunableNumber distanceThreshold = new TunableNumber("distanceThresholdMeters").withDefaultValue(1);
@@ -48,6 +47,8 @@ public class Vision {
                             if (shouldUseMT1STDevs) {
                                 double[] stdevs = LimelightHelpers.getStDevs_MT1(limelight.getName());
                                 drivetrain.setVisionStandardDeviations(stdevs[0], stdevs[1], stdevs[3]);
+                            } else {
+                                drivetrain.setVisionStandardDeviations(1, 1, 99999);
                             }
                             drivetrain.addVisionMeasurement(pose, Utils.getCurrentTimeSeconds());
                             visionMeasurements.getObject(limelight.getName()).setPose(pose);

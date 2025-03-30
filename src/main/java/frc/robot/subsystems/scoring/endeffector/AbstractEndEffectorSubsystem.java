@@ -159,14 +159,9 @@ public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
             intakeSpeed = this.intakeSpeed;
         }
 
-        SmartDashboard.putNumber("Intake Speed", intakeSpeed);
-
         periodic(targetWristRotationFraction, intakeSpeed);
 
-        SmartDashboard.putString("Wrist info: ",
-            "current fraction = " + currentWristRotationFraction
-                + " target fraction = " + targetWristRotationFraction
-        );
+        SmartDashboard.putNumber("Wrist Fraction", getCurrentRotationFraction());
         
         SmartDashboard.putBoolean("Has Coral", hasCoral());
     }

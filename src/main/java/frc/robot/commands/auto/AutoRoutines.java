@@ -3,6 +3,7 @@ package frc.robot.commands.auto;
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.util.CommandsUtil;
@@ -31,7 +32,7 @@ public class AutoRoutines {
 
     public AutonSupplier NONE() {
         return new AutonSupplier(
-                () -> factory.get().newRoutine("NONE"),
+                () -> new Auton(factory.get().newRoutine("NONE"), new Pose2d()),
                 "NONE"
         );
     }
@@ -208,23 +209,6 @@ public class AutoRoutines {
         );
     }
 
-    public AutonSupplier TEST_PATH() {
-        return new AutonSupplier(
-            () -> {
-                AutoRoutine routine = factory.get().newRoutine("TEST_PATH");
-                AutoTrajectory traj = routine.trajectory("Test Path");
-                routine.active().onTrue(
-                    Commands.sequence(
-                        traj.resetOdometry(),
-                        traj.cmd()
-                    )
-                );
-                return routine;
-            },
-            "TEST PATH"
-        );
-    }
-
     private record ScoringTarget(char scoringLocation, int scoringHeight) {
         @Override
         public String toString() {
@@ -244,7 +228,7 @@ public class AutoRoutines {
      *
      * @return a new routine with the specified characteristics
      */
-    private AutoRoutine compileAuton(
+    private Auton compileAuton(
         boolean isComp,
         boolean left,
         ScoringTarget... scoringTargets
@@ -262,6 +246,8 @@ public class AutoRoutines {
             .mapToObj(i -> routine.trajectory(autonPathName, i))
             .toArray(AutoTrajectory[]::new);
 
+        Pose2d startPose = pathSegments[0].getInitialPose().orElseGet(Pose2d::new);
+
         // Create commands
         List<Command> commands = new ArrayList<>();
         commands.add(pathSegments[0].resetOdometry());
@@ -277,7 +263,7 @@ public class AutoRoutines {
                 CommandsUtil.sequence(commands)
         );
 
-        return routine;
+        return new Auton(routine, startPose);
     }
 
     private void addScoringSegment(List<Command> commands, AutoTrajectory path, ScoringTarget scoringTarget) {
@@ -351,13 +337,11 @@ public class AutoRoutines {
             COMP_H_A(),
             COMP_G_C_D_B(),
             COMP_I_K_L(),
-            COMP_F_D_C(),
-            TEST_E_C(),
-            TEST_PATH()
+            COMP_F_D_C()
         );
     }
 
-    public record AutonSupplier(Supplier<AutoRoutine> routine, String name){}
+    public record AutonSupplier(Supplier<Auton> routine, String name){}
 
-    public record Auton(AutoRoutine routine, String name){}
+    public record Auton(AutoRoutine routine, Pose2d startPose){}
 }

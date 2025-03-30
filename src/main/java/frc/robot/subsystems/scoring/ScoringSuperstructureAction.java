@@ -151,7 +151,6 @@ public class ScoringSuperstructureAction {
         SCORE_L4_CORAL = new ScoringSuperstructureAction("SCORE_L4_CORAL")
             .withTargetElevatorExtensionFraction(() -> {
                 double res = ElevatorSetpoints.L4_Proportion + (drivetrain.getDistanceFromReefFace() - 387.5) * 0.0001;
-                SmartDashboard.putNumber("Adjusted ELevator Setpoint", res);
                 return res > 1 ? ElevatorSetpoints.L4_Proportion : res;
             })
             .withTargetWristRotationFraction(() -> WristSetpoints.Wrist_L4_Proportion)

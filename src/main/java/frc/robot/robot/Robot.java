@@ -8,11 +8,14 @@ package frc.robot.robot;
 import au.grapplerobotics.CanBridge;
 import com.ctre.phoenix6.SignalLogger;
 import com.revrobotics.spark.config.SparkBaseConfig;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.lib.util.AllianceFlipUtil;
+import frc.robot.commands.auto.AutoRoutines;
 import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
@@ -23,13 +26,14 @@ public class Robot extends LoggedRobot {
     private Command autonomousCommand;
 
     private final RobotContainer robotContainer;
+    private final Field2d startingPoseField = new Field2d();
 
 
     public Robot() {
         SignalLogger.enableAutoLogging(true);
         robotContainer = new RobotContainer();
         CanBridge.runTCP();
-        SubsystemManager.getInstance().getDrivetrain().setVisionStandardDeviations(1, 1, 99999);
+        SubsystemManager.getInstance().getDrivetrain().setVisionStandardDeviations(1, 1, 1);
     }
 
     @Override
@@ -63,13 +67,16 @@ public class Robot extends LoggedRobot {
     @Override
     public void disabledExit() {
         SubsystemManager.getInstance().getScoringSuperstructure().getEndEffectorSubsystem().setWristMotorIdleMode(SparkBaseConfig.IdleMode.kBrake);
-        SmartDashboard.putNumber("distanceThresholdMeters", 2);
     }
 
 
     @Override
     public void autonomousInit() {
-        autonomousCommand = robotContainer.getAutonomousCommand().routine().get().cmd();
+        AutoRoutines.AutonSupplier autonSupplier = robotContainer.getAutonomousCommand();
+        Pose2d startingPose = autonSupplier.routine().get().startPose();
+        autonomousCommand = autonSupplier.routine().get().routine().cmd();
+        startingPoseField.setRobotPose(startingPose);
+        SmartDashboard.putData("Starting Pose", startingPoseField);
         if (autonomousCommand != null) {
             autonomousCommand.schedule();
         }

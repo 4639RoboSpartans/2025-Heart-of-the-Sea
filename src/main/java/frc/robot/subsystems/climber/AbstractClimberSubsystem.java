@@ -1,10 +1,5 @@
 package frc.robot.subsystems.climber;
-import java.util.function.DoubleSupplier;
 
-import com.pathplanner.lib.config.PIDConstants;
-
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -13,6 +8,8 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.subsystems.SubsystemManager;
+
+import java.util.function.DoubleSupplier;
 
 public abstract class AbstractClimberSubsystem extends SubsystemBase {
     abstract void setClimberSpeed(double speed);
@@ -34,7 +31,7 @@ public abstract class AbstractClimberSubsystem extends SubsystemBase {
         RobotModeTriggers.teleop().onTrue(setState(ClimberState.STOWED));
 
         //put override on Smart Dashboard
-        SmartDashboard.putBoolean("climber/Climber Override", false);
+        SmartDashboard.putBoolean("climb/Climber Override", false);
     }
 
     public static AbstractClimberSubsystem getInstance() {
