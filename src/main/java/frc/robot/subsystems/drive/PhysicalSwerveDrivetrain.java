@@ -57,8 +57,8 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
     private final PhoenixPIDController headingController = new PhoenixPIDController(6, 0, 0);
     protected final PIDController
-            pathXController = new PIDController(2, 0, 0),
-            pathYController = new PIDController(2, 0, 0),
+            pathXController = new PIDController(10, 0, 0),
+            pathYController = new PIDController(10, 0, 0),
             pathHeadingController = new PIDController(12, 0, 0);
     protected ProfiledPIDController
             pidXController = constructPIDXController();
@@ -228,8 +228,9 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         Pose2d nearestReefPose = DriveCommands.getClosestTarget(this::getPose);
         Rotation2d nearestReefPoseRotation = nearestReefPose.getRotation();
         
+        chassisSpeeds.times(-1);
+        
         if (DriverStationUtil.getAlliance() == Alliance.Blue) {
-            chassisSpeeds.times(-1);
             nearestReefPoseRotation = nearestReefPoseRotation.plus(Rotation2d.k180deg);
         }
 
@@ -498,6 +499,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                 .withWheelForceFeedforwardsX(sample.moduleForcesX())
                 .withWheelForceFeedforwardsY(sample.moduleForcesY())
         );
+        field.getObject("Path Target Pose").setPose(sample.getPose());
     }
 
     @Override

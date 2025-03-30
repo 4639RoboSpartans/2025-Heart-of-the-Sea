@@ -76,8 +76,12 @@ public final class ScoringSuperstructure extends SubsystemBase {
         return endEffector.hasCoral();
     }
 
-    public boolean elevatorLowThreshold() {
+    public boolean elevatorAutonMoveThreshold() {
         return elevator.getCurrentExtensionFraction() <= 0.8;
+    }
+
+    public boolean elevatorSkipTransitionThreshold() {
+        return elevator.getCurrentExtensionFraction() <= 0.5;
     }
 
     /**
@@ -281,7 +285,7 @@ public final class ScoringSuperstructure extends SubsystemBase {
         }
         // runActionPeriodic();
         SmartDashboard.putNumber("Elevator Fraction", elevator.getCurrentExtensionFraction());
-        SmartDashboard.putBoolean("Elevator Low Threshold", elevatorLowThreshold());
+        SmartDashboard.putBoolean("Elevator Low Threshold", elevatorAutonMoveThreshold());
         SmartDashboard.putString("State", currentState.name());
         SmartDashboard.putString("Action", currentAction.toString());
     }

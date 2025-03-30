@@ -24,7 +24,7 @@ public enum ScoringSuperstructureState {
     ) {
         return switch (this) {
             case TRANSITION_BEFORE_ELEVATOR -> {
-                if (SubsystemManager.getInstance().getScoringSuperstructure().elevatorLowThreshold()) yield endEffector.isWristAtTarget();
+                if (SubsystemManager.getInstance().getScoringSuperstructure().elevatorSkipTransitionThreshold()) yield endEffector.isWristAtTarget();
                 else yield true;
             }
             case ELEVATOR_MOVE_WITH_TRANSITION -> elevator.isNearTarget();

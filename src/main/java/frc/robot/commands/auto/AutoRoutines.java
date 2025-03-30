@@ -125,21 +125,21 @@ public class AutoRoutines {
         );
     }
 
-    public AutonSupplier COMP_G_C_D_B() {
+    public AutonSupplier COMP_G_D_C_B() {
         return new AutonSupplier(
                 () -> compileAuton(
                         true,
                         false,
                         new ScoringTarget('G', 4),
-                        new ScoringTarget('C', 4),
                         new ScoringTarget('D', 4),
+                        new ScoringTarget('C', 4),
                         new ScoringTarget('B', 4)
                 ),
                 getAutonName(
                         new ScoringTarget[]{
                                 new ScoringTarget('G', 4),
-                                new ScoringTarget('C', 4),
                                 new ScoringTarget('D', 4),
+                                new ScoringTarget('C', 4),
                                 new ScoringTarget('B', 4)
                         },
                         "COMP-"
@@ -248,7 +248,7 @@ public class AutoRoutines {
         // Create commands
         List<Command> commands = new ArrayList<>();
         //TODO: determine whether we can see apriltags before the match starts, and not reset odometry
-        // commands.add(pathSegments[0].resetOdometry());
+        commands.add(pathSegments[0].resetOdometry());
         for (int targetIndex = 0; targetIndex < scoringTargets.length; targetIndex++) {
             addScoringSegment(commands, pathSegments[targetIndex * 2], scoringTargets[targetIndex]);
             if (targetIndex != scoringTargets.length - 1) {
@@ -332,7 +332,7 @@ public class AutoRoutines {
         return List.of(
                 COMP_A_B(),
                 COMP_H_A(),
-                COMP_G_C_D_B(),
+                COMP_G_D_C_B(),
                 COMP_I_K_L(),
                 COMP_F_D_C()
         );
