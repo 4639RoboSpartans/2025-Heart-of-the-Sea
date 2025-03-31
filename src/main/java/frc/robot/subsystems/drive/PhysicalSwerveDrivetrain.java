@@ -35,6 +35,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.limelight.LimelightHelpers;
 import frc.lib.util.DriverStationUtil;
 import frc.robot.constants.Controls;
+import frc.robot.constants.FieldConstants;
 import frc.robot.constants.Limelights;
 import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.drive.constants.DriveConstants;
@@ -119,6 +120,8 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     private boolean isAligning = false, isAligned = false;
 
     private boolean shouldAutoSetHeading = false;
+
+    private FieldConstants.TargetPositions.Direction direction = FieldConstants.TargetPositions.Direction.ALGAE;
 
     public PhysicalSwerveDrivetrain() {
         SwerveDrivetrainConstants drivetrainConstants = TunerConstants.DrivetrainConstants;
@@ -331,8 +334,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                         }
                 ).until(
                         getNearTargetPoseTrigger(targetPose)
-                )).andThen(stop().withTimeout(0.1))
-                .finallyDo(() -> {
+                )).finallyDo(() -> {
                     shouldUseMTSTDevs = false;
                     isAligning = false;
                     isAligned = false;
@@ -589,6 +591,11 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         double leftMeasurement, rightMeasurement;
         leftMeasurement = SubsystemManager.getInstance().getLasercanAlign().getLeftMeasurement();
         rightMeasurement = SubsystemManager.getInstance().getLasercanAlign().getRightMeasurement();
+        if (direction == FieldConstants.TargetPositions.Direction.LEFT) {
+            rightMeasurement -= 3;
+        } else if (direction == FieldConstants.TargetPositions.Direction.RIGHT) {
+            leftMeasurement -= 3;
+        }
         if (leftMeasurement < 0 || rightMeasurement < 0) {
             return Optional.empty();
         } else {
@@ -635,5 +642,10 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         return Commands.runOnce(
                 () -> shouldAutoSetHeading = !shouldAutoSetHeading
         );
+    }
+
+    @Override
+    public void setAlignmentDirection(FieldConstants.TargetPositions.Direction direction) {
+        this.direction = direction;
     }
 }
