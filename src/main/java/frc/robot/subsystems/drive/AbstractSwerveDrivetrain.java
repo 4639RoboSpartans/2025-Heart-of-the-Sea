@@ -77,12 +77,10 @@ public abstract class AbstractSwerveDrivetrain extends SubsystemBase {
         if (shouldUseLCAlign) {
             return _directlyMoveTo(targetPose, shouldUseLCAlign)
                     .andThen(fineTuneUsingLaserCANCommand(targetPose))
-                    .beforeStarting(() -> currentAlignTarget = targetPose)
-                    .finallyDo(() -> currentAlignTarget = null);
+                    .beforeStarting(() -> currentAlignTarget = targetPose);
         } else {
             return _directlyMoveTo(targetPose, shouldUseLCAlign)
-                    .beforeStarting(() -> currentAlignTarget = targetPose)
-                    .finallyDo(() -> currentAlignTarget = null);
+                    .beforeStarting(() -> currentAlignTarget = targetPose);
         }
     }
 
@@ -112,11 +110,11 @@ public abstract class AbstractSwerveDrivetrain extends SubsystemBase {
         return PoseUtil.withinTolerance(
                 currentAlignTarget,
                 getPose(),
-                0.1
+                0.025
         ) && MathUtil.isNear(
                 currentAlignTarget.getRotation().getDegrees(),
                 getPose().getRotation().getDegrees(),
-                5);
+                1);
     }
 
     public abstract Command fineTuneUsingLaserCANCommand(Pose2d targetPose);

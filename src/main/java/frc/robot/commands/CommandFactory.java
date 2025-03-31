@@ -41,8 +41,9 @@ public class CommandFactory {
                                         Commands.waitUntil(scoringSuperstructure::elevatorMoveThreshold)
                                 ),
                         DriveCommands.moveToClosestReefPositionWithPID(direction, swerve::getPose)
-                ),
-                scoringSuperstructure.setSimHasCoral(false)
+                )
+        ).finallyDo(
+                scoringSuperstructure::setSimHasCoral
         );
     }
 
@@ -71,16 +72,12 @@ public class CommandFactory {
     }
 
     public static Command autoCoralIntake() {
-        return Commands.parallel(
-                Commands.waitUntil(swerve::atHPTargetPose)
+        return Commands.deadline(
+                Commands.waitUntil(swerve::shouldStartScoring)
                         .andThen(
-                                scoringSuperstructure.setAction(ScoringSuperstructureAction.INTAKE_FROM_HP)
-                        ).andThen(
-                                Commands.waitUntil(swerve::atHPTargetPose)
-                        ).andThen(
-                                scoringSuperstructure.setSimHasCoral(true)
-                        ).until(
-                                scoringSuperstructure::hasCoral
+                                scoringSuperstructure.setAction(ScoringSuperstructureAction.INTAKE_FROM_HP),
+                                Commands.waitUntil(swerve::atHPTargetPose),
+                                scoringSuperstructure.setSimHasCoralCommand(true)
                         ),
                 DriveCommands.moveToClosestHPStation(swerve::getPose)
         ).andThen(

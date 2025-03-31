@@ -328,11 +328,9 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                                     .withVelocityY(robotRelativeSpeeds.vyMetersPerSecond)
                                     .withRotationalRate(rotationalRate);
                         }
-                ).until(
-                        () -> shouldUseLCAlign
-                            ? nearTargetPose(targetPose)
-                            : atHPTargetPose()
-                )).andThen(stop().withTimeout(0.1))
+                )).until(
+                        () -> shouldUseLCAlign && nearTargetPose(targetPose)
+                ).andThen(stop().withTimeout(0.1))
                 .finallyDo(() -> {
                     shouldUseMTSTDevs = false;
                 });

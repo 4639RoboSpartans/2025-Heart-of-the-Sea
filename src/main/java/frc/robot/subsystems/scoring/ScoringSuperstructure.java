@@ -351,15 +351,23 @@ public final class ScoringSuperstructure extends SubsystemBase {
         );
     }
 
-    public Command toggleSimHasCoral() {
+    public Command toggleSimHasCoralCommand() {
         return Commands.runOnce(
                 endEffector::toggleSimHasCoral
         );
     }
 
-    public Command setSimHasCoral(boolean hasCoral) {
+    public void toggleSimHasCoral() {
+        endEffector.toggleSimHasCoral();
+    }
+
+    public Command setSimHasCoralCommand(boolean hasCoral) {
         return Commands.runOnce(
-                () -> setSimHasCoral(hasCoral)
+                () -> endEffector.setSimHasCoral(hasCoral)
         );
+    }
+
+    public void setSimHasCoral(boolean hasCoral) {
+        endEffector.setSimHasCoral(hasCoral);
     }
 }

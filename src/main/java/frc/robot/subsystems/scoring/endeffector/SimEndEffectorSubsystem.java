@@ -61,7 +61,9 @@ public class SimEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
         }
         if (currentAction.endOnGamePieceNotSeen) {
             return !isWristAtActionTarget();
-        } else return currentAction.endOnGamePieceSeen;
+        } else {
+            return simHasCoral;
+        }
     }
 
     @Override

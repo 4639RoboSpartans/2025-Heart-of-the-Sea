@@ -121,13 +121,22 @@ public class RobotContainer {
             // Controls.Operator.homingWristCommandTrigger.whileTrue(scoringSuperstructure.wristHomingCommand());
         }
 
-        FunctionalTrigger.of(Controls.Driver.alignReefLeft).and(scoringSuperstructure::hasCoral)
-            .whileTrue(() -> CommandFactory.autoScoreCoral(Direction.LEFT));
+        FunctionalTrigger.of(Controls.Driver.alignReefLeft)
+            .whileTrue(() -> {
+                if (scoringSuperstructure.hasCoral()) {
+                    return CommandFactory.autoScoreCoral(Direction.LEFT);
+                } else {
+                    return CommandFactory.autoCoralIntake();
+                }
+            });
         FunctionalTrigger.of(Controls.Driver.alignReefRight).and(scoringSuperstructure::hasCoral)
-            .whileTrue(() -> CommandFactory.autoScoreCoral(Direction.RIGHT));
-        FunctionalTrigger.of(Controls.Driver.alignReefLeft).or(Controls.Driver.alignReefRight)
-                .and(() -> !scoringSuperstructure.hasCoral())
-                .whileTrue(CommandFactory::autoCoralIntake);
+            .whileTrue(() -> {
+                if (scoringSuperstructure.hasCoral()) {
+                    return CommandFactory.autoScoreCoral(Direction.RIGHT);
+                } else {
+                    return CommandFactory.autoCoralIntake();
+                }
+            });
         FunctionalTrigger.of(Controls.Driver.reefAlign)
             .and(Controls.Driver.alignReefLeft.negate())
             .and(Controls.Driver.alignReefRight.negate())
@@ -142,7 +151,7 @@ public class RobotContainer {
         Controls.Driver.prepClimbTrigger.whileTrue(climber.deClimbCommand());
         climber.setDefaultCommand(climber.testClimbCommand(Controls.Driver.testClimbSpeedSupplier));
         
-        Controls.Driver.setSimHasCoral.onTrue(scoringSuperstructure.toggleSimHasCoral());
+        Controls.Driver.setSimHasCoral.onTrue(scoringSuperstructure.toggleSimHasCoralCommand());
         // OI.getInstance().driverController().Y_BUTTON.whileTrue(
         //         ElevatorSysID.sysIdQuasistatic(SysIdRoutine.Direction.kForward)
         // );
