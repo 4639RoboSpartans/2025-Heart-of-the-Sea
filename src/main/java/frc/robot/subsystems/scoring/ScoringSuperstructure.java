@@ -3,7 +3,6 @@ package frc.robot.subsystems.scoring;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -349,6 +348,18 @@ public final class ScoringSuperstructure extends SubsystemBase {
     public Command setUseIntakeSpeed(boolean useIntakeSpeed) {
         return Commands.runOnce(
             () -> this.useIntakeSpeed = useIntakeSpeed
+        );
+    }
+
+    public Command toggleSimHasCoral() {
+        return Commands.runOnce(
+                endEffector::toggleSimHasCoral
+        );
+    }
+
+    public Command setSimHasCoral(boolean hasCoral) {
+        return Commands.runOnce(
+                () -> setSimHasCoral(hasCoral)
         );
     }
 }

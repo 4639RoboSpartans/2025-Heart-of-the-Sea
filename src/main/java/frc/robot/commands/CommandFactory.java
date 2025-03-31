@@ -20,44 +20,71 @@ public class CommandFactory {
     private static final ServoSubsystem servo = SubsystemManager.getInstance().getServoSubsystem();
 
     public static Command autoScoreCoral(Direction direction) {
-        return Commands.deadline(
-            Commands.waitUntil(swerve::shouldStartScoring)
-            .andThen(
-                scoringSuperstructure.setAction(
-                    switch (Controls.Operator.lastScoringHeight) {
-                        case 1 -> ScoringSuperstructureAction.SCORE_L1_CORAL;
-                        case 2 -> ScoringSuperstructureAction.SCORE_L2_CORAL;
-                        case 3 -> ScoringSuperstructureAction.SCORE_L3_CORAL;
-                        default -> ScoringSuperstructureAction.SCORE_L4_CORAL;
-                    }
+        return Commands.sequence(
+                scoringSuperstructure.setAction(ScoringSuperstructureAction.IDLE),
+                swerve.useReefAlignTarget(),
+                Commands.deadline(
+                        Commands.waitUntil(swerve::shouldStartScoring)
+                                .andThen(
+                                        scoringSuperstructure.setAction(
+                                                switch (Controls.Operator.lastScoringHeight) {
+                                                    case 1 -> ScoringSuperstructureAction.SCORE_L1_CORAL;
+                                                    case 2 -> ScoringSuperstructureAction.SCORE_L2_CORAL;
+                                                    case 3 -> ScoringSuperstructureAction.SCORE_L3_CORAL;
+                                                    default -> ScoringSuperstructureAction.SCORE_L4_CORAL;
+                                                }
+                                        ),
+                                        Commands.waitUntil(swerve::atScoringTargetPose),
+                                        scoringSuperstructure.setUseIntakeSpeed(true),
+                                        Commands.waitUntil(() -> scoringSuperstructure.getCurrentState() == ScoringSuperstructureState.DONE),
+                                        scoringSuperstructure.setUseIntakeSpeed(false),
+                                        Commands.waitUntil(scoringSuperstructure::elevatorMoveThreshold)
+                                ),
+                        DriveCommands.moveToClosestReefPositionWithPID(direction, swerve::getPose)
                 ),
-                Commands.waitUntil(swerve::getAtTargetPose),
-                scoringSuperstructure.setUseIntakeSpeed(true),
-                Commands.waitUntil(() -> scoringSuperstructure.getCurrentState() == ScoringSuperstructureState.DONE),
-                scoringSuperstructure.setUseIntakeSpeed(false),
-                Commands.waitUntil(scoringSuperstructure::elevatorMoveThreshold)
-            ),
-            DriveCommands.moveToClosestReefPositionWithPID(direction, swerve::getPose)
+                scoringSuperstructure.setSimHasCoral(false)
         );
     }
 
     public static Command autoDeAlgae() {
-        return Commands.deadline(
-            Commands.waitUntil(swerve::shouldStartScoring)
-            .andThen(
-                scoringSuperstructure.setAction(
-                    switch (Controls.Driver.lastAlgaeHeight) {
-                        case 2 -> ScoringSuperstructureAction.INTAKE_L2_ALGAE;
-                        default -> ScoringSuperstructureAction.INTAKE_L3_ALGAE;
-                    }
-                ),
-                Commands.waitUntil(swerve::getAtTargetPose),
-                scoringSuperstructure.setUseIntakeSpeed(true),
-                Commands.waitUntil(() -> !scoringSuperstructure.hasCoral()),
+        return Commands.sequence(
                 scoringSuperstructure.setAction(ScoringSuperstructureAction.IDLE),
-                Commands.waitUntil(scoringSuperstructure::elevatorMoveThreshold)
-            ),
-            DriveCommands.moveToClosestReefPositionWithPID(Direction.ALGAE, swerve::getPose)
+                swerve.useAlgaeAlignTarget(),
+                Commands.deadline(
+                        Commands.waitUntil(swerve::shouldStartScoring)
+                                .andThen(
+                                        scoringSuperstructure.setAction(
+                                                Controls.Driver.lastAlgaeHeight == 2
+                                                        ? ScoringSuperstructureAction.INTAKE_L2_ALGAE
+                                                        : ScoringSuperstructureAction.INTAKE_L3_ALGAE
+                                        ),
+                                        Commands.waitUntil(swerve::atScoringTargetPose),
+                                        scoringSuperstructure.setUseIntakeSpeed(true),
+                                        Commands.waitUntil(() -> !scoringSuperstructure.hasCoral()),
+                                        scoringSuperstructure.setAction(ScoringSuperstructureAction.IDLE),
+                                        Commands.waitUntil(scoringSuperstructure::elevatorMoveThreshold)
+                                ),
+                        DriveCommands.moveToClosestReefPositionWithPID(Direction.ALGAE, swerve::getPose)
+                ),
+                swerve.useReefAlignTarget()
+        );
+    }
+
+    public static Command autoCoralIntake() {
+        return Commands.parallel(
+                Commands.waitUntil(swerve::atHPTargetPose)
+                        .andThen(
+                                scoringSuperstructure.setAction(ScoringSuperstructureAction.INTAKE_FROM_HP)
+                        ).andThen(
+                                Commands.waitUntil(swerve::atHPTargetPose)
+                        ).andThen(
+                                scoringSuperstructure.setSimHasCoral(true)
+                        ).until(
+                                scoringSuperstructure::hasCoral
+                        ),
+                DriveCommands.moveToClosestHPStation(swerve::getPose)
+        ).andThen(
+                scoringSuperstructure.setAction(ScoringSuperstructureAction.IDLE)
         );
     }
 }

@@ -32,4 +32,10 @@ public class DummyEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
 
     @Override
     public void resetCurrentWristRotationFractionTo(double newWristRotationFraction) {}
+
+    @Override
+    public void toggleSimHasCoral() {}
+
+    @Override
+    public void setSimHasCoral(boolean hasCoral) {}
 }

@@ -116,8 +116,6 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
     private boolean shouldUseMTSTDevs = false;
 
-    private boolean isAligning = false, isAligned = false;
-
     private boolean shouldAutoSetHeading = false;
 
     public PhysicalSwerveDrivetrain() {
@@ -261,7 +259,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     }
 
     @Override
-    public Command _directlyMoveTo(Pose2d targetPose, Supplier<Pose2d> currentPose) {
+    public Command _directlyMoveTo(Pose2d targetPose, boolean shouldUseLCAlign) {
         return Commands.runOnce(() -> {
                     Vector<N2> translationVector = getTranslationVector(targetPose);
                     pidXController.reset(translationVector.get(0));
@@ -269,8 +267,6 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                     pidXController.setGoal(0);
                     pidYController.setGoal(0);
                     field.getObject("Target Pose").setPose(targetPose);
-                    isAligning = true;
-                    isAligned = false;
                     shouldUseMTSTDevs = true;
                     Vision.addGlobalVisionMeasurements(this, true);
                 }).andThen(applyRequest(
@@ -330,12 +326,12 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                                     .withRotationalRate(rotationalRate);
                         }
                 ).until(
-                        getNearTargetPoseTrigger(targetPose)
+                        () -> shouldUseLCAlign
+                            ? nearTargetPose(targetPose)
+                            : atHPTargetPose()
                 )).andThen(stop().withTimeout(0.1))
                 .finallyDo(() -> {
                     shouldUseMTSTDevs = false;
-                    isAligning = false;
-                    isAligned = false;
                 });
     }
 
@@ -371,10 +367,6 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         );
         Vector<N2> translationVector = new Vector<>(rotationMatrix.times(vector));
         return translationVector;
-    }
-
-    public Trigger getNearTargetPoseTrigger(Pose2d targetPose) {
-        return new Trigger(() -> nearTargetPose(targetPose));
     }
 
     public boolean nearTargetPose(Pose2d targetPose) {
@@ -531,6 +523,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
         // Update field on dashboard
         SmartDashboard.putData("field", field);
+        SmartDashboard.putBoolean("At Target", atHPTargetPose());
 
         getTranslationVector(DriveCommands.getClosestTarget(this::getPose));
 
@@ -623,11 +616,6 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
     protected Field2d getField() {
         return field;
-    }
-
-    @Override
-    public boolean isAligned() {
-        return isAligning && isAligned;
     }
 
     @Override

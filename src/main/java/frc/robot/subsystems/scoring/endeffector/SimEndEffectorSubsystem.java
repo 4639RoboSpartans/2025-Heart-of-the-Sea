@@ -10,12 +10,13 @@ import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import frc.lib.oi.OI;
 import frc.lib.tunable.TunableNumber;
 import frc.robot.subsystems.SubsystemManager;
+import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
 import frc.robot.subsystems.scoring.constants.ScoringPIDs;
 
 import static frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConstants.*;
 
 public class SimEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
-    private double intakeSpeed = 0;
+    private boolean simHasCoral = false;
 
     private final ProfiledPIDController wristPID;
     private final SingleJointedArmSim pivotSim;
@@ -55,14 +56,16 @@ public class SimEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
     @Override
     public boolean hasCoral() {
         var currentAction = SubsystemManager.getInstance().getScoringSuperstructure().getCurrentAction();
+        if (currentAction.name.equals(ScoringSuperstructureAction.IDLE.name)) {
+            return simHasCoral;
+        }
         if (currentAction.endOnGamePieceNotSeen) {
-            return false;
+            return !isWristAtActionTarget();
         } else return currentAction.endOnGamePieceSeen;
     }
 
     @Override
     protected void periodic(double targetWristRotationFraction, double intakeSpeed) {
-        this.intakeSpeed = intakeSpeed;
         pivotSim.update(0.020);
 
         double currentWristPosition = getCurrentMotorPosition();
@@ -93,5 +96,15 @@ public class SimEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
         );
         setTargetWristRotationFraction(wristRotationFraction);
         wristPID.reset(PositionToRotation.convertBackwards(ProportionToRotation.convert(wristRotationFraction)));
+    }
+
+    @Override
+    public void toggleSimHasCoral() {
+        simHasCoral = !simHasCoral;
+    }
+
+    @Override
+    public void setSimHasCoral(boolean hasCoral) {
+        simHasCoral = hasCoral;
     }
 }

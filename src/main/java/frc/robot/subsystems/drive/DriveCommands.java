@@ -21,8 +21,13 @@ public class DriveCommands {
 
         var desiredPose = PoseUtil.ReefRelativeFromDirection(nearestReefPose, direction);
 
-        return DriveCommands.drivetrain.directlyMoveTo(desiredPose, currentRobotPose)
-            .until(new Trigger(() -> PoseUtil.withinTolerance(desiredPose, currentRobotPose.get(), Units.inchesToMeters(2))).debounce(0.1));
+        return DriveCommands.drivetrain.directlyMoveTo(desiredPose, true);
+    }
+
+    public static Command moveToClosestHPStation(Supplier<Pose2d> currentRobotPose) {
+        var nearestHPStation = getClosestHPStation(currentRobotPose);
+
+        return DriveCommands.drivetrain.directlyMoveTo(nearestHPStation, false);
     }
 
     public static Command moveToClosestReefPositionWithPathPlanner(TargetPositions.Direction direction, Supplier<Pose2d> currentRobotPose) {
@@ -49,18 +54,28 @@ public class DriveCommands {
     }
 
     public static Pose2d getClosestTarget(Supplier<Pose2d> currentRobotPose) {
-        
-        List<FieldConstants.TargetPositions> allReefTargets = List.of(
-            FieldConstants.TargetPositions.REEF_AB,
-            FieldConstants.TargetPositions.REEF_CD,
-            FieldConstants.TargetPositions.REEF_EF,
-            FieldConstants.TargetPositions.REEF_GH,
-            FieldConstants.TargetPositions.REEF_IJ,
-            FieldConstants.TargetPositions.REEF_KL
+        List<TargetPositions> allReefTargets = List.of(
+            TargetPositions.REEF_AB,
+            TargetPositions.REEF_CD,
+            TargetPositions.REEF_EF,
+            TargetPositions.REEF_GH,
+            TargetPositions.REEF_IJ,
+            TargetPositions.REEF_KL
         );
 
         return currentRobotPose.get().nearest(
             allReefTargets.stream().map(TargetPositions::getAllianceRespectivePose)
                 .collect(Collectors.toList()));
+    }
+
+    public static Pose2d getClosestHPStation(Supplier<Pose2d> currentRobotPose) {
+        List<TargetPositions> allHPStations = List.of(
+                TargetPositions.CORALSTATION_LEFT,
+                TargetPositions.CORALSTATION_RIGHT
+        );
+
+        return currentRobotPose.get().nearest(
+                allHPStations.stream().map(TargetPositions::getAllianceRespectivePose)
+                        .collect(Collectors.toList()));
     }
 }

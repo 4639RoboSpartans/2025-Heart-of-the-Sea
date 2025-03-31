@@ -121,14 +121,17 @@ public class RobotContainer {
             // Controls.Operator.homingWristCommandTrigger.whileTrue(scoringSuperstructure.wristHomingCommand());
         }
 
-        FunctionalTrigger.of(Controls.Driver.alignReefLeft)
+        FunctionalTrigger.of(Controls.Driver.alignReefLeft).and(scoringSuperstructure::hasCoral)
             .whileTrue(() -> CommandFactory.autoScoreCoral(Direction.LEFT));
-        FunctionalTrigger.of(Controls.Driver.alignReefRight)
+        FunctionalTrigger.of(Controls.Driver.alignReefRight).and(scoringSuperstructure::hasCoral)
             .whileTrue(() -> CommandFactory.autoScoreCoral(Direction.RIGHT));
+        FunctionalTrigger.of(Controls.Driver.alignReefLeft).or(Controls.Driver.alignReefRight)
+                .and(() -> !scoringSuperstructure.hasCoral())
+                .whileTrue(CommandFactory::autoCoralIntake);
         FunctionalTrigger.of(Controls.Driver.reefAlign)
             .and(Controls.Driver.alignReefLeft.negate())
             .and(Controls.Driver.alignReefRight.negate())
-            .whileTrue(() -> CommandFactory.autoDeAlgae());
+            .whileTrue(CommandFactory::autoDeAlgae);
 
         Controls.Driver.toggleAutoHeadingButton.onTrue(swerve.toggleAutoHeading());
 
@@ -139,7 +142,7 @@ public class RobotContainer {
         Controls.Driver.prepClimbTrigger.whileTrue(climber.deClimbCommand());
         climber.setDefaultCommand(climber.testClimbCommand(Controls.Driver.testClimbSpeedSupplier));
         
-
+        Controls.Driver.setSimHasCoral.onTrue(scoringSuperstructure.toggleSimHasCoral());
         // OI.getInstance().driverController().Y_BUTTON.whileTrue(
         //         ElevatorSysID.sysIdQuasistatic(SysIdRoutine.Direction.kForward)
         // );
