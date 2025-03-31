@@ -59,7 +59,7 @@ public class LasercanAlign extends SubsystemBase {
         double lasercanCenterDistance = lasercanDistance / 2.0;
         double distanceAdjustment = rotationDiff.getTan() * lasercanCenterDistance;
         double res = (left? -distanceAdjustment : distanceAdjustment) + centerDist - 573.9;
-        if (res >= 2000) return -1;
+        if (res >= 1000) return -1;
         return res;
     }
 

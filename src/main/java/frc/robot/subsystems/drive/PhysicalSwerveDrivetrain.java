@@ -228,8 +228,6 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         Pose2d nearestReefPose = DriveCommands.getClosestTarget(this::getPose);
         Rotation2d nearestReefPoseRotation = nearestReefPose.getRotation();
         
-        chassisSpeeds.times(-1);
-        
         if (DriverStationUtil.getAlliance() == Alliance.Blue) {
             nearestReefPoseRotation = nearestReefPoseRotation.plus(Rotation2d.k180deg);
         }
@@ -265,12 +263,12 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     @Override
     public Command _directlyMoveTo(Pose2d targetPose, Supplier<Pose2d> currentPose) {
         return Commands.runOnce(() -> {
-                    Vector<N2> translationVector = getTranslationVector(super.currentAlignTarget);
+                    Vector<N2> translationVector = getTranslationVector(targetPose);
                     pidXController.reset(translationVector.get(0));
                     pidYController.reset(translationVector.get(1));
                     pidXController.setGoal(0);
                     pidYController.setGoal(0);
-                    field.getObject("Target Pose").setPose(super.currentAlignTarget);
+                    field.getObject("Target Pose").setPose(targetPose);
                     isAligning = true;
                     isAligned = false;
                     shouldUseMTSTDevs = true;
@@ -286,7 +284,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                                 rotationalRate =
                                         headingController.calculate(
                                                 getPose().getRotation().getRadians(),
-                                                super.currentAlignTarget.getRotation().getRadians(),
+                                                targetPose.getRotation().getRadians(),
                                                 Timer.getFPGATimestamp()
                                         );
                             } else {
@@ -303,7 +301,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                                             pidXController.getSetpoint().position,
                                             pidYController.getSetpoint().position
                                     ),
-                                    super.currentAlignTarget.getRotation()
+                                    targetPose.getRotation()
                             );
                             Translation2d toSetpointTranslation = new Translation2d(
                                     -setpointVector.get(0),
@@ -366,8 +364,8 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                 Nat.N2(),
                 new double[]{
                         rotation.getCos(),
-                        rotation.getSin(),
                         -rotation.getSin(),
+                        rotation.getSin(),
                         rotation.getCos()
                 }
         );
@@ -512,6 +510,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         //update profiled pid controllers
         pidXController.calculate(getPose().getX());
         pidYController.calculate(getPose().getY());
+        
 
         // Update the operator perspective if needed
         if (!didApplyOperatorPerspective || DriverStation.isDisabled()) {
@@ -590,7 +589,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         double leftMeasurement, rightMeasurement;
         leftMeasurement = SubsystemManager.getInstance().getLasercanAlign().getLeftMeasurement();
         rightMeasurement = SubsystemManager.getInstance().getLasercanAlign().getRightMeasurement();
-        if (leftMeasurement == -1 || rightMeasurement == -1) {
+        if (leftMeasurement < 0 || rightMeasurement < 0) {
             return Optional.empty();
         } else {
             return Optional.of(
