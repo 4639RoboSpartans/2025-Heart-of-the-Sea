@@ -31,7 +31,7 @@ public class Robot extends LoggedRobot {
     public Robot() {
         robotContainer = new RobotContainer();
         CanBridge.runTCP();
-        SubsystemManager.getInstance().getDrivetrain().setVisionStandardDeviations(1, 1, 1);
+        SubsystemManager.getInstance().getDrivetrain().setVisionStandardDeviations(0.5, 0.5, 99999);
     }
 
     @Override
@@ -78,7 +78,6 @@ public class Robot extends LoggedRobot {
         if (autonomousCommand != null) {
             autonomousCommand.schedule();
         }
-        SmartDashboard.putNumber("distanceThresholdMeters", 100);
     }
 
     @Override

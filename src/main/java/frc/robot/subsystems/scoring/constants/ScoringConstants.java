@@ -37,14 +37,14 @@ public final class ScoringConstants {
         public static final class ElevatorSetpoints {
             //Elevator proportions
             public static final double IDLE_Proportion = 0.04;
-            public static final double HP_Proportion = 0.058;//0.0
+            public static final double HP_Proportion = 0.048;//0.0
             public static final double Processor_Proportion = ProportionToPosition.convertBackwards(2.620); // TODO: tune
             public static final double L1_Proportion = 0.15; // TODO: tune
             // TODO: above
 
 
-            public static final double L2_Proportion = 0.272;//0.28
-            public static final double L3_Proportion = 0.450;//0.481
+            public static final double L2_Proportion = 0.303;//0.28
+            public static final double L3_Proportion = 0.496;//0.481
             public static final double L4_Proportion = 0.835;
 
             // TODO: below
