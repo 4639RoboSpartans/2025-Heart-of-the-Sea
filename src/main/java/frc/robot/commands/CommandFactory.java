@@ -35,6 +35,7 @@ public class CommandFactory {
                                                 }
                                         ),
                                         Commands.waitUntil(swerve::atScoringTargetPose),
+                                        Commands.waitUntil(() -> scoringSuperstructure.getCurrentState() == ScoringSuperstructureState.EXECUTING_ACTION),
                                         scoringSuperstructure.setUseIntakeSpeed(true),
                                         Commands.waitUntil(() -> scoringSuperstructure.getCurrentState() == ScoringSuperstructureState.DONE),
                                         scoringSuperstructure.setUseIntakeSpeed(false),
