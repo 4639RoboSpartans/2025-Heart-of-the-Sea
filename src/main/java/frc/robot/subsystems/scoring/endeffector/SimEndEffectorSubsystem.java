@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import frc.lib.oi.OI;
 import frc.lib.tunable.TunableNumber;
@@ -60,8 +61,10 @@ public class SimEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
             return simHasCoral;
         }
         if (currentAction.endOnGamePieceNotSeen) {
+            if (RobotState.isAutonomous()) return false;
             return !isWristAtActionTarget();
         } else {
+            if (RobotState.isAutonomous()) return currentAction.endOnGamePieceSeen;
             return simHasCoral;
         }
     }
