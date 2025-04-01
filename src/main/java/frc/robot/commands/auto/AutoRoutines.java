@@ -269,6 +269,7 @@ public class AutoRoutines {
     private void addScoringSegment(List<Command> commands, AutoTrajectory path, ScoringTarget scoringTarget) {
         // Add the path to scoring
         commands.add(path.cmd());
+        path.atTime("HP_DOWN").onTrue(AutoCommands.HPLoad_Lower.get());
         path.atTime("L4_UP").onTrue(
                 switch (scoringTarget.scoringHeight()) {
                     case 1 -> AutoCommands.L1Score.get();
@@ -295,7 +296,7 @@ public class AutoRoutines {
                                         Commands.waitUntil(
                                                 () -> !scoringSuperstructure.hasCoral()
                                         )
-                                                .andThen(Commands.waitUntil(scoringSuperstructure::elevatorLowThreshold))
+                                                .andThen(Commands.waitUntil(scoringSuperstructure::elevatorAutonMoveThreshold))
                                 ),
                                 AutoCommands.SwerveStop.get()
                         ),
@@ -307,7 +308,7 @@ public class AutoRoutines {
     private void addHPLoadingSegment(List<Command> commands, AutoTrajectory path, boolean isStationLeft) {
         // Add HP load command
         commands.add(path.cmd());
-        commands.add(AutoCommands.HPLoad.get());
+        path.atTime("HP").onTrue(AutoCommands.HPLoad.get());
     }
 
     private static void addDirectlyMoveToCommand(List<Command> commands, FieldConstants.TargetPositions targetPose) {

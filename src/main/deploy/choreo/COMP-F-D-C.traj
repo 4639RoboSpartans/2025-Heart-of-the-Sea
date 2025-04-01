@@ -195,5 +195,9 @@
  "events":[
    {"name":"L4_UP", "from":{"target":1, "targetTimestamp":0.9384, "offset":{"exp":"-0.5 s", "val":-0.5}}, "event":null},
    {"name":"L4_UP", "from":{"target":3, "targetTimestamp":3.7613, "offset":{"exp":"-0.5 s", "val":-0.5}}, "event":null},
-   {"name":"L4_UP", "from":{"target":5, "targetTimestamp":6.20732, "offset":{"exp":"-0.5 s", "val":-0.5}}, "event":null}]
+   {"name":"L4_UP", "from":{"target":5, "targetTimestamp":6.20732, "offset":{"exp":"-0.5 s", "val":-0.5}}, "event":null},
+   {"name":"HP", "from":{"target":4, "targetTimestamp":4.99667, "offset":{"exp":"-0.25 s", "val":-0.25}}, "event":null},
+   {"name":"HP", "from":{"target":2, "targetTimestamp":2.52096, "offset":{"exp":"-0.25 s", "val":-0.25}}, "event":null},
+   {"name":"HP_DOWN", "from":{"target":4, "targetTimestamp":4.99667, "offset":{"exp":"0.5 s", "val":0.5}}, "event":null},
+   {"name":"HP_DOWN", "from":{"target":2, "targetTimestamp":2.52096, "offset":{"exp":"0.5 s", "val":0.5}}, "event":null}]
 }

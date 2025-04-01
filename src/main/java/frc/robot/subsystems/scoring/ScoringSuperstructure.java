@@ -351,4 +351,16 @@ public final class ScoringSuperstructure extends SubsystemBase {
             () -> autoShouldOuttake = shouldOuttake
         );
     }
+
+    public Command useIntakeAction() {
+        return Commands.runOnce(
+                () -> {
+                    if (currentAction.name.equals(ScoringSuperstructureAction.INTAKE_FROM_HP.name)) {
+                        setCurrentAction(ScoringSuperstructureAction.INTAKE_FROM_HP_LOWER);
+                    } else {
+                        setCurrentAction(ScoringSuperstructureAction.INTAKE_FROM_HP);
+                    }
+                }
+        );
+    }
 }

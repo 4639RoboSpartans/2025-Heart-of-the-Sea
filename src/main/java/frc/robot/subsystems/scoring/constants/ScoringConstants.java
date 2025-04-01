@@ -37,7 +37,7 @@ public final class ScoringConstants {
         public static final class ElevatorSetpoints {
             //Elevator proportions
             public static final double IDLE_Proportion = 0.04;
-            public static final double HP_Proportion = 0.048;//0.0
+            public static final double HP_Proportion = 0.048;
             public static final double Processor_Proportion = ProportionToPosition.convertBackwards(2.620); // TODO: tune
             public static final double L1_Proportion = 0.15; // TODO: tune
             // TODO: above
@@ -115,6 +115,7 @@ public final class ScoringConstants {
             public static final double Wrist_Lowest_Proportion = Wrist_Hard_Stop_Proportion; // 0.2;
             public static final double Wrist_ALGAESTOW_Proportion = 0.5;
             public static final double Wrist_HP_Proportion = 0.177;
+            public static final double Wrist_HP_Lower_Proportion = 0.1375;
             public static final double Wrist_Processor_Proportion = 0.709;
             public static final double Wrist_L1_Proportion = 1.0;
             // TODO: above

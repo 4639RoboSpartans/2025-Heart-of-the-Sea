@@ -9,8 +9,6 @@ import frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConsta
 import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
 public class ScoringSuperstructureAction {
     public DoubleSupplier targetElevatorExtensionFraction = () -> 0;
     public DoubleSupplier targetWristRotationFraction = () -> 0;
@@ -114,10 +112,16 @@ public class ScoringSuperstructureAction {
         INTAKE_FROM_HP = new ScoringSuperstructureAction("INTAKE_FROM_HP")
             .withTargetElevatorExtensionFraction(() -> ElevatorSetpoints.HP_Proportion)
             .withTargetWristRotationFraction(() -> WristSetpoints.Wrist_HP_Proportion)
-            .withIntakeSpeed(IntakeSpeeds.Intake_HP_Speed)
-            .stopIntakeOnGamePieceSeen()
+            .withIntakeSpeed(IntakeSpeeds.Intake_HP_Speed / 2)
             .withStateAfter(IDLE)
             .useManualControlInTeleop(false),
+        INTAKE_FROM_HP_LOWER = new ScoringSuperstructureAction("INTAKE_FROM_HP")
+                    .withTargetElevatorExtensionFraction(() -> ElevatorSetpoints.HP_Proportion)
+                    .withTargetWristRotationFraction(() -> WristSetpoints.Wrist_HP_Lower_Proportion)
+                    .withIntakeSpeed(IntakeSpeeds.Intake_HP_Speed)
+                    .stopIntakeOnGamePieceSeen()
+                    .withStateAfter(IDLE)
+                    .useManualControlInTeleop(false),
         SCORE_L1_CORAL = new ScoringSuperstructureAction("SCORE_L1_CORAL")
             .withTargetElevatorExtensionFraction(() -> {
                 double res = ElevatorSetpoints.L1_Proportion + (drivetrain.getDistanceFromReefFace() - 387.5) * 0.0001;

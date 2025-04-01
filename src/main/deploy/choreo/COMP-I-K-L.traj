@@ -201,5 +201,6 @@
  "events":[
    {"name":"L4_UP", "from":{"target":1, "targetTimestamp":0.93505, "offset":{"exp":"-0.3 s", "val":-0.3}}, "event":null},
    {"name":"L4_UP", "from":{"target":3, "targetTimestamp":3.74551, "offset":{"exp":"-0.3 s", "val":-0.3}}, "event":null},
-   {"name":"L4_UP", "from":{"target":5, "targetTimestamp":6.2133, "offset":{"exp":"-0.3 s", "val":-0.3}}, "event":null}]
+   {"name":"L4_UP", "from":{"target":5, "targetTimestamp":6.2133, "offset":{"exp":"-0.3 s", "val":-0.3}}, "event":null},
+   {"name":"HP", "from":{"target":4, "targetTimestamp":null, "offset":{"exp":"-0.25 s", "val":-0.25}}, "event":null}]
 }
