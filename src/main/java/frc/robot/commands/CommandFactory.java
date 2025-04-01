@@ -43,7 +43,7 @@ public class CommandFactory {
                         DriveCommands.moveToClosestReefPositionWithPID(direction, swerve::getPose)
                 )
         ).finallyDo(
-                scoringSuperstructure::setSimHasCoral
+                () -> scoringSuperstructure.setSimHasCoral(false)
         );
     }
 
