@@ -5,6 +5,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.robot.Robot;
 import frc.robot.subsystems.SubsystemManager;
@@ -17,7 +18,7 @@ import static edu.wpi.first.units.Units.Millimeters;
 
 public class LasercanAlign extends SubsystemBase {
     private static LasercanAlign instance;
-    public static final double alignDistance_mm = 387.5;
+    public static double alignDistance_mm = 387.5;
 
     public static LasercanAlign getInstance(SubsystemManager.GetInstanceAccess getInstanceAccess) {
         Objects.requireNonNull(getInstanceAccess);
@@ -89,6 +90,7 @@ public class LasercanAlign extends SubsystemBase {
 
     @Override
     public void periodic() {
+        distanceController.setSetpoint(alignDistance_mm / 1000);
         distanceController.setP(DrivePIDs.lasercanXkP.get());
         double currentMeasurement = getDistance_mm();
         if (currentMeasurement == -1) {
@@ -97,9 +99,18 @@ public class LasercanAlign extends SubsystemBase {
             distanceController.calculate(currentMeasurement / 1000);
             previousDistance = currentMeasurement;
         }
+        SmartDashboard.putNumber("LC align target", alignDistance_mm);
     }
 
     public double getOutput() {
         return distanceController.calculate(getDistance_mm() / 1000);
+    }
+
+    public void useReefAlignTarget() {
+        alignDistance_mm = 387.5;
+    }
+
+    public void useAlgaeAlignTarget() {
+        alignDistance_mm = 100;
     }
 }

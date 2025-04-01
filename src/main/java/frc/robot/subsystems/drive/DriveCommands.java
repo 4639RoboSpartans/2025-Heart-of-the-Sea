@@ -3,7 +3,6 @@ package frc.robot.subsystems.drive;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.FieldConstants.TargetPositions;
@@ -22,13 +21,13 @@ public class DriveCommands {
 
         var desiredPose = PoseUtil.ReefRelativeFromDirection(nearestReefPose, direction);
 
-        return Commands.runOnce(() -> drivetrain.setAlignmentDirection(direction))
-                .andThen(
-                        DriveCommands.drivetrain.directlyMoveTo(desiredPose, currentRobotPose)
-                )
-                .finallyDo(
-                        () -> drivetrain.setAlignmentDirection(TargetPositions.Direction.ALGAE)
-                );
+        return DriveCommands.drivetrain.directlyMoveTo(desiredPose, true);
+    }
+
+    public static Command moveToClosestHPStation(Supplier<Pose2d> currentRobotPose) {
+        var nearestHPStation = getClosestHPStation(currentRobotPose);
+
+        return DriveCommands.drivetrain.directlyMoveTo(nearestHPStation, false);
     }
 
     public static Command moveToClosestReefPositionWithPathPlanner(TargetPositions.Direction direction, Supplier<Pose2d> currentRobotPose) {
@@ -45,9 +44,9 @@ public class DriveCommands {
 
         var desiredPose = PoseUtil.ReefRelativeFromDirection(nearestReefPose, direction);
 
-        return Commands.runOnce(() -> drivetrain.setAlignmentDirection(direction))
-                .andThen(
-                        DriveCommands.drivetrain.fineTuneUsingLaserCANCommand(desiredPose)
+        return DriveCommands.drivetrain.fineTuneUsingLaserCANCommand(desiredPose)
+                .beforeStarting(
+                        () -> drivetrain.setAlignmentDirection(direction)
                 )
                 .finallyDo(
                         () -> drivetrain.setAlignmentDirection(TargetPositions.Direction.ALGAE)
@@ -72,6 +71,17 @@ public class DriveCommands {
 
         return currentRobotPose.get().nearest(
                 allReefTargets.stream().map(TargetPositions::getAllianceRespectivePose)
+                        .collect(Collectors.toList()));
+    }
+
+    public static Pose2d getClosestHPStation(Supplier<Pose2d> currentRobotPose) {
+        List<TargetPositions> allHPStations = List.of(
+                TargetPositions.CORALSTATION_LEFT,
+                TargetPositions.CORALSTATION_RIGHT
+        );
+
+        return currentRobotPose.get().nearest(
+                allHPStations.stream().map(TargetPositions::getAllianceRespectivePose)
                         .collect(Collectors.toList()));
     }
 }

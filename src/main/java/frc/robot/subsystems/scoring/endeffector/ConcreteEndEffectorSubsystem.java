@@ -180,4 +180,10 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
         encoderOffset += positionError;
         setTargetWristRotationFraction(wristRotationFraction);
     }
+
+    @Override
+    public void toggleSimHasCoral() {}
+
+    @Override
+    public void setSimHasCoral(boolean hasCoral) {}
 }

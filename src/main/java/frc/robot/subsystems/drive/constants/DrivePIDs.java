@@ -10,8 +10,8 @@ public class DrivePIDs {
     public static TunableNumber lasercanXkP = new TunableNumber("Drive PIDs/Lasercan PID");
 
     static {
-        pidToPoseXkP.setDefaultValue(3);
-        pidToPoseYkP.setDefaultValue(3);
+        pidToPoseXkP.setDefaultValue(6);
+        pidToPoseYkP.setDefaultValue(6);
         pidToPoseVelocity.setDefaultValue(2);
         pidToPoseAcceleration.setDefaultValue(1);
         lasercanXkP.setDefaultValue(3);

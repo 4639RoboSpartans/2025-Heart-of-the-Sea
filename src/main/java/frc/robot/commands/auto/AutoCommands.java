@@ -13,7 +13,7 @@ import java.util.function.Supplier;
 public class AutoCommands {
     private static final AbstractSwerveDrivetrain swerve = SubsystemManager.getInstance().getDrivetrain();
     private static final ScoringSuperstructure superstructure = SubsystemManager.getInstance().getScoringSuperstructure();
-    public static final Supplier<Command> SwerveStop = () -> swerve.stop();
+    public static final Supplier<Command> SwerveStop = swerve::stop;
     public static final Supplier<Command> L4Score = () -> getScoringSuperstructureCommand(ScoringSuperstructureAction.SCORE_L4_CORAL);
     public static final Supplier<Command> L3Score = () -> getScoringSuperstructureCommand(ScoringSuperstructureAction.SCORE_L3_CORAL);
     public static final Supplier<Command> L2Score = () -> getScoringSuperstructureCommand(ScoringSuperstructureAction.SCORE_L2_CORAL);
@@ -25,7 +25,7 @@ public class AutoCommands {
             SwerveStop.get()
         );
 
-    public static final Function<Boolean, Command> setAutoOuttake = shouldOuttake -> superstructure.setUseIntakeSpeed(shouldOuttake);
+    public static final Function<Boolean, Command> setAutoOuttake = superstructure::setUseIntakeSpeed;
 
     public static final Supplier<Command> runScoring = superstructure::runScoringState;
 

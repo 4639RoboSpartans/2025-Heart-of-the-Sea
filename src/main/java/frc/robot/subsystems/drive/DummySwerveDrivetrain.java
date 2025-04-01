@@ -34,7 +34,7 @@ public class DummySwerveDrivetrain extends AbstractSwerveDrivetrain {
     }
 
     @Override
-    public Command _directlyMoveTo(Pose2d targetPose, Supplier<Pose2d> currentPoseSupplier) {
+    public Command _directlyMoveTo(Pose2d targetPose, boolean shouldUseLCAlign) {
         return Commands.runOnce(() -> {
             currentPose = targetPose;
         });
@@ -105,11 +105,6 @@ public class DummySwerveDrivetrain extends AbstractSwerveDrivetrain {
     @Override
     public Optional<Rotation2d> getCalculatedRotationFromAlign() {
         return Optional.empty();
-    }
-    
-    @Override
-    public boolean isAligned() {
-        return false;
     }
 
     @Override

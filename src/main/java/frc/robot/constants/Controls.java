@@ -68,7 +68,7 @@ public class Controls {
 
         public static int lastAlgaeHeight = 2;
 
-        public static final Trigger ProcessorTrigger = driverController.Y_BUTTON;
+        public static final Trigger ProcessorTrigger = driverController.Y_BUTTON.and(driverController.A_BUTTON.negate());
         public static final Trigger BargeScoringTrigger = driverController.X_BUTTON;
 
         public static final Trigger alignReefRight = driverController.RIGHT_BUMPER;
@@ -76,6 +76,8 @@ public class Controls {
 
         public static final Trigger reefAlign = driverController.RIGHT_TRIGGER;
         public static final Trigger toggleAutoHeadingButton = driverController.RIGHT_STICK;
+
+        public static final Trigger setSimHasCoral = driverController.A_BUTTON.and(driverController.Y_BUTTON);
     }
 
     public static class Operator {

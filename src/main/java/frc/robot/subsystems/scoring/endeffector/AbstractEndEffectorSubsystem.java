@@ -22,7 +22,6 @@ public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
         Objects.requireNonNull(access);
 
         boolean dummy = false;
-//        dummy = true;
         if (dummy) return new DummyEndEffectorSubsystem();
         if (Robot.isReal()) {
             return instance = Objects.requireNonNullElseGet(
@@ -121,14 +120,7 @@ public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
             getActionTargetPosition(),
             getCurrentMotorPosition(),
             WRIST_TOLERANCE
-        ) && coralConsistentWithActionRequirement();
-    }
-
-    public final boolean coralConsistentWithActionRequirement() {
-        var action = SubsystemManager.getInstance().getScoringSuperstructure().getCurrentAction();
-        if (action.endOnGamePieceSeen) return hasCoral();
-        if (action.endOnGamePieceNotSeen) return !hasCoral();
-        return true;
+        );
     }
 
     /**
@@ -171,4 +163,8 @@ public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
     public abstract boolean isWristPhysicallyStopped();
 
     public abstract void resetCurrentWristRotationFractionTo(double newWristRotationFraction);
+
+    public abstract void toggleSimHasCoral();
+
+    public abstract void setSimHasCoral(boolean hasCoral);
 }

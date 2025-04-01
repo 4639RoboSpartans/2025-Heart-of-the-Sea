@@ -7,6 +7,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.FieldConstants;
 import frc.robot.robot.Robot;
@@ -15,7 +16,6 @@ import frc.robot.util.PoseUtil;
 
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Supplier;
 
 public abstract class AbstractSwerveDrivetrain extends SubsystemBase {
     private static AbstractSwerveDrivetrain instance;
@@ -71,13 +71,17 @@ public abstract class AbstractSwerveDrivetrain extends SubsystemBase {
      * @param targetPose The pose to move to
      * @return Command to run
      */
-    protected abstract Command _directlyMoveTo(Pose2d targetPose, Supplier<Pose2d> currentPose);
+    protected abstract Command _directlyMoveTo(Pose2d targetPose, boolean shouldUseLCAlign);
 
-    public Command directlyMoveTo(Pose2d targetPose, Supplier<Pose2d> currentPose) {
-        return _directlyMoveTo(targetPose, currentPose)
-                .andThen(fineTuneUsingLaserCANCommand(targetPose))
-                .beforeStarting(() -> currentAlignTarget = targetPose)
-                .finallyDo(() -> currentAlignTarget = null);
+    public Command directlyMoveTo(Pose2d targetPose, boolean shouldUseLCAlign) {
+        if (shouldUseLCAlign) {
+            return _directlyMoveTo(targetPose, shouldUseLCAlign)
+                    .andThen(fineTuneUsingLaserCANCommand(targetPose))
+                    .beforeStarting(() -> currentAlignTarget = targetPose);
+        } else {
+            return _directlyMoveTo(targetPose, shouldUseLCAlign)
+                    .beforeStarting(() -> currentAlignTarget = targetPose);
+        }
     }
 
     public boolean shouldStartScoring() {
@@ -89,7 +93,7 @@ public abstract class AbstractSwerveDrivetrain extends SubsystemBase {
         );
     }
 
-    public boolean getAtTargetPose() {
+    public boolean atScoringTargetPose() {
         if (currentAlignTarget == null) return false;
         return PoseUtil.withinTolerance(
             currentAlignTarget,
@@ -99,6 +103,18 @@ public abstract class AbstractSwerveDrivetrain extends SubsystemBase {
             currentAlignTarget.getRotation().getDegrees(), 
             getPose().getRotation().getDegrees(), 
             1);
+    }
+
+    public boolean atHPTargetPose() {
+        if (currentAlignTarget == null) return false;
+        return PoseUtil.withinTolerance(
+                currentAlignTarget,
+                getPose(),
+                0.025
+        ) && MathUtil.isNear(
+                currentAlignTarget.getRotation().getDegrees(),
+                getPose().getRotation().getDegrees(),
+                1);
     }
 
     public abstract Command fineTuneUsingLaserCANCommand(Pose2d targetPose);
@@ -156,9 +172,19 @@ public abstract class AbstractSwerveDrivetrain extends SubsystemBase {
 
     public abstract double getDistanceFromReefFace();
 
-    public abstract boolean isAligned();
-
     public abstract Command toggleAutoHeading();
+
+    public Command useReefAlignTarget() {
+        return Commands.runOnce(
+                SubsystemManager.getInstance().getLasercanAlign()::useReefAlignTarget
+        );
+    }
+
+    public Command useAlgaeAlignTarget() {
+        return Commands.runOnce(
+                SubsystemManager.getInstance().getLasercanAlign()::useAlgaeAlignTarget
+        );
+    }
 
     public abstract void setAlignmentDirection(FieldConstants.TargetPositions.Direction direction);
 }
