@@ -82,6 +82,10 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
             pidYController.setI(val);
         });
 
+        //ensure no integral windup, restrict I term output to 0.5 m/s
+        pidXController.setIntegratorRange(0, 0.5);
+        pidYController.setIntegratorRange(0, 0.5);
+
         DrivePIDs.pidToPosekD.onChange(val -> {
             pidXController.setD(val);
             pidYController.setD(val);
