@@ -3,7 +3,6 @@ package frc.robot.constants;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.oi.Controller;
 import frc.lib.oi.OI;
-import frc.robot.subsystems.climber.AbstractClimberSubsystem;
 
 import java.util.function.DoubleSupplier;
 /*
@@ -62,7 +61,7 @@ public class Controls {
         public static final Trigger climbTrigger = driverController.POV_LEFT;//.and(AbstractClimberSubsystem::readyToClimb);
         public static final Trigger prepClimbTrigger = driverController.POV_RIGHT;//.and(AbstractClimberSubsystem::readyToClimb)
 
-        public static final Trigger bindFunneltrigger = driverController.B_BUTTON;
+        public static final Trigger toggleInterpolatingSetpoints = driverController.B_BUTTON;
 
         public static final Trigger L2AlgaeTrigger = driverController.POV_DOWN;
         public static final Trigger L3AlgaeTrigger = driverController.POV_UP;
