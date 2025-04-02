@@ -214,6 +214,7 @@ public final class ScoringSuperstructure extends SubsystemBase {
         } else {
             intakeSpeed = manualIntakeSpeed;
         }
+        SmartDashboard.putNumber("Intake Speed", intakeSpeed);
 
         // Update fine-tuning offsets
         elevatorAdjustment += 0.002 * Controls.Operator.MicroElevatorAdjustment.getAsDouble();

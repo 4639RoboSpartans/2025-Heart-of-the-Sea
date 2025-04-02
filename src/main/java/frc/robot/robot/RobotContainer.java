@@ -19,13 +19,11 @@ import frc.robot.commands.CommandFactory;
 import frc.robot.commands.auto.AutoRoutines;
 import frc.robot.commands.auto.AutoRoutines.AutonSupplier;
 import frc.robot.constants.Controls;
-import frc.robot.constants.FieldConstants;
 import frc.robot.constants.FieldConstants.TargetPositions.Direction;
 import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.climber.AbstractClimberSubsystem;
 import frc.robot.subsystems.climber.ServoSubsystem;
 import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
-import frc.robot.subsystems.drive.DriveCommands;
 import frc.robot.subsystems.drive.SwerveAutoRoutinesCreator;
 import frc.robot.subsystems.led.LEDCommandFactory;
 import frc.robot.subsystems.led.LEDStrip;
@@ -129,7 +127,7 @@ public class RobotContainer {
                     return CommandFactory.autoCoralIntake();
                 }
             });
-        FunctionalTrigger.of(Controls.Driver.alignReefRight).and(scoringSuperstructure::hasCoral)
+        FunctionalTrigger.of(Controls.Driver.alignReefRight)
             .whileTrue(() -> {
                 if (scoringSuperstructure.hasCoral()) {
                     return CommandFactory.autoScoreCoral(Direction.RIGHT);
