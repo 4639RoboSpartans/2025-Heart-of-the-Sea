@@ -134,17 +134,13 @@ public class RobotContainer {
         Controls.Driver.toggleAutoHeadingButton.onTrue(swerve.toggleAutoHeading());
 
         servoSubsystem.setDefaultCommand(servoSubsystem.stopServo());
-        Controls.Driver.bindFunneltrigger.whileTrue(servoSubsystem.extendServo());
         Controls.Driver.dropFunnelTrigger.whileTrue(servoSubsystem.retractServo());
         Controls.Driver.climbTrigger.whileTrue(climber.climbCommand());
         Controls.Driver.prepClimbTrigger.whileTrue(climber.deClimbCommand());
 
-        servoSubsystem.setDefaultCommand(servoSubsystem.stopServo());
-        Controls.Driver.bindFunneltrigger.whileTrue(servoSubsystem.extendServo());
-        Controls.Driver.dropFunnelTrigger.whileTrue(servoSubsystem.retractServo());
-        Controls.Driver.climbTrigger.whileTrue(climber.climbCommand());
-        Controls.Driver.prepClimbTrigger.whileTrue(climber.deClimbCommand());
-        climber.setDefaultCommand(climber.testClimbCommand(Controls.Driver.testClimbSpeedSupplier));
+        Controls.Driver.toggleInterpolatingSetpoints.onTrue(
+                ScoringSuperstructureAction.toggleInterpolatingSetpoints()
+        );
         
 
         // OI.getInstance().driverController().Y_BUTTON.whileTrue(

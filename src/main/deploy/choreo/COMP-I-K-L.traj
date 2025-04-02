@@ -249,6 +249,6 @@
    {"name":"L4_UP", "from":{"target":8, "targetTimestamp":6.9029, "offset":{"exp":"-0.5 s", "val":-0.5}}, "event":null},
    {"name":"HP", "from":{"target":6, "targetTimestamp":5.48752, "offset":{"exp":"-0.25 s", "val":-0.25}}, "event":null},
    {"name":"HP", "from":{"target":3, "targetTimestamp":2.80899, "offset":{"exp":"-0.25 s", "val":-0.25}}, "event":null},
-   {"name":"HP_DOWN", "from":{"target":6, "targetTimestamp":5.48752, "offset":{"exp":"0.5 s", "val":0.5}}, "event":null},
-   {"name":"HP_DOWN", "from":{"target":3, "targetTimestamp":2.80899, "offset":{"exp":"0.5 s", "val":0.5}}, "event":null}]
+   {"name":"HP_DOWN", "from":{"target":6, "targetTimestamp":5.48752, "offset":{"exp":"0.25 s", "val":0.25}}, "event":null},
+   {"name":"HP_DOWN", "from":{"target":3, "targetTimestamp":2.80899, "offset":{"exp":"0.25 s", "val":0.25}}, "event":null}]
 }
