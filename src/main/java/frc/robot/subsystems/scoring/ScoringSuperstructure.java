@@ -28,7 +28,7 @@ public final class ScoringSuperstructure extends SubsystemBase {
     public static ScoringSuperstructure getInstance(SubsystemManager.GetInstanceAccess access) {
         Objects.requireNonNull(access);
         return instance = Objects.requireNonNullElseGet(instance,
-            () -> new ScoringSuperstructure(access)
+                () -> new ScoringSuperstructure(access)
         );
     }
 
@@ -85,7 +85,6 @@ public final class ScoringSuperstructure extends SubsystemBase {
 
     /**
      * @param state the new state to set the scoring superstructure to.
-     *
      * @return an instantaneous command that sets the state to {@param state}. It does not run the scoring
      * superstructure, only sets the state.
      */
@@ -95,20 +94,19 @@ public final class ScoringSuperstructure extends SubsystemBase {
 
     /**
      * @param state the new state to set the scoring superstructure to.
-     *
      * @return an instantaneous command that sets the state to {@param state}. It does not run the scoring
      * superstructure, only sets the state.
      */
     public Command setAction(Supplier<ScoringSuperstructureAction> state) {
         return Commands.runOnce(
-            () -> setCurrentAction(state.get())
+                () -> setCurrentAction(state.get())
         );
     }
 
     public Command hold() {
         return setAction(() -> ScoringSuperstructureAction.HOLD(
-            elevator.getCurrentExtensionFraction(),
-            ScoringConstants.EndEffectorConstants.RotationFractionToMotorPosition.convertBackwards(endEffector.getCurrentMotorPosition())
+                elevator.getCurrentExtensionFraction(),
+                ScoringConstants.EndEffectorConstants.RotationFractionToMotorPosition.convertBackwards(endEffector.getCurrentMotorPosition())
         ));
     }
 
@@ -128,13 +126,14 @@ public final class ScoringSuperstructure extends SubsystemBase {
         return startRun(() -> {
             // Assume the elevator is completely ok; go to bottom
             elevator.setTargetExtensionFraction(ElevatorSetpoints.ELEVATOR_LOWEST_PROPORTION);
-        }, () -> {}).until(elevator::isAtTarget).andThen(() -> {
+        }, () -> {
+        }).until(elevator::isAtTarget).andThen(() -> {
             // Go as far back as possible until we hit the hard stop
             endEffector.setTargetWristRotationFraction(
-                Math.max(
-                    endEffector.getTargetRotationFraction() - WRIST_HOMING_SPEED,
-                    endEffector.getCurrentRotationFraction() - WRIST_HOMING_MAX_OFFSET
-                )
+                    Math.max(
+                            endEffector.getTargetRotationFraction() - WRIST_HOMING_SPEED,
+                            endEffector.getCurrentRotationFraction() - WRIST_HOMING_MAX_OFFSET
+                    )
             );
         }).until(endEffector::isWristPhysicallyStopped).finallyDo((wasInterrupted) -> {
             if (!wasInterrupted) {
@@ -149,24 +148,23 @@ public final class ScoringSuperstructure extends SubsystemBase {
         double ELEVATOR_HOMING_SPEED = 0.003;
         double ELEVATOR_HOMING_MAX_OFFSET = 0.02;
         return startRun(
-            () -> {
-                elevator.setTargetExtensionFraction(elevator.getCurrentExtensionFraction() + ELEVATOR_HOMING_INITIAL_OFFSET);
-                endEffector.setTargetWristRotationFraction(0.5);
-                SmartDashboard.putString("Homing status", "HOMING");
-            },
-            () -> elevator.setTargetExtensionFraction(
-                Math.max(
-                    elevator.getTargetExtensionFraction() - ELEVATOR_HOMING_SPEED,
-                    elevator.getCurrentExtensionFraction() - ELEVATOR_HOMING_MAX_OFFSET
+                () -> {
+                    elevator.setTargetExtensionFraction(elevator.getCurrentExtensionFraction() + ELEVATOR_HOMING_INITIAL_OFFSET);
+                    endEffector.setTargetWristRotationFraction(0.5);
+                    SmartDashboard.putString("Homing status", "HOMING");
+                },
+                () -> elevator.setTargetExtensionFraction(
+                        Math.max(
+                                elevator.getTargetExtensionFraction() - ELEVATOR_HOMING_SPEED,
+                                elevator.getCurrentExtensionFraction() - ELEVATOR_HOMING_MAX_OFFSET
+                        )
                 )
-            )
         ).until(elevator::isPhysicallyStopped).finallyDo((wasInterrupted) -> {
             if (!wasInterrupted) {
                 elevator.resetCurrentExtensionFractionTo(ElevatorSetpoints.Homing_Proportion);
                 setCurrentAction(ScoringSuperstructureAction.IDLE);
                 SmartDashboard.putString("Homing status", "SUCCESS");
-            }
-            else {
+            } else {
                 SmartDashboard.putString("Homing status", "INTERRUPTED");
             }
         });
@@ -175,13 +173,13 @@ public final class ScoringSuperstructure extends SubsystemBase {
     private void runManualPeriodic() {
         double currentTargetElevatorExtensionFraction = elevator.getTargetExtensionFraction();
         double targetElevatorExtensionFraction = currentTargetElevatorExtensionFraction
-            + Controls.Operator.ManualControlElevator.getAsDouble() * 0.03;
+                + Controls.Operator.ManualControlElevator.getAsDouble() * 0.03;
 
         elevator.setTargetExtensionFraction(MathUtil.clamp(targetElevatorExtensionFraction, ElevatorSetpoints.IDLE_Proportion, 1));
         endEffector.setTargetWristRotationFraction(MathUtil.clamp(
-            Controls.Operator.ManualControlWrist.getAsDouble(),
-            WristSetpoints.Wrist_IDLE_Proportion,
-            1.2
+                Controls.Operator.ManualControlWrist.getAsDouble(),
+                WristSetpoints.Wrist_IDLE_Proportion,
+                1.2
         ));
         endEffector.setIntakeSpeed(Controls.Operator.ManualControlIntake.getAsDouble());
     }
@@ -192,24 +190,30 @@ public final class ScoringSuperstructure extends SubsystemBase {
             case TRANSITION_AFTER_ELEVATOR, EXECUTING_ACTION, DONE -> {
                 maybeNeedsTransition = currentAction.requiresWristTransition;
             }
-            default -> {}
+            default -> {
+            }
         }
         // Get new setpoints
         DoubleSupplier targetElevatorExtensionFraction = currentState
-            .getTargetElevatorExtensionFraction(currentAction)
-            .orElseGet(() -> elevator::getTargetExtensionFraction);
+                .getTargetElevatorExtensionFraction(currentAction)
+                .orElseGet(() -> elevator::getTargetExtensionFraction);
         DoubleSupplier targetWristRotationFraction = currentState
-            .getTargetWristRotationFraction(currentAction)
-            .orElseGet(() -> endEffector::getTargetRotationFraction);
+                .getTargetWristRotationFraction(currentAction)
+                .orElseGet(() -> endEffector::getTargetRotationFraction);
         double manualIntakeSpeed = Controls.Operator.ManualControlIntake.getAsDouble() * Math.abs(currentAction.intakeSpeed);
         double intakeSpeed;
         if (useIntakeSpeed) {
             intakeSpeed = currentAction.intakeSpeed;
-        } else if (currentAction.name.equals(ScoringSuperstructureAction.INTAKE_FROM_HP.name)) {
+        } else if (currentAction.name.equals(ScoringSuperstructureAction.INTAKE_FROM_HP.name)
+                || currentAction.name.equals(ScoringSuperstructureAction.INTAKE_FROM_HP_LOWER.name)) {
             if (manualIntakeSpeed != 0) {
                 intakeSpeed = manualIntakeSpeed;
             } else {
-                intakeSpeed = currentAction.intakeSpeed;
+                if (!hasCoral()) {
+                    intakeSpeed = currentAction.intakeSpeed;
+                } else {
+                    intakeSpeed = 0;
+                }
             }
         } else {
             intakeSpeed = manualIntakeSpeed;
@@ -220,12 +224,12 @@ public final class ScoringSuperstructure extends SubsystemBase {
         elevatorAdjustment += 0.002 * Controls.Operator.MicroElevatorAdjustment.getAsDouble();
         wristAdjustment += 0.006 * Controls.Operator.MicroWristAdjustment.getAsDouble();
         elevatorAdjustment = MathUtil.clamp(
-            targetElevatorExtensionFraction.getAsDouble() + elevatorAdjustment,
-            ElevatorSetpoints.ELEVATOR_LOWEST_PROPORTION, 1
+                targetElevatorExtensionFraction.getAsDouble() + elevatorAdjustment,
+                ElevatorSetpoints.ELEVATOR_LOWEST_PROPORTION, 1
         ) - targetElevatorExtensionFraction.getAsDouble();
         wristAdjustment = MathUtil.clamp(
-            targetWristRotationFraction.getAsDouble() + wristAdjustment,
-            WristSetpoints.Wrist_Lowest_Proportion, 1
+                targetWristRotationFraction.getAsDouble() + wristAdjustment,
+                WristSetpoints.Wrist_Lowest_Proportion, 1
         ) - targetWristRotationFraction.getAsDouble();
 
         // Set speeds
@@ -370,5 +374,17 @@ public final class ScoringSuperstructure extends SubsystemBase {
 
     public void setSimHasCoral(boolean hasCoral) {
         endEffector.setSimHasCoral(hasCoral);
+    }
+
+    public Command useIntakeAction() {
+        return Commands.runOnce(
+                () -> {
+                    if (currentAction.name.equals(ScoringSuperstructureAction.INTAKE_FROM_HP.name)) {
+                        setCurrentAction(ScoringSuperstructureAction.INTAKE_FROM_HP_LOWER);
+                    } else {
+                        setCurrentAction(ScoringSuperstructureAction.INTAKE_FROM_HP);
+                    }
+                }
+        );
     }
 }

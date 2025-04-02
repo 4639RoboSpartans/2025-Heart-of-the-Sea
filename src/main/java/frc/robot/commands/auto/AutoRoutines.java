@@ -11,17 +11,32 @@ import frc.robot.constants.FieldConstants;
 import frc.robot.constants.FieldConstants.TargetPositions;
 import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.drive.DriveCommands;
+import frc.robot.subsystems.drive.SwerveAutoRoutinesCreator;
 import frc.robot.subsystems.scoring.ScoringSuperstructure;
 import frc.robot.subsystems.scoring.ScoringSuperstructureState;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class AutoRoutines {
+    private static AutoRoutines instance;
+
+    public static AutoRoutines getInstance() {
+        return Objects.requireNonNullElseGet(instance, () -> SwerveAutoRoutinesCreator.createAutoRoutines(SubsystemManager.getInstance().getDrivetrain()));
+    }
+
+    public static Command regenerateAutoRoutines() {
+        return Commands.none();
+//        return Commands.runOnce(
+//                () -> instance = SwerveAutoRoutinesCreator.createAutoRoutines(SubsystemManager.getInstance().getDrivetrain())
+//        ).ignoringDisable(true);
+    }
+
     private final Supplier<AutoFactory> factory;
 
     private final ScoringSuperstructure scoringSuperstructure = SubsystemManager.getInstance().getScoringSuperstructure();
@@ -30,183 +45,85 @@ public class AutoRoutines {
         this.factory = factory;
     }
 
-    public AutonSupplier NONE() {
-        return new AutonSupplier(
-                () -> new Auton(factory.get().newRoutine("NONE"), new Pose2d()),
-                "NONE"
-        );
+    public Auton NONE() {
+        return new Auton(factory.get().newRoutine("NONE"), new Pose2d(), "NONE");
     }
 
-    public AutonSupplier COMP_J_K() {
-        return new AutonSupplier(
-                () -> compileAuton(
+    public Auton COMP_J_K() {
+        return compileAuton(
                         true,
                         true,
                         new ScoringTarget('J', 4),
                         new ScoringTarget('K', 4)
-                ),
-                getAutonName(
-                        new ScoringTarget[]{
-                                new ScoringTarget('J', 4),
-                                new ScoringTarget('K', 4)
-                        },
-                        "COMP-"
-                )
-        );
+                );
     }
 
-    public AutonSupplier COMP_J_L() {
-        return new AutonSupplier(
-                () -> compileAuton(
+    public Auton COMP_J_L() {
+        return compileAuton(
                         true,
                         true,
                         new ScoringTarget('J', 4),
                         new ScoringTarget('L', 4)
-                ),
-                getAutonName(
-                        new ScoringTarget[]{
-                                new ScoringTarget('J', 4),
-                                new ScoringTarget('L', 4)
-                        },
-                        "COMP-"
-                )
-        );
+                );
     }
 
-    public AutonSupplier COMP_H_G() {
-        return new AutonSupplier(
-                () -> compileAuton(
+    public Auton COMP_H_G() {
+        return compileAuton(
                         true,
                         false,
                         new ScoringTarget('H', 4),
                         new ScoringTarget('G', 4)
-                ),
-                getAutonName(
-                        new ScoringTarget[]{
-                                new ScoringTarget('H', 4),
-                                new ScoringTarget('G', 4)
-                        },
-                        "COMP-"
-                )
-        );
+                );
     }
 
-    public AutonSupplier COMP_A_B() {
-        return new AutonSupplier(
-                () -> compileAuton(
+    public Auton COMP_A_B() {
+        return compileAuton(
                         true,
                         true,
                         new ScoringTarget('A', 4),
                         new ScoringTarget('B', 4)
-                ),
-                getAutonName(
-                        new ScoringTarget[]{
-                                new ScoringTarget('A', 4),
-                                new ScoringTarget('B', 4)
-                        },
-                        "COMP-"
-                )
-        );
+                );
     }
 
-    public AutonSupplier COMP_H_A() {
-        return new AutonSupplier(
-                () -> compileAuton(
+    public Auton COMP_H_A() {
+        return compileAuton(
                         true,
                         true,
                         new ScoringTarget('H', 4),
                         new ScoringTarget('A', 4)
-                ),
-                getAutonName(
-                        new ScoringTarget[]{
-                                new ScoringTarget('H', 4),
-                                new ScoringTarget('A', 4)
-                        },
-                        "COMP-"
-                )
-        );
+                );
     }
 
-    public AutonSupplier COMP_G_D_C_B() {
-        return new AutonSupplier(
-                () -> compileAuton(
+    public Auton COMP_G_D_C_B() {
+        return compileAuton(
                         true,
                         false,
                         new ScoringTarget('G', 4),
                         new ScoringTarget('D', 4),
                         new ScoringTarget('C', 4),
                         new ScoringTarget('B', 4)
-                ),
-                getAutonName(
-                        new ScoringTarget[]{
-                                new ScoringTarget('G', 4),
-                                new ScoringTarget('D', 4),
-                                new ScoringTarget('C', 4),
-                                new ScoringTarget('B', 4)
-                        },
-                        "COMP-"
-                )
-        );
+                );
     }
 
-    public AutonSupplier COMP_I_K_L() {
-        return new AutonSupplier(
-                () -> compileAuton(
+    public Auton COMP_I_K_L() {
+        return compileAuton(
                         true,
                         true,
                         new ScoringTarget('I', 4),
                         new ScoringTarget('K', 4),
                         new ScoringTarget('L', 4)
-                ),
-                getAutonName(
-                        new ScoringTarget[]{
-                                new ScoringTarget('I', 4),
-                                new ScoringTarget('K', 4),
-                                new ScoringTarget('L', 4)
-                        },
-                        "COMP-"
-                )
-        );
+                );
     }
 
 
-    public AutonSupplier COMP_F_D_C() {
-        return new AutonSupplier(
-                () -> compileAuton(
+    public Auton COMP_F_D_C() {
+        return compileAuton(
                         true,
                         true,
                         new ScoringTarget('F', 4),
                         new ScoringTarget('D', 4),
                         new ScoringTarget('C', 4)
-                ),
-                getAutonName(
-                        new ScoringTarget[]{
-                                new ScoringTarget('F', 4),
-                                new ScoringTarget('D', 4),
-                                new ScoringTarget('C', 4)
-                        },
-                        "COMP-"
-                )
-        );
-    }
-
-
-    public AutonSupplier TEST_E_C() {
-        return new AutonSupplier(
-                () -> compileAuton(
-                        false,
-                        false,
-                        new ScoringTarget('E', 4),
-                        new ScoringTarget('C', 4)
-                ),
-                getAutonName(
-                        new ScoringTarget[]{
-                                new ScoringTarget('E', 4),
-                                new ScoringTarget('C', 4)
-                        },
-                        "COMP-"
-                )
-        );
+                );
     }
 
     private record ScoringTarget(char scoringLocation, int scoringHeight) {
@@ -231,7 +148,6 @@ public class AutoRoutines {
             boolean isComp,
             boolean left,
             ScoringTarget... scoringTargets
-            ///List<Integer> scoringHeights, List<Character> scoringLocations
     ) {
         // Create names
         String namePrefix = isComp ? "COMP-" : "TEST-";
@@ -263,20 +179,25 @@ public class AutoRoutines {
                 CommandsUtil.sequence(commands)
         );
 
-        return new Auton(routine, startPose);
+        return new Auton(routine, startPose, autonName);
     }
 
     private void addScoringSegment(List<Command> commands, AutoTrajectory path, ScoringTarget scoringTarget) {
         // Add the path to scoring
         commands.add(path.cmd());
+        path.atTime("HP_DOWN").onTrue(AutoCommands.HPLoad_Lower.get());
         path.atTime("L4_UP").onTrue(
-                switch (scoringTarget.scoringHeight()) {
-                    case 1 -> AutoCommands.L1Score.get();
-                    case 2 -> AutoCommands.L2Score.get();
-                    case 3 -> AutoCommands.L3Score.get();
-                    case 4 -> AutoCommands.L4Score.get();
-                    default -> AutoCommands.HPLoad.get().withTimeout(1);
-                }
+                Commands.sequence(
+                        Commands.waitUntil(scoringSuperstructure::hasCoral),
+                        AutoCommands.setAutoOuttake.apply(false),
+                        switch (scoringTarget.scoringHeight()) {
+                            case 1 -> AutoCommands.L1Score.get();
+                            case 2 -> AutoCommands.L2Score.get();
+                            case 3 -> AutoCommands.L3Score.get();
+                            case 4 -> AutoCommands.L4Score.get();
+                            default -> AutoCommands.HPLoad.get().withTimeout(1);
+                        }
+                )
         );
 
         if (AutoConstants.addVisionAlignToCommands) {
@@ -293,9 +214,9 @@ public class AutoRoutines {
                                         Commands.waitUntil(() -> scoringSuperstructure.getCurrentState() == ScoringSuperstructureState.EXECUTING_ACTION),
                                         AutoCommands.setAutoOuttake.apply(true),
                                         Commands.waitUntil(
-                                                () -> !scoringSuperstructure.hasCoral()
-                                        )
-                                                .andThen(Commands.waitUntil(scoringSuperstructure::elevatorMoveThreshold))
+                                                        () -> !scoringSuperstructure.hasCoral()
+                                                )
+                                                .andThen(Commands.waitUntil(scoringSuperstructure::elevatorAutonMoveThreshold))
                                 ),
                                 AutoCommands.SwerveStop.get()
                         ),
@@ -307,14 +228,19 @@ public class AutoRoutines {
     private void addHPLoadingSegment(List<Command> commands, AutoTrajectory path, boolean isStationLeft) {
         // Add HP load command
         commands.add(path.cmd());
-        commands.add(AutoCommands.HPLoad.get());
+        path.atTime("HP").onTrue(AutoCommands.HPLoad.get());
+        commands.add(Commands.deadline(
+                Commands.waitSeconds(1),
+                AutoCommands.SwerveStop.get()
+        ));
     }
 
     private static void addDirectlyMoveToCommand(List<Command> commands, FieldConstants.TargetPositions targetPose) {
         commands.add(
                 DriveCommands.moveToReefPosition(
                         targetPose
-                ).withTimeout(1)
+                )
+//                        .withTimeout(1)
         );
     }
 
@@ -330,7 +256,7 @@ public class AutoRoutines {
                 .collect(Collectors.joining("-"));
     }
 
-    public List<AutonSupplier> getAllCompRoutines() {
+    public List<Auton> getAllCompRoutines() {
         return List.of(
                 COMP_A_B(),
                 COMP_H_A(),
@@ -340,9 +266,6 @@ public class AutoRoutines {
         );
     }
 
-    public record AutonSupplier(Supplier<Auton> routine, String name) {
-    }
-
-    public record Auton(AutoRoutine routine, Pose2d startPose) {
+    public record Auton(AutoRoutine routine, Pose2d startPose, String name) {
     }
 }

@@ -8,6 +8,7 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.oi.OI;
 import frc.lib.tunable.TunableNumber;
 import frc.robot.subsystems.SubsystemManager;
@@ -18,6 +19,8 @@ import static frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffecto
 
 public class SimEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
     private boolean simHasCoral = false;
+    private double intakeSpeed = 0;
+    private Trigger hasCoral = new Trigger(this::hasCoral);
 
     private final ProfiledPIDController wristPID;
     private final SingleJointedArmSim pivotSim;
@@ -71,6 +74,7 @@ public class SimEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
 
     @Override
     protected void periodic(double targetWristRotationFraction, double intakeSpeed) {
+        this.intakeSpeed = intakeSpeed;
         pivotSim.update(0.020);
 
         double currentWristPosition = getCurrentMotorPosition();
