@@ -76,8 +76,4 @@ public class SubsystemManager {
         return servoSubsystem;
     }
 
-    public ServoSubsystem getServoSubsystem() {
-        return servoSubsystem;
-    }
-
 }
