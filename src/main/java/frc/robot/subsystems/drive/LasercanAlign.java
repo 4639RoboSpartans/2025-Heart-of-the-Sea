@@ -17,7 +17,7 @@ import static edu.wpi.first.units.Units.Millimeters;
 
 public class LasercanAlign extends SubsystemBase {
     private static LasercanAlign instance;
-    public static final double alignDistance_mm = 387.5;
+    public static final double alignDistance_mm = 392.5;
 
     public static LasercanAlign getInstance(SubsystemManager.GetInstanceAccess getInstanceAccess) {
         Objects.requireNonNull(getInstanceAccess);

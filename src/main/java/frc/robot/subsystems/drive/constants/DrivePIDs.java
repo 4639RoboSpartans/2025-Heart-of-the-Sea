@@ -5,15 +5,19 @@ import frc.lib.tunable.TunableNumber;
 public class DrivePIDs {
     public static TunableNumber pidToPoseXkP = new TunableNumber("Drive PIDs/PID To Pose X Kp");
     public static TunableNumber pidToPoseYkP = new TunableNumber("Drive PIDs/PID To Pose Y Kp");
-    public static TunableNumber pidToPoseVelocity = new TunableNumber("Drive PIDs/PID To Pose Velocity");
-    public static TunableNumber pidToPoseAcceleration = new TunableNumber("Drive PIDs/PID To Pose Acceleration");
+    public static TunableNumber pidToPoseVelocityX = new TunableNumber("Drive PIDs/PID To Pose VelocityX");
+    public static TunableNumber pidToPoseAccelerationX = new TunableNumber("Drive PIDs/PID To Pose AccelerationX");
+    public static TunableNumber pidToPoseVelocityY = new TunableNumber("Drive PIDs/PID To Pose VelocityY");
+    public static TunableNumber pidToPoseAccelerationY = new TunableNumber("Drive PIDs/PID To Pose AccelerationY");
     public static TunableNumber lasercanXkP = new TunableNumber("Drive PIDs/Lasercan PID");
 
     static {
-        pidToPoseXkP.setDefaultValue(3);
-        pidToPoseYkP.setDefaultValue(3);
-        pidToPoseVelocity.setDefaultValue(2);
-        pidToPoseAcceleration.setDefaultValue(1);
+        pidToPoseXkP.setDefaultValue(2);
+        pidToPoseYkP.setDefaultValue(2);
+        pidToPoseVelocityX.setDefaultValue(2);
+        pidToPoseAccelerationX.setDefaultValue(1);
+        pidToPoseVelocityX.setDefaultValue(3);
+        pidToPoseAccelerationX.setDefaultValue(2);
         lasercanXkP.setDefaultValue(3);
     }
 }
