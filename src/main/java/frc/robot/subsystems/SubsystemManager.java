@@ -1,8 +1,6 @@
 package frc.robot.subsystems;
 
 
-import frc.robot.subsystems.climber.ServoSubsystem;
-import frc.robot.subsystems.led.LEDStrip;
 import frc.robot.subsystems.climber.AbstractClimberSubsystem;
 import frc.robot.subsystems.climber.ServoSubsystem;
 import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
@@ -70,10 +68,6 @@ public class SubsystemManager {
 
     public LasercanAlign getLasercanAlign() {
         return lasercanAlignSubsystem;
-    }
-
-    public ServoSubsystem getServoSubsystem() {
-        return servoSubsystem;
     }
 
     public ServoSubsystem getServoSubsystem() {
