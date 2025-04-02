@@ -2,14 +2,14 @@ package frc.robot.subsystems.funnel;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.robot.Robot;
-import frc.robot.subsystems.SubsystemManager;
+import frc.robot.subsystemManager.SubsystemInstantiator;
 
 import java.util.Objects;
 
 public abstract class AbstractFunnelSubsystem extends SubsystemBase {
     private static AbstractFunnelSubsystem instance;
 
-    public static AbstractFunnelSubsystem getInstance(SubsystemManager.GetInstanceAccess access) {
+    public static AbstractFunnelSubsystem getInstance(SubsystemInstantiator access) {
         Objects.requireNonNull(access);
 
         boolean dummy = false;
@@ -47,7 +47,6 @@ public abstract class AbstractFunnelSubsystem extends SubsystemBase {
     /**
      * Sets whether the funnel is active
      *
-     * @param active Whether the funnel is in intaking position
      */
     public final void setFunnelActive(boolean isTargetPositionDown) {
         this.isTargetPositionDown = isTargetPositionDown;

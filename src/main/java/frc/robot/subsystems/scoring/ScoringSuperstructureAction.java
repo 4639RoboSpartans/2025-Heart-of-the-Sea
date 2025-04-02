@@ -1,18 +1,19 @@
 package frc.robot.subsystems.scoring;
 
-import frc.robot.subsystems.SubsystemManager;
+import frc.lib.units.Measurement;
+import frc.robot.subsystemManager.Subsystems;
 import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
 import frc.robot.subsystems.scoring.constants.ScoringConstants.ElevatorConstants.ElevatorSetpoints;
 import frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConstants.IntakeSpeeds;
 import frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConstants.WristSetpoints;
+import frc.robot.subsystems.scoring.elevator.ElevatorPosition;
 
 import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
-
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import java.util.function.Supplier;
 
 public class ScoringSuperstructureAction {
-    public DoubleSupplier targetElevatorExtensionFraction = () -> 0;
+    public Supplier<ElevatorPosition> targetElevatorPosition = () -> ElevatorSetpoints.Low;
     public DoubleSupplier targetWristRotationFraction = () -> 0;
     public double intakeSpeed = 0;
     public boolean endOnGamePieceSeen = false;
@@ -21,7 +22,7 @@ public class ScoringSuperstructureAction {
     public boolean useManualControlInTeleop = true;
     public String name;
 
-    private static final AbstractSwerveDrivetrain drivetrain = SubsystemManager.getInstance().getDrivetrain();
+    private static final AbstractSwerveDrivetrain drivetrain = Subsystems.drivetrain();
     /**
      * The state to use after this state has finished. Usually, this will
      * be the idle state
@@ -29,7 +30,7 @@ public class ScoringSuperstructureAction {
     public ScoringSuperstructureAction nextAction = this;
 
     private ScoringSuperstructureAction(ScoringSuperstructureAction action, String name) {
-        this.targetElevatorExtensionFraction = action.targetElevatorExtensionFraction;
+        this.targetElevatorPosition = action.targetElevatorPosition;
         this.targetWristRotationFraction = action.targetWristRotationFraction;
         this.intakeSpeed = action.intakeSpeed;
         this.endOnGamePieceSeen = action.endOnGamePieceSeen;
@@ -52,8 +53,8 @@ public class ScoringSuperstructureAction {
         return this;
     }
 
-    private ScoringSuperstructureAction withTargetElevatorExtensionFraction(DoubleSupplier fraction) {
-        return new ScoringSuperstructureAction(this).modifyInPlace(a -> a.targetElevatorExtensionFraction = fraction);
+    private ScoringSuperstructureAction withTargetElevatorPosition(Supplier<ElevatorPosition> fraction) {
+        return new ScoringSuperstructureAction(this).modifyInPlace(a -> a.targetElevatorPosition = fraction);
     }
 
     private ScoringSuperstructureAction withTargetWristRotationFraction(DoubleSupplier fraction) {
@@ -84,9 +85,9 @@ public class ScoringSuperstructureAction {
         return new ScoringSuperstructureAction(this).modifyInPlace(a -> a.nextAction = stateAfter);
     }
 
-    public static ScoringSuperstructureAction HOLD(double elevatorProportion, double wristProportion) {
+    public static ScoringSuperstructureAction HOLD(ElevatorPosition elevatorPosition, double wristProportion) {
         return new ScoringSuperstructureAction("HOLD")
-            .withTargetElevatorExtensionFraction(() -> elevatorProportion)
+            .withTargetElevatorPosition(() -> elevatorPosition)
             .withTargetWristRotationFraction(() -> wristProportion);
     }
 
@@ -100,90 +101,88 @@ public class ScoringSuperstructureAction {
         });
     }
 
+    private static ElevatorPosition adjustCoralSetpoint(ElevatorPosition setpoint) {
+        ElevatorPosition res = Measurement.add(
+            setpoint,
+            Measurement.createOffset(ElevatorPosition::fromProportion,
+                (drivetrain.getDistanceFromReefFace() - 387.5) * 0.0001
+            )
+        );
+        return res.getProportion() > 1 ? setpoint : res;
+    }
+
     public static final ScoringSuperstructureAction
         IDLE = new ScoringSuperstructureAction("IDLE")
-        .withTargetElevatorExtensionFraction(() -> ElevatorSetpoints.IDLE_Proportion)
+        .withTargetElevatorPosition(() -> ElevatorSetpoints.IDLE)
         .withTargetWristRotationFraction(() -> WristSetpoints.Wrist_IDLE_Proportion)
         .withIntakeSpeed(IntakeSpeeds.Intake_Idle_Speed)
         .useManualControlInTeleop(true),
         IDLE_STOW_ALGAE = new ScoringSuperstructureAction("IDLE_STOW_ALGAE")
-            .withTargetElevatorExtensionFraction(() -> ElevatorSetpoints.IDLE_Proportion)
+            .withTargetElevatorPosition(() -> ElevatorSetpoints.IDLE)
             .withTargetWristRotationFraction(() -> WristSetpoints.Wrist_ALGAESTOW_Proportion)
             .withIntakeSpeed(IntakeSpeeds.Intake_Idle_Speed)
             .stopIntakeOnGamePieceNotSeen(),
         INTAKE_FROM_HP = new ScoringSuperstructureAction("INTAKE_FROM_HP")
-            .withTargetElevatorExtensionFraction(() -> ElevatorSetpoints.HP_Proportion)
+            .withTargetElevatorPosition(() -> ElevatorSetpoints.HP)
             .withTargetWristRotationFraction(() -> WristSetpoints.Wrist_HP_Proportion)
             .withIntakeSpeed(IntakeSpeeds.Intake_HP_Speed)
             .stopIntakeOnGamePieceSeen()
             .withStateAfter(IDLE)
             .useManualControlInTeleop(false),
         SCORE_L1_CORAL = new ScoringSuperstructureAction("SCORE_L1_CORAL")
-            .withTargetElevatorExtensionFraction(() -> {
-                double res = ElevatorSetpoints.L1_Proportion + (drivetrain.getDistanceFromReefFace() - 387.5) * 0.0001;
-                return res > 1 ? ElevatorSetpoints.L1_Proportion : res;
-            })
+            .withTargetElevatorPosition(() -> adjustCoralSetpoint(ElevatorSetpoints.L1))
             .withTargetWristRotationFraction(() -> WristSetpoints.Wrist_L1_Proportion)
             .withIntakeSpeed(IntakeSpeeds.Intake_L1_Speed)
             .stopIntakeOnGamePieceNotSeen()
             .requireWristTransition()
             .withStateAfter(IDLE),
         SCORE_L2_CORAL = new ScoringSuperstructureAction("SCORE_L2_CORAL")
-            .withTargetElevatorExtensionFraction(() -> {
-                double res = ElevatorSetpoints.L2_Proportion + (drivetrain.getDistanceFromReefFace() - 387.5) * 0.0001;
-                return res > 1 ? ElevatorSetpoints.L2_Proportion : res;
-            })
+            .withTargetElevatorPosition(() -> adjustCoralSetpoint(ElevatorSetpoints.L2))
             .withTargetWristRotationFraction(() -> WristSetpoints.Wrist_L2_Proportion)
             .withIntakeSpeed(IntakeSpeeds.Intake_L2_Speed)
             .stopIntakeOnGamePieceNotSeen()
             .requireWristTransition()
             .withStateAfter(IDLE),
         SCORE_L3_CORAL = new ScoringSuperstructureAction("SCORE_L3_CORAL")
-            .withTargetElevatorExtensionFraction(() -> {
-                double res = ElevatorSetpoints.L3_Proportion + (drivetrain.getDistanceFromReefFace() - 387.5) * 0.0001;
-                return res > 1 ? ElevatorSetpoints.L3_Proportion : res;
-            })
+            .withTargetElevatorPosition(() -> adjustCoralSetpoint(ElevatorSetpoints.L3))
             .withTargetWristRotationFraction(() -> WristSetpoints.Wrist_L3_Proportion)
             .withIntakeSpeed(IntakeSpeeds.Intake_L3_Speed)
             .stopIntakeOnGamePieceNotSeen()
             .requireWristTransition()
             .withStateAfter(IDLE),
         SCORE_L4_CORAL = new ScoringSuperstructureAction("SCORE_L4_CORAL")
-            .withTargetElevatorExtensionFraction(() -> {
-                double res = ElevatorSetpoints.L4_Proportion + (drivetrain.getDistanceFromReefFace() - 387.5) * 0.0001;
-                return res > 1 ? ElevatorSetpoints.L4_Proportion : res;
-            })
+            .withTargetElevatorPosition(() -> adjustCoralSetpoint(ElevatorSetpoints.L4))
             .withTargetWristRotationFraction(() -> WristSetpoints.Wrist_L4_Proportion)
             .withIntakeSpeed(IntakeSpeeds.Intake_L4_Speed)
             .stopIntakeOnGamePieceNotSeen()
             .requireWristTransition()
             .withStateAfter(IDLE),
         INTAKE_L2_ALGAE = new ScoringSuperstructureAction("INTAKE_L2_ALGAE")
-            .withTargetElevatorExtensionFraction(() -> ElevatorSetpoints.L2_ALGAE_Proportion)
+            .withTargetElevatorPosition(() -> ElevatorSetpoints.L2_ALGAE)
             .withTargetWristRotationFraction(() -> WristSetpoints.Wrist_L2_ALGAE_Proportion)
             .withIntakeSpeed(IntakeSpeeds.Intake_L2_ALGAE_Speed)
             .requireWristTransition()
             .withStateAfter(IDLE_STOW_ALGAE),
         INTAKE_L3_ALGAE = new ScoringSuperstructureAction("INTAKE_L3_ALGAE")
-            .withTargetElevatorExtensionFraction(() -> ElevatorSetpoints.L3_ALGAE_Proportion)
+            .withTargetElevatorPosition(() -> ElevatorSetpoints.L3_ALGAE)
             .withTargetWristRotationFraction(() -> WristSetpoints.Wrist_L3_ALGAE_Proportion)
             .withIntakeSpeed(IntakeSpeeds.Intake_L3_ALGAE_Speed)
             .requireWristTransition()
             .withStateAfter(IDLE_STOW_ALGAE),
         SCORE_BARGE = new ScoringSuperstructureAction("SCORE_BARGE")
-            .withTargetElevatorExtensionFraction(() -> ElevatorSetpoints.Barge_Proportion)
+            .withTargetElevatorPosition(() -> ElevatorSetpoints.Barge)
             .withTargetWristRotationFraction(() -> WristSetpoints.Wrist_Barge_Proportion)
             .withIntakeSpeed(IntakeSpeeds.Intake_Barge_Speed)
             .requireWristTransition()
             .withStateAfter(IDLE),
         SCORE_PROCESSOR = new ScoringSuperstructureAction("SCORE_PROCESSOR")
-            .withTargetElevatorExtensionFraction(() -> ElevatorSetpoints.Processor_Proportion)
+            .withTargetElevatorPosition(() -> ElevatorSetpoints.Processor)
             .withTargetWristRotationFraction(() -> WristSetpoints.Wrist_Processor_Proportion)
             .withIntakeSpeed(IntakeSpeeds.Intake_Processor_Speed)
             .requireWristTransition()
             .withStateAfter(IDLE),
         GROUND_INTAKE = new ScoringSuperstructureAction("GROUND_INTAKE")
-            .withTargetElevatorExtensionFraction(() -> ElevatorSetpoints.Ground_Intake_Proportion)
+            .withTargetElevatorPosition(() -> ElevatorSetpoints.Ground_Intake)
             .withTargetWristRotationFraction(() -> WristSetpoints.Wrist_Ground_Intake_Proportion)
             .withIntakeSpeed(1.0)
             .withStateAfter(IDLE_STOW_ALGAE);

@@ -10,19 +10,23 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.lib.units.Measurement;
+import frc.lib.units.MeasurementOffset;
 import frc.robot.constants.Controls;
+import frc.robot.subsystemManager.Subsystems;
 
+import static frc.lib.units.Measurement.*;
+import static frc.lib.units.Measurement.add;
 import static frc.robot.subsystems.scoring.constants.ScoringConstants.ElevatorConstants;
 import static frc.robot.subsystems.scoring.constants.ScoringConstants.IDs;
 import static frc.robot.subsystems.scoring.constants.ScoringPIDs.*;
 
 public class ConcreteElevatorSubsystem extends AbstractElevatorSubsystem {
     private final TalonFX elevatorMotor;
-    private double measuredExtensionFractionOffset = 0;
+    private MeasurementOffset<ElevatorPosition> measuredOffset = zeroOffset();
 
     @SuppressWarnings("resource")
     public ConcreteElevatorSubsystem() {
@@ -64,19 +68,19 @@ public class ConcreteElevatorSubsystem extends AbstractElevatorSubsystem {
         // Set left motor to follow right motor and use right elevator motor as master motor
         leftElevatorMotor.setControl(new Follower((elevatorMotor = rightElevatorMotor).getDeviceID(), true));
 
-        setTargetExtensionFraction(getCurrentExtensionFraction());
+        setTarget(getCurrentPosition());
     }
 
     @Override
-    public double getCurrentExtensionFraction() {
-        return ElevatorConstants.ProportionToPosition.convertBackwards(
+    public ElevatorPosition getCurrentPosition() {
+        return add(ElevatorPosition.fromMotorPosition(
             elevatorMotor.getPosition(true).getValueAsDouble()
-        ) + measuredExtensionFractionOffset;
+        ), measuredOffset);
     }
 
     @Override
     public void periodic() {
-        if (isManualControlEnabled) {
+        if (Subsystems.scoringSuperstructure().isManualControlEnabled()) {
             double outputVoltage = Controls.Operator.ManualControlElevator.getAsDouble() * 4;
 
             // If we are moving downwards, go slower for safety
@@ -84,10 +88,10 @@ public class ConcreteElevatorSubsystem extends AbstractElevatorSubsystem {
 
             // Prevent movement if we are too high or low
             double ELEVATOR_MANUAL_ENDPOINT_LIMIT = -0.05;
-            if (outputVoltage > 0 && getCurrentExtensionFraction() > 1 - ELEVATOR_MANUAL_ENDPOINT_LIMIT) {
+            if (outputVoltage > 0 && getCurrentPosition().getProportion() > 1 - ELEVATOR_MANUAL_ENDPOINT_LIMIT) {
                 outputVoltage = 0;
             }
-            if (outputVoltage < 0 && getCurrentExtensionFraction() < ELEVATOR_MANUAL_ENDPOINT_LIMIT) {
+            if (outputVoltage < 0 && getCurrentPosition().getProportion() < ELEVATOR_MANUAL_ENDPOINT_LIMIT) {
                 outputVoltage = 0;
             }
 
@@ -98,15 +102,11 @@ public class ConcreteElevatorSubsystem extends AbstractElevatorSubsystem {
         } else {
             // In measurement, we have measured = raw + offset,
             // so here we must have raw = calculated - offset
-            double targetProportion = getTargetExtensionFraction() - measuredExtensionFractionOffset;
-            elevatorMotor.setControl(new MotionMagicVoltage(
-                ElevatorConstants.ProportionToPosition.convert(
-                    targetProportion
-                )
-            ));
+            ElevatorPosition targetPosition = sub(getTargetPosition(), measuredOffset);
+            elevatorMotor.setControl(new MotionMagicVoltage(targetPosition.getMotorPosition()));
         }
-        SmartDashboard.putNumber("Elevator Fraction", getCurrentExtensionFraction());
-        SmartDashboard.putNumber("Target Extension Fraction", getTargetExtensionFraction());
+        SmartDashboard.putNumber("Elevator Fraction", getCurrentPosition().getProportion());
+        SmartDashboard.putNumber("Target Extension Fraction", getTargetPosition().getProportion());
     }
 
     @Override
@@ -124,9 +124,9 @@ public class ConcreteElevatorSubsystem extends AbstractElevatorSubsystem {
     }
 
     @Override
-    public void resetCurrentExtensionFractionTo(double extensionFraction) {
-        double currentError = getCurrentExtensionFraction() - extensionFraction;
-        measuredExtensionFractionOffset -= currentError;
-        setTargetExtensionFraction(extensionFraction);
+    public void resetCurrentPositionTo(ElevatorPosition position) {
+        MeasurementOffset<ElevatorPosition> currentError = sub(getCurrentPosition(), position);
+        measuredOffset = measuredOffset.minus(currentError);
+        setTarget(position);
     }
 }

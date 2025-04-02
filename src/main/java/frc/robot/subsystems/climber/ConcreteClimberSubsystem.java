@@ -12,12 +12,6 @@ public class ConcreteClimberSubsystem extends AbstractClimberSubsystem {
     ClimberState climberState = ClimberState.STOWED;
     AbsoluteEncoder encoder;
 
-    private static volatile ConcreteClimberSubsystem instance;
-
-    public static synchronized ConcreteClimberSubsystem getInstance() {
-        return instance = Objects.requireNonNullElseGet(instance, ConcreteClimberSubsystem::new);
-    }
-
     public ConcreteClimberSubsystem() {
         init();
         this.climberMotor = new SparkMax(ClimberConstants.CLIMBER_ID, SparkLowLevel.MotorType.kBrushed);

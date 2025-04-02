@@ -11,7 +11,7 @@ import edu.wpi.first.math.numbers.N2;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.subsystems.SubsystemManager;
+import frc.robot.subsystemManager.Subsystems;
 
 public class SimSwerveDrivetrain extends PhysicalSwerveDrivetrain {
     private static final double SIM_LOOP_PERIOD = 0.005; // 5 ms
@@ -60,7 +60,7 @@ public class SimSwerveDrivetrain extends PhysicalSwerveDrivetrain {
     public void periodic() {
         super.periodic();
         SmartDashboard.putNumber("Distance to Closest Reef", getDistanceFromReefFace());
-        SmartDashboard.putNumber("Left LaserCAN Distance", SubsystemManager.getInstance().getLasercanAlign().getLeftMeasurement());
-        SmartDashboard.putNumber("Right LaserCAN Distance", SubsystemManager.getInstance().getLasercanAlign().getRightMeasurement());
+        SmartDashboard.putNumber("Left LaserCAN Distance", Subsystems.lasercanAlign().getLeftMeasurement());
+        SmartDashboard.putNumber("Right LaserCAN Distance", Subsystems.lasercanAlign().getRightMeasurement());
     }
 }

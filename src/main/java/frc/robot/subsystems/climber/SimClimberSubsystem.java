@@ -16,12 +16,6 @@ public class SimClimberSubsystem extends AbstractClimberSubsystem{
     private final SingleJointedArmSim climberSim;
     private final DCMotor gearbox = DCMotor.getVex775Pro(1);
 
-    private static volatile SimClimberSubsystem instance;
-
-    public static synchronized SimClimberSubsystem getInstance() {
-        return instance = Objects.requireNonNullElseGet(instance, SimClimberSubsystem::new);
-    }
-
     public SimClimberSubsystem() {
         init();
         climberSim = new SingleJointedArmSim(

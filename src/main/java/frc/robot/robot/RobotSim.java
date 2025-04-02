@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.SubsystemManager;
+import frc.robot.subsystemManager.Subsystems;
 
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
@@ -38,7 +38,7 @@ public class RobotSim extends SubsystemBase {
             elevatorRoot.append(
                     new MechanismLigament2d(
                             "Current Elevator Ligament",
-                            SubsystemManager.getInstance().getScoringSuperstructure().getCurrentElevatorLength().in(Meters),
+                            Subsystems.scoringSuperstructure().getCurrentElevatorLength().in(Meters),
                             90,
                             4,
                             new Color8Bit(currentColor.getRed(), currentColor.getGreen(), currentColor.getBlue())
@@ -60,7 +60,7 @@ public class RobotSim extends SubsystemBase {
             elevatorRoot.append(
                     new MechanismLigament2d(
                             "Target Elevator Ligament",
-                            SubsystemManager.getInstance().getScoringSuperstructure().getTargetElevatorLength().in(Meters),
+                            Subsystems.scoringSuperstructure().getTargetElevatorLength().in(Meters),
                             90,
                             2,
                             new Color8Bit(targetColor.getRed(), targetColor.getGreen(), targetColor.getBlue())
@@ -87,17 +87,17 @@ public class RobotSim extends SubsystemBase {
     @Override
     public void periodic() {
         currentElevatorLigament.setLength(
-                SubsystemManager.getInstance().getScoringSuperstructure().getCurrentElevatorLength().in(Meters)
+                Subsystems.scoringSuperstructure().getCurrentElevatorLength().in(Meters)
         );
         currentHopperLigament.setAngle(
-                SubsystemManager.getInstance().getScoringSuperstructure().getCurrentWristRotation()
+                Subsystems.scoringSuperstructure().getCurrentWristRotation()
         );
 
         targetElevatorLigament.setLength(
-                SubsystemManager.getInstance().getScoringSuperstructure().getTargetElevatorLength().in(Meters)
+                Subsystems.scoringSuperstructure().getTargetElevatorLength().in(Meters)
         );
         targetHopperLigament.setAngle(
-                SubsystemManager.getInstance().getScoringSuperstructure().getTargetWristRotation()
+                Subsystems.scoringSuperstructure().getTargetWristRotation()
         );
         SmartDashboard.putData("Mechanism View", RobotSim.mechanismView);
     }

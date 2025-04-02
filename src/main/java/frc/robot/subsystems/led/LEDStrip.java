@@ -4,7 +4,7 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.led.LEDPattern;
-import frc.robot.subsystems.SubsystemManager;
+import frc.robot.subsystemManager.SubsystemInstantiator;
 
 import java.util.Objects;
 import java.util.function.Supplier;
@@ -16,9 +16,13 @@ public abstract class LEDStrip extends SubsystemBase {
 
     public abstract void update();
 
-    public static LEDStrip getInstance(SubsystemManager.GetInstanceAccess access) {
-        Objects.requireNonNull(access);
-        return (RobotBase.isReal() ? PhysicalLEDStrip.getInstance() : DummyLEDStrip.getInstance());
+    public static SubsystemInstantiator<LEDStrip> createInstance() {
+        return new SubsystemInstantiator<>(
+            () -> new PhysicalLEDStrip(
+                9, 96
+            ),
+            DummyLEDStrip::new
+        );
     }
 
     @Override

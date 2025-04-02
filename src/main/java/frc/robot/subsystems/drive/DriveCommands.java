@@ -6,7 +6,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.FieldConstants.TargetPositions;
-import frc.robot.subsystems.SubsystemManager;
+import frc.robot.subsystemManager.Subsystems;
 import frc.robot.util.PoseUtil;
 
 import java.util.List;
@@ -14,7 +14,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class DriveCommands {
-    private static final AbstractSwerveDrivetrain drivetrain = SubsystemManager.getInstance().getDrivetrain();
+    private static final AbstractSwerveDrivetrain drivetrain = Subsystems.drivetrain();
 
     public static Command moveToClosestReefPositionWithPID(TargetPositions.Direction direction, Supplier<Pose2d> currentRobotPose) {
         var nearestReefPose = getClosestTarget(currentRobotPose);

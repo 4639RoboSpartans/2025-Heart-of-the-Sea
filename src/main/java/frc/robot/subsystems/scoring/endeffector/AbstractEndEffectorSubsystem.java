@@ -7,34 +7,22 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.Controls;
-import frc.robot.robot.Robot;
-import frc.robot.subsystems.SubsystemManager;
+import frc.robot.subsystemManager.SubsystemInstantiator;
+import frc.robot.subsystemManager.Subsystems;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
-
-import java.util.Objects;
 
 import static frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConstants.*;
 
 public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
     private static AbstractEndEffectorSubsystem instance;
 
-    public static AbstractEndEffectorSubsystem getInstance(SubsystemManager.GetInstanceAccess access) {
-        Objects.requireNonNull(access);
-
-        boolean dummy = false;
-//        dummy = true;
-        if (dummy) return new DummyEndEffectorSubsystem();
-        if (Robot.isReal()) {
-            return instance = Objects.requireNonNullElseGet(
-                instance,
-                ConcreteEndEffectorSubsystem::new
-            );
-        } else {
-            return instance = Objects.requireNonNullElseGet(
-                instance,
-                SimEndEffectorSubsystem::new
-            );
-        }
+    public static SubsystemInstantiator<AbstractEndEffectorSubsystem> getInstantiator() {
+        return new SubsystemInstantiator<>(
+            ConcreteEndEffectorSubsystem::new,
+            SimEndEffectorSubsystem::new,
+            DummyEndEffectorSubsystem::new,
+            false
+        );
     }
 
     private double intakeSpeed = 0;
@@ -97,7 +85,7 @@ public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
     }
 
     public final double getActionTargetRotationFraction() {
-        return SubsystemManager.getInstance().getScoringSuperstructure().getCurrentAction().targetWristRotationFraction.getAsDouble();
+        return Subsystems.scoringSuperstructure().getCurrentAction().targetWristRotationFraction.getAsDouble();
     }
 
     public final void setTargetWristRotationFraction(double targetRotationFraction) {
@@ -125,7 +113,7 @@ public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
     }
 
     public final boolean coralConsistentWithActionRequirement() {
-        var action = SubsystemManager.getInstance().getScoringSuperstructure().getCurrentAction();
+        var action = Subsystems.scoringSuperstructure().getCurrentAction();
         if (action.endOnGamePieceSeen) return hasCoral();
         if (action.endOnGamePieceNotSeen) return !hasCoral();
         return true;
@@ -151,7 +139,7 @@ public abstract class AbstractEndEffectorSubsystem extends SubsystemBase {
         currentMotorVelocity = getCurrentMotorPosition() - previousMotorPosition;
         previousMotorPosition = getCurrentMotorPosition();
 
-        if (SubsystemManager.getInstance().getScoringSuperstructure().isManualControlEnabled()) {
+        if (Subsystems.scoringSuperstructure().isManualControlEnabled()) {
             targetWristRotationFraction = Controls.Operator.ManualControlWrist.getAsDouble();
             intakeSpeed = Controls.Operator.ManualControlIntake.getAsDouble();
         } else {

@@ -18,7 +18,7 @@ import frc.robot.commands.auto.AutoRoutines;
 import frc.robot.commands.auto.AutoRoutines.AutonSupplier;
 import frc.robot.constants.Controls;
 import frc.robot.constants.FieldConstants;
-import frc.robot.subsystems.SubsystemManager;
+import frc.robot.subsystemManager.Subsystems;
 import frc.robot.subsystems.climber.AbstractClimberSubsystem;
 import frc.robot.subsystems.climber.ServoSubsystem;
 import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
@@ -34,15 +34,15 @@ import static edu.wpi.first.units.Units.Meters;
 
 
 public class RobotContainer {
-    private final AbstractSwerveDrivetrain swerve = SubsystemManager.getInstance().getDrivetrain();
-    private final ScoringSuperstructure scoringSuperstructure = SubsystemManager.getInstance().getScoringSuperstructure();
-    private final ServoSubsystem servoSubsystem = SubsystemManager.getInstance().getServoSubsystem();
-    private final AbstractClimberSubsystem climber = SubsystemManager.getInstance().getClimberSubsystem();
+    private final AbstractSwerveDrivetrain swerve = Subsystems.drivetrain();
+    private final ScoringSuperstructure scoringSuperstructure = Subsystems.scoringSuperstructure();
+    private final ServoSubsystem servoSubsystem = Subsystems.servo();
+    private final AbstractClimberSubsystem climber = Subsystems.climber();
     @SuppressWarnings("unused")
     private final RobotSim robotSim = new RobotSim();
     private final SendableChooser<AutonSupplier> autoChooser;
     @SuppressWarnings("unused")
-    private final LEDStrip ledStrip = SubsystemManager.getInstance().getLEDStripSubsystem();
+    private final LEDStrip ledStrip = Subsystems.ledStrip();
 
     private final StructArrayPublisher<Pose3d> componentPoses = NetworkTableInstance.getDefault()
         .getStructArrayTopic("zeroed component poses", Pose3d.struct).publish();
@@ -131,13 +131,13 @@ public class RobotContainer {
         }
 
         FunctionalTrigger.of(Controls.Driver.alignReefLeft)
-            .whileTrue(() -> DriveCommands.moveToClosestReefPositionWithPID(FieldConstants.TargetPositions.Direction.LEFT, SubsystemManager.getInstance().getDrivetrain()::getPose));
+            .whileTrue(() -> DriveCommands.moveToClosestReefPositionWithPID(FieldConstants.TargetPositions.Direction.LEFT, Subsystems.drivetrain()::getPose));
         FunctionalTrigger.of(Controls.Driver.alignReefRight)
-            .whileTrue(() -> DriveCommands.moveToClosestReefPositionWithPID(FieldConstants.TargetPositions.Direction.RIGHT, SubsystemManager.getInstance().getDrivetrain()::getPose));
+            .whileTrue(() -> DriveCommands.moveToClosestReefPositionWithPID(FieldConstants.TargetPositions.Direction.RIGHT, Subsystems.drivetrain()::getPose));
         FunctionalTrigger.of(Controls.Driver.reefAlign)
             .and(Controls.Driver.alignReefLeft.negate())
             .and(Controls.Driver.alignReefRight.negate())
-            .whileTrue(() -> DriveCommands.moveToClosestReefPositionWithPID(FieldConstants.TargetPositions.Direction.ALGAE, SubsystemManager.getInstance().getDrivetrain()::getPose));
+            .whileTrue(() -> DriveCommands.moveToClosestReefPositionWithPID(FieldConstants.TargetPositions.Direction.ALGAE, Subsystems.drivetrain()::getPose));
 
         Controls.Driver.toggleAutoHeadingButton.onTrue(swerve.toggleAutoHeading());
 

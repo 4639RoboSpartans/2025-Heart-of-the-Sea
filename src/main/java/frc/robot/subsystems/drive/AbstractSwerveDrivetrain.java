@@ -7,35 +7,25 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.robot.Robot;
-import frc.robot.subsystems.SubsystemManager;
+import frc.robot.subsystemManager.SubsystemInstantiator;
+import frc.robot.subsystemManager.Subsystems;
 
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
 
 public abstract class AbstractSwerveDrivetrain extends SubsystemBase {
-    private static AbstractSwerveDrivetrain instance;
-
     public Pose2d currentAlignTarget = null;
 
     public final boolean isAligning() {
         return currentAlignTarget != null;
     }
 
-    /**
-     * This method should only be accessed from the SubsystemManager class. In other places, use
-     * {@link SubsystemManager#getDrivetrain()} instead.
-     */
-    public static AbstractSwerveDrivetrain getInstance(SubsystemManager.GetInstanceAccess access) {
-        Objects.requireNonNull(access);
-
-        boolean dummy = false;
-        //dummy = true;
-        if (dummy) return new DummySwerveDrivetrain();
-
-        return instance = Objects.requireNonNullElseGet(instance,
-                Robot.isReal() ? PhysicalSwerveDrivetrain::new : SimSwerveDrivetrain::new
+    public static SubsystemInstantiator<AbstractSwerveDrivetrain> getInstantiator() {
+        return new SubsystemInstantiator<>(
+            PhysicalSwerveDrivetrain::new,
+            SimSwerveDrivetrain::new,
+            DummySwerveDrivetrain::new,
+            false
         );
     }
 
@@ -111,12 +101,16 @@ public abstract class AbstractSwerveDrivetrain extends SubsystemBase {
     public abstract double getAccelerationInGs();
 
     /**
-     * Slows the robot swerve when the elevator is raised. Reduction is proportional to the proportional height of the elevator.
-     *
+     * Slows the robot swerve when the elevator is raised.
      * @return multiplier as double
      */
     public double getSwerveSpeedMultiplier() {
-        return 1 - Math.pow(SubsystemManager.getInstance().getScoringSuperstructure().getElevatorSubsystem().getCurrentExtensionFraction(), 2) * (1.0 - 0.2);
+        double elevatorFractionExtended = Subsystems
+            .scoringSuperstructure()
+            .getElevatorSubsystem()
+            .getCurrentPosition()
+            .getProportion();
+        return 1 - Math.pow(elevatorFractionExtended, 2) * (1.0 - 0.2);
     }
 
     public abstract Optional<Rotation2d> getCalculatedRotationFromAlign();

@@ -4,57 +4,71 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.lib.UnitConvertor;
-import frc.robot.subsystems.SubsystemManager;
+import frc.lib.units.Measurement;
+import frc.lib.units.MeasurementOffset;
+import frc.lib.units.MeasurementRange;
+import frc.lib.units.UnitConvertor;
+import frc.robot.subsystemManager.Subsystems;
+import frc.robot.subsystems.scoring.elevator.ElevatorPosition;
 
 import static edu.wpi.first.units.Units.Inches;
 
 public final class ScoringConstants {
     public static final class ElevatorConstants {
-        // The range of the elevator
-        public static final Distance MAX_EXTENSION = Inches.of(84);
-        // The initial height of the elevator
+        // The height of the elevator when it is at "extension fraction = 0"
+        // TODO: explain how to obtain this measurement
         public static final Distance STARTING_HEIGHT = Inches.of(12);
-
-        public static double UP_POSITION = 64;  // These
-        public static double DOWN_POSITION = -0.7; // are correct for sure
-
-        public static final double ELEVATOR_TOLERANCE = 1;
+        // The max height of the elevator
+        public static final Distance MAX_HEIGHT = STARTING_HEIGHT.plus(
+            // The elevator can extend to a maximum of 84 inches above its
+            // initial height when it is at "extension fraction = 1"
+            Inches.of(84)
+        );
+        // The measured motor position when the elevator is at "extension fraction = 0"
+        public static double DOWN_POSITION = -0.7;
+        // The measured motor position when the elevator is at "extension fraction = 1"
+        public static double UP_POSITION = 64;
 
         public static final UnitConvertor<Double, Double> ProportionToPosition = UnitConvertor.linearConvertingRange(
             0, 1, DOWN_POSITION, UP_POSITION
         );
-
-        public static final UnitConvertor<Double, Distance> ProportionToHeight = UnitConvertor.linear(
-            MAX_EXTENSION.in(Inches), STARTING_HEIGHT.in(Inches), false
+        
+        public static final UnitConvertor<Double, Distance> ProportionToHeight = UnitConvertor.linearConvertingRange(
+            0, 1,
+            STARTING_HEIGHT.in(Inches),
+            STARTING_HEIGHT.in(Inches) + MAX_HEIGHT.in(Inches)
         ).then(UnitConvertor.toDistance(Inches));
 
-        public static final UnitConvertor<Double, Distance> PositionToHeight = UnitConvertor.compose(
-            ProportionToPosition.inverted(),
-            ProportionToHeight
-        );
+        public static final double ELEVATOR_TOLERANCE = 1;
+        public static final MeasurementOffset<ElevatorPosition> ELEVATOR_AT_TARGET_TOLERANCE =
+            Measurement.createOffset(ElevatorPosition::fromMotorPosition, 1);
+        public static final MeasurementOffset<ElevatorPosition> ELEVATOR_NEAR_TARGET_TOLERANCE =
+            ELEVATOR_AT_TARGET_TOLERANCE.times(25);
 
         public static final class ElevatorSetpoints {
             //Elevator proportions
-            public static final double IDLE_Proportion = 0.04;
-            public static final double HP_Proportion = 0.048;//0.0
-            public static final double Processor_Proportion = ProportionToPosition.convertBackwards(2.620); // TODO: tune
-            public static final double L1_Proportion = 0.15; // TODO: tune
-            // TODO: above
+            public static final ElevatorPosition IDLE = ElevatorPosition.fromProportion(0.04);
+            public static final ElevatorPosition HP = ElevatorPosition.fromProportion(0.048); //0.0
 
+            public static final ElevatorPosition Processor = ElevatorPosition.fromMotorPosition(2.620);
 
-            public static final double L2_Proportion = 0.303;//0.28
-            public static final double L3_Proportion = 0.496;//0.481
-            public static final double L4_Proportion = 0.835;
+            public static final ElevatorPosition L1 = ElevatorPosition.fromProportion(0.150);
+            public static final ElevatorPosition L2 = ElevatorPosition.fromProportion(0.303);
+            public static final ElevatorPosition L3 = ElevatorPosition.fromProportion(0.496);
+            public static final ElevatorPosition L4 = ElevatorPosition.fromProportion(0.835);
 
-            // TODO: below
-            public static final double L2_ALGAE_Proportion = 0.32; // MAYBE
-            public static final double L3_ALGAE_Proportion = ProportionToPosition.convertBackwards(32.0);
-            public static final double Barge_Proportion = .95;
+            public static final ElevatorPosition L2_ALGAE = ElevatorPosition.fromProportion(0.32);
+            public static final ElevatorPosition L3_ALGAE = ElevatorPosition.fromMotorPosition(32.0);
 
-            public static final double Ground_Intake_Proportion = 0.0;
-            public static final double Homing_Proportion = 0.0;
-            public static final double ELEVATOR_LOWEST_PROPORTION = 0.0;
+            public static final ElevatorPosition Barge = ElevatorPosition.fromProportion(.95);
+
+            public static final ElevatorPosition Ground_Intake = ElevatorPosition.fromProportion(0);
+            public static final ElevatorPosition Homing_Proportion = ElevatorPosition.fromProportion(0);
+
+            public static final ElevatorPosition Low = ElevatorPosition.fromProportion(0);
+            public static final ElevatorPosition High = ElevatorPosition.fromProportion(1);
+            public static final MeasurementRange<ElevatorPosition> AllowedRange
+                = new MeasurementRange<>(Low, High);
         }
     }
 
@@ -154,6 +168,6 @@ public final class ScoringConstants {
     }
 
     public static Trigger autonShouldAdvanceToOuttakeTrigger = 
-        new Trigger(SubsystemManager.getInstance().getScoringSuperstructure().getEndEffectorSubsystem()::isWristAtTarget)
+        new Trigger(Subsystems.scoringSuperstructure().getEndEffectorSubsystem()::isWristAtTarget)
             .debounce(0.1);
 }

@@ -15,7 +15,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.lib.util.AllianceFlipUtil;
 import frc.robot.commands.auto.AutoRoutines;
-import frc.robot.subsystems.SubsystemManager;
+import frc.robot.subsystemManager.Subsystems;
 import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -31,13 +31,12 @@ public class Robot extends LoggedRobot {
     public Robot() {
         robotContainer = new RobotContainer();
         CanBridge.runTCP();
-        SubsystemManager.getInstance().getDrivetrain().setVisionStandardDeviations(0.5, 0.5, 99999);
+        Subsystems.drivetrain().setVisionStandardDeviations(0.5, 0.5, 99999);
     }
 
     @Override
     public void robotInit() {
-        SubsystemManager.getInstance().instantiateSubsystems();
-        ScoringConstants.EndEffectorConstants.RotationStartingPosition = SubsystemManager.getInstance().getScoringSuperstructure().getEndEffectorSubsystem().getCurrentRotation();
+        ScoringConstants.EndEffectorConstants.RotationStartingPosition = Subsystems.scoringSuperstructure().getEndEffectorSubsystem().getCurrentRotation();
     }
 
 
@@ -51,8 +50,8 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void disabledInit() {
-        SubsystemManager.getInstance().getScoringSuperstructure().setAction(ScoringSuperstructureAction.IDLE);
-        SubsystemManager.getInstance().getScoringSuperstructure().getEndEffectorSubsystem().setWristMotorIdleMode(SparkBaseConfig.IdleMode.kCoast);
+        Subsystems.scoringSuperstructure().setAction(ScoringSuperstructureAction.IDLE);
+        Subsystems.scoringSuperstructure().getEndEffectorSubsystem().setWristMotorIdleMode(SparkBaseConfig.IdleMode.kCoast);
         SmartDashboard.putNumber("distanceThresholdMeters", 100);
     }
 
@@ -64,7 +63,7 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void disabledExit() {
-        SubsystemManager.getInstance().getScoringSuperstructure().getEndEffectorSubsystem().setWristMotorIdleMode(SparkBaseConfig.IdleMode.kBrake);
+        Subsystems.scoringSuperstructure().getEndEffectorSubsystem().setWristMotorIdleMode(SparkBaseConfig.IdleMode.kBrake);
     }
 
 

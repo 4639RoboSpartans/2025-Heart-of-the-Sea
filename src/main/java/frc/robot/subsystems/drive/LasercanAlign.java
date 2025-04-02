@@ -7,7 +7,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.robot.Robot;
-import frc.robot.subsystems.SubsystemManager;
+import frc.robot.subsystemManager.SubsystemInstantiator;
+import frc.robot.subsystemManager.Subsystems;
 import frc.robot.subsystems.drive.constants.DriveConstants;
 import frc.robot.subsystems.drive.constants.DrivePIDs;
 
@@ -16,12 +17,10 @@ import java.util.Objects;
 import static edu.wpi.first.units.Units.Millimeters;
 
 public class LasercanAlign extends SubsystemBase {
-    private static LasercanAlign instance;
     public static final double alignDistance_mm = 387.5;
 
-    public static LasercanAlign getInstance(SubsystemManager.GetInstanceAccess getInstanceAccess) {
-        Objects.requireNonNull(getInstanceAccess);
-        return Objects.requireNonNullElseGet(instance, LasercanAlign::new);
+    public static SubsystemInstantiator<LasercanAlign> createInstance() {
+        return new SubsystemInstantiator<>(LasercanAlign::new);
     }
 
     private final LaserCan leftLaserCan, rightLaserCan;
@@ -51,10 +50,10 @@ public class LasercanAlign extends SubsystemBase {
     }
 
     public static double getSimMeasurement(boolean left) {
-        Pose2d pose = SubsystemManager.getInstance().getDrivetrain().getPose();
+        Pose2d pose = Subsystems.drivetrain().getPose();
         Pose2d nearestReefPose = DriveCommands.getClosestTarget(() -> pose).transformBy(new Transform2d(0.8, 0, new Rotation2d()));
         Rotation2d rotationDiff = nearestReefPose.getRotation().minus(pose.getRotation());
-        double centerDist = SubsystemManager.getInstance().getDrivetrain().getDistanceFromReefFace() * 1000;
+        double centerDist = Subsystems.drivetrain().getDistanceFromReefFace() * 1000;
         double lasercanDistance = DriveConstants.laserCanDistanceMM.in(Millimeters);
         double lasercanCenterDistance = lasercanDistance / 2.0;
         double distanceAdjustment = rotationDiff.getTan() * lasercanCenterDistance;

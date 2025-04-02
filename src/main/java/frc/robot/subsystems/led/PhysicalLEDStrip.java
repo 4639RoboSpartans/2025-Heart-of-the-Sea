@@ -18,14 +18,7 @@ public class PhysicalLEDStrip extends LEDStrip {
 
     private LEDPattern currentPattern = LEDPattern.BLANK;
 
-    private static volatile PhysicalLEDStrip instance;
-
-    @PackagePrivate
-    static synchronized PhysicalLEDStrip getInstance() {
-        return Objects.requireNonNullElseGet(instance, () -> instance = new PhysicalLEDStrip(9, 96));
-    }
-
-    private PhysicalLEDStrip(int port, int length) {
+    public PhysicalLEDStrip(int port, int length) {
         this.length = length;
 
         led = new AddressableLED(port);

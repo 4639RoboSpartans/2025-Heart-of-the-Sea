@@ -4,16 +4,13 @@ import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.SubsystemManager;
+import frc.robot.subsystemManager.SubsystemInstantiator;
 
 import java.util.Objects;
-import java.util.function.DoubleSupplier;
 
 public class ServoSubsystem extends SubsystemBase {
-    private static ServoSubsystem instance;
-
-    public static ServoSubsystem getInstance(SubsystemManager.GetInstanceAccess getInstanceAccess) {
-        return instance = Objects.requireNonNullElseGet(instance, ServoSubsystem::new);
+    public static SubsystemInstantiator<ServoSubsystem> createInstance() {
+        return new SubsystemInstantiator<>(ServoSubsystem::new);
     }
 
     private final Servo funnelServo;

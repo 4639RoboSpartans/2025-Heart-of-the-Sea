@@ -3,12 +3,12 @@ package frc.robot.subsystems.scoring.elevator;
 import com.ctre.phoenix6.SignalLogger;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.subsystems.SubsystemManager;
+import frc.robot.subsystemManager.Subsystems;
 
 import static edu.wpi.first.units.Units.*;
 
 public class ElevatorSysID {
-    private static final AbstractElevatorSubsystem elevator = SubsystemManager.getInstance().getScoringSuperstructure().getElevatorSubsystem();
+    private static final AbstractElevatorSubsystem elevator = Subsystems.scoringSuperstructure().getElevatorSubsystem();
 
     private static final SysIdRoutine elevatorRoutine = new SysIdRoutine(
             new SysIdRoutine.Config(

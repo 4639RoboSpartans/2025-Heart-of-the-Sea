@@ -1,13 +1,13 @@
 package frc.robot.subsystems.climber;
 
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
-import frc.robot.subsystems.SubsystemManager;
+import frc.robot.subsystemManager.SubsystemInstantiator;
+import frc.robot.subsystemManager.Subsystems;
 
 import java.util.function.DoubleSupplier;
 
@@ -17,7 +17,7 @@ public abstract class AbstractClimberSubsystem extends SubsystemBase {
     abstract void setClimberState(ClimberState state);
     abstract double getEncoderPosition();
 
-    static enum ClimberState {
+    enum ClimberState {
         STOWED,
         CLIMBER_READY,
         FUNNEL_READY,
@@ -34,8 +34,11 @@ public abstract class AbstractClimberSubsystem extends SubsystemBase {
         SmartDashboard.putBoolean("climb/Climber Override", false);
     }
 
-    public static AbstractClimberSubsystem getInstance() {
-        return RobotBase.isReal() ? ConcreteClimberSubsystem.getInstance() : SimClimberSubsystem.getInstance();
+    public static SubsystemInstantiator<AbstractClimberSubsystem> getInstantiator() {
+        return new SubsystemInstantiator<>(
+            ConcreteClimberSubsystem::new,
+            SimClimberSubsystem::new
+        );
     }
 
     public Command stopClimber() {
@@ -95,21 +98,21 @@ public abstract class AbstractClimberSubsystem extends SubsystemBase {
     }
 
     public static boolean funnelDropAllowed() {
-        return getInstance().getClimberState().equals(ClimberState.STOWED) && (DriverStation.getMatchTime() <= 30 || SmartDashboard.getBoolean("climber/Climber Override", false));
+        return Subsystems.climber().getClimberState().equals(ClimberState.STOWED) && (DriverStation.getMatchTime() <= 30 || SmartDashboard.getBoolean("climber/Climber Override", false));
     }
 
     public static boolean readyToClimb() {
-        return getInstance().getClimberState().equals(ClimberState.READY) || getInstance().getClimberState().equals(ClimberState.CLIMBING);
+        return Subsystems.climber().getClimberState().equals(ClimberState.READY) || Subsystems.climber().getClimberState().equals(ClimberState.CLIMBING);
     }
 
     @Override
     public void periodic() {
         if (getClimberState() == ClimberState.STOWED) {
-            if (SubsystemManager.getInstance().getServoSubsystem().getServoPosition() == -1.0) {
+            if (Subsystems.servo().getServoPosition() == -1.0) {
                 setClimberState(ClimberState.FUNNEL_READY);
             }
         } else if (getClimberState() == ClimberState.CLIMBER_READY) {
-            if (SubsystemManager.getInstance().getServoSubsystem().getServoPosition() == -1.0) {
+            if (Subsystems.servo().getServoPosition() == -1.0) {
                 setClimberState(ClimberState.READY);
             }
         }

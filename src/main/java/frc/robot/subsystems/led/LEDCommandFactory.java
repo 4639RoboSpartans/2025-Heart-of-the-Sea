@@ -4,19 +4,18 @@ import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.lib.led.BreathingLEDPattern;
 import frc.lib.led.CycleBetweenLEDPattern;
 import frc.lib.led.LEDPattern;
 import frc.lib.led.SolidLEDPattern;
 import frc.lib.util.DriverStationUtil;
-import frc.robot.subsystems.SubsystemManager;
+import frc.robot.subsystemManager.Subsystems;
 import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
 import frc.robot.subsystems.scoring.ScoringSuperstructure;
 import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
 import frc.robot.subsystems.scoring.endeffector.AbstractEndEffectorSubsystem;
 
 public class LEDCommandFactory {
-    static LEDStrip leds = SubsystemManager.getInstance().getLEDStripSubsystem();
+    static LEDStrip leds = Subsystems.ledStrip();
 
     private static LEDPattern disabledPattern() {
         return (led, time) -> switch (DriverStationUtil.getAlliance()) {
@@ -37,9 +36,9 @@ public class LEDCommandFactory {
     }
 
     public static Command defaultCommand() {
-        ScoringSuperstructure scoring = SubsystemManager.getInstance().getScoringSuperstructure();
+        ScoringSuperstructure scoring = Subsystems.scoringSuperstructure();
         AbstractEndEffectorSubsystem endEffector = scoring.getEndEffectorSubsystem();
-        AbstractSwerveDrivetrain drivetrain = SubsystemManager.getInstance().getDrivetrain();
+        AbstractSwerveDrivetrain drivetrain = Subsystems.drivetrain();
 
         return leds.usePattern(() -> {
             // If disabled, use the disabled pattern (breathe red / blue)

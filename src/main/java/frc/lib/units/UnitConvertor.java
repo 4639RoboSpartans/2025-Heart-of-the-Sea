@@ -1,4 +1,4 @@
-package frc.lib;
+package frc.lib.units;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.DistanceUnit;

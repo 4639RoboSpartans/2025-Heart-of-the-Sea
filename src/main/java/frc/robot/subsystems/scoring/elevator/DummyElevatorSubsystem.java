@@ -1,6 +1,8 @@
 package frc.robot.subsystems.scoring.elevator;
 
 import edu.wpi.first.units.measure.Voltage;
+import frc.robot.subsystems.scoring.constants.ScoringConstants;
+import frc.robot.subsystems.scoring.constants.ScoringConstants.ElevatorConstants.ElevatorSetpoints;
 
 public class DummyElevatorSubsystem extends AbstractElevatorSubsystem {
 
@@ -9,8 +11,8 @@ public class DummyElevatorSubsystem extends AbstractElevatorSubsystem {
     }
 
     @Override
-    public double getCurrentExtensionFraction() {
-        return getTargetExtensionFraction();
+    public ElevatorPosition getCurrentPosition() {
+        return getTargetPosition();
     }
 
     @Override
@@ -18,9 +20,9 @@ public class DummyElevatorSubsystem extends AbstractElevatorSubsystem {
 
     @Override
     public boolean isPhysicallyStopped() {
-        return getCurrentExtensionFraction() <= 0 || getCurrentExtensionFraction() >= 1;
+        return !ElevatorSetpoints.AllowedRange.contains(getCurrentPosition());
     }
 
     @Override
-    public void resetCurrentExtensionFractionTo(double extensionFraction) {}
+    public void resetCurrentPositionTo(ElevatorPosition position) {}
 }

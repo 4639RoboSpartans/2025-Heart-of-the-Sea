@@ -7,9 +7,9 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.lib.oi.OI;
 import frc.robot.constants.Controls;
+import frc.robot.subsystemManager.Subsystems;
 import frc.robot.subsystems.scoring.constants.ScoringPIDs;
 
 import static edu.wpi.first.units.Units.Meters;
@@ -47,28 +47,28 @@ public class SimElevatorSubsystem extends AbstractElevatorSubsystem {
             ),
             DCMotor.getKrakenX60(2),
             STARTING_HEIGHT.in(Meters),
-            MAX_EXTENSION.in(Meters) + STARTING_HEIGHT.in(Meters),
+            MAX_HEIGHT.in(Meters) + STARTING_HEIGHT.in(Meters),
             true,
             STARTING_HEIGHT.in(Meters)
         );
     }
 
     @Override
-    public double getCurrentExtensionFraction() {
-        return ProportionToHeight.inverted().convert(Meters.of(
+    public ElevatorPosition getCurrentPosition() {
+        return ElevatorPosition.fromHeight(Meters.of(
             elevatorSim.getPositionMeters()
         ));
     }
 
     @Override
     public void periodic() {
-        if (isManualControlEnabled) {
+        if (Subsystems.scoringSuperstructure().isManualControlEnabled()) {
             double outputVoltage = Controls.Operator.ManualControlElevator.getAsDouble() * 0.3;
             if (outputVoltage < 0) outputVoltage /= 2.;
             elevatorSim.setInputVoltage(outputVoltage * 12 + elevatorKg.get() * 3.8);
         } else {
-            elevatorPID.setGoal(getTargetPosition());
-            double output = elevatorPID.calculate(getCurrentPosition())
+            elevatorPID.setGoal(getTargetPosition().getMotorPosition());
+            double output = elevatorPID.calculate(getCurrentPosition().getMotorPosition())
                 + elevatorFeedforward.calculate(elevatorPID.getSetpoint().velocity);
 
             elevatorSim.setInputVoltage(output);
@@ -91,12 +91,12 @@ public class SimElevatorSubsystem extends AbstractElevatorSubsystem {
     }
 
     @Override
-    public void resetCurrentExtensionFractionTo(double extensionFraction) {
+    public void resetCurrentPositionTo(ElevatorPosition position) {
         elevatorSim.setState(
-            ProportionToHeight.convert(extensionFraction).in(Meters),
+            position.getHeight().in(Meters),
             elevatorSim.getVelocityMetersPerSecond()
         );
-        setTargetExtensionFraction(extensionFraction);
-        elevatorPID.reset(ProportionToPosition.convert(extensionFraction));
+        setTarget(position);
+        elevatorPID.reset(position.getMotorPosition());
     }
 }

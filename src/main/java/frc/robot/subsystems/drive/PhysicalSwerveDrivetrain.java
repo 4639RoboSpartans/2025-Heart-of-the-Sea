@@ -36,7 +36,7 @@ import frc.lib.limelight.LimelightHelpers;
 import frc.lib.util.DriverStationUtil;
 import frc.robot.constants.Controls;
 import frc.robot.constants.Limelights;
-import frc.robot.subsystems.SubsystemManager;
+import frc.robot.subsystemManager.Subsystems;
 import frc.robot.subsystems.drive.constants.DriveConstants;
 import frc.robot.subsystems.drive.constants.DrivePIDs;
 import frc.robot.subsystems.drive.constants.TunerConstants;
@@ -396,7 +396,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                 applyRequest(
                         () -> {
                             Vector<N2> translationVector = getTranslationVector(targetPose);
-                            double laserCANAlignOutput = SubsystemManager.getInstance().getLasercanAlign().getOutput();
+                            double laserCANAlignOutput = Subsystems.lasercanAlign().getOutput();
                             double rotationRadians = getCalculatedRotationFromAlign().orElseGet(
                                     Rotation2d::new
                             ).getRadians();
@@ -538,8 +538,8 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         getCalculatedRotationFromAlign().ifPresent(
                 rotation -> SmartDashboard.putNumber("Reef Rotation Degrees", rotation.getDegrees())
         );
-        SmartDashboard.putNumber("Left LC", SubsystemManager.getInstance().getLasercanAlign().getLeftMeasurement());
-        SmartDashboard.putNumber("Right LC", SubsystemManager.getInstance().getLasercanAlign().getRightMeasurement());
+        SmartDashboard.putNumber("Left LC", Subsystems.lasercanAlign().getLeftMeasurement());
+        SmartDashboard.putNumber("Right LC", Subsystems.lasercanAlign().getRightMeasurement());
 
         double rotationRadians = getCalculatedRotationFromAlign().orElseGet(
                 Rotation2d::new
@@ -582,14 +582,14 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
     @Override
     public double getDistanceFromReefFace() {
-        return SubsystemManager.getInstance().getLasercanAlign().getDistance_mm();
+        return Subsystems.lasercanAlign().getDistance_mm();
     }
 
     @Override
     public Optional<Rotation2d> getCalculatedRotationFromAlign() {
         double leftMeasurement, rightMeasurement;
-        leftMeasurement = SubsystemManager.getInstance().getLasercanAlign().getLeftMeasurement();
-        rightMeasurement = SubsystemManager.getInstance().getLasercanAlign().getRightMeasurement();
+        leftMeasurement = Subsystems.lasercanAlign().getLeftMeasurement();
+        rightMeasurement = Subsystems.lasercanAlign().getRightMeasurement();
         if (leftMeasurement == -1 || rightMeasurement == -1) {
             return Optional.empty();
         } else {
