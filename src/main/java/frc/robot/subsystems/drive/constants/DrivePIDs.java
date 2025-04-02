@@ -13,10 +13,10 @@ public class DrivePIDs {
 
     static {
         pidToPoseXkP.setDefaultValue(2);
-        pidToPoseYkP.setDefaultValue(2);
+        pidToPoseYkP.setDefaultValue(6);
         pidToPoseVelocityX.setDefaultValue(2);
         pidToPoseAccelerationX.setDefaultValue(1);
-        pidToPoseVelocityX.setDefaultValue(3);
+        pidToPoseVelocityX.setDefaultValue(4);
         pidToPoseAccelerationX.setDefaultValue(2);
         lasercanXkP.setDefaultValue(3);
     }

@@ -85,11 +85,6 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                                     value, pidXController.getConstraints().maxAcceleration
                             )
                     );
-                    pidYController.setConstraints(
-                            new TrapezoidProfile.Constraints(
-                                    value, pidYController.getConstraints().maxAcceleration
-                            )
-                    );
                 }
         );
         DrivePIDs.pidToPoseAccelerationX.onChange(
@@ -99,6 +94,19 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                                     pidXController.getConstraints().maxVelocity, value
                             )
                     );
+                }
+        );
+        DrivePIDs.pidToPoseVelocityY.onChange(
+                value -> {
+                    pidYController.setConstraints(
+                            new TrapezoidProfile.Constraints(
+                                    value, pidYController.getConstraints().maxAcceleration
+                            )
+                    );
+                }
+        );
+        DrivePIDs.pidToPoseAccelerationY.onChange(
+                value -> {
                     pidYController.setConstraints(
                             new TrapezoidProfile.Constraints(
                                     pidYController.getConstraints().maxVelocity, value
@@ -226,9 +234,9 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
         Pose2d nearestReefPose = DriveCommands.getClosestTarget(this::getPose);
         Rotation2d nearestReefPoseRotation = nearestReefPose.getRotation();
-        
+
         chassisSpeeds.times(-1);
-        
+
         if (DriverStationUtil.getAlliance() == Alliance.Blue) {
             nearestReefPoseRotation = nearestReefPoseRotation.plus(Rotation2d.k180deg);
         }

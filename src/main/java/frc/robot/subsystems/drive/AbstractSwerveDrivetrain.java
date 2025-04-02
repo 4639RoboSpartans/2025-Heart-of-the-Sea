@@ -110,11 +110,11 @@ public abstract class AbstractSwerveDrivetrain extends SubsystemBase {
         return PoseUtil.withinTolerance(
                 currentAlignTarget,
                 getPose(),
-                0.025
+                0.1
         ) && MathUtil.isNear(
                 currentAlignTarget.getRotation().getDegrees(),
                 getPose().getRotation().getDegrees(),
-                1);
+                2);
     }
 
     public abstract Command fineTuneUsingLaserCANCommand(Pose2d targetPose);

@@ -216,7 +216,7 @@ public class AutoRoutines {
                                         Commands.waitUntil(
                                                         () -> !scoringSuperstructure.hasCoral()
                                                 )
-                                                .andThen(Commands.waitUntil(scoringSuperstructure::elevatorAutonMoveThreshold))
+                                                .andThen(Commands.waitUntil(scoringSuperstructure::elevatorMoveThreshold))
                                 ),
                                 AutoCommands.SwerveStop.get()
                         ),
