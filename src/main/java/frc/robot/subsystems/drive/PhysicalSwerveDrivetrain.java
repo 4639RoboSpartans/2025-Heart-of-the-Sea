@@ -65,11 +65,11 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     protected ProfiledPIDController pidYController = constructPIDYController();
 
     public static ProfiledPIDController constructPIDYController() {
-        return new ProfiledPIDController(DrivePIDs.pidToPoseXkP.get(), 0, 0, new TrapezoidProfile.Constraints(4, 2));
+        return new ProfiledPIDController(DrivePIDs.pidToPoseXkP.get(), DrivePIDs.pidToPosekI.get(), DrivePIDs.pidToPosekD.get(), new TrapezoidProfile.Constraints(4, 2));
     }
 
     public static ProfiledPIDController constructPIDXController() {
-        return new ProfiledPIDController(DrivePIDs.pidToPoseYkP.get(), 0, 0, new TrapezoidProfile.Constraints(4, 2));
+        return new ProfiledPIDController(DrivePIDs.pidToPoseYkP.get(), DrivePIDs.pidToPosekI.get(), DrivePIDs.pidToPosekD.get(), new TrapezoidProfile.Constraints(4, 2));
     }
 
     {
@@ -77,6 +77,15 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         // Set up tunable numbers for drive pids
         DrivePIDs.pidToPoseXkP.onChange(pidXController::setP);
         DrivePIDs.pidToPoseYkP.onChange(pidYController::setP);
+        DrivePIDs.pidToPosekI.onChange(val -> {
+            pidXController.setI(val);
+            pidYController.setI(val);
+        });
+
+        DrivePIDs.pidToPosekD.onChange(val -> {
+            pidXController.setD(val);
+            pidYController.setD(val);
+        });
         DrivePIDs.pidToPoseVelocity.onChange(
                 value -> {
                     pidXController.setConstraints(
