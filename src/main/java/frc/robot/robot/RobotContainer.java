@@ -42,8 +42,6 @@ public class RobotContainer {
     private final RobotSim robotSim = new RobotSim();
     @SuppressWarnings("unused")
     private final LEDStrip ledStrip = SubsystemManager.getInstance().getLEDStripSubsystem();
-    private final ServoSubsystem servoSubsystem = SubsystemManager.getInstance().getServoSubsystem();
-    private final AbstractClimberSubsystem climber = SubsystemManager.getInstance().getClimberSubsystem();
 
     private final StructArrayPublisher<Pose3d> componentPoses = NetworkTableInstance.getDefault()
         .getStructArrayTopic("zeroed component poses", Pose3d.struct).publish();
