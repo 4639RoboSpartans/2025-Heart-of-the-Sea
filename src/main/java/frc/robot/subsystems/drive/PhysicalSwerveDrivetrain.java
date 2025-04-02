@@ -57,8 +57,8 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
     private final PhoenixPIDController headingController = new PhoenixPIDController(4, 0, 0);
     protected final PIDController
-            pathXController = new PIDController(1, 0, 0),
-            pathYController = new PIDController(1, 0, 0),
+            pathXController = new PIDController(5, 0, 0),
+            pathYController = new PIDController(5, 0, 0),
             pathHeadingController = new PIDController(6, 0, 0);
     protected ProfiledPIDController
             pidXController = constructPIDXController();
@@ -494,10 +494,15 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                 pose.getRotation().getRadians(), sample.heading
         );
 
-        drivetrain.setControl(new SwerveRequest.ApplyFieldSpeeds()
-                .withSpeeds(targetSpeeds)
-                .withWheelForceFeedforwardsX(sample.moduleForcesX())
-                .withWheelForceFeedforwardsY(sample.moduleForcesY())
+        var robotSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(targetSpeeds, getPose().getRotation());
+        SwerveSetpoint newSetpoint = swerveSetpointGenerator.generateSetpoint(prevSwerveSetpoint, robotSpeeds, 0.02);
+        var newRobotSpeeds = newSetpoint.robotRelativeSpeeds();
+        prevSwerveSetpoint = newSetpoint;
+
+        drivetrain.setControl(new SwerveRequest.ApplyRobotSpeeds()
+                .withSpeeds(newRobotSpeeds)
+                .withWheelForceFeedforwardsX(newSetpoint.feedforwards().robotRelativeForcesX())
+                .withWheelForceFeedforwardsY(newSetpoint.feedforwards().robotRelativeForcesY())
         );
         field.getObject("Path Target Pose").setPose(sample.getPose());
     }
