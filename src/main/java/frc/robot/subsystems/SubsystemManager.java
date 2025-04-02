@@ -1,5 +1,8 @@
 package frc.robot.subsystems;
 
+
+import frc.robot.subsystems.climber.ServoSubsystem;
+import frc.robot.subsystems.led.LEDStrip;
 import frc.robot.subsystems.climber.AbstractClimberSubsystem;
 import frc.robot.subsystems.climber.ServoSubsystem;
 import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
@@ -14,6 +17,8 @@ import java.util.Objects;
  */
 public class SubsystemManager {
     private static volatile SubsystemManager instance;
+
+
 
     public static final class GetInstanceAccess {
         private GetInstanceAccess() {}
@@ -70,4 +75,9 @@ public class SubsystemManager {
     public ServoSubsystem getServoSubsystem() {
         return servoSubsystem;
     }
+
+    public ServoSubsystem getServoSubsystem() {
+        return servoSubsystem;
+    }
+
 }

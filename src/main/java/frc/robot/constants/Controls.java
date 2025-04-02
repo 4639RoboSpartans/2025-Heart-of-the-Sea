@@ -60,7 +60,7 @@ public class Controls {
         public static final DoubleSupplier testClimbSpeedSupplier = driverController::rightStickY;
         public static final Trigger dropFunnelTrigger = driverController.LEFT_STICK;//.and(AbstractClimberSubsystem::funnelDropAllowed);
         public static final Trigger climbTrigger = driverController.POV_LEFT;//.and(AbstractClimberSubsystem::readyToClimb);
-        public static final Trigger prepClimbTrigger = driverController.POV_RIGHT;//.and(AbstractClimberSubsystem::readyToClimb);
+        public static final Trigger prepClimbTrigger = driverController.POV_RIGHT;//.and(AbstractClimberSubsystem::readyToClimb)
 
         public static final Trigger bindFunneltrigger = driverController.B_BUTTON;
 
