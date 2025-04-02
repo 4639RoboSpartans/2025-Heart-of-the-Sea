@@ -1,26 +1,27 @@
 package frc.robot.subsystems.drive;
 
 import choreo.trajectory.SwerveSample;
-
-import java.util.function.Supplier;
-
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.Commands;
+
+import java.util.Optional;
+import java.util.function.Supplier;
 
 public class DummySwerveDrivetrain extends AbstractSwerveDrivetrain {
     Pose2d currentPose = new Pose2d();
 
     @Override
     public Command resetHeadingToZero() {
-        return new InstantCommand(() -> {});
+        return Commands.none();
     }
 
     @Override
     public Command stop() {
-        return new InstantCommand(() -> {});
+        return Commands.none();
     }
 
     @Override
@@ -28,21 +29,26 @@ public class DummySwerveDrivetrain extends AbstractSwerveDrivetrain {
 
     @Override
     public Command manualControl() {
-        return new InstantCommand(() -> {});
+        return Commands.none();
     }
 
     @Override
     public Command _directlyMoveTo(Pose2d targetPose, Supplier<Pose2d> currentPoseSupplier) {
-        return new InstantCommand(() -> {
+        return Commands.runOnce(() -> {
             currentPose = targetPose;
         });
     }
 
     @Override
-    public Command pathfindTo(Pose2d targetPose) {
-        return new InstantCommand(() -> {
+    public Command fineTuneUsingLaserCANCommand(Pose2d targetPose) {
+        return Commands.runOnce(() -> {
             currentPose = targetPose;
         });
+    }
+
+    @Override
+    public Command pathToPoseCommand(Pose2d targetPose) {
+        return Commands.none();
     }
 
     @Override
@@ -76,12 +82,37 @@ public class DummySwerveDrivetrain extends AbstractSwerveDrivetrain {
     }
 
     @Override
-    public boolean atTargetPose(Pose2d targetPose) {
+    public boolean nearTargetPose(Pose2d targetPose) {
         return true;
     }
 
     @Override
     public void setVisionStandardDeviations(double xStdDev, double yStdDev, double rotStdDev) {
        
+    }
+
+    @Override
+    public double[] getVisionStandardDeviations() {
+        return new double[]{0, 0, 0};
+    }
+
+    @Override
+    public double getDistanceFromReefFace() {
+        return 0;
+    }
+
+    @Override
+    public Optional<Rotation2d> getCalculatedRotationFromAlign() {
+        return Optional.empty();
+    }
+    
+    @Override
+    public boolean isAligned() {
+        return false;
+    }
+
+    @Override
+    public Command toggleAutoHeading() {
+        return Commands.none();
     }
 }

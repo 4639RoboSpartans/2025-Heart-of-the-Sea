@@ -1,10 +1,16 @@
 package frc.robot.subsystems.drive.constants;
 
+import com.pathplanner.lib.config.PIDConstants;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.measure.Distance;
+
+import static edu.wpi.first.units.Units.Millimeters;
 
 public class DriveConstants {
     public static final double centerToWheel = 0.245;
+
+    public static final Distance laserCanDistanceMM = Millimeters.of(500);
 
     // Change MOVEMENT_SPEED to 1.0 for max speed
     public static final double CURRENT_MAX_ROBOT_MPS = 3.5;
@@ -27,4 +33,11 @@ public class DriveConstants {
 
     public static final double TXTolerance = 0.01;
     public static final double TATolerance = 0.01;
+    public static final PIDConstants AUTON_TRANSLATION_PID_CONSTANTS = new PIDConstants(0, 0, 0);
+    public static final PIDConstants AUTON_ROTATION_PID_CONSTANTS = new PIDConstants(0, 0, 0);
+
+    public static class IDs {
+        public static final int LEFT_LASERCAN_ID = 21;
+        public static final int RIGHT_LASERCAN_ID = 20;
+    }
 }

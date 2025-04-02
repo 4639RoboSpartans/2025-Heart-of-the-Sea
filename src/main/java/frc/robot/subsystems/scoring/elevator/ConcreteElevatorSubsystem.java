@@ -96,20 +96,17 @@ public class ConcreteElevatorSubsystem extends AbstractElevatorSubsystem {
 
             elevatorMotor.setControl(new VoltageOut(outputVoltage));
         } else {
+            // In measurement, we have measured = raw + offset,
+            // so here we must have raw = calculated - offset
+            double targetProportion = getTargetExtensionFraction() - measuredExtensionFractionOffset;
             elevatorMotor.setControl(new MotionMagicVoltage(
                 ElevatorConstants.ProportionToPosition.convert(
-                    // In measurement, we have measured = raw + offset,
-                    // so here we must have raw = calculated - offset
-                    getTargetExtensionFraction() - measuredExtensionFractionOffset
+                    targetProportion
                 )
             ));
         }
-
-        SmartDashboard.putNumber("Elevator Current", elevatorMotor.getTorqueCurrent().getValueAsDouble());
-        SmartDashboard.putNumber("Elevator Motor RPS", elevatorMotor.getVelocity().getValueAsDouble());
-        SmartDashboard.putNumber("Elevator Position", elevatorMotor.getPosition().getValueAsDouble());
-
-        SmartDashboard.putNumber("Elevator Duty Cycle", elevatorMotor.getDutyCycle().getValueAsDouble());
+        SmartDashboard.putNumber("Elevator Fraction", getCurrentExtensionFraction());
+        SmartDashboard.putNumber("Target Extension Fraction", getTargetExtensionFraction());
     }
 
     @Override

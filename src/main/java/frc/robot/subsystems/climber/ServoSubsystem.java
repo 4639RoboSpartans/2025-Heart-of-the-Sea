@@ -40,8 +40,8 @@ public class ServoSubsystem extends SubsystemBase {
 
     public Command stopServo() {
         return Commands.run(
-                () -> funnelServo.setSpeed(getServoPosition()),
-                this
+            () -> funnelServo.setSpeed(getServoPosition()),
+            this
         );
     }
 

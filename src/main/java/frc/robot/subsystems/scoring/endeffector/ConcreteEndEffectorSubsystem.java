@@ -31,7 +31,7 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
 
     private final ProfiledPIDController wristPID;
     private double encoderOffset;
-    private final static double DEFAULT_ENCODER_OFFSET = -0.029;
+    private final static double DEFAULT_ENCODER_OFFSET = 0;
 
 
     // given is frac 0.82, measured frac 0.556 => need to sub frac 0.264 from measurement
@@ -153,12 +153,8 @@ public class ConcreteEndEffectorSubsystem extends AbstractEndEffectorSubsystem {
 
         SmartDashboard.putNumber("Wrist raw position", wristAbsoluteEncoder.get());
         SmartDashboard.putNumber("LC Measurement", getMeasurement());
-        SmartDashboard.putBoolean("Has Coral", hasCoral());
-
-        SmartDashboard.putNumber("Wrist Relative Measurement", relativeEncoderMeasurementToAbsoluteMeasurement.convert(wristAbsoluteEncoder.get()) + PositionToRotation.convertBackwards(RotationStartingPosition));
         wristMotor.setVoltage(wristPIDOutput);
         intakeMotor.set(intakeSpeed);
-        SmartDashboard.putNumber("Intake Speed", intakeSpeed);
     }
 
     @Override

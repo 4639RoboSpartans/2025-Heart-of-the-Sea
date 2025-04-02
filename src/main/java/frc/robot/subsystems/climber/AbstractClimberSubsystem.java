@@ -17,7 +17,7 @@ public abstract class AbstractClimberSubsystem extends SubsystemBase {
     abstract void setClimberState(ClimberState state);
     abstract double getEncoderPosition();
 
-    enum ClimberState {
+    static enum ClimberState {
         STOWED,
         CLIMBER_READY,
         FUNNEL_READY,
@@ -40,53 +40,59 @@ public abstract class AbstractClimberSubsystem extends SubsystemBase {
 
     public Command stopClimber() {
         return Commands.run(
-                () -> setClimberSpeed(0),
-                this
+
+            () -> setClimberSpeed(0),
+            this
         );
     }
 
     public Command climbCommand() {
         return setState(ClimberState.CLIMBING)
-                .andThen(run(
-                        () ->
-                        {
-                            // if (ClimberConstants.Setpoints.climbPosition.get() < getEncoderPosition()) {
-                            //     setClimberSpeed(0);
-                            // } else {
-                            setClimberSpeed(ClimberConstants.climberSpeed.get());
-                            // }
-                        }
-                ));
+
+        .andThen(run(
+            () -> 
+                {
+                    // if (ClimberConstants.Setpoints.climbPosition.get() < getEncoderPosition()) {
+                    //     setClimberSpeed(0);
+                    // } else {
+                        setClimberSpeed(ClimberConstants.climberSpeed.get());
+                    // }
+                }
+        ));
     }
 
     public Command deClimbCommand() {
         return setState(ClimberState.CLIMBING)
-                .andThen(run(
-                        () ->
-                        {
-                            setClimberSpeed(-ClimberConstants.climberSpeed.get());
-                        }
-                ));
+ dev-fixing-LC-align
+        .andThen(run(
+            () -> 
+                {
+                    setClimberSpeed(-ClimberConstants.climberSpeed.get());
+                }
+        ));
+
     }
 
     public Command prepClimbCommand() {
         return setState(getClimberState() == ClimberState.FUNNEL_READY ? ClimberState.READY : ClimberState.CLIMBER_READY)
-                .andThen(run(
-                        () ->
-                        {
-                            if (ClimberConstants.Setpoints.readyToClimbPosition.get() > getEncoderPosition()) {
-                                setClimberSpeed(0);
-                            } else {
-                                setClimberSpeed(ClimberConstants.climberSpeed.get());
-                            }
-                        }
-                ));
+        .andThen(run(
+            () -> 
+                {
+                    if (ClimberConstants.Setpoints.readyToClimbPosition.get() > getEncoderPosition()) {
+                        setClimberSpeed(0);
+                    } else {
+                        setClimberSpeed(ClimberConstants.climberSpeed.get());
+                    }
+                }
+        ));
     }
 
     public Command testClimbCommand(DoubleSupplier speed) {
         return Commands.run(
-                () -> setClimberSpeed(speed.getAsDouble() * ClimberConstants.climberSpeed.get()),
-                this
+
+            () -> setClimberSpeed(speed.getAsDouble() * ClimberConstants.climberSpeed.get()),
+            this
+
         );
     }
 

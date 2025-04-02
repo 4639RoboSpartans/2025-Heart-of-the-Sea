@@ -3,7 +3,6 @@ package frc.robot.constants;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.oi.Controller;
 import frc.lib.oi.OI;
-import frc.robot.subsystems.SubsystemManager;
 import frc.robot.subsystems.climber.AbstractClimberSubsystem;
 
 import java.util.function.DoubleSupplier;
@@ -58,9 +57,11 @@ public class Controls {
 
         public static final Trigger rotationResetTrigger = driverController.A_BUTTON.and(driverController.B_BUTTON);
 
+        public static final DoubleSupplier testClimbSpeedSupplier = driverController::rightStickY;
         public static final Trigger dropFunnelTrigger = driverController.LEFT_STICK;//.and(AbstractClimberSubsystem::funnelDropAllowed);
         public static final Trigger climbTrigger = driverController.POV_LEFT;//.and(AbstractClimberSubsystem::readyToClimb);
-        public static final Trigger prepClimbTrigger = driverController.POV_RIGHT;//.and(AbstractClimberSubsystem::readyToClimb);
+        public static final Trigger prepClimbTrigger = driverController.POV_RIGHT;//.and(AbstractClimberSubsystem::readyToClimb)
+
         public static final Trigger bindFunneltrigger = driverController.B_BUTTON;
 
         public static final Trigger L2AlgaeTrigger = driverController.POV_DOWN;
@@ -72,9 +73,7 @@ public class Controls {
         public static final Trigger alignReefLeft = driverController.LEFT_BUMPER;
 
         public static final Trigger reefAlign = driverController.RIGHT_TRIGGER;
-        public static final Trigger coralStationAlign = driverController.B_BUTTON;
-        public static final Trigger bargeScoringAlign = driverController.XBOX_START_BUTTON;
-        public static final Trigger processorAlign = driverController.XBOX_BACK_BUTTON;
+        public static final Trigger toggleAutoHeadingButton = driverController.RIGHT_STICK;
     }
 
     public static class Operator {

@@ -3,6 +3,7 @@ package frc.robot.subsystems.drive;
 import choreo.trajectory.SwerveSample;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -10,6 +11,7 @@ import frc.robot.robot.Robot;
 import frc.robot.subsystems.SubsystemManager;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 public abstract class AbstractSwerveDrivetrain extends SubsystemBase {
@@ -33,7 +35,7 @@ public abstract class AbstractSwerveDrivetrain extends SubsystemBase {
         if (dummy) return new DummySwerveDrivetrain();
 
         return instance = Objects.requireNonNullElseGet(instance,
-            Robot.isReal() ? PhysicalSwerveDrivetrain::new : SimSwerveDrivetrain::new
+                Robot.isReal() ? PhysicalSwerveDrivetrain::new : SimSwerveDrivetrain::new
         );
     }
 
@@ -64,25 +66,21 @@ public abstract class AbstractSwerveDrivetrain extends SubsystemBase {
      * Returns a command that moves the robot to the specified pose under PID control, without pathfinding
      *
      * @param targetPose The pose to move to
-     *
      * @return Command to run
      */
     protected abstract Command _directlyMoveTo(Pose2d targetPose, Supplier<Pose2d> currentPose);
 
     public Command directlyMoveTo(Pose2d targetPose, Supplier<Pose2d> currentPose) {
         return _directlyMoveTo(targetPose, currentPose)
-            .beforeStarting(() -> currentAlignTarget = targetPose)
-            .finallyDo(() -> currentAlignTarget = null);
+                .andThen(fineTuneUsingLaserCANCommand(targetPose))
+        // return fineTuneUsingLaserCANCommand(targetPose)
+                .beforeStarting(() -> currentAlignTarget = targetPose)
+                .finallyDo(() -> currentAlignTarget = null);
     }
 
-    /**
-     * Returns a command that makes the robot pathfind to the specified pose
-     *
-     * @param targetPose The pose to move to
-     *
-     * @return Command to run
-     */
-    public abstract Command pathfindTo(Pose2d targetPose);
+    public abstract Command fineTuneUsingLaserCANCommand(Pose2d targetPose);
+
+    public abstract Command pathToPoseCommand(Pose2d targetPose);
 
     /**
      * Follows the given field-centric path sample with PID.
@@ -121,11 +119,21 @@ public abstract class AbstractSwerveDrivetrain extends SubsystemBase {
         return 1 - Math.pow(SubsystemManager.getInstance().getScoringSuperstructure().getElevatorSubsystem().getCurrentExtensionFraction(), 2) * (1.0 - 0.2);
     }
 
+    public abstract Optional<Rotation2d> getCalculatedRotationFromAlign();
+
     public abstract void resetPose(Pose2d pose);
 
-    public abstract boolean atTargetPose(Pose2d targetPose);
+    public abstract boolean nearTargetPose(Pose2d targetPose);
 
     public abstract void addVisionMeasurement(Pose2d pose, double timestamp);
 
     public abstract void setVisionStandardDeviations(double xStdDev, double yStdDev, double rotStdDev);
+
+    public abstract double[] getVisionStandardDeviations();
+
+    public abstract double getDistanceFromReefFace();
+
+    public abstract boolean isAligned();
+
+    public abstract Command toggleAutoHeading();
 }

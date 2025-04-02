@@ -1,9 +1,13 @@
 package frc.robot.subsystems;
 
+
 import frc.robot.subsystems.climber.ServoSubsystem;
 import frc.robot.subsystems.led.LEDStrip;
 import frc.robot.subsystems.climber.AbstractClimberSubsystem;
+import frc.robot.subsystems.climber.ServoSubsystem;
 import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
+import frc.robot.subsystems.drive.LasercanAlign;
+import frc.robot.subsystems.led.LEDStrip;
 import frc.robot.subsystems.scoring.ScoringSuperstructure;
 
 import java.util.Objects;
@@ -25,6 +29,7 @@ public class SubsystemManager {
     private AbstractSwerveDrivetrain drivetrain;
     private ScoringSuperstructure scoringSuperstructure;
     private LEDStrip ledStripSubsystem;
+    private LasercanAlign lasercanAlignSubsystem;
     private ServoSubsystem servoSubsystem;
 
     public static synchronized SubsystemManager getInstance() {
@@ -43,6 +48,7 @@ public class SubsystemManager {
         drivetrain = AbstractSwerveDrivetrain.getInstance(getInstanceAccess);
         scoringSuperstructure = ScoringSuperstructure.getInstance(getInstanceAccess);
         ledStripSubsystem = LEDStrip.getInstance(getInstanceAccess);
+        lasercanAlignSubsystem = LasercanAlign.getInstance(getInstanceAccess);
         servoSubsystem = ServoSubsystem.getInstance(getInstanceAccess);
     }
 
@@ -60,6 +66,14 @@ public class SubsystemManager {
 
     public LEDStrip getLEDStripSubsystem() {
         return ledStripSubsystem;
+    }
+
+    public LasercanAlign getLasercanAlign() {
+        return lasercanAlignSubsystem;
+    }
+
+    public ServoSubsystem getServoSubsystem() {
+        return servoSubsystem;
     }
 
     public ServoSubsystem getServoSubsystem() {

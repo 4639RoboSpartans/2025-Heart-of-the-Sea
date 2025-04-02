@@ -15,14 +15,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.util.AllianceFlipUtil;
 import frc.lib.util.DriverStationUtil;
-import frc.lib.util.PoseUtil;
-import frc.robot.subsystems.SubsystemManager;
+import frc.robot.util.PoseUtil;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.*;
-import java.util.stream.Stream;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 /**
  * Contains various field dimensions and useful reference points. All units are in meters and poses
@@ -305,7 +302,7 @@ public class FieldConstants {
         }
 
         TargetPositions(Pose2d pose, Pose2d leftPose, Pose2d rightPose, Supplier<Command> fineTuneTargetCommand) {
-            this.Pose = pose;
+            this.pose = pose;
             this.leftPose = leftPose;
             this.rightPose = rightPose;
             this.fineTuneTargetCommand = fineTuneTargetCommand;
@@ -319,12 +316,12 @@ public class FieldConstants {
             this(pose, pose, pose, fineTuneTargetCommand);
         }
 
-        private final Pose2d Pose;
+        private final Pose2d pose;
         public final Pose2d leftPose, rightPose;
         @Deprecated public final Supplier<Command> fineTuneTargetCommand;
 
         public Pose2d getPose() {
-            return (Pose);
+            return pose;
         }
 
         public Pose2d getOpponentAlliancePose() {
@@ -346,6 +343,10 @@ public class FieldConstants {
                     .filter(pos -> pos.toString().contains("REEF"))
                     .filter(pos -> pos.toString().substring(3).contains(character.toString()))
                     .findFirst();
+        }
+
+        public enum Direction {
+            LEFT, RIGHT, ALGAE
         }
     }
 
@@ -376,6 +377,7 @@ public class FieldConstants {
     }
 
     public static double reefForwardsDistance = 0;
+    public static double reefAlgaeForwardsDistance = Units.inchesToMeters(5);
     public static double reefSidewaysDistance = 0.125 + Units.inchesToMeters(1.75);
 
     public static int[] kReefAprilTags = new int[] {6,7,8,9,10,11,17,18,19,20,21,22};

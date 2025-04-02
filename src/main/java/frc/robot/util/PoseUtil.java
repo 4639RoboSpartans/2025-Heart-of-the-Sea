@@ -1,10 +1,11 @@
-package frc.lib.util;
+package frc.robot.util;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.constants.FieldConstants;
+import frc.robot.constants.FieldConstants.TargetPositions;
 
 public class PoseUtil {
     public static Translation2d translationInDirection(Translation2d translation, Rotation2d angle) {
@@ -14,13 +15,24 @@ public class PoseUtil {
     public static Pose2d ReefRelativeRightOf(Pose2d pose) {
         return
                 pose.transformBy(new Transform2d(FieldConstants.reefForwardsDistance, -FieldConstants.reefSidewaysDistance, Rotation2d.kZero));
-        
     }
 
     public static Pose2d ReefRelativeLeftOf(Pose2d pose) {
         return
                 pose.transformBy(new Transform2d(FieldConstants.reefForwardsDistance, FieldConstants.reefSidewaysDistance, Rotation2d.kZero));
-        
+    }
+
+    public static Pose2d ReefRelativeAlgaeForwards(Pose2d pose) {
+        return
+                pose.transformBy(new Transform2d(FieldConstants.reefAlgaeForwardsDistance, 0, Rotation2d.kZero));
+    }
+
+    public static Pose2d ReefRelativeFromDirection(Pose2d pose, TargetPositions.Direction direction) {
+        return switch (direction) {
+            case LEFT -> ReefRelativeLeftOf(pose);
+            case RIGHT -> ReefRelativeRightOf(pose);
+            case ALGAE -> ReefRelativeAlgaeForwards(pose);
+        };
     }
 
     public static Rotation2d getReefAngle(FieldConstants.TargetPositions targetPosition) {

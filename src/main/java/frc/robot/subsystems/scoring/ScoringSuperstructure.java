@@ -20,6 +20,7 @@ import frc.robot.subsystems.scoring.elevator.ElevatorSysID;
 import frc.robot.subsystems.scoring.endeffector.AbstractEndEffectorSubsystem;
 
 import java.util.Objects;
+import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 public final class ScoringSuperstructure extends SubsystemBase {
@@ -49,6 +50,7 @@ public final class ScoringSuperstructure extends SubsystemBase {
     }
 
     private boolean maybeNeedsTransition = false;
+    private boolean autoShouldOuttake = false;
 
     private void setCurrentAction(ScoringSuperstructureAction action) {
         if (action != this.currentAction) {
@@ -72,6 +74,14 @@ public final class ScoringSuperstructure extends SubsystemBase {
 
     public boolean hasCoral() {
         return endEffector.hasCoral();
+    }
+
+    public boolean elevatorAutonMoveThreshold() {
+        return elevator.getCurrentExtensionFraction() <= 0.8;
+    }
+
+    public boolean elevatorSkipTransitionThreshold() {
+        return elevator.getCurrentExtensionFraction() <= 0.5;
     }
 
     /**
@@ -136,13 +146,14 @@ public final class ScoringSuperstructure extends SubsystemBase {
     }
 
     public Command elevatorHomingCommand() {
-        double ELEVATOR_HOMING_INITIAL_OFFSET = 0.01;
-        double ELEVATOR_HOMING_SPEED = 0.04;
+        double ELEVATOR_HOMING_INITIAL_OFFSET = 0.02;
+        double ELEVATOR_HOMING_SPEED = 0.003;
         double ELEVATOR_HOMING_MAX_OFFSET = 0.02;
         return startRun(
             () -> {
                 elevator.setTargetExtensionFraction(elevator.getCurrentExtensionFraction() + ELEVATOR_HOMING_INITIAL_OFFSET);
                 endEffector.setTargetWristRotationFraction(0.5);
+                SmartDashboard.putString("Homing status", "HOMING");
             },
             () -> elevator.setTargetExtensionFraction(
                 Math.max(
@@ -154,6 +165,10 @@ public final class ScoringSuperstructure extends SubsystemBase {
             if (!wasInterrupted) {
                 elevator.resetCurrentExtensionFractionTo(ElevatorSetpoints.Homing_Proportion);
                 setCurrentAction(ScoringSuperstructureAction.IDLE);
+                SmartDashboard.putString("Homing status", "SUCCESS");
+            }
+            else {
+                SmartDashboard.putString("Homing status", "INTERRUPTED");
             }
         });
     }
@@ -181,38 +196,44 @@ public final class ScoringSuperstructure extends SubsystemBase {
             default -> {}
         }
         // Get new setpoints
-        double targetElevatorExtensionFraction = currentState
+        DoubleSupplier targetElevatorExtensionFraction = currentState
             .getTargetElevatorExtensionFraction(currentAction)
-            .orElseGet(elevator::getTargetExtensionFraction);
-        double targetWristRotationFraction = currentState
+            .orElseGet(() -> elevator::getTargetExtensionFraction);
+        DoubleSupplier targetWristRotationFraction = currentState
             .getTargetWristRotationFraction(currentAction)
-            .orElseGet(endEffector::getTargetRotationFraction);
+            .orElseGet(() -> endEffector::getTargetRotationFraction);
         double manualIntakeSpeed = Controls.Operator.ManualControlIntake.getAsDouble() * Math.abs(currentAction.intakeSpeed);
-        double intakeSpeed = (
-            RobotState.isTeleop() && currentAction.useManualControlInTeleop
-                ? manualIntakeSpeed
-                : manualIntakeSpeed == 0 ? currentState.getIntakeSpeed(currentAction) : manualIntakeSpeed
-        );
+        double intakeSpeed;
+        if (autoShouldOuttake && RobotState.isAutonomous()) {
+            intakeSpeed = currentAction.intakeSpeed;
+        } else if (currentAction.name.equals(ScoringSuperstructureAction.INTAKE_FROM_HP.name)) {
+            if (manualIntakeSpeed != 0) {
+                intakeSpeed = manualIntakeSpeed;
+            } else {
+                intakeSpeed = currentAction.intakeSpeed;
+            }
+        } else {
+            intakeSpeed = manualIntakeSpeed;
+        }
 
         // Update fine-tuning offsets
         elevatorAdjustment += 0.002 * Controls.Operator.MicroElevatorAdjustment.getAsDouble();
         wristAdjustment += 0.006 * Controls.Operator.MicroWristAdjustment.getAsDouble();
         elevatorAdjustment = MathUtil.clamp(
-            targetElevatorExtensionFraction + elevatorAdjustment,
+            targetElevatorExtensionFraction.getAsDouble() + elevatorAdjustment,
             ElevatorSetpoints.ELEVATOR_LOWEST_PROPORTION, 1
-        ) - targetElevatorExtensionFraction;
+        ) - targetElevatorExtensionFraction.getAsDouble();
         wristAdjustment = MathUtil.clamp(
-            targetWristRotationFraction + wristAdjustment,
+            targetWristRotationFraction.getAsDouble() + wristAdjustment,
             WristSetpoints.Wrist_Lowest_Proportion, 1
-        ) - targetWristRotationFraction;
+        ) - targetWristRotationFraction.getAsDouble();
 
         // Set speeds
-        elevator.setTargetExtensionFraction(targetElevatorExtensionFraction + elevatorAdjustment);
-        endEffector.setTargetWristRotationFraction(targetWristRotationFraction + wristAdjustment);
+        elevator.setTargetExtensionFraction(targetElevatorExtensionFraction.getAsDouble() + elevatorAdjustment);
+        endEffector.setTargetWristRotationFraction(targetWristRotationFraction.getAsDouble() + wristAdjustment);
         endEffector.setIntakeSpeed(intakeSpeed);
 
         // Advance the state if necessary
-        SmartDashboard.putBoolean("Should Advance State", currentState.shouldAdvanceState(currentAction, endEffector, elevator));
         if (currentState.shouldAdvanceState(currentAction, endEffector, elevator)) {
             currentState = currentState.next();
             resetAdjustments();
@@ -262,13 +283,11 @@ public final class ScoringSuperstructure extends SubsystemBase {
         if (SubsystemManager.getInstance().getDrivetrain().getAccelerationInGs() >= 1.0 / elevator.getCurrentExtensionFraction() + 1) {
             setCurrentAction(ScoringSuperstructureAction.IDLE);
         }
+        // runActionPeriodic();
         SmartDashboard.putNumber("Elevator Fraction", elevator.getCurrentExtensionFraction());
-        SmartDashboard.putNumber("Target Elevator Fraction", elevator.getTargetExtensionFraction());
-        SmartDashboard.putNumber("Wrist Position", endEffector.getCurrentMotorPosition());
+        SmartDashboard.putBoolean("Elevator Low Threshold", elevatorAutonMoveThreshold());
         SmartDashboard.putString("State", currentState.name());
         SmartDashboard.putString("Action", currentAction.toString());
-
-        SmartDashboard.putBoolean("is in auton", RobotState.isAutonomous());
     }
 
     /**
@@ -325,5 +344,23 @@ public final class ScoringSuperstructure extends SubsystemBase {
 
     public ScoringSuperstructureState getCurrentState() {
         return currentState;
+    }
+
+    public Command setAutoOuttake(boolean shouldOuttake) {
+        return Commands.runOnce(
+            () -> autoShouldOuttake = shouldOuttake
+        );
+    }
+
+    public Command useIntakeAction() {
+        return Commands.runOnce(
+                () -> {
+                    if (currentAction.name.equals(ScoringSuperstructureAction.INTAKE_FROM_HP.name)) {
+                        setCurrentAction(ScoringSuperstructureAction.INTAKE_FROM_HP_LOWER);
+                    } else {
+                        setCurrentAction(ScoringSuperstructureAction.INTAKE_FROM_HP);
+                    }
+                }
+        );
     }
 }

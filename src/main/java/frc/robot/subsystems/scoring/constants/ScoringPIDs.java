@@ -13,7 +13,7 @@ public class ScoringPIDs {
     public static TunableNumber elevatorKv = new TunableNumber("Scoring PIDs/Elevator Kv").withDefaultValue(0.11358);
     public static TunableNumber elevatorKa = new TunableNumber("Scoring PIDs/Elevator Ka").withDefaultValue(0.0);
 
-    public static TunableNumber wristKp = new TunableNumber("Scoring PIDs/Wrist kP").withDefaultValue(40.0);
+    public static TunableNumber wristKp = new TunableNumber("Scoring PIDs/Wrist kP").withDefaultValue(20.0);
     public static TunableNumber wristKi = new TunableNumber("Scoring PIDs/Wrist kI").withDefaultValue(0.0);
     public static TunableNumber wristKd = new TunableNumber("Scoring PIDs/Wrist kD").withDefaultValue(0);
     public static TunableNumber wristVelocity = new TunableNumber("Scoring PIDs/Wrist Velocity").withDefaultValue(60);
@@ -22,8 +22,8 @@ public class ScoringPIDs {
     public static TunableNumber simElevatorKp = new TunableNumber("Sim/Elevator kP").withDefaultValue(1);
     public static TunableNumber simElevatorKi = new TunableNumber("Sim/Elevator kI").withDefaultValue(0.0);
     public static TunableNumber simElevatorKd = new TunableNumber("Sim/Elevator kD").withDefaultValue(0.0);
-    public static TunableNumber simElevatorVelocity = new TunableNumber("Sim/Elevator Velocity").withDefaultValue(10.0);
-    public static TunableNumber simElevatorAcceleration = new TunableNumber("Sim/Elevator Acceleration").withDefaultValue(100.0);
+    public static TunableNumber simElevatorVelocity = new TunableNumber("Sim/Elevator Velocity").withDefaultValue(50.0);
+    public static TunableNumber simElevatorAcceleration = new TunableNumber("Sim/Elevator Acceleration").withDefaultValue(200.0);
     public static TunableNumber simElevatorKs = new TunableNumber("Sim/Elevator Ks").withDefaultValue(0.0);
     public static TunableNumber simElevatorKg = new TunableNumber("Sim/Elevator Kg").withDefaultValue(0.63195475);
     public static TunableNumber simElevatorKv = new TunableNumber("Sim/Elevator Kv").withDefaultValue(0.085);

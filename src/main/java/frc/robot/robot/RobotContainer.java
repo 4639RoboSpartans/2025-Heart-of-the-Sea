@@ -5,7 +5,6 @@
 
 package frc.robot.robot;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -13,13 +12,9 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.FunctionalTrigger;
-import frc.lib.oi.OI;
-import frc.robot.commands.auto.AutoCommands;
 import frc.robot.commands.auto.AutoRoutines;
-import frc.robot.commands.auto.AutoRoutines.Auton;
 import frc.robot.commands.auto.AutoRoutines.AutonSupplier;
 import frc.robot.constants.Controls;
 import frc.robot.constants.FieldConstants;
@@ -28,17 +23,12 @@ import frc.robot.subsystems.climber.AbstractClimberSubsystem;
 import frc.robot.subsystems.climber.ServoSubsystem;
 import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
 import frc.robot.subsystems.drive.DriveCommands;
-import frc.robot.subsystems.drive.DriveSysID;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.subsystems.drive.SwerveAutoRoutinesCreator;
 import frc.robot.subsystems.led.LEDCommandFactory;
 import frc.robot.subsystems.led.LEDStrip;
 import frc.robot.subsystems.scoring.ScoringSuperstructure;
 import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
 import frc.robot.subsystems.scoring.constants.ScoringConstants;
-import frc.robot.subsystems.scoring.elevator.ElevatorSysID;
-
-import java.util.Arrays;
 
 import static edu.wpi.first.units.Units.Meters;
 
@@ -46,10 +36,11 @@ import static edu.wpi.first.units.Units.Meters;
 public class RobotContainer {
     private final AbstractSwerveDrivetrain swerve = SubsystemManager.getInstance().getDrivetrain();
     private final ScoringSuperstructure scoringSuperstructure = SubsystemManager.getInstance().getScoringSuperstructure();
+    private final ServoSubsystem servoSubsystem = SubsystemManager.getInstance().getServoSubsystem();
+    private final AbstractClimberSubsystem climber = SubsystemManager.getInstance().getClimberSubsystem();
     @SuppressWarnings("unused")
     private final RobotSim robotSim = new RobotSim();
     private final SendableChooser<AutonSupplier> autoChooser;
-    private final SendableChooser<Pose2d> startPositionChooser = new SendableChooser<>();
     @SuppressWarnings("unused")
     private final LEDStrip ledStrip = SubsystemManager.getInstance().getLEDStripSubsystem();
     private final ServoSubsystem servoSubsystem = SubsystemManager.getInstance().getServoSubsystem();
@@ -69,12 +60,6 @@ public class RobotContainer {
         autoChooser = new SendableChooser<>();
         addAllCompAutons(autoChooser, swerveAutoRoutines);
         SmartDashboard.putData("Auto Chooser", autoChooser);
-
-        startPositionChooser.setDefaultOption("DEFAULT", new Pose2d());
-        Arrays.stream(FieldConstants.AutonStartingPositions.values()).forEach(
-            position -> startPositionChooser.addOption(position.name(), position.Pose)
-        );
-        SmartDashboard.putData("Selected Reset Position", startPositionChooser);
         configureLEDs();
     }
 
@@ -148,16 +133,15 @@ public class RobotContainer {
         }
 
         FunctionalTrigger.of(Controls.Driver.alignReefLeft)
-            .whileTrue(() -> DriveCommands.moveToClosestReefPositionWithTransformation((byte) 0, SubsystemManager.getInstance().getDrivetrain()::getPose));
+            .whileTrue(() -> DriveCommands.moveToClosestReefPositionWithPID(FieldConstants.TargetPositions.Direction.LEFT, SubsystemManager.getInstance().getDrivetrain()::getPose));
         FunctionalTrigger.of(Controls.Driver.alignReefRight)
-            .whileTrue(() -> DriveCommands.moveToClosestReefPositionWithTransformation((byte) 1, SubsystemManager.getInstance().getDrivetrain()::getPose));
+            .whileTrue(() -> DriveCommands.moveToClosestReefPositionWithPID(FieldConstants.TargetPositions.Direction.RIGHT, SubsystemManager.getInstance().getDrivetrain()::getPose));
         FunctionalTrigger.of(Controls.Driver.reefAlign)
             .and(Controls.Driver.alignReefLeft.negate())
             .and(Controls.Driver.alignReefRight.negate())
-            .whileTrue(() -> DriveCommands.moveToClosestReefPositionWithTransformation((byte) 2, SubsystemManager.getInstance().getDrivetrain()::getPose));
+            .whileTrue(() -> DriveCommands.moveToClosestReefPositionWithPID(FieldConstants.TargetPositions.Direction.ALGAE, SubsystemManager.getInstance().getDrivetrain()::getPose));
 
-        FunctionalTrigger.of(Controls.Driver.processorAlign)
-            .whileTrue(DriveCommands::moveToProcessor);
+        Controls.Driver.toggleAutoHeadingButton.onTrue(swerve.toggleAutoHeading());
 
         servoSubsystem.setDefaultCommand(servoSubsystem.stopServo());
         Controls.Driver.bindFunneltrigger.whileTrue(servoSubsystem.extendServo());
@@ -165,6 +149,13 @@ public class RobotContainer {
         Controls.Driver.climbTrigger.whileTrue(climber.climbCommand());
         Controls.Driver.prepClimbTrigger.whileTrue(climber.deClimbCommand());
 
+        servoSubsystem.setDefaultCommand(servoSubsystem.stopServo());
+        Controls.Driver.bindFunneltrigger.whileTrue(servoSubsystem.extendServo());
+        Controls.Driver.dropFunnelTrigger.whileTrue(servoSubsystem.retractServo());
+        Controls.Driver.climbTrigger.whileTrue(climber.climbCommand());
+        Controls.Driver.prepClimbTrigger.whileTrue(climber.deClimbCommand());
+        climber.setDefaultCommand(climber.testClimbCommand(Controls.Driver.testClimbSpeedSupplier));
+        
 
         // OI.getInstance().driverController().Y_BUTTON.whileTrue(
         //         ElevatorSysID.sysIdQuasistatic(SysIdRoutine.Direction.kForward)
@@ -184,6 +175,7 @@ public class RobotContainer {
         for (AutonSupplier a : swerveAutoRoutines.getAllCompRoutines()) {
             autoChooser.addOption(a.name(), a);
         }
+        autoChooser.setDefaultOption("NONE", swerveAutoRoutines.NONE());
     }
 
     public AutonSupplier getAutonomousCommand() {

@@ -58,7 +58,7 @@ public class LEDCommandFactory {
             Color scoringColor = new Color(1.0, 0.1, 0.0);
 
             boolean isAligning = drivetrain.isAligning();
-            boolean isAligningFinished = isAligning && drivetrain.atTargetPose(drivetrain.currentAlignTarget);
+            boolean isAligningFinished = isAligning && drivetrain.nearTargetPose(drivetrain.currentAlignTarget);
 
             boolean isScoringExecuting = switch (scoring.getCurrentState()) {
                 case EXECUTING_ACTION, DONE -> false;

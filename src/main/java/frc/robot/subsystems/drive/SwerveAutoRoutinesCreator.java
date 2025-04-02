@@ -3,17 +3,14 @@ package frc.robot.subsystems.drive;
 import choreo.auto.AutoFactory;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.lib.util.DriverStationUtil;
 import frc.robot.commands.auto.AutoRoutines;
+import frc.robot.subsystems.drive.constants.DriveConstants;
 
 public final class SwerveAutoRoutinesCreator {
-    private static final PIDConstants AUTON_TRANSLATION_PID_CONSTANTS = new PIDConstants(2, 0, 0);
-    private static final PIDConstants AUTON_ROTATION_PID_CONSTANTS = new PIDConstants(7, 0, 0);
-
     public static AutoRoutines createAutoRoutines(AbstractSwerveDrivetrain drivetrain) {
         RobotConfig config = RobotConfigLoader.getOrLoadConfig();
 
@@ -30,13 +27,12 @@ public final class SwerveAutoRoutinesCreator {
             ),
 
             new PPHolonomicDriveController(
-                AUTON_TRANSLATION_PID_CONSTANTS,
-                AUTON_ROTATION_PID_CONSTANTS
+                DriveConstants.AUTON_TRANSLATION_PID_CONSTANTS,
+                DriveConstants.AUTON_ROTATION_PID_CONSTANTS
             ),
             config,
-            // Assume the path needs to be flipped for Red vs Blue, this is normally the case
-            () -> true,
-            drivetrain // Subsystem for requirements
+            () -> false,
+            drivetrain
         );
 
         return new AutoRoutines(
