@@ -57,9 +57,11 @@ public class LasercanAlign extends SubsystemBase {
         }
     }
 
-    public static OptionalDouble getSimMeasurement(boolean left) {
+    public static OptionalDouble getSimMeasurement(boolean isLeft) {
         OptionalDouble distanceFromReefFace = Subsystems.drivetrain().getDistanceFromReefFace();
-        if (distanceFromReefFace.isEmpty()) return OptionalDouble.empty();
+        if(distanceFromReefFace.isEmpty()) return OptionalDouble.empty();
+        // Reject negative values
+        if(distanceFromReefFace.getAsDouble() < 0) return OptionalDouble.empty();
 
         Pose2d pose = Subsystems.drivetrain().getPose();
         Pose2d nearestReefPose = DriveCommands.getClosestTarget(() -> pose).transformBy(new Transform2d(0.8, 0, new Rotation2d()));
@@ -68,7 +70,7 @@ public class LasercanAlign extends SubsystemBase {
         double lasercanDistance = DriveConstants.laserCanDistanceMM.in(Millimeters);
         double lasercanCenterDistance = lasercanDistance / 2.0;
         double distanceAdjustment = rotationDiff.getTan() * lasercanCenterDistance;
-        double res = (left ? -distanceAdjustment : distanceAdjustment) + centerDist - 573.9;
+        double res = (isLeft? -distanceAdjustment : distanceAdjustment) + centerDist - 573.9;
         if (res >= 1000) return OptionalDouble.empty();
         return OptionalDouble.of(res);
     }
@@ -115,8 +117,6 @@ public class LasercanAlign extends SubsystemBase {
 
         if (measuredDistance.isEmpty()) return OptionalDouble.empty();
 
-        return OptionalDouble.of(
-            distanceController.calculate(distance / 1000)
-        );
+        return OptionalDouble.of(distanceController.calculate(distance / 1000));
     }
 }
