@@ -1,15 +1,16 @@
 package frc.robot.subsystems.scoring;
 
-import frc.lib.units.Measurement;
-import frc.robot.subsystemManager.Subsystems;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.lib.units.Measurement;
+import frc.robot.subsystemManager.Subsystems;
 import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
 import frc.robot.subsystems.scoring.constants.ScoringConstants.ElevatorConstants.ElevatorSetpoints;
 import frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConstants.IntakeSpeeds;
 import frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConstants.WristSetpoints;
 import frc.robot.subsystems.scoring.elevator.ElevatorPosition;
 
+import java.util.OptionalDouble;
 import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
@@ -107,23 +108,30 @@ public class ScoringSuperstructureAction {
     }
 
     private static ElevatorPosition adjustCoralSetpoint(ElevatorPosition setpoint) {
+        if (!useInterpolatingSetpoints) return setpoint;
+
+        OptionalDouble distanceFromReefFace = drivetrain.getDistanceFromReefFace();
+        if (distanceFromReefFace.isEmpty()) return setpoint;
+
         ElevatorPosition interpolatedSetpoint = Measurement.add(
             setpoint,
             Measurement.createOffset(ElevatorPosition::fromProportion,
-                (drivetrain.getDistanceFromReefFace() - 387.5) * 0.0001
+                // TODO: document this magic formula
+                (distanceFromReefFace.getAsDouble() - 387.5) * 0.0001
             )
         );
-        if (useInterpolatingSetpoints && ElevatorSetpoints.AllowedRange.contains(interpolatedSetpoint))
-            return interpolatedSetpoint;
-        return setpoint;
+
+        return ElevatorSetpoints.AllowedRange.contains(interpolatedSetpoint)
+            ? interpolatedSetpoint
+            : setpoint;
     }
 
     public static final ScoringSuperstructureAction
         IDLE = new ScoringSuperstructureAction("IDLE")
-            .withTargetElevatorPosition(() -> ElevatorSetpoints.IDLE)
-            .withTargetWristRotationFraction(() -> WristSetpoints.Wrist_IDLE_Proportion)
-            .withIntakeSpeed(IntakeSpeeds.Intake_Idle_Speed)
-            .useManualControlInTeleop(true),
+        .withTargetElevatorPosition(() -> ElevatorSetpoints.IDLE)
+        .withTargetWristRotationFraction(() -> WristSetpoints.Wrist_IDLE_Proportion)
+        .withIntakeSpeed(IntakeSpeeds.Intake_Idle_Speed)
+        .useManualControlInTeleop(true),
         IDLE_STOW_ALGAE = new ScoringSuperstructureAction("IDLE_STOW_ALGAE")
             .withTargetElevatorPosition(() -> ElevatorSetpoints.IDLE)
             .withTargetWristRotationFraction(() -> WristSetpoints.Wrist_ALGAESTOW_Proportion)
@@ -142,7 +150,7 @@ public class ScoringSuperstructureAction {
             .stopIntakeOnGamePieceSeen()
             .withStateAfter(IDLE)
             .useManualControlInTeleop(false),
-    SCORE_L1_CORAL = new ScoringSuperstructureAction("SCORE_L1_CORAL")
+        SCORE_L1_CORAL = new ScoringSuperstructureAction("SCORE_L1_CORAL")
             .withTargetElevatorPosition(() -> adjustCoralSetpoint(ElevatorSetpoints.L1))
             .withTargetWristRotationFraction(() -> WristSetpoints.Wrist_L1_Proportion)
             .withIntakeSpeed(IntakeSpeeds.Intake_L1_Speed)

@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 
 import java.util.Optional;
+import java.util.OptionalDouble;
 import java.util.function.Supplier;
 
 public class DummySwerveDrivetrain extends AbstractSwerveDrivetrain {
@@ -97,8 +98,8 @@ public class DummySwerveDrivetrain extends AbstractSwerveDrivetrain {
     }
 
     @Override
-    public double getDistanceFromReefFace() {
-        return 0;
+    public OptionalDouble getDistanceFromReefFace() {
+        return OptionalDouble.empty();
     }
 
     @Override

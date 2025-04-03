@@ -11,6 +11,7 @@ import frc.robot.subsystemManager.SubsystemInstantiator;
 import frc.robot.subsystemManager.Subsystems;
 
 import java.util.Optional;
+import java.util.OptionalDouble;
 import java.util.function.Supplier;
 
 public abstract class AbstractSwerveDrivetrain extends SubsystemBase {
@@ -125,7 +126,7 @@ public abstract class AbstractSwerveDrivetrain extends SubsystemBase {
 
     public abstract double[] getVisionStandardDeviations();
 
-    public abstract double getDistanceFromReefFace();
+    public abstract OptionalDouble getDistanceFromReefFace();
 
     public abstract boolean isAligned();
 

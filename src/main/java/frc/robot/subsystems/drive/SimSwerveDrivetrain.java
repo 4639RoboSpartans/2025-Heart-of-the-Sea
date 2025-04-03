@@ -13,6 +13,8 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystemManager.Subsystems;
 
+import java.util.OptionalDouble;
+
 public class SimSwerveDrivetrain extends PhysicalSwerveDrivetrain {
     private static final double SIM_LOOP_PERIOD = 0.005; // 5 ms
 
@@ -23,7 +25,7 @@ public class SimSwerveDrivetrain extends PhysicalSwerveDrivetrain {
     }
 
     @Override
-    public double getDistanceFromReefFace() {
+    public OptionalDouble getDistanceFromReefFace() {
         Pose2d nearestReefPose = DriveCommands.getClosestTarget(this::getPose).transformBy(new Transform2d(0.8, 0, new Rotation2d()));
         super.getField().getObject("nearest reef pose").setPose(nearestReefPose);
         Translation2d nearestReefTranslation = nearestReefPose.getTranslation();
@@ -31,7 +33,7 @@ public class SimSwerveDrivetrain extends PhysicalSwerveDrivetrain {
         Translation2d robotTranslation = getPose().getTranslation();
         Vector<N2> robotOffsetFromReefFace = robotTranslation.minus(nearestReefTranslation).toVector();
         Vector<N2> reefNormalVector = VecBuilder.fill(reefRotation.getCos(), reefRotation.getSin());
-        return -robotOffsetFromReefFace.dot(reefNormalVector);
+        return OptionalDouble.of(-robotOffsetFromReefFace.dot(reefNormalVector));
     }
 
     /**
@@ -59,8 +61,12 @@ public class SimSwerveDrivetrain extends PhysicalSwerveDrivetrain {
     @Override
     public void periodic() {
         super.periodic();
-        SmartDashboard.putNumber("Distance to Closest Reef", getDistanceFromReefFace());
-        SmartDashboard.putNumber("Left LaserCAN Distance", Subsystems.lasercanAlign().getLeftMeasurement());
-        SmartDashboard.putNumber("Right LaserCAN Distance", Subsystems.lasercanAlign().getRightMeasurement());
+        // This is allowed because our implementation of the method never returns an
+        // optional.empty.
+        //noinspection OptionalGetWithoutIsPresent
+        SmartDashboard.putNumber("Distance to Closest Reef", getDistanceFromReefFace().getAsDouble());
+
+        SmartDashboard.putNumber("Left LaserCAN Distance", Subsystems.lasercanAlign().getLeftMeasurement().orElse(Double.NaN));
+        SmartDashboard.putNumber("Right LaserCAN Distance", Subsystems.lasercanAlign().getRightMeasurement().orElse(Double.NaN));
     }
 }
