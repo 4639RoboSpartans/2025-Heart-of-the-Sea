@@ -105,6 +105,8 @@ public class ConcreteElevatorSubsystem extends AbstractElevatorSubsystem {
                 )
             ));
         }
+        SmartDashboard.putNumber("Elevator Fraction", getCurrentExtensionFraction());
+        SmartDashboard.putNumber("Target Extension Fraction", getTargetExtensionFraction());
     }
 
     @Override

@@ -22,7 +22,7 @@ public abstract class AbstractClimberSubsystem extends SubsystemBase {
         CLIMBER_READY,
         FUNNEL_READY,
         READY,
-        CLIMBING;
+        CLIMBING
     }
 
     void init(){
@@ -40,6 +40,7 @@ public abstract class AbstractClimberSubsystem extends SubsystemBase {
 
     public Command stopClimber() {
         return Commands.run(
+
             () -> setClimberSpeed(0),
             this
         );
@@ -47,6 +48,7 @@ public abstract class AbstractClimberSubsystem extends SubsystemBase {
 
     public Command climbCommand() {
         return setState(ClimberState.CLIMBING)
+
         .andThen(run(
             () -> 
                 {
@@ -67,6 +69,7 @@ public abstract class AbstractClimberSubsystem extends SubsystemBase {
                     setClimberSpeed(-ClimberConstants.climberSpeed.get());
                 }
         ));
+
     }
 
     public Command prepClimbCommand() {
@@ -85,8 +88,10 @@ public abstract class AbstractClimberSubsystem extends SubsystemBase {
 
     public Command testClimbCommand(DoubleSupplier speed) {
         return Commands.run(
+
             () -> setClimberSpeed(speed.getAsDouble() * ClimberConstants.climberSpeed.get()),
             this
+
         );
     }
 
