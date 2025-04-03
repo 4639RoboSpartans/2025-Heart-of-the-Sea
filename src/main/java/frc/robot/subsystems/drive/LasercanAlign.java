@@ -12,6 +12,7 @@ import frc.robot.subsystems.drive.constants.DriveConstants;
 import frc.robot.subsystems.drive.constants.DrivePIDs;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.OptionalDouble;
 
 import static edu.wpi.first.units.Units.Millimeters;
@@ -66,12 +67,13 @@ public class LasercanAlign extends SubsystemBase {
 
     public double getLeftMeasurement() {
         if (Robot.isSimulation()) return getSimMeasurement(true);
-        return shouldUseMeasurement() ? getMeasurement(leftLaserCan) : -1;
+        return getMeasurement(leftLaserCan);
+
     }
 
     public double getRightMeasurement() {
         if (Robot.isSimulation()) return getSimMeasurement(false);
-        return shouldUseMeasurement() ? getMeasurement(rightLaserCan) : -1;
+        return getMeasurement(rightLaserCan);
     }
 
     public double getDistance_mm() {
@@ -88,8 +90,8 @@ public class LasercanAlign extends SubsystemBase {
         }
     }
 
-    public boolean shouldUseMeasurement(){
-        return !(getMeasurement(leftLaserCan) == -1 || getMeasurement(rightLaserCan) == -1);
+    public boolean measurementShouldBeZero(){
+        return !(getMeasurement(leftLaserCan) == -1 && getMeasurement(rightLaserCan) == -1);
     }
 
     @Override
@@ -105,6 +107,6 @@ public class LasercanAlign extends SubsystemBase {
     }
 
     public OptionalDouble getOutput() {
-        return shouldUseMeasurement() ? OptionalDouble.of(distanceController.calculate(getDistance_mm() / 1000)) : OptionalDouble.empty();
+        return measurementShouldBeZero() ? OptionalDouble.of(distanceController.calculate(getDistance_mm() / 1000)) : OptionalDouble.empty();
     }
 }
