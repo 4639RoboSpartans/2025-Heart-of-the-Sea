@@ -2,6 +2,7 @@ package frc.robot.subsystems.drive;
 
 import au.grapplerobotics.LaserCan;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -20,6 +21,9 @@ import static edu.wpi.first.units.Units.Millimeters;
 public class LasercanAlign extends SubsystemBase {
     private static LasercanAlign instance;
     public static final double alignDistance_mm = 390;
+
+    private static final LinearFilter leftLCFilter = LinearFilter.singlePoleIIR(0.1, 0.02);
+    private static final LinearFilter rightLCFilter = LinearFilter.singlePoleIIR(0.1, 0.02);
 
     public static LasercanAlign getInstance(SubsystemManager.GetInstanceAccess getInstanceAccess) {
         Objects.requireNonNull(getInstanceAccess);
@@ -67,13 +71,14 @@ public class LasercanAlign extends SubsystemBase {
 
     public double getLeftMeasurement() {
         if (Robot.isSimulation()) return getSimMeasurement(true);
-        return getMeasurement(leftLaserCan);
-
+        return Optional.of(getMeasurement(leftLaserCan))
+                .map(leftLCFilter::calculate).orElse(-1.0);
     }
 
     public double getRightMeasurement() {
         if (Robot.isSimulation()) return getSimMeasurement(false);
-        return getMeasurement(rightLaserCan);
+        return Optional.of(getMeasurement(rightLaserCan))
+                .map(rightLCFilter::calculate).orElse(-1.0);
     }
 
     public double getDistance_mm() {
