@@ -92,7 +92,6 @@ public final class ScoringSuperstructure extends SubsystemBase {
 
     /**
      * @param state the new state to set the scoring superstructure to.
-     *
      * @return an instantaneous command that sets the state to {@param state}. It does not run the scoring
      * superstructure, only sets the state.
      */
@@ -102,7 +101,6 @@ public final class ScoringSuperstructure extends SubsystemBase {
 
     /**
      * @param state the new state to set the scoring superstructure to.
-     *
      * @return an instantaneous command that sets the state to {@param state}. It does not run the scoring
      * superstructure, only sets the state.
      */
@@ -180,7 +178,8 @@ public final class ScoringSuperstructure extends SubsystemBase {
                 elevator.resetCurrentPositionTo(ElevatorSetpoints.Homing_Proportion);
                 setCurrentAction(ScoringSuperstructureAction.IDLE);
                 SmartDashboard.putString("Homing status", "SUCCESS");
-            } else {
+            }
+            else {
                 SmartDashboard.putString("Homing status", "INTERRUPTED");
             }
         });
@@ -226,11 +225,16 @@ public final class ScoringSuperstructure extends SubsystemBase {
         double intakeSpeed;
         if (autoShouldOuttake && RobotState.isAutonomous()) {
             intakeSpeed = currentAction.intakeSpeed;
-        } else if (currentAction.name.equals(ScoringSuperstructureAction.INTAKE_FROM_HP.name)) {
+        } else if (currentAction.name.equals(ScoringSuperstructureAction.INTAKE_FROM_HP.name)
+                || currentAction.name.equals(ScoringSuperstructureAction.INTAKE_FROM_HP_LOWER.name)) {
             if (manualIntakeSpeed != 0) {
                 intakeSpeed = manualIntakeSpeed;
             } else {
-                intakeSpeed = currentAction.intakeSpeed;
+                if (!hasCoral()) {
+                    intakeSpeed = currentAction.intakeSpeed;
+                } else {
+                    intakeSpeed = 0;
+                }
             }
         } else {
             intakeSpeed = manualIntakeSpeed;
@@ -319,6 +323,7 @@ public final class ScoringSuperstructure extends SubsystemBase {
         SmartDashboard.putBoolean("Elevator Low Threshold", elevatorAutonMoveThreshold());
         SmartDashboard.putString("State", currentState.name());
         SmartDashboard.putString("Action", currentAction.toString());
+        SmartDashboard.putBoolean("Interpolating", ScoringSuperstructureAction.useInterpolatingSetpoints);
     }
 
     /**
@@ -380,6 +385,18 @@ public final class ScoringSuperstructure extends SubsystemBase {
     public Command setAutoOuttake(boolean shouldOuttake) {
         return Commands.runOnce(
             () -> autoShouldOuttake = shouldOuttake
+        );
+    }
+
+    public Command useIntakeAction() {
+        return Commands.runOnce(
+                () -> {
+                    if (currentAction.name.equals(ScoringSuperstructureAction.INTAKE_FROM_HP.name)) {
+                        setCurrentAction(ScoringSuperstructureAction.INTAKE_FROM_HP_LOWER);
+                    } else {
+                        setCurrentAction(ScoringSuperstructureAction.INTAKE_FROM_HP);
+                    }
+                }
         );
     }
 }

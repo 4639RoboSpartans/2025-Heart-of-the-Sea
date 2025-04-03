@@ -10,12 +10,10 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.FunctionalTrigger;
+import frc.lib.util.DriverStationUtil;
 import frc.robot.commands.auto.AutoRoutines;
-import frc.robot.commands.auto.AutoRoutines.AutonSupplier;
 import frc.robot.constants.Controls;
 import frc.robot.constants.FieldConstants;
 import frc.robot.subsystemManager.Subsystems;
@@ -23,7 +21,6 @@ import frc.robot.subsystems.climber.AbstractClimberSubsystem;
 import frc.robot.subsystems.climber.ServoSubsystem;
 import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
 import frc.robot.subsystems.drive.DriveCommands;
-import frc.robot.subsystems.drive.SwerveAutoRoutinesCreator;
 import frc.robot.subsystems.led.LEDCommandFactory;
 import frc.robot.subsystems.led.LEDStrip;
 import frc.robot.subsystems.scoring.ScoringSuperstructure;
@@ -40,7 +37,6 @@ public class RobotContainer {
     private final AbstractClimberSubsystem climber = Subsystems.climber();
     @SuppressWarnings("unused")
     private final RobotSim robotSim = new RobotSim();
-    private final SendableChooser<AutonSupplier> autoChooser;
     @SuppressWarnings("unused")
     private final LEDStrip ledStrip = Subsystems.ledStrip();
 
@@ -48,22 +44,20 @@ public class RobotContainer {
         .getStructArrayTopic("zeroed component poses", Pose3d.struct).publish();
 
     public RobotContainer() {
-
-        // create auto routines here because we're configuring AutoBuilder in this method
-        //TODO: take this out when we correctly refactor configureAutoBuilder to a new place
-        AutoRoutines swerveAutoRoutines = SwerveAutoRoutinesCreator.createAutoRoutines(swerve);
-
         configureBindings();
-
-        autoChooser = new SendableChooser<>();
-        addAllCompAutons(autoChooser, swerveAutoRoutines);
-        SmartDashboard.putData("Auto Chooser", autoChooser);
         configureLEDs();
     }
 
     private void configureBindings() {
         swerve.setDefaultCommand(swerve.manualControl());    
         scoringSuperstructure.setDefaultCommand(scoringSuperstructure.runScoringState());
+
+        DriverStationUtil.isRed.onChange(
+                AutoRoutines.regenerateAutoRoutines()
+                        .andThen(
+                                Robot.replaceAutons()
+                        )
+        );
 
         //Scoring Controls
         {
@@ -77,9 +71,7 @@ public class RobotContainer {
                 )
             );
             Controls.Operator.HPLoadingTrigger.onTrue(
-                scoringSuperstructure.setAction(
-                    ScoringSuperstructureAction.INTAKE_FROM_HP
-                )
+                scoringSuperstructure.useIntakeAction()
             );
             Controls.Driver.ProcessorTrigger.onTrue(
                 scoringSuperstructure.setAction(
@@ -142,11 +134,13 @@ public class RobotContainer {
         Controls.Driver.toggleAutoHeadingButton.onTrue(swerve.toggleAutoHeading());
 
         servoSubsystem.setDefaultCommand(servoSubsystem.stopServo());
-        Controls.Driver.bindFunneltrigger.whileTrue(servoSubsystem.extendServo());
         Controls.Driver.dropFunnelTrigger.whileTrue(servoSubsystem.retractServo());
         Controls.Driver.climbTrigger.whileTrue(climber.climbCommand());
         Controls.Driver.prepClimbTrigger.whileTrue(climber.deClimbCommand());
-        climber.setDefaultCommand(climber.testClimbCommand(Controls.Driver.testClimbSpeedSupplier));
+
+        Controls.Driver.toggleInterpolatingSetpoints.onTrue(
+                ScoringSuperstructureAction.toggleInterpolatingSetpoints()
+        );
         
 
         // OI.getInstance().driverController().Y_BUTTON.whileTrue(
@@ -161,17 +155,6 @@ public class RobotContainer {
         // OI.getInstance().driverController().POV_DOWN.whileTrue(
         //         ElevatorSysID.sysIdDynamic(SysIdRoutine.Direction.kReverse)
         // );
-    }
-
-    private void addAllCompAutons(SendableChooser<AutonSupplier> autoChooser, AutoRoutines swerveAutoRoutines) {
-        for (AutonSupplier a : swerveAutoRoutines.getAllCompRoutines()) {
-            autoChooser.addOption(a.name(), a);
-        }
-        autoChooser.setDefaultOption("NONE", swerveAutoRoutines.NONE());
-    }
-
-    public AutonSupplier getAutonomousCommand() {
-        return autoChooser.getSelected();
     }
 
     public void add3DComponentPoses() {

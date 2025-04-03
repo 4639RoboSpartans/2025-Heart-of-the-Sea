@@ -17,7 +17,7 @@ import java.util.Objects;
 import static edu.wpi.first.units.Units.Millimeters;
 
 public class LasercanAlign extends SubsystemBase {
-    public static final double alignDistance_mm = 387.5;
+    public static final double alignDistance_mm = 390;
 
     public static SubsystemInstantiator<LasercanAlign> createInstance() {
         return new SubsystemInstantiator<>(LasercanAlign::new);

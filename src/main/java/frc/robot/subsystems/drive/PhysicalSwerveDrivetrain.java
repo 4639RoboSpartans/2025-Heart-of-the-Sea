@@ -55,21 +55,21 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
     private boolean didApplyOperatorPerspective = false;
 
-    private final PhoenixPIDController headingController = new PhoenixPIDController(6, 0, 0);
+    private final PhoenixPIDController headingController = new PhoenixPIDController(4, 0, 0);
     protected final PIDController
-            pathXController = new PIDController(3, 0, 0),
-            pathYController = new PIDController(3, 0, 0),
-            pathHeadingController = new PIDController(12, 0, 0);
+            pathXController = new PIDController(1.875, 0, 0),
+            pathYController = new PIDController(1.875, 0, 0),
+            pathHeadingController = new PIDController(6, 0, 0);
     protected ProfiledPIDController
             pidXController = constructPIDXController();
     protected ProfiledPIDController pidYController = constructPIDYController();
 
     public static ProfiledPIDController constructPIDYController() {
-        return new ProfiledPIDController(DrivePIDs.pidToPoseXkP.get(), 0, 0, new TrapezoidProfile.Constraints(4, 2));
+        return new ProfiledPIDController(DrivePIDs.pidToPoseXkP.get(), DrivePIDs.pidToPosekI.get(), DrivePIDs.pidToPosekD.get(), new TrapezoidProfile.Constraints(4, 2));
     }
 
     public static ProfiledPIDController constructPIDXController() {
-        return new ProfiledPIDController(DrivePIDs.pidToPoseYkP.get(), 0, 0, new TrapezoidProfile.Constraints(4, 2));
+        return new ProfiledPIDController(DrivePIDs.pidToPoseYkP.get(), DrivePIDs.pidToPosekI.get(), DrivePIDs.pidToPosekD.get(), new TrapezoidProfile.Constraints(4, 2));
     }
 
     {
@@ -77,6 +77,33 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         // Set up tunable numbers for drive pids
         DrivePIDs.pidToPoseXkP.onChange(pidXController::setP);
         DrivePIDs.pidToPoseYkP.onChange(pidYController::setP);
+        DrivePIDs.pidToPosekI.onChange(val -> {
+            pidXController.setI(val);
+            pidYController.setI(val);
+        });
+
+        //ensure no integral windup, restrict I term output to 0.5 m/s
+        pidXController.setIntegratorRange(0, 0.5);
+        pidYController.setIntegratorRange(0, 0.5);
+
+        DrivePIDs.pidToPosekD.onChange(val -> {
+            pidXController.setD(val);
+            pidYController.setD(val);
+        });
+        DrivePIDs.pidToPoseVelocity.onChange(
+                value -> {
+                    pidXController.setConstraints(
+                            new TrapezoidProfile.Constraints(
+                                    value, pidXController.getConstraints().maxAcceleration
+                            )
+                    );
+                    pidYController.setConstraints(
+                            new TrapezoidProfile.Constraints(
+                                    value, pidYController.getConstraints().maxAcceleration
+                            )
+                    );
+                }
+        );
         DrivePIDs.pidToPoseVelocity.onChange(
                 value -> {
                     pidXController.setConstraints(
@@ -108,7 +135,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     }
 
     protected final Field2d field = new Field2d();
-    private double[] previousVisionStDevs = {0, 0, 0};
+    private double[] previousVisionStDevs = {1, 1, 99999};
 
     private final SwerveSetpointGenerator swerveSetpointGenerator;
     private SwerveSetpoint prevSwerveSetpoint;
@@ -156,9 +183,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     public Command manualControl() {
         return applyRequest(
                 () -> {
-                    if (shouldAutoSetHeading
-                //      && SubsystemManager.getInstance().getScoringSuperstructure().hasCoral()
-                     )
+                    if (shouldAutoSetHeading)
                         return getFieldCentricFacingClosestReefRequest();
                     return getFieldCentricRequest();
                 }
@@ -279,6 +304,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                         () -> {
                                 Vision.addGlobalVisionMeasurements(this, shouldUseMTSTDevs);
                             Vector<N2> translationVector = getTranslationVector(targetPose);
+                            SmartDashboard.putNumber("Side Translation", translationVector.get(1));
 
                             var request = new SwerveRequest.RobotCentric();
                             double rotationalRate;
@@ -390,7 +416,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         return Commands.runOnce(() -> {
             Vector<N2> translationVector = getTranslationVector(targetPose);
             pidYController.reset(translationVector.get(1));
-            pidYController.setTolerance(0.1);
+            pidYController.setTolerance(0.025);
             shouldUseMTSTDevs = true;
         }).andThen(
                 applyRequest(
@@ -417,11 +443,11 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                 new Trigger(() -> MathUtil.isNear(
                         getDistanceFromReefFace(),
                         LasercanAlign.alignDistance_mm,
-                        15
+                        10
                 ) && MathUtil.isNear(
                         getCalculatedRotationFromAlign().orElseGet(Rotation2d::new).getDegrees(),
                         0,
-                        2
+                        1
                 ) && pidYController.atGoal()).debounce(0.375)
         ).finallyDo(
                 () -> shouldUseMTSTDevs = false
@@ -486,6 +512,8 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     public void followPath(SwerveSample sample) {
 
         var pose = getPose();
+        var choreoPose = sample.getPose();
+        field.getObject("choreo pose").setPose(choreoPose);
 
         var targetSpeeds = sample.getChassisSpeeds();
         targetSpeeds.vxMetersPerSecond += pathXController.calculate(pose.getX(), sample.x);
@@ -494,10 +522,15 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                 pose.getRotation().getRadians(), sample.heading
         );
 
-        drivetrain.setControl(new SwerveRequest.ApplyFieldSpeeds()
-                .withSpeeds(targetSpeeds)
-                .withWheelForceFeedforwardsX(sample.moduleForcesX())
-                .withWheelForceFeedforwardsY(sample.moduleForcesY())
+        var robotSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(targetSpeeds, getPose().getRotation());
+        SwerveSetpoint newSetpoint = swerveSetpointGenerator.generateSetpoint(prevSwerveSetpoint, robotSpeeds, 0.02);
+        var newRobotSpeeds = newSetpoint.robotRelativeSpeeds();
+        prevSwerveSetpoint = newSetpoint;
+
+        drivetrain.setControl(new SwerveRequest.ApplyRobotSpeeds()
+                .withSpeeds(newRobotSpeeds)
+                .withWheelForceFeedforwardsX(newSetpoint.feedforwards().robotRelativeForcesX())
+                .withWheelForceFeedforwardsY(newSetpoint.feedforwards().robotRelativeForcesY())
         );
         field.getObject("Path Target Pose").setPose(sample.getPose());
     }

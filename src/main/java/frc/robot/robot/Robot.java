@@ -10,10 +10,13 @@ import com.revrobotics.spark.config.SparkBaseConfig;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.util.AllianceFlipUtil;
+import frc.lib.util.DriverStationUtil;
 import frc.robot.commands.auto.AutoRoutines;
 import frc.robot.subsystemManager.Subsystems;
 import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
@@ -26,12 +29,16 @@ public class Robot extends LoggedRobot {
 
     private final RobotContainer robotContainer;
     private final Field2d startingPoseField = new Field2d();
+    private static SendableChooser<AutoRoutines.Auton> autoChooser;
 
 
     public Robot() {
         robotContainer = new RobotContainer();
         CanBridge.runTCP();
         Subsystems.drivetrain().setVisionStandardDeviations(0.5, 0.5, 99999);
+        autoChooser = new SendableChooser<>();
+        addAllCompAutons(autoChooser, AutoRoutines.getInstance());
+        SmartDashboard.putData("Auto Chooser", autoChooser);
     }
 
     @Override
@@ -39,6 +46,12 @@ public class Robot extends LoggedRobot {
         ScoringConstants.EndEffectorConstants.RotationStartingPosition = Subsystems.scoringSuperstructure().getEndEffectorSubsystem().getCurrentRotation();
     }
 
+    private static void addAllCompAutons(SendableChooser<AutoRoutines.Auton> autoChooser, AutoRoutines swerveAutoRoutines) {
+        for (AutoRoutines.Auton a : swerveAutoRoutines.getAllCompRoutines()) {
+            autoChooser.addOption(a.name(), a);
+        }
+        autoChooser.setDefaultOption("NONE", swerveAutoRoutines.NONE());
+    }
 
     @Override
     public void robotPeriodic() {
@@ -58,6 +71,16 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void disabledPeriodic() {
+        SmartDashboard.putBoolean("Is Red", DriverStationUtil.isRed.getAsBoolean());
+    }
+
+    public static Command replaceAutons() {
+        return Commands.runOnce(
+                () -> {
+                    addAllCompAutons(autoChooser, AutoRoutines.getInstance());
+                    SmartDashboard.putData("Auto Chooser", autoChooser);
+                }
+        );
     }
 
 
@@ -69,9 +92,9 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void autonomousInit() {
-        AutoRoutines.AutonSupplier autonSupplier = robotContainer.getAutonomousCommand();
-        Pose2d startingPose = autonSupplier.routine().get().startPose();
-        autonomousCommand = autonSupplier.routine().get().routine().cmd();
+        AutoRoutines.Auton autonSupplier = autoChooser.getSelected();
+        Pose2d startingPose = autonSupplier.startPose();
+        autonomousCommand = autonSupplier.routine().cmd();
         startingPoseField.setRobotPose(startingPose);
         SmartDashboard.putData("Starting Pose", startingPoseField);
         if (autonomousCommand != null) {

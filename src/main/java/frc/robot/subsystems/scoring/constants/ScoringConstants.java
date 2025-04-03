@@ -32,7 +32,7 @@ public final class ScoringConstants {
         public static final UnitConvertor<Double, Double> ProportionToPosition = UnitConvertor.linearConvertingRange(
             0, 1, DOWN_POSITION, UP_POSITION
         );
-        
+
         public static final UnitConvertor<Double, Distance> ProportionToHeight = UnitConvertor.linearConvertingRange(
             0, 1,
             STARTING_HEIGHT.in(Inches),
@@ -53,9 +53,9 @@ public final class ScoringConstants {
             public static final ElevatorPosition Processor = ElevatorPosition.fromMotorPosition(2.620);
 
             public static final ElevatorPosition L1 = ElevatorPosition.fromProportion(0.150);
-            public static final ElevatorPosition L2 = ElevatorPosition.fromProportion(0.303);
+            public static final ElevatorPosition L2 = ElevatorPosition.fromProportion(0.2893);
             public static final ElevatorPosition L3 = ElevatorPosition.fromProportion(0.496);
-            public static final ElevatorPosition L4 = ElevatorPosition.fromProportion(0.835);
+            public static final ElevatorPosition L4 = ElevatorPosition.fromProportion(0.87);
 
             public static final ElevatorPosition L2_ALGAE = ElevatorPosition.fromProportion(0.32);
             public static final ElevatorPosition L3_ALGAE = ElevatorPosition.fromMotorPosition(32.0);
@@ -128,10 +128,10 @@ public final class ScoringConstants {
             public static final double Wrist_IDLE_Proportion = 0.414;
             public static final double Wrist_Lowest_Proportion = Wrist_Hard_Stop_Proportion; // 0.2;
             public static final double Wrist_ALGAESTOW_Proportion = 0.5;
-            public static final double Wrist_HP_Proportion = 0.177;
+            public static final double Wrist_HP_Proportion = 0.238;
+            public static final double Wrist_HP_Lower_Proportion = 0.14;
             public static final double Wrist_Processor_Proportion = 0.709;
             public static final double Wrist_L1_Proportion = 1.0;
-            // TODO: above
 
             public static final double Wrist_L2_Proportion = 0.95;
             public static final double Wrist_L3_Proportion = 0.95;
@@ -169,5 +169,5 @@ public final class ScoringConstants {
 
     public static Trigger autonShouldAdvanceToOuttakeTrigger = 
         new Trigger(Subsystems.scoringSuperstructure().getEndEffectorSubsystem()::isWristAtTarget)
-            .debounce(0.1);
+            .debounce(0.125);
 }

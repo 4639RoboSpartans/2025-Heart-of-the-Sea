@@ -11,39 +11,50 @@ import frc.robot.commands.auto.AutoRoutines;
 import frc.robot.subsystems.drive.constants.DriveConstants;
 
 public final class SwerveAutoRoutinesCreator {
+    private static boolean hasConfiguredAutoBuilder = false;
+
     public static AutoRoutines createAutoRoutines(AbstractSwerveDrivetrain drivetrain) {
         RobotConfig config = RobotConfigLoader.getOrLoadConfig();
 
-        AutoBuilder.configure(
-            drivetrain::getPose,
-            drivetrain::resetPose,
-            drivetrain::getChassisSpeeds,
-            // Function that uses chassisSpeeds and feedforward values to drive the robot
-            (speeds, feedforwards) -> drivetrain.setControl(
-                new SwerveRequest.ApplyRobotSpeeds()
-                    .withSpeeds(speeds)
-                    .withWheelForceFeedforwardsX(feedforwards.robotRelativeForcesXNewtons())
-                    .withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesYNewtons())
-            ),
+        if (!hasConfiguredAutoBuilder) {
+            AutoBuilder.configure(
+                    drivetrain::getPose,
+                    drivetrain::resetPose,
+                    drivetrain::getChassisSpeeds,
+                    // Function that uses chassisSpeeds and feedforward values to drive the robot
+                    (speeds, feedforwards) -> drivetrain.setControl(
+                            new SwerveRequest.ApplyRobotSpeeds()
+                                    .withSpeeds(speeds)
+                                    .withWheelForceFeedforwardsX(feedforwards.robotRelativeForcesXNewtons())
+                                    .withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesYNewtons())
+                    ),
 
-            new PPHolonomicDriveController(
-                DriveConstants.AUTON_TRANSLATION_PID_CONSTANTS,
-                DriveConstants.AUTON_ROTATION_PID_CONSTANTS
-            ),
-            config,
-            () -> false,
-            drivetrain
-        );
+                    new PPHolonomicDriveController(
+                            DriveConstants.AUTON_TRANSLATION_PID_CONSTANTS,
+                            DriveConstants.AUTON_ROTATION_PID_CONSTANTS
+                    ),
+                    config,
+                    () -> false,
+                    drivetrain
+            );
+            hasConfiguredAutoBuilder = true;
+        }
 
         return new AutoRoutines(
-            () -> new AutoFactory(
-                drivetrain::getPose,
-                drivetrain::resetPose,
-                drivetrain::followPath,
-                DriverStationUtil.getAlliance() == DriverStation.Alliance.Red,
-                drivetrain,
-                (sample, isStart) -> {}
-            )
+            () -> {
+                var res = new AutoFactory(
+                        drivetrain::getPose,
+                        drivetrain::resetPose,
+                        drivetrain::followPath,
+                        DriverStationUtil.getAlliance() == DriverStation.Alliance.Red,
+                        drivetrain,
+                        (sample, isStart) -> {
+                        }
+                );
+                res.cache().loadTrajectory("COMP-F-D-C");
+                res.cache().loadTrajectory("COMP-I-K-L");
+                return res;
+            }
         );
     }
 }

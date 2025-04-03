@@ -2,6 +2,8 @@ package frc.robot.subsystems.scoring;
 
 import frc.lib.units.Measurement;
 import frc.robot.subsystemManager.Subsystems;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
 import frc.robot.subsystems.scoring.constants.ScoringConstants.ElevatorConstants.ElevatorSetpoints;
 import frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConstants.IntakeSpeeds;
@@ -12,7 +14,10 @@ import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
+
 public class ScoringSuperstructureAction {
+    public static boolean useInterpolatingSetpoints = true;
+
     public Supplier<ElevatorPosition> targetElevatorPosition = () -> ElevatorSetpoints.Low;
     public DoubleSupplier targetWristRotationFraction = () -> 0;
     public double intakeSpeed = 0;
@@ -108,15 +113,15 @@ public class ScoringSuperstructureAction {
                 (drivetrain.getDistanceFromReefFace() - 387.5) * 0.0001
             )
         );
-        return res.getProportion() > 1 ? setpoint : res;
+        return res.getProportion() > 1 && useInterpolatingSetpoints ? setpoint : res;
     }
 
     public static final ScoringSuperstructureAction
         IDLE = new ScoringSuperstructureAction("IDLE")
-        .withTargetElevatorPosition(() -> ElevatorSetpoints.IDLE)
-        .withTargetWristRotationFraction(() -> WristSetpoints.Wrist_IDLE_Proportion)
-        .withIntakeSpeed(IntakeSpeeds.Intake_Idle_Speed)
-        .useManualControlInTeleop(true),
+            .withTargetElevatorPosition(() -> ElevatorSetpoints.IDLE)
+            .withTargetWristRotationFraction(() -> WristSetpoints.Wrist_IDLE_Proportion)
+            .withIntakeSpeed(IntakeSpeeds.Intake_Idle_Speed)
+            .useManualControlInTeleop(true),
         IDLE_STOW_ALGAE = new ScoringSuperstructureAction("IDLE_STOW_ALGAE")
             .withTargetElevatorPosition(() -> ElevatorSetpoints.IDLE)
             .withTargetWristRotationFraction(() -> WristSetpoints.Wrist_ALGAESTOW_Proportion)
@@ -126,10 +131,16 @@ public class ScoringSuperstructureAction {
             .withTargetElevatorPosition(() -> ElevatorSetpoints.HP)
             .withTargetWristRotationFraction(() -> WristSetpoints.Wrist_HP_Proportion)
             .withIntakeSpeed(IntakeSpeeds.Intake_HP_Speed)
+            .withStateAfter(IDLE)
+            .useManualControlInTeleop(false),
+        INTAKE_FROM_HP_LOWER = new ScoringSuperstructureAction("INTAKE_FROM_HP_LOWER")
+            .withTargetElevatorPosition(() -> ElevatorSetpoints.HP)
+            .withTargetWristRotationFraction(() -> WristSetpoints.Wrist_HP_Lower_Proportion)
+            .withIntakeSpeed(IntakeSpeeds.Intake_HP_Speed)
             .stopIntakeOnGamePieceSeen()
             .withStateAfter(IDLE)
             .useManualControlInTeleop(false),
-        SCORE_L1_CORAL = new ScoringSuperstructureAction("SCORE_L1_CORAL")
+    SCORE_L1_CORAL = new ScoringSuperstructureAction("SCORE_L1_CORAL")
             .withTargetElevatorPosition(() -> adjustCoralSetpoint(ElevatorSetpoints.L1))
             .withTargetWristRotationFraction(() -> WristSetpoints.Wrist_L1_Proportion)
             .withIntakeSpeed(IntakeSpeeds.Intake_L1_Speed)
@@ -189,5 +200,11 @@ public class ScoringSuperstructureAction {
 
     public String toString() {
         return name;
+    }
+
+    public static Command toggleInterpolatingSetpoints() {
+        return Commands.runOnce(
+            () -> useInterpolatingSetpoints = !useInterpolatingSetpoints
+        );
     }
 }

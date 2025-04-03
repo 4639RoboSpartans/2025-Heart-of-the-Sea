@@ -7,6 +7,7 @@ import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
 import frc.robot.subsystems.scoring.ScoringSuperstructure;
 import frc.robot.subsystems.scoring.ScoringSuperstructureAction;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -18,16 +19,13 @@ public class AutoCommands {
     public static final Supplier<Command> L3Score = () -> getScoringSuperstructureCommand(ScoringSuperstructureAction.SCORE_L3_CORAL);
     public static final Supplier<Command> L2Score = () -> getScoringSuperstructureCommand(ScoringSuperstructureAction.SCORE_L2_CORAL);
     public static final Supplier<Command> L1Score = () -> getScoringSuperstructureCommand(ScoringSuperstructureAction.SCORE_L1_CORAL);
-    public static final Supplier<Command> HPLoad = () -> 
-        Commands.deadline(
-            getScoringSuperstructureCommand(ScoringSuperstructureAction.INTAKE_FROM_HP)
-                    .andThen(Commands.waitUntil(superstructure::hasCoral)), 
-            SwerveStop.get()
-        );
+    public static final Supplier<Command> HPLoad = () -> getScoringSuperstructureCommand(ScoringSuperstructureAction.INTAKE_FROM_HP);
+    public static final Supplier<Command> HPLoad_Lower = () -> getScoringSuperstructureCommand(ScoringSuperstructureAction.INTAKE_FROM_HP_LOWER)
+            .until(superstructure::hasCoral);
 
     public static final Function<Boolean, Command> setAutoOuttake = shouldOuttake -> superstructure.setAutoOuttake(shouldOuttake);
 
-    public static final Supplier<Command> runScoring = superstructure::runScoringState;
+    public static final BooleanSupplier hasCoral = superstructure::hasCoral;
 
     private static Command getScoringSuperstructureCommand(ScoringSuperstructureAction action) {
         return superstructure.setAction(action);

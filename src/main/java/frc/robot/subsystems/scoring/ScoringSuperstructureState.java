@@ -37,7 +37,7 @@ public enum ScoringSuperstructureState {
             case EXECUTING_ACTION -> {
                 if (action.endOnGamePieceNotSeen) {
                     yield !endEffector.hasCoral();
-                } else if (action.endOnGamePieceSeen || action.toString().equals("INTAKE_FROM_HP")) {
+                } else if (action.endOnGamePieceSeen || action.toString().equals("INTAKE_FROM_HP_LOWER")) {
                     yield endEffector.hasCoral();
                 } else {
                     yield false;
