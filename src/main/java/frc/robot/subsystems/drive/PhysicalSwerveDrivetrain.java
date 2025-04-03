@@ -537,7 +537,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                 getPose().getRotation()
         );
         var adjustedRobotSpeeds = new ChassisSpeeds(
-                robotSpeeds.vxMetersPerSecond * 1.2,
+                robotSpeeds.vxMetersPerSecond * 0.8,
                 robotSpeeds.vyMetersPerSecond,
                 robotSpeeds.omegaRadiansPerSecond
         );
