@@ -308,7 +308,8 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
                             var request = new SwerveRequest.RobotCentric();
                             double rotationalRate;
-                            if (getCalculatedRotationFromAlign().isEmpty()) {
+                            if (getCalculatedRotationFromAlign().isEmpty()
+                                    || !MathUtil.isNear(getPose().getRotation().getDegrees(), targetPose.getRotation().getDegrees(), 20)) {
                                 rotationalRate =
                                         headingController.calculate(
                                                 getPose().getRotation().getRadians(),
@@ -323,6 +324,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                                                 Timer.getFPGATimestamp()
                                         );
                             }
+                            SmartDashboard.putBoolean("At Target", nearTargetPose(targetPose));
 
                             Vector<N2> setpointVector = invertTranslationVector(
                                     VecBuilder.fill(
@@ -652,7 +654,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         double leftMeasurement, rightMeasurement;
         leftMeasurement = SubsystemManager.getInstance().getLasercanAlign().getLeftMeasurement();
         rightMeasurement = SubsystemManager.getInstance().getLasercanAlign().getRightMeasurement();
-        if (leftMeasurement == -1 || rightMeasurement == -1) {
+        if (leftMeasurement < 0 || rightMeasurement < 0) {
             return Optional.empty();
         } else {
             return Optional.of(

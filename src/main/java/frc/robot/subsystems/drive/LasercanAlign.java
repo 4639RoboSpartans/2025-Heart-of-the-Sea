@@ -6,6 +6,7 @@ import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.robot.Robot;
 import frc.robot.subsystems.SubsystemManager;
@@ -65,7 +66,7 @@ public class LasercanAlign extends SubsystemBase {
         double lasercanCenterDistance = lasercanDistance / 2.0;
         double distanceAdjustment = rotationDiff.getTan() * lasercanCenterDistance;
         double res = (left? -distanceAdjustment : distanceAdjustment) + centerDist - 573.9;
-        if (res >= 2000) return -1;
+        if (res >= 1000) return -1;
         return res;
     }
 
@@ -96,7 +97,7 @@ public class LasercanAlign extends SubsystemBase {
     }
 
     public boolean measurementShouldBeZero(){
-        return !(getMeasurement(leftLaserCan) == -1 && getMeasurement(rightLaserCan) == -1);
+        return (getLeftMeasurement() == -1 && getRightMeasurement() == -1);
     }
 
     @Override
@@ -112,6 +113,9 @@ public class LasercanAlign extends SubsystemBase {
     }
 
     public OptionalDouble getOutput() {
-        return measurementShouldBeZero() ? OptionalDouble.of(distanceController.calculate(getDistance_mm() / 1000)) : OptionalDouble.empty();
+        SmartDashboard.putBoolean("should be 0", measurementShouldBeZero());
+        return measurementShouldBeZero()
+                ? OptionalDouble.empty()
+                : OptionalDouble.of(distanceController.calculate(getDistance_mm() / 1000));
     }
 }
