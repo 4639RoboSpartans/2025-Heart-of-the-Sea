@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.units.Measurement;
 import frc.robot.subsystemManager.Subsystems;
 import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
+import frc.robot.subsystems.drive.LasercanAlign;
 import frc.robot.subsystems.scoring.constants.ScoringConstants.ElevatorConstants.ElevatorSetpoints;
 import frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConstants.IntakeSpeeds;
 import frc.robot.subsystems.scoring.constants.ScoringConstants.EndEffectorConstants.WristSetpoints;
@@ -113,11 +114,16 @@ public class ScoringSuperstructureAction {
         OptionalDouble distanceFromReefFace = drivetrain.getDistanceFromReefFace();
         if (distanceFromReefFace.isEmpty()) return setpoint;
 
+        // This number is determined experimentally
+        double distanceMultiplier = 0.0001;
+        // This is the difference between measured and target values
+        double distanceError = distanceFromReefFace.getAsDouble() - LasercanAlign.targetAlignDistance_mm;
+
         ElevatorPosition interpolatedSetpoint = Measurement.add(
             setpoint,
-            Measurement.createOffset(ElevatorPosition::fromProportion,
-                // TODO: document this magic formula
-                (distanceFromReefFace.getAsDouble() - 387.5) * 0.0001
+            Measurement.createOffset(
+                ElevatorPosition::fromProportion,
+                distanceError * distanceMultiplier
             )
         );
 

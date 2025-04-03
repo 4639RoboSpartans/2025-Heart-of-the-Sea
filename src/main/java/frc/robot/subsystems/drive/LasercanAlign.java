@@ -17,7 +17,7 @@ import java.util.OptionalDouble;
 import static edu.wpi.first.units.Units.Millimeters;
 
 public class LasercanAlign extends SubsystemBase {
-    public static final double alignDistance_mm = 390;
+    public static final double targetAlignDistance_mm = 390;
 
     public static SubsystemInstantiator<LasercanAlign> createInstance() {
         return new SubsystemInstantiator<>(LasercanAlign::new);
@@ -25,7 +25,7 @@ public class LasercanAlign extends SubsystemBase {
 
     private final LaserCan leftLaserCan, rightLaserCan;
     private final PIDController distanceController;
-    private double distance = alignDistance_mm;
+    private double distance = targetAlignDistance_mm;
 
     public LasercanAlign() {
         leftLaserCan = new LaserCan(DriveConstants.IDs.LEFT_LASERCAN_ID);
@@ -34,7 +34,7 @@ public class LasercanAlign extends SubsystemBase {
                 DrivePIDs.lasercanXkP.get(), 0, 0
         );
         distanceController.setTolerance(0.01);
-        distanceController.setSetpoint(alignDistance_mm / 1000);
+        distanceController.setSetpoint(targetAlignDistance_mm / 1000);
     }
 
     private OptionalDouble getMeasurement(LaserCan laserCAN) {
@@ -103,10 +103,10 @@ public class LasercanAlign extends SubsystemBase {
     }
 
     public double getOutput() {
-        return distanceController.calculate(
-            // TODO: this was getDistance_mm(); I changed to just distance
-            //  need to add better error handling that doesn't break the PID
-            distance / 1000
-        );
+        OptionalDouble measuredDistance = getDistance_mm();
+
+        if (measuredDistance.isEmpty()) return 0;
+
+        return distanceController.calculate(distance / 1000);
     }
 }

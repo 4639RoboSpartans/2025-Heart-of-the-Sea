@@ -444,9 +444,9 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
             new Trigger(() -> MathUtil.isNear(
                 getDistanceFromReefFace().orElse(
                     // TODO: better handling
-                    LasercanAlign.alignDistance_mm
+                    LasercanAlign.targetAlignDistance_mm
                 ),
-                LasercanAlign.alignDistance_mm,
+                LasercanAlign.targetAlignDistance_mm,
                 10
             ) && MathUtil.isNear(
                 getCalculatedRotationFromAlign().orElseGet(Rotation2d::new).getDegrees(),
