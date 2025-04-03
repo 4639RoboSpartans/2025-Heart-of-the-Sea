@@ -291,39 +291,41 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     @Override
     public Command _directlyMoveTo(Pose2d targetPose, Supplier<Pose2d> currentPose) {
         return Commands.runOnce(() -> {
-                Vector<N2> translationVector = getTranslationVector(super.currentAlignTarget);
-                pidXController.reset(translationVector.get(0));
-                pidYController.reset(translationVector.get(1));
-                pidXController.setGoal(0);
-                pidYController.setGoal(0);
-                field.getObject("Target Pose").setPose(super.currentAlignTarget);
-                isAligning = true;
-                isAligned = false;
-                shouldUseMTSTDevs = true;
-                Vision.addGlobalVisionMeasurements(this, true);
-            }).andThen(applyRequest(
-                () -> {
-                    Vision.addGlobalVisionMeasurements(this, shouldUseMTSTDevs);
-                    Vector<N2> translationVector = getTranslationVector(targetPose);
-                    SmartDashboard.putNumber("Side Translation", translationVector.get(1));
+                    Vector<N2> translationVector = getTranslationVector(super.currentAlignTarget);
+                    pidXController.reset(translationVector.get(0));
+                    pidYController.reset(translationVector.get(1));
+                    pidXController.setGoal(0);
+                    pidYController.setGoal(0);
+                    field.getObject("Target Pose").setPose(super.currentAlignTarget);
+                    isAligning = true;
+                    isAligned = false;
+                    shouldUseMTSTDevs = true;
+                    Vision.addGlobalVisionMeasurements(this, true);
+                }).andThen(applyRequest(
+                        () -> {
+                            Vision.addGlobalVisionMeasurements(this, shouldUseMTSTDevs);
+                            Vector<N2> translationVector = getTranslationVector(targetPose);
+                            SmartDashboard.putNumber("Side Translation", translationVector.get(1));
 
-                    var request = new SwerveRequest.RobotCentric();
-                    double rotationalRate;
-                    if (getCalculatedRotationFromAlign().isEmpty()) {
-                        rotationalRate =
-                            headingController.calculate(
-                                getPose().getRotation().getRadians(),
-                                super.currentAlignTarget.getRotation().getRadians(),
-                                Timer.getFPGATimestamp()
-                            );
-                    } else {
-                        rotationalRate =
-                            headingController.calculate(
-                                getCalculatedRotationFromAlign().get().getRadians(),
-                                0,
-                                Timer.getFPGATimestamp()
-                            );
-                    }
+                            var request = new SwerveRequest.RobotCentric();
+                            double rotationalRate;
+                            if (getCalculatedRotationFromAlign().isEmpty()
+                                    || !MathUtil.isNear(getPose().getRotation().getDegrees(), targetPose.getRotation().getDegrees(), 20)) {
+                                rotationalRate =
+                                        headingController.calculate(
+                                                getPose().getRotation().getRadians(),
+                                                super.currentAlignTarget.getRotation().getRadians(),
+                                                Timer.getFPGATimestamp()
+                                        );
+                            } else {
+                                rotationalRate =
+                                        headingController.calculate(
+                                                getCalculatedRotationFromAlign().get().getRadians(),
+                                                0,
+                                                Timer.getFPGATimestamp()
+                                        );
+                            }
+                            SmartDashboard.putBoolean("At Target", nearTargetPose(targetPose));
 
                     Vector<N2> setpointVector = invertTranslationVector(
                         VecBuilder.fill(
@@ -342,16 +344,16 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                     );
                     field.getObject("Setpoint Pose").setPose(setpointPose);
 
-                    ChassisSpeeds reefRelativeSpeeds = new ChassisSpeeds(
-                        -pidXController.calculate(translationVector.get(0)),
-                        -pidYController.calculate(translationVector.get(1)),
-                        rotationalRate
-                    );
+                            ChassisSpeeds reefRelativeSpeeds = new ChassisSpeeds(
+                                    -pidXController.calculate(translationVector.get(0)),
+                                    -pidYController.calculate(translationVector.get(1)),
+                                    rotationalRate
+                            );
 
-                    ChassisSpeeds robotRelativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-                        reefRelativeSpeeds,
-                        getPose().getRotation().minus(targetPose.getRotation())
-                    );
+                            ChassisSpeeds robotRelativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+                                    reefRelativeSpeeds,
+                                    getPose().getRotation().minus(targetPose.getRotation())
+                            );
 
                     return request
                         .withVelocityX(robotRelativeSpeeds.vxMetersPerSecond)
@@ -420,26 +422,26 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
             pidYController.setTolerance(0.025);
             shouldUseMTSTDevs = true;
         }).andThen(
-            applyRequest(
-                () -> {
-                    Vector<N2> translationVector = getTranslationVector(targetPose);
-                    double laserCANAlignOutput = Subsystems.lasercanAlign().getOutput();
-                    double rotationRadians = getCalculatedRotationFromAlign().orElseGet(
-                        Rotation2d::new
-                    ).getRadians();
-                    double rotationOutput =
-                        headingController.calculate(rotationRadians, 0, Timer.getFPGATimestamp());
-                    ChassisSpeeds robotCentricSpeeds = new ChassisSpeeds(
-                        -laserCANAlignOutput,
-                        -pidYController.calculate(translationVector.get(1)),
-                        rotationOutput
-                    );
-                    return new SwerveRequest.RobotCentric()
-                        .withVelocityX(robotCentricSpeeds.vxMetersPerSecond)
-                        .withVelocityY(robotCentricSpeeds.vyMetersPerSecond)
-                        .withRotationalRate(rotationOutput);
-                }
-            )
+                applyRequest(
+                        () -> {
+                            Vector<N2> translationVector = getTranslationVector(targetPose);
+                            double laserCANAlignOutput = Subsystems.lasercanAlign().getOutput().orElse(0);
+                            double rotationRadians = getCalculatedRotationFromAlign().orElseGet(
+                                    Rotation2d::new
+                            ).getRadians();
+                            double rotationOutput =
+                                    headingController.calculate(rotationRadians, 0, Timer.getFPGATimestamp());
+                            ChassisSpeeds robotCentricSpeeds = new ChassisSpeeds(
+                                    -laserCANAlignOutput,
+                                    -pidYController.calculate(translationVector.get(1)),
+                                    rotationOutput
+                            );
+                            return new SwerveRequest.RobotCentric()
+                                    .withVelocityX(robotCentricSpeeds.vxMetersPerSecond)
+                                    .withVelocityY(robotCentricSpeeds.vyMetersPerSecond)
+                                    .withRotationalRate(rotationOutput);
+                        }
+                )
         ).until(
             new Trigger(() -> MathUtil.isNear(
                 getDistanceFromReefFace().orElse(
@@ -513,21 +515,50 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         return run(() -> setControl(requestSupplier.get()));
     }
 
+    private Rotation2d getDirectionOfMovement(double vx, double vy) {
+        return Rotation2d.fromRadians(Math.atan(vy / vx)
+                + (!(vx < 0) && (vy < 0) ? Math.PI : 0)
+                + (DriverStationUtil.getAlliance() == Alliance.Blue ? Math.PI : 0)
+        );
+    }
+
     @Override
     public void followPath(SwerveSample sample) {
 
         var pose = getPose();
         var choreoPose = sample.getPose();
+        double sampleSpeed = Math.hypot(sample.vx, sample.vy);
+        double rawKp = 6 - sampleSpeed;
+        double newKp = rawKp * 3 / 6;
+        SmartDashboard.putNumber("Path kP", newKp);
+        pathXController.setP(newKp);
+        pathYController.setP(newKp);
+        SmartDashboard.putNumber("Sample Speed", sampleSpeed);
         field.getObject("choreo pose").setPose(choreoPose);
+        SmartDashboard.putNumber("Sample vx", sample.vx);
+        SmartDashboard.putNumber("Sample vy", sample.vy);
 
         var targetSpeeds = sample.getChassisSpeeds();
+        var robotSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+                targetSpeeds,
+                getPose().getRotation()
+        );
+        var adjustedRobotSpeeds = new ChassisSpeeds(
+                robotSpeeds.vxMetersPerSecond * 0.8,
+                robotSpeeds.vyMetersPerSecond,
+                robotSpeeds.omegaRadiansPerSecond
+        );
+        targetSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(
+                adjustedRobotSpeeds,
+                getPose().getRotation()
+        );
         targetSpeeds.vxMetersPerSecond += pathXController.calculate(pose.getX(), sample.x);
         targetSpeeds.vyMetersPerSecond += pathYController.calculate(pose.getY(), sample.y);
         targetSpeeds.omegaRadiansPerSecond += pathHeadingController.calculate(
             pose.getRotation().getRadians(), sample.heading
         );
 
-        var robotSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(targetSpeeds, getPose().getRotation());
+        robotSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(targetSpeeds, getPose().getRotation());
         SwerveSetpoint newSetpoint = swerveSetpointGenerator.generateSetpoint(prevSwerveSetpoint, robotSpeeds, 0.02);
         var newRobotSpeeds = newSetpoint.robotRelativeSpeeds();
         prevSwerveSetpoint = newSetpoint;
