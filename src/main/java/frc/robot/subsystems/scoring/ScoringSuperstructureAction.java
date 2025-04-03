@@ -107,13 +107,15 @@ public class ScoringSuperstructureAction {
     }
 
     private static ElevatorPosition adjustCoralSetpoint(ElevatorPosition setpoint) {
-        ElevatorPosition res = Measurement.add(
+        ElevatorPosition interpolatedSetpoint = Measurement.add(
             setpoint,
             Measurement.createOffset(ElevatorPosition::fromProportion,
                 (drivetrain.getDistanceFromReefFace() - 387.5) * 0.0001
             )
         );
-        return res.getProportion() > 1 && useInterpolatingSetpoints ? setpoint : res;
+        if (useInterpolatingSetpoints && ElevatorSetpoints.AllowedRange.contains(interpolatedSetpoint))
+            return interpolatedSetpoint;
+        return setpoint;
     }
 
     public static final ScoringSuperstructureAction

@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.util.CommandsUtil;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.FieldConstants.TargetPositions;
-import frc.robot.subsystems.SubsystemManager;
+import frc.robot.subsystemManager.Subsystems;
 import frc.robot.subsystems.drive.DriveCommands;
 import frc.robot.subsystems.drive.SwerveAutoRoutinesCreator;
 import frc.robot.subsystems.scoring.ScoringSuperstructure;
@@ -27,18 +27,18 @@ public class AutoRoutines {
     private static AutoRoutines instance;
 
     public static AutoRoutines getInstance() {
-        return Objects.requireNonNullElseGet(instance, () -> SwerveAutoRoutinesCreator.createAutoRoutines(SubsystemManager.getInstance().getDrivetrain()));
+        return Objects.requireNonNullElseGet(instance, () -> SwerveAutoRoutinesCreator.createAutoRoutines(Subsystems.drivetrain()));
     }
 
     public static Command regenerateAutoRoutines() {
         return Commands.runOnce(
-                () -> instance = SwerveAutoRoutinesCreator.createAutoRoutines(SubsystemManager.getInstance().getDrivetrain())
+                () -> instance = SwerveAutoRoutinesCreator.createAutoRoutines(Subsystems.drivetrain())
         ).ignoringDisable(true);
     }
 
     private final Supplier<AutoFactory> factory;
 
-    private final ScoringSuperstructure scoringSuperstructure = SubsystemManager.getInstance().getScoringSuperstructure();
+    private final ScoringSuperstructure scoringSuperstructure = Subsystems.scoringSuperstructure();
 
     public AutoRoutines(Supplier<AutoFactory> factory) {
         this.factory = factory;
