@@ -57,19 +57,19 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
     private final PhoenixPIDController headingController = new PhoenixPIDController(4, 0, 0);
     protected final PIDController
-            pathXController = new PIDController(5, 0, 0),
-            pathYController = new PIDController(5, 0, 0),
+            pathXController = new PIDController(1.875, 0, 0),
+            pathYController = new PIDController(1.875, 0, 0),
             pathHeadingController = new PIDController(6, 0, 0);
     protected ProfiledPIDController
             pidXController = constructPIDXController();
     protected ProfiledPIDController pidYController = constructPIDYController();
 
     public static ProfiledPIDController constructPIDYController() {
-        return new ProfiledPIDController(DrivePIDs.pidToPoseXkP.get(), 0, 0, new TrapezoidProfile.Constraints(6, 4));
+        return new ProfiledPIDController(DrivePIDs.pidToPoseXkP.get(), DrivePIDs.pidToPosekI.get(), DrivePIDs.pidToPosekD.get(), new TrapezoidProfile.Constraints(4, 2));
     }
 
     public static ProfiledPIDController constructPIDXController() {
-        return new ProfiledPIDController(DrivePIDs.pidToPoseYkP.get(), 0, 0, new TrapezoidProfile.Constraints(4, 2));
+        return new ProfiledPIDController(DrivePIDs.pidToPoseYkP.get(), DrivePIDs.pidToPosekI.get(), DrivePIDs.pidToPosekD.get(), new TrapezoidProfile.Constraints(4, 2));
     }
 
     {
@@ -77,7 +77,20 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         // Set up tunable numbers for drive pids
         DrivePIDs.pidToPoseXkP.onChange(pidXController::setP);
         DrivePIDs.pidToPoseYkP.onChange(pidYController::setP);
-        DrivePIDs.pidToPoseVelocityX.onChange(
+        DrivePIDs.pidToPosekI.onChange(val -> {
+            pidXController.setI(val);
+            pidYController.setI(val);
+        });
+
+        //ensure no integral windup, restrict I term output to 0.5 m/s
+        pidXController.setIntegratorRange(0, 0.5);
+        pidYController.setIntegratorRange(0, 0.5);
+
+        DrivePIDs.pidToPosekD.onChange(val -> {
+            pidXController.setD(val);
+            pidYController.setD(val);
+        });
+        DrivePIDs.pidToPoseVelocity.onChange(
                 value -> {
                     pidXController.setConstraints(
                             new TrapezoidProfile.Constraints(
@@ -91,7 +104,21 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                     );
                 }
         );
-        DrivePIDs.pidToPoseAccelerationX.onChange(
+        DrivePIDs.pidToPoseVelocity.onChange(
+                value -> {
+                    pidXController.setConstraints(
+                            new TrapezoidProfile.Constraints(
+                                    value, pidXController.getConstraints().maxAcceleration
+                            )
+                    );
+                    pidYController.setConstraints(
+                            new TrapezoidProfile.Constraints(
+                                    value, pidYController.getConstraints().maxAcceleration
+                            )
+                    );
+                }
+        );
+        DrivePIDs.pidToPoseAcceleration.onChange(
                 value -> {
                     pidXController.setConstraints(
                             new TrapezoidProfile.Constraints(
@@ -156,9 +183,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     public Command manualControl() {
         return applyRequest(
                 () -> {
-                    if (shouldAutoSetHeading
-                //      && SubsystemManager.getInstance().getScoringSuperstructure().hasCoral()
-                     )
+                    if (shouldAutoSetHeading)
                         return getFieldCentricFacingClosestReefRequest();
                     return getFieldCentricRequest();
                 }
@@ -279,6 +304,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                         () -> {
                                 Vision.addGlobalVisionMeasurements(this, shouldUseMTSTDevs);
                             Vector<N2> translationVector = getTranslationVector(targetPose);
+                            SmartDashboard.putNumber("Side Translation", translationVector.get(1));
 
                             var request = new SwerveRequest.RobotCentric();
                             double rotationalRate;
@@ -486,6 +512,8 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     public void followPath(SwerveSample sample) {
 
         var pose = getPose();
+        var choreoPose = sample.getPose();
+        field.getObject("choreo pose").setPose(choreoPose);
 
         var targetSpeeds = sample.getChassisSpeeds();
         targetSpeeds.vxMetersPerSecond += pathXController.calculate(pose.getX(), sample.x);

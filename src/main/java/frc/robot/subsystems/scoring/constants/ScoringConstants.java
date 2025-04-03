@@ -45,7 +45,7 @@ public final class ScoringConstants {
 
             public static final double L2_Proportion = 0.2893;//0.28
             public static final double L3_Proportion = 0.496;//0.481
-            public static final double L4_Proportion = 0.835;
+            public static final double L4_Proportion = 0.87;
 
             // TODO: below
             public static final double L2_ALGAE_Proportion = 0.32; // MAYBE
@@ -115,7 +115,7 @@ public final class ScoringConstants {
             public static final double Wrist_Lowest_Proportion = Wrist_Hard_Stop_Proportion; // 0.2;
             public static final double Wrist_ALGAESTOW_Proportion = 0.5;
             public static final double Wrist_HP_Proportion = 0.238;
-            public static final double Wrist_HP_Lower_Proportion = 0.16;
+            public static final double Wrist_HP_Lower_Proportion = 0.14;
             public static final double Wrist_Processor_Proportion = 0.709;
             public static final double Wrist_L1_Proportion = 1.0;
 

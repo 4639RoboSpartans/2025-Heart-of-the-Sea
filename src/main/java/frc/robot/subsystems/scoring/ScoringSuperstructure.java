@@ -292,6 +292,7 @@ public final class ScoringSuperstructure extends SubsystemBase {
         SmartDashboard.putBoolean("Elevator Low Threshold", elevatorAutonMoveThreshold());
         SmartDashboard.putString("State", currentState.name());
         SmartDashboard.putString("Action", currentAction.toString());
+        SmartDashboard.putBoolean("Interpolating", ScoringSuperstructureAction.useInterpolatingSetpoints);
     }
 
     /**

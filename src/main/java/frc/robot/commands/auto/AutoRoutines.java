@@ -31,10 +31,9 @@ public class AutoRoutines {
     }
 
     public static Command regenerateAutoRoutines() {
-        return Commands.none();
-//        return Commands.runOnce(
-//                () -> instance = SwerveAutoRoutinesCreator.createAutoRoutines(SubsystemManager.getInstance().getDrivetrain())
-//        ).ignoringDisable(true);
+        return Commands.runOnce(
+                () -> instance = SwerveAutoRoutinesCreator.createAutoRoutines(SubsystemManager.getInstance().getDrivetrain())
+        ).ignoringDisable(true);
     }
 
     private final Supplier<AutoFactory> factory;
@@ -240,7 +239,7 @@ public class AutoRoutines {
                 DriveCommands.moveToReefPosition(
                         targetPose
                 )
-//                        .withTimeout(1)
+                        .withTimeout(2)
         );
     }
 
