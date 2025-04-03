@@ -422,7 +422,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                 applyRequest(
                         () -> {
                             Vector<N2> translationVector = getTranslationVector(targetPose);
-                            double laserCANAlignOutput = SubsystemManager.getInstance().getLasercanAlign().getOutput();
+                            double laserCANAlignOutput = SubsystemManager.getInstance().getLasercanAlign().getOutput().orElse(0);
                             double rotationRadians = getCalculatedRotationFromAlign().orElseGet(
                                     Rotation2d::new
                             ).getRadians();

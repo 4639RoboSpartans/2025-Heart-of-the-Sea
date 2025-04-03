@@ -35,7 +35,7 @@ public class Robot extends LoggedRobot {
     public Robot() {
         robotContainer = new RobotContainer();
         CanBridge.runTCP();
-        SubsystemManager.getInstance().getDrivetrain().setVisionStandardDeviations(0.5, 0.5, 99999);
+        SubsystemManager.getInstance().getDrivetrain().setVisionStandardDeviations(1, 1, 99999);
         autoChooser = new SendableChooser<>();
         addAllCompAutons(autoChooser, AutoRoutines.getInstance());
         SmartDashboard.putData("Auto Chooser", autoChooser);
