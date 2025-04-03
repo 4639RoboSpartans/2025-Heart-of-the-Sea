@@ -13,8 +13,11 @@ import java.util.function.DoubleSupplier;
 
 public abstract class AbstractClimberSubsystem extends SubsystemBase {
     abstract void setClimberSpeed(double speed);
+
     abstract ClimberState getClimberState();
+
     abstract void setClimberState(ClimberState state);
+
     abstract double getEncoderPosition();
 
     static enum ClimberState {
@@ -25,7 +28,7 @@ public abstract class AbstractClimberSubsystem extends SubsystemBase {
         CLIMBING
     }
 
-    void init(){
+    void init() {
         //reset state to idle when auto or teleop starts
         RobotModeTriggers.autonomous().onTrue(setState(ClimberState.STOWED));
         RobotModeTriggers.teleop().onTrue(setState(ClimberState.STOWED));
@@ -41,56 +44,55 @@ public abstract class AbstractClimberSubsystem extends SubsystemBase {
     public Command stopClimber() {
         return Commands.run(
 
-            () -> setClimberSpeed(0),
-            this
+                () -> setClimberSpeed(0),
+                this
         );
     }
 
     public Command climbCommand() {
         return setState(ClimberState.CLIMBING)
-
-        .andThen(run(
-            () -> 
-                {
-                    // if (ClimberConstants.Setpoints.climbPosition.get() < getEncoderPosition()) {
-                    //     setClimberSpeed(0);
-                    // } else {
-                        setClimberSpeed(ClimberConstants.climberSpeed.get());
-                    // }
-                }
-        ));
+                .andThen(run(
+                        () ->
+                        {
+                            if (ClimberConstants.Setpoints.climbPosition.get() < getEncoderPosition()) {
+                                setClimberSpeed(-0.01);
+                            } else {
+                                setClimberSpeed(ClimberConstants.climberSpeed.get());
+                            }
+                        }
+                ));
     }
 
     public Command deClimbCommand() {
         return setState(ClimberState.CLIMBING)
-        .andThen(run(
-            () -> 
-                {
-                    setClimberSpeed(-ClimberConstants.climberSpeed.get());
-                }
-        ));
+                .andThen(run(
+                        () ->
+                        {
+                            setClimberSpeed(-ClimberConstants.climberSpeed.get());
+                        }
+                ));
 
     }
 
     public Command prepClimbCommand() {
         return setState(getClimberState() == ClimberState.FUNNEL_READY ? ClimberState.READY : ClimberState.CLIMBER_READY)
-        .andThen(run(
-            () -> 
-                {
-                    if (ClimberConstants.Setpoints.readyToClimbPosition.get() > getEncoderPosition()) {
-                        setClimberSpeed(0);
-                    } else {
-                        setClimberSpeed(ClimberConstants.climberSpeed.get());
-                    }
-                }
-        ));
+                .andThen(run(
+                        () ->
+                        {
+                            if (ClimberConstants.Setpoints.readyToClimbPosition.get() > getEncoderPosition()) {
+                                setClimberSpeed(0);
+                            } else {
+                                setClimberSpeed(ClimberConstants.climberSpeed.get());
+                            }
+                        }
+                ));
     }
 
     public Command testClimbCommand(DoubleSupplier speed) {
         return Commands.run(
 
-            () -> setClimberSpeed(speed.getAsDouble() * ClimberConstants.climberSpeed.get()),
-            this
+                () -> setClimberSpeed(speed.getAsDouble() * ClimberConstants.climberSpeed.get()),
+                this
 
         );
     }

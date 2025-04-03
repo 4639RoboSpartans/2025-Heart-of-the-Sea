@@ -51,6 +51,7 @@ public class RobotContainer {
     private void configureBindings() {
         swerve.setDefaultCommand(swerve.manualControl());    
         scoringSuperstructure.setDefaultCommand(scoringSuperstructure.runScoringState());
+        climber.setDefaultCommand(climber.stopClimber());
 
         DriverStationUtil.isRed.onChange(
                 AutoRoutines.regenerateAutoRoutines()
