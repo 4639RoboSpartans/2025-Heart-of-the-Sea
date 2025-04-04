@@ -30,13 +30,6 @@ public class AutoRoutines {
         return Objects.requireNonNullElseGet(instance, () -> SwerveAutoRoutinesCreator.createAutoRoutines(SubsystemManager.getInstance().getDrivetrain()));
     }
 
-    public static Command regenerateAutoRoutines() {
-        return Commands.none();
-//        return Commands.runOnce(
-//                () -> instance = SwerveAutoRoutinesCreator.createAutoRoutines(SubsystemManager.getInstance().getDrivetrain())
-//        ).ignoringDisable(true);
-    }
-
     private final Supplier<AutoFactory> factory;
 
     private final ScoringSuperstructure scoringSuperstructure = SubsystemManager.getInstance().getScoringSuperstructure();

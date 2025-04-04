@@ -13,7 +13,9 @@ public class DriverStationUtil {
         );
     }
 
-    public static Trigger isRed = new Trigger(
-            () -> getAlliance() == DriverStation.Alliance.Red
-    );
+    public static boolean hasDSAlliance() {
+        return DriverStation.getAlliance().isPresent();
+    }
+
+    public static Trigger hasDSAlliance = new Trigger(DriverStationUtil::hasDSAlliance);
 }
