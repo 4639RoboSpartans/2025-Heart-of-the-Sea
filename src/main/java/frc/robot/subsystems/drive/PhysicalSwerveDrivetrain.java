@@ -55,7 +55,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
     private boolean didApplyOperatorPerspective = false;
 
-    private final PhoenixPIDController headingController = new PhoenixPIDController(4, 0, 0);
+    private final PhoenixPIDController headingController = new PhoenixPIDController(6, 0, 0);
     protected final PIDController
             pathXController = new PIDController(1.875, 0, 0),
             pathYController = new PIDController(1.875, 0, 0),

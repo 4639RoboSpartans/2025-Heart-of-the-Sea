@@ -14,12 +14,12 @@ public class PoseUtil {
 
     public static Pose2d ReefRelativeRightOf(Pose2d pose) {
         return
-                pose.transformBy(new Transform2d(FieldConstants.reefForwardsDistance, -FieldConstants.reefSidewaysDistance, Rotation2d.kZero));
+                pose.transformBy(new Transform2d(FieldConstants.reefForwardsDistance, -FieldConstants.reefRightSidewaysDistance, Rotation2d.kZero));
     }
 
     public static Pose2d ReefRelativeLeftOf(Pose2d pose) {
         return
-                pose.transformBy(new Transform2d(FieldConstants.reefForwardsDistance, FieldConstants.reefSidewaysDistance, Rotation2d.kZero));
+                pose.transformBy(new Transform2d(FieldConstants.reefForwardsDistance, FieldConstants.reefLeftSidewaysDistance, Rotation2d.kZero));
     }
 
     public static Pose2d ReefRelativeAlgaeForwards(Pose2d pose) {

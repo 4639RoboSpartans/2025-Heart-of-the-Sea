@@ -55,7 +55,7 @@ public abstract class AbstractClimberSubsystem extends SubsystemBase {
                         () ->
                         {
                             if (ClimberConstants.Setpoints.climbPosition.get() < getEncoderPosition()) {
-                                setClimberSpeed(-0.01);
+                                setClimberSpeed(-0.05);
                             } else {
                                 setClimberSpeed(ClimberConstants.climberSpeed.get());
                             }

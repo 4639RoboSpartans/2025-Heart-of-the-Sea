@@ -4,7 +4,7 @@ import frc.lib.tunable.TunableNumber;
 
 public class ClimberConstants {
     public static final int CLIMBER_ID = 50;
-    public static final TunableNumber climberSpeed = new TunableNumber("climber/climberSpeed").withDefaultValue(-0.25);
+    public static final TunableNumber climberSpeed = new TunableNumber("climber/climberSpeed").withDefaultValue(-0.50);
 
     public static final int SERVO_ID = 0;
 
