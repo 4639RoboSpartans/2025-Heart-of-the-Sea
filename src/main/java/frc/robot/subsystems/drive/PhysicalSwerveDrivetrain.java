@@ -444,14 +444,20 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                 waypoint
         );
         PathConstraints constraints = new PathConstraints(
-                1, 2,
+                6, 4,
                 2 * Math.PI, 2 * Math.PI
         );
         PathPlannerPath path = new PathPlannerPath(
                 waypoints,
                 constraints,
-                new IdealStartingState(getVelocityMagnitude(getChassisSpeeds()), getPose().getRotation()),
+                new IdealStartingState(getVelocityMagnitude(getChassisSpeeds()), getPathVelocityHeading(getChassisSpeeds(), waypoint)),
                 new GoalEndState(0.0, waypoint.getRotation())
+        );
+        field.getObject("PP velocity heading").setPose(
+                new Pose2d(
+                        getPose().getTranslation(),
+                        getPathVelocityHeading(getChassisSpeeds(), waypoint)
+                )
         );
 
         path.preventFlipping = true;
@@ -460,11 +466,11 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     }
 
     private Rotation2d getPathVelocityHeading(ChassisSpeeds chassisSpeeds, Pose2d targetPose) {
-        if (getVelocityMagnitude(chassisSpeeds).in(MetersPerSecond) < 0.25) {
+        if (getVelocityMagnitude(chassisSpeeds).in(MetersPerSecond) < 0.1) {
             var diff = targetPose.minus(getPose()).getTranslation();
             return (diff.getNorm() < 0.01) ? targetPose.getRotation() : diff.getAngle();
         }
-        return new Rotation2d(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond);
+        return new Rotation2d(-chassisSpeeds.vxMetersPerSecond, -chassisSpeeds.vyMetersPerSecond);
     }
 
     private LinearVelocity getVelocityMagnitude(ChassisSpeeds chassisSpeeds) {
