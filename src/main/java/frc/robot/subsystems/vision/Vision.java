@@ -11,6 +11,7 @@ import frc.lib.limelight.data.PoseEstimate;
 import frc.lib.limelight.data.PoseEstimate.Botpose;
 import frc.lib.limelight.data.RawFiducial;
 import frc.lib.tunable.TunableNumber;
+import frc.lib.util.DriverStationUtil;
 import frc.robot.constants.Limelights;
 import frc.robot.subsystems.drive.AbstractSwerveDrivetrain;
 import frc.robot.util.PoseUtil;
@@ -66,7 +67,7 @@ public class Vision {
     }
 
     private static PoseEstimate getRawMeasurement(Limelights limelight) {
-        return DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue
+        return DriverStationUtil.getAlliance() == DriverStation.Alliance.Blue
                 ? LimelightHelpers.getBotPoseEstimate(limelight.getName(), Botpose.BLUE_MEGATAG1)
                 : LimelightHelpers.getBotPoseEstimate(limelight.getName(), Botpose.RED_MEGATAG1);
     }

@@ -110,6 +110,12 @@ public class ConcreteElevatorSubsystem extends AbstractElevatorSubsystem {
     }
 
     @Override
+    public boolean isDangerouslyStopped() {
+        // TODO: need to tune
+        return -(elevatorMotor.getTorqueCurrent().getValueAsDouble()) > 5 && Math.abs(elevatorMotor.getVelocity().getValueAsDouble()) <= 0.1;
+    }
+
+    @Override
     public void setRawMotorVoltage(Voltage voltage) {
         elevatorMotor.setControl(new VoltageOut(voltage));
     }

@@ -186,6 +186,24 @@ public final class ScoringSuperstructure extends SubsystemBase {
     }
 
     private void runActionPeriodic() {
+        // Check for dangerously stopped elevator
+//        if (elevator.isDangerouslyStopped()) {
+//            currentState = ScoringSuperstructureState.ELEVATOR_MOVE_NO_TRANSITION;
+//            double targetExtension = MathUtil.clamp(
+//                    elevator.getCurrentExtensionFraction() + 0.07,
+//                    0,
+//                    1
+//            );
+//            currentAction = ScoringSuperstructureAction.HOLD(
+//                    targetExtension,
+//                    ScoringConstants.EndEffectorConstants.RotationFractionToMotorPosition.convertBackwards(endEffector.getCurrentMotorPosition())
+//            );
+//            elevator.setTargetExtensionFraction(targetExtension);
+//            resetAdjustments();
+//            maybeNeedsTransition = false;
+//            isManualControlEnabled = true;
+//        }
+
         // Update maybeNeedsTransition
         switch (currentState) {
             case TRANSITION_AFTER_ELEVATOR, EXECUTING_ACTION, DONE -> {
@@ -250,7 +268,10 @@ public final class ScoringSuperstructure extends SubsystemBase {
     }
 
     public Command toggleManualControl() {
-        return runOnce(() -> this.isManualControlEnabled = !this.isManualControlEnabled);
+        return runOnce(() -> {
+            this.isManualControlEnabled = !this.isManualControlEnabled;
+            this.elevator.setTargetExtensionFraction(this.elevator.getCurrentExtensionFraction());
+        });
     }
 
     /**
