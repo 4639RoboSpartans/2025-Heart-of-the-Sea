@@ -10,10 +10,14 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.FunctionalTrigger;
 import frc.lib.util.DriverStationUtil;
 import frc.robot.commands.auto.AutoRoutines;
+import frc.robot.commands.auto.AutoRoutines.Auton;
 import frc.robot.constants.Controls;
 import frc.robot.constants.FieldConstants;
 import frc.robot.subsystems.SubsystemManager;
@@ -29,6 +33,8 @@ import frc.robot.subsystems.scoring.constants.ScoringConstants;
 
 import static edu.wpi.first.units.Units.Meters;
 
+import choreo.auto.AutoChooser;
+
 
 public class RobotContainer {
     private final AbstractSwerveDrivetrain swerve = SubsystemManager.getInstance().getDrivetrain();
@@ -40,23 +46,34 @@ public class RobotContainer {
     @SuppressWarnings("unused")
     private final LEDStrip ledStrip = SubsystemManager.getInstance().getLEDStripSubsystem();
 
+    private final SendableChooser<Auton> autoChooser = new SendableChooser<>();
+    private AutoRoutines autoRoutines;
+
     private final StructArrayPublisher<Pose3d> componentPoses = NetworkTableInstance.getDefault()
         .getStructArrayTopic("zeroed component poses", Pose3d.struct).publish();
 
     public RobotContainer() {
         configureBindings();
         configureLEDs();
+        if (DriverStationUtil.hasDSAlliance()) {
+            autoRoutines = AutoRoutines.getInstance();
+            addAllCompAutons(autoChooser, autoRoutines);
+            SmartDashboard.putData("Auto Chooser", autoChooser);
+        }
     }
 
     private void configureBindings() {
         swerve.setDefaultCommand(swerve.manualControl());    
         scoringSuperstructure.setDefaultCommand(scoringSuperstructure.runScoringState());
 
-        DriverStationUtil.isRed.onChange(
-                AutoRoutines.regenerateAutoRoutines()
-                        .andThen(
-                                Robot.replaceAutons()
-                        )
+        DriverStationUtil.hasDSAlliance.onTrue(
+            Commands.runOnce(
+                () -> {
+                    autoRoutines = AutoRoutines.getInstance();
+                    addAllCompAutons(autoChooser, autoRoutines);
+                    SmartDashboard.putData("Auto Chooser", autoChooser);
+                }
+            ).ignoringDisable(true)
         );
 
         //Scoring Controls
@@ -155,6 +172,20 @@ public class RobotContainer {
         // OI.getInstance().driverController().POV_DOWN.whileTrue(
         //         ElevatorSysID.sysIdDynamic(SysIdRoutine.Direction.kReverse)
         // );
+    }
+
+    
+
+    private static void addAllCompAutons(SendableChooser<AutoRoutines.Auton> autoChooser, AutoRoutines swerveAutoRoutines) {
+        for (AutoRoutines.Auton a : swerveAutoRoutines.getAllCompRoutines()) {
+            autoChooser.addOption(a.name(), a);
+        }
+        autoChooser.setDefaultOption("NONE", swerveAutoRoutines.NONE());
+    }
+
+    public Auton getSelectedAuton() {
+        if (autoRoutines == null) return null;
+        return autoChooser.getSelected();
     }
 
     public void add3DComponentPoses() {

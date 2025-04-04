@@ -29,16 +29,12 @@ public class Robot extends LoggedRobot {
 
     private final RobotContainer robotContainer;
     private final Field2d startingPoseField = new Field2d();
-    private static SendableChooser<AutoRoutines.Auton> autoChooser;
 
 
     public Robot() {
         robotContainer = new RobotContainer();
         CanBridge.runTCP();
-        SubsystemManager.getInstance().getDrivetrain().setVisionStandardDeviations(1, 1, 99999);
-        autoChooser = new SendableChooser<>();
-        addAllCompAutons(autoChooser, AutoRoutines.getInstance());
-        SmartDashboard.putData("Auto Chooser", autoChooser);
+        SubsystemManager.getInstance().getDrivetrain().setVisionStandardDeviations(0.5, 0.5, 0.1);
     }
 
     @Override
@@ -47,19 +43,13 @@ public class Robot extends LoggedRobot {
         ScoringConstants.EndEffectorConstants.RotationStartingPosition = SubsystemManager.getInstance().getScoringSuperstructure().getEndEffectorSubsystem().getCurrentRotation();
     }
 
-    private static void addAllCompAutons(SendableChooser<AutoRoutines.Auton> autoChooser, AutoRoutines swerveAutoRoutines) {
-        for (AutoRoutines.Auton a : swerveAutoRoutines.getAllCompRoutines()) {
-            autoChooser.addOption(a.name(), a);
-        }
-        autoChooser.setDefaultOption("NONE", swerveAutoRoutines.NONE());
-    }
-
     @Override
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
         robotContainer.add3DComponentPoses();
         SmartDashboard.putBoolean("DS Alliance", AllianceFlipUtil.shouldFlip());
         SmartDashboard.putNumber("Match Time", Timer.getMatchTime());
+        SmartDashboard.putBoolean("DS connected", DriverStationUtil.hasDSAlliance());
     }
 
     @Override
@@ -72,16 +62,6 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void disabledPeriodic() {
-        SmartDashboard.putBoolean("Is Red", DriverStationUtil.isRed.getAsBoolean());
-    }
-
-    public static Command replaceAutons() {
-        return Commands.runOnce(
-                () -> {
-                    addAllCompAutons(autoChooser, AutoRoutines.getInstance());
-                    SmartDashboard.putData("Auto Chooser", autoChooser);
-                }
-        );
     }
 
 
@@ -93,11 +73,13 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void autonomousInit() {
-        AutoRoutines.Auton autonSupplier = autoChooser.getSelected();
-        Pose2d startingPose = autonSupplier.startPose();
-        autonomousCommand = autonSupplier.routine().cmd();
-        startingPoseField.setRobotPose(startingPose);
-        SmartDashboard.putData("Starting Pose", startingPoseField);
+        AutoRoutines.Auton autonSupplier = robotContainer.getSelectedAuton();
+        if (autonSupplier != null) {
+            Pose2d startingPose = autonSupplier.startPose();
+            autonomousCommand = autonSupplier.routine().cmd();
+            startingPoseField.setRobotPose(startingPose);
+            SmartDashboard.putData("Starting Pose", startingPoseField);
+        }
         if (autonomousCommand != null) {
             autonomousCommand.schedule();
         }
