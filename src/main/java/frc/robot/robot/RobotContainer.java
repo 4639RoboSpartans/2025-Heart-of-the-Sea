@@ -119,7 +119,7 @@ public class RobotContainer {
                     return CommandFactory.autoCoralIntake();
                 }
             });
-        FunctionalTrigger.of(Controls.Driver.alignReefRight).and(scoringSuperstructure::hasCoral)
+        FunctionalTrigger.of(Controls.Driver.alignReefRight)
             .whileTrue(() -> {
                 if (scoringSuperstructure.hasCoral()) {
                     return CommandFactory.autoScoreCoral(Direction.RIGHT);

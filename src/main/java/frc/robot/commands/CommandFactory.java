@@ -41,7 +41,7 @@ public class CommandFactory {
                                         scoringSuperstructure.setUseIntakeSpeed(false),
                                         Commands.waitUntil(scoringSuperstructure::elevatorMoveThreshold)
                                 ),
-                        DriveCommands.moveToClosestReefPositionWithPID(direction, swerve::getPose)
+                        DriveCommands.moveToClosestReefPositionWithPathPlanner(direction, swerve::getPose)
                 )
         ).finallyDo(
                 () -> scoringSuperstructure.setSimHasCoral(false)
@@ -66,7 +66,7 @@ public class CommandFactory {
                                         scoringSuperstructure.setAction(ScoringSuperstructureAction.IDLE),
                                         Commands.waitUntil(scoringSuperstructure::elevatorMoveThreshold)
                                 ),
-                        DriveCommands.moveToClosestReefPositionWithPID(Direction.ALGAE, swerve::getPose)
+                        DriveCommands.moveToClosestReefPositionWithPathPlanner(Direction.ALGAE, swerve::getPose)
                 ),
                 swerve.useReefAlignTarget()
         );
