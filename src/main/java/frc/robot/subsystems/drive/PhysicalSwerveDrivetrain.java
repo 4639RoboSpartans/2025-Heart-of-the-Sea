@@ -220,6 +220,8 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                 rawRotation
         );
 
+        chassisSpeeds = chassisSpeeds.times(-1);
+
         if (Controls.Driver.precisionTrigger.getAsBoolean()) {
             chassisSpeeds = chassisSpeeds.div(4.0);
         } else {
@@ -450,14 +452,8 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         PathPlannerPath path = new PathPlannerPath(
                 waypoints,
                 constraints,
-                new IdealStartingState(getVelocityMagnitude(getChassisSpeeds()), getPathVelocityHeading(getChassisSpeeds(), waypoint)),
+                new IdealStartingState(getVelocityMagnitude(getFieldSpeeds()), getPathVelocityHeading(getChassisSpeeds(), waypoint)),
                 new GoalEndState(0.0, waypoint.getRotation())
-        );
-        field.getObject("PP velocity heading").setPose(
-                new Pose2d(
-                        getPose().getTranslation(),
-                        getPathVelocityHeading(getChassisSpeeds(), waypoint)
-                )
         );
 
         path.preventFlipping = true;
@@ -470,7 +466,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
             var diff = targetPose.minus(getPose()).getTranslation();
             return (diff.getNorm() < 0.01) ? targetPose.getRotation() : diff.getAngle();
         }
-        return new Rotation2d(-chassisSpeeds.vxMetersPerSecond, -chassisSpeeds.vyMetersPerSecond);
+        return new Rotation2d(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond);
     }
 
     private LinearVelocity getVelocityMagnitude(ChassisSpeeds chassisSpeeds) {
@@ -522,7 +518,13 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         //update profiled pid controllers
         pidXController.calculate(getPose().getX());
         pidYController.calculate(getPose().getY());
-
+        
+        field.getObject("PP velocity heading").setPose(
+                new Pose2d(
+                        getPose().getTranslation(),
+                        getPathVelocityHeading(getFieldSpeeds(), getPose())
+                )
+        );
 
         // Update the operator perspective if needed
         if (!didApplyOperatorPerspective || DriverStation.isDisabled()) {
@@ -582,6 +584,10 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     @Override
     public ChassisSpeeds getChassisSpeeds() {
         return drivetrain.getState().Speeds;
+    }
+
+    public ChassisSpeeds getFieldSpeeds() {
+        return ChassisSpeeds.fromRobotRelativeSpeeds(getChassisSpeeds(), getPose().getRotation());
     }
 
     @Override
