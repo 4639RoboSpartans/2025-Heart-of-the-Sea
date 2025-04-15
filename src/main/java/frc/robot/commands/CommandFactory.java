@@ -44,7 +44,10 @@ public class CommandFactory {
                         DriveCommands.moveToClosestReefPositionWithPathPlanner(direction, swerve::getPose)
                 )
         ).finallyDo(
-                () -> scoringSuperstructure.setSimHasCoral(false)
+                () -> {
+                    scoringSuperstructure.setSimHasCoral(false);
+                    swerve.currentAlignTarget = null;
+                }
         );
     }
 

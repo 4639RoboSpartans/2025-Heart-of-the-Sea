@@ -432,11 +432,16 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     @Override
     public Command pathToPoseCommand(Pose2d targetPose) {
         return Commands.runOnce(
-                () -> shouldUseMTSTDevs = true
+                () -> {
+                    shouldUseMTSTDevs = true;
+                    super.currentAlignTarget = targetPose;
+                }
         ).andThen(
                 getPathFromWaypoint(targetPose)
         ).finallyDo(
-                () -> shouldUseMTSTDevs = false
+                () -> {
+                    shouldUseMTSTDevs = false;
+                }
         );
     }
 
@@ -458,7 +463,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
         path.preventFlipping = true;
 
-        return AutoBuilder.followPath(path);
+        return AutoBuilder.followPath(path).until(this::atScoringTargetPose);
     }
 
     private Rotation2d getPathVelocityHeading(ChassisSpeeds chassisSpeeds, Pose2d targetPose) {
@@ -525,6 +530,8 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                         getPathVelocityHeading(getFieldSpeeds(), getPose())
                 )
         );
+
+        SmartDashboard.putBoolean("Should Start Scoring", shouldStartScoring());
 
         // Update the operator perspective if needed
         if (!didApplyOperatorPerspective || DriverStation.isDisabled()) {
