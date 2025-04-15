@@ -218,7 +218,6 @@ public final class ScoringSuperstructure extends SubsystemBase {
         } else {
             intakeSpeed = manualIntakeSpeed;
         }
-        SmartDashboard.putNumber("Intake Speed", intakeSpeed);
 
         // Update fine-tuning offsets
         elevatorAdjustment += 0.002 * Controls.Operator.MicroElevatorAdjustment.getAsDouble();
@@ -352,7 +351,19 @@ public final class ScoringSuperstructure extends SubsystemBase {
 
     public Command setUseIntakeSpeed(boolean useIntakeSpeed) {
         return Commands.runOnce(
-            () -> this.useIntakeSpeed = useIntakeSpeed
+                () -> this.useIntakeSpeed = useIntakeSpeed
+        );
+    }
+
+    public Command useIntakeAction() {
+        return Commands.runOnce(
+                () -> {
+                    if (currentAction.name.equals(ScoringSuperstructureAction.INTAKE_FROM_HP.name)) {
+                        setCurrentAction(ScoringSuperstructureAction.INTAKE_FROM_HP_LOWER);
+                    } else {
+                        setCurrentAction(ScoringSuperstructureAction.INTAKE_FROM_HP);
+                    }
+                }
         );
     }
 
@@ -374,17 +385,5 @@ public final class ScoringSuperstructure extends SubsystemBase {
 
     public void setSimHasCoral(boolean hasCoral) {
         endEffector.setSimHasCoral(hasCoral);
-    }
-
-    public Command useIntakeAction() {
-        return Commands.runOnce(
-                () -> {
-                    if (currentAction.name.equals(ScoringSuperstructureAction.INTAKE_FROM_HP.name)) {
-                        setCurrentAction(ScoringSuperstructureAction.INTAKE_FROM_HP_LOWER);
-                    } else {
-                        setCurrentAction(ScoringSuperstructureAction.INTAKE_FROM_HP);
-                    }
-                }
-        );
     }
 }

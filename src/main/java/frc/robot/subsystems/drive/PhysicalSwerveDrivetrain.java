@@ -70,7 +70,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     }
 
     public static ProfiledPIDController constructPIDXController() {
-        return new ProfiledPIDController(DrivePIDs.pidToPoseYkP.get(), 0, 0, new TrapezoidProfile.Constraints(4, 2));
+        return new ProfiledPIDController(DrivePIDs.pidToPoseYkP.get(), 0, 0, new TrapezoidProfile.Constraints(6, 2));
     }
 
     {
@@ -85,6 +85,11 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                                     value, pidXController.getConstraints().maxAcceleration
                             )
                     );
+                    pidYController.setConstraints(
+                            new TrapezoidProfile.Constraints(
+                                    value, pidYController.getConstraints().maxAcceleration
+                            )
+                    );
                 }
         );
         DrivePIDs.pidToPoseAccelerationX.onChange(
@@ -94,19 +99,6 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                                     pidXController.getConstraints().maxVelocity, value
                             )
                     );
-                }
-        );
-        DrivePIDs.pidToPoseVelocityY.onChange(
-                value -> {
-                    pidYController.setConstraints(
-                            new TrapezoidProfile.Constraints(
-                                    value, pidYController.getConstraints().maxAcceleration
-                            )
-                    );
-                }
-        );
-        DrivePIDs.pidToPoseAccelerationY.onChange(
-                value -> {
                     pidYController.setConstraints(
                             new TrapezoidProfile.Constraints(
                                     pidYController.getConstraints().maxVelocity, value
@@ -165,7 +157,9 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     public Command manualControl() {
         return applyRequest(
                 () -> {
-                    if (shouldAutoSetHeading)
+                    if (shouldAutoSetHeading
+                        //      && SubsystemManager.getInstance().getScoringSuperstructure().hasCoral()
+                    )
                         return getFieldCentricFacingClosestReefRequest();
                     return getFieldCentricRequest();
                 }
@@ -226,6 +220,8 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                 rawRotation
         );
 
+        chassisSpeeds = chassisSpeeds.times(-1);
+
         if (Controls.Driver.precisionTrigger.getAsBoolean()) {
             chassisSpeeds = chassisSpeeds.div(4.0);
         } else {
@@ -234,8 +230,6 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
         Pose2d nearestReefPose = DriveCommands.getClosestTarget(this::getPose);
         Rotation2d nearestReefPoseRotation = nearestReefPose.getRotation();
-
-        chassisSpeeds.times(-1);
 
         if (DriverStationUtil.getAlliance() == Alliance.Blue) {
             nearestReefPoseRotation = nearestReefPoseRotation.plus(Rotation2d.k180deg);
@@ -428,6 +422,8 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                         0,
                         1
                 ) && pidYController.atGoal()).debounce(0.375)
+        ).andThen(
+                stop().withTimeout(0.1)
         ).finallyDo(
                 () -> shouldUseMTSTDevs = false
         );
@@ -450,13 +446,13 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                 waypoint
         );
         PathConstraints constraints = new PathConstraints(
-                1, 2,
+                6, 4,
                 2 * Math.PI, 2 * Math.PI
         );
         PathPlannerPath path = new PathPlannerPath(
                 waypoints,
                 constraints,
-                new IdealStartingState(getVelocityMagnitude(getChassisSpeeds()), getPose().getRotation()),
+                new IdealStartingState(getVelocityMagnitude(getFieldSpeeds()), getPathVelocityHeading(getChassisSpeeds(), waypoint)),
                 new GoalEndState(0.0, waypoint.getRotation())
         );
 
@@ -466,7 +462,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     }
 
     private Rotation2d getPathVelocityHeading(ChassisSpeeds chassisSpeeds, Pose2d targetPose) {
-        if (getVelocityMagnitude(chassisSpeeds).in(MetersPerSecond) < 0.25) {
+        if (getVelocityMagnitude(chassisSpeeds).in(MetersPerSecond) < 0.1) {
             var diff = targetPose.minus(getPose()).getTranslation();
             return (diff.getNorm() < 0.01) ? targetPose.getRotation() : diff.getAngle();
         }
@@ -522,6 +518,13 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
         //update profiled pid controllers
         pidXController.calculate(getPose().getX());
         pidYController.calculate(getPose().getY());
+        
+        field.getObject("PP velocity heading").setPose(
+                new Pose2d(
+                        getPose().getTranslation(),
+                        getPathVelocityHeading(getFieldSpeeds(), getPose())
+                )
+        );
 
         // Update the operator perspective if needed
         if (!didApplyOperatorPerspective || DriverStation.isDisabled()) {
@@ -581,6 +584,10 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
     @Override
     public ChassisSpeeds getChassisSpeeds() {
         return drivetrain.getState().Speeds;
+    }
+
+    public ChassisSpeeds getFieldSpeeds() {
+        return ChassisSpeeds.fromRobotRelativeSpeeds(getChassisSpeeds(), getPose().getRotation());
     }
 
     @Override

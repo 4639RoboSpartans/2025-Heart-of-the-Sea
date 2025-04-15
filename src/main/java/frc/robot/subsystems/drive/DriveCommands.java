@@ -21,13 +21,13 @@ public class DriveCommands {
 
         var desiredPose = PoseUtil.ReefRelativeFromDirection(nearestReefPose, direction);
 
-        return DriveCommands.drivetrain.directlyMoveTo(desiredPose, true);
+        return drivetrain.directlyMoveTo(desiredPose, true);
     }
 
     public static Command moveToClosestHPStation(Supplier<Pose2d> currentRobotPose) {
         var nearestHPStation = getClosestHPStation(currentRobotPose);
 
-        return DriveCommands.drivetrain.directlyMoveTo(nearestHPStation, false);
+        return drivetrain.directlyMoveTo(nearestHPStation, false);
     }
 
     public static Command moveToClosestReefPositionWithPathPlanner(TargetPositions.Direction direction, Supplier<Pose2d> currentRobotPose) {
@@ -35,8 +35,7 @@ public class DriveCommands {
 
         var desiredPose = PoseUtil.ReefRelativeFromDirection(nearestReefPose, direction);
 
-        return DriveCommands.drivetrain.pathToPoseCommand(desiredPose)
-                .until(new Trigger(() -> PoseUtil.withinTolerance(desiredPose, currentRobotPose.get(), Units.inchesToMeters(2))).debounce(0.1));
+        return drivetrain.pathToPoseCommand(desiredPose);
     }
 
     public static Command moveToClosestReefPositionWithLC(TargetPositions.Direction direction, Supplier<Pose2d> currentRobotPose) {

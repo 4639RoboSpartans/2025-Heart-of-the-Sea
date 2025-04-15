@@ -214,8 +214,8 @@ public class AutoRoutines {
                                         Commands.waitUntil(() -> scoringSuperstructure.getCurrentState() == ScoringSuperstructureState.EXECUTING_ACTION),
                                         AutoCommands.setAutoOuttake.apply(true),
                                         Commands.waitUntil(
-                                                        () -> !scoringSuperstructure.hasCoral()
-                                                )
+                                                () -> !scoringSuperstructure.hasCoral()
+                                        )
                                                 .andThen(Commands.waitUntil(scoringSuperstructure::elevatorMoveThreshold))
                                 ),
                                 AutoCommands.SwerveStop.get()

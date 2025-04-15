@@ -33,8 +33,8 @@ public class DriveConstants {
 
     public static final double TXTolerance = 0.01;
     public static final double TATolerance = 0.01;
-    public static final PIDConstants AUTON_TRANSLATION_PID_CONSTANTS = new PIDConstants(0, 0, 0);
-    public static final PIDConstants AUTON_ROTATION_PID_CONSTANTS = new PIDConstants(0, 0, 0);
+    public static final PIDConstants AUTON_TRANSLATION_PID_CONSTANTS = new PIDConstants(10, 0, 0);
+    public static final PIDConstants AUTON_ROTATION_PID_CONSTANTS = new PIDConstants(10, 0, 0);
 
     public static class IDs {
         public static final int LEFT_LASERCAN_ID = 21;
