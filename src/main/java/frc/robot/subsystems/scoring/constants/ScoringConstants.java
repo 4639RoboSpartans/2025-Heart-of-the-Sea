@@ -147,7 +147,7 @@ public final class ScoringConstants {
         public static final int IntakeMotorID = 23;
 
         public static final int WristEncoderDIOPort = 5;
-        public static final int WristMotorID = 24;
+        public static final int WristMotorID = 55;
         public static final String WristCANBusName = "MainCANivore";
 
         public static final int LaserCANID = 56;

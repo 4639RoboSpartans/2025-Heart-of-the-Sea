@@ -446,7 +446,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                 waypoint
         );
         PathConstraints constraints = new PathConstraints(
-                6, 4,
+                1, 2,
                 2 * Math.PI, 2 * Math.PI
         );
         PathPlannerPath path = new PathPlannerPath(
