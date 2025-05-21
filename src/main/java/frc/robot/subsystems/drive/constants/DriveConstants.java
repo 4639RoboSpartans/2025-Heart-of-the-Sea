@@ -13,8 +13,8 @@ public class DriveConstants {
     public static final Distance laserCanDistanceMM = Millimeters.of(500);
 
     // Change MOVEMENT_SPEED to 1.0 for max speed
-    public static final double CURRENT_MAX_ROBOT_MPS = 3.5;
-    public static final double TELOP_ROTATION_SPEED = 12;
+    public static final double CURRENT_MAX_ROBOT_MPS = 2;//3.5
+    public static final double TELOP_ROTATION_SPEED = 6;//12
 
 
     public static final PIDController choreoX = new PIDController(7, 0, 0.1);
