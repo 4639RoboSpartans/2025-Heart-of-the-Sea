@@ -177,6 +177,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
         headingController.enableContinuousInput(-Math.PI, Math.PI);
         drivetrain.setVisionMeasurementStdDevs(new Matrix<N3, N1>(Nat.N3(), Nat.N1(), new double[]{5, 5, 10}));
+        drivetrain.resetPose(new Pose2d());
     }
 
     @Override
@@ -252,9 +253,9 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
         Pose2d nearestReefPose = DriveCommands.getClosestTarget(this::getPose);
         Rotation2d nearestReefPoseRotation = nearestReefPose.getRotation();
-        
+
         chassisSpeeds.times(-1);
-        
+
         if (DriverStationUtil.getAlliance() == Alliance.Blue) {
             nearestReefPoseRotation = nearestReefPoseRotation.plus(Rotation2d.k180deg);
         }
@@ -302,7 +303,7 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                     Vision.addGlobalVisionMeasurements(this, true);
                 }).andThen(applyRequest(
                         () -> {
-                                Vision.addGlobalVisionMeasurements(this, shouldUseMTSTDevs);
+                            Vision.addGlobalVisionMeasurements(this, shouldUseMTSTDevs);
                             Vector<N2> translationVector = getTranslationVector(targetPose);
                             SmartDashboard.putNumber("Side Translation", translationVector.get(1));
 
@@ -342,14 +343,14 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                             field.getObject("Setpoint Pose").setPose(setpointPose);
 
                             ChassisSpeeds reefRelativeSpeeds = new ChassisSpeeds(
-                                -pidXController.calculate(translationVector.get(0)),
-                                -pidYController.calculate(translationVector.get(1)),
-                                rotationalRate
+                                    -pidXController.calculate(translationVector.get(0)),
+                                    -pidYController.calculate(translationVector.get(1)),
+                                    rotationalRate
                             );
 
                             ChassisSpeeds robotRelativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-                                reefRelativeSpeeds, 
-                                getPose().getRotation().minus(targetPose.getRotation())
+                                    reefRelativeSpeeds,
+                                    getPose().getRotation().minus(targetPose.getRotation())
                             );
 
                             return request
@@ -548,14 +549,12 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
 
         // Update the operator perspective if needed
         if (!didApplyOperatorPerspective || DriverStation.isDisabled()) {
-            DriverStation.getAlliance().ifPresent(allianceColor -> {
-                drivetrain.setOperatorPerspectiveForward(
-                        allianceColor == Alliance.Red
-                                ? DriveConstants.RedAlliancePerspectiveRotation
-                                : DriveConstants.BlueAlliancePerspectiveRotation
-                );
-                didApplyOperatorPerspective = true;
-            });
+            drivetrain.setOperatorPerspectiveForward(
+                    DriverStationUtil.getAlliance() == Alliance.Red
+                            ? DriveConstants.RedAlliancePerspectiveRotation
+                            : DriveConstants.BlueAlliancePerspectiveRotation
+            );
+            didApplyOperatorPerspective = true;
         }
 
         Vision.addGlobalVisionMeasurements(this, shouldUseMTSTDevs);
@@ -593,6 +592,9 @@ public class PhysicalSwerveDrivetrain extends AbstractSwerveDrivetrain {
                     );
                 }
         );
+
+        SmartDashboard.putNumberArray("Standard Deviations", getVisionStandardDeviations());
+        SmartDashboard.putNumber("Pigeon", drivetrain.getPigeon2().getRotation2d().getDegrees());
     }
 
     @Override

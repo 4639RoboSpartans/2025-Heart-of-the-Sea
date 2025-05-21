@@ -7,7 +7,6 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.lib.oi.OI;
 import frc.robot.constants.Controls;
 import frc.robot.subsystems.scoring.constants.ScoringPIDs;
@@ -81,6 +80,11 @@ public class SimElevatorSubsystem extends AbstractElevatorSubsystem {
     @Override
     public void setRawMotorVoltage(Voltage voltage) {
         elevatorSim.setInputVoltage(voltage.in(Volts));
+    }
+
+    @Override
+    public boolean isDangerouslyStopped() {
+        return false;
     }
 
     @Override

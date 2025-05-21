@@ -22,5 +22,10 @@ public class DummyElevatorSubsystem extends AbstractElevatorSubsystem {
     }
 
     @Override
+    public boolean isDangerouslyStopped() {
+        return false;
+    }
+
+    @Override
     public void resetCurrentExtensionFractionTo(double extensionFraction) {}
 }

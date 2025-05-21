@@ -9,7 +9,6 @@ package frc.robot.constants;
 
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -372,7 +371,7 @@ public class FieldConstants {
         }
 
         public int getAllianceRespectiveID() {
-            return DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue ? blueAllianceID : redAllianceID;
+            return DriverStationUtil.getAlliance() == Alliance.Blue ? blueAllianceID : redAllianceID;
         }
     }
 
